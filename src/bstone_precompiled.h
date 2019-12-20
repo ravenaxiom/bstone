@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -77,6 +77,7 @@ Free Software Foundation, Inc.,
 #include "bstone_exception.h"
 #include "bstone_logger.h"
 #include "bstone_renderer.h"
+#include "bstone_renderer_3d.h"
 #include "bstone_renderer_limits.h"
 #include "bstone_sdl_types.h"
 #include "bstone_sha1.h"

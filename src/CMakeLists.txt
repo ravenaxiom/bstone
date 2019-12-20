@@ -205,10 +205,6 @@ target_include_directories(
 		dosbox
 		lib/glm
 		lib/xbrz
-		renderer
-		renderer/detail
-		renderer/ogl
-		renderer/ogl/detail
 		${PROJECT_BINARY_DIR}
 )
 
@@ -236,45 +232,43 @@ target_sources(
 		dosbox/pic.h
 		dosbox/setup.h
 
-		renderer/bstone_hw_texture_manager.h
-		renderer/bstone_missing_sprite_64x64_image.h
-		renderer/bstone_missing_wall_64x64_image.h
-		renderer/bstone_renderer.h
-		renderer/bstone_renderer_limits.h
-		renderer/bstone_renderer_manager.h
-		renderer/bstone_renderer_shader_registry.h
-		renderer/bstone_renderer_tests.h
+		bstone_hw_texture_manager.h
+		bstone_missing_sprite_64x64_image.h
+		bstone_missing_wall_64x64_image.h
+		bstone_renderer.h
+		bstone_renderer_3d.h
+		bstone_renderer_3d_limits.h
+		bstone_renderer_3d_manager.h
+		bstone_renderer_3d_shader_registry.h
+		bstone_renderer_3d_tests.h
 
-		renderer/detail/bstone_detail_renderer_command_buffer.h
-		renderer/detail/bstone_detail_renderer_command_manager.h
-		renderer/detail/bstone_detail_renderer_utils.h
+		bstone_detail_renderer_3d_command_buffer.h
+		bstone_detail_renderer_3d_command_manager.h
+		bstone_detail_renderer_3d_utils.h
 
-		renderer/ogl/bstone_ogl_api.h
-
-		renderer/ogl/detail/bstone_detail_ogl_buffer.h
-		renderer/ogl/detail/bstone_detail_ogl_buffer_manager.h
-		renderer/ogl/detail/bstone_detail_ogl_command_executor.h
-		renderer/ogl/detail/bstone_detail_ogl_context.h
-		renderer/ogl/detail/bstone_detail_ogl_context_kind.h
-		renderer/ogl/detail/bstone_detail_ogl_device_features.h
-		renderer/ogl/detail/bstone_detail_ogl_extension_manager.h
-		renderer/ogl/detail/bstone_detail_ogl_index_buffer.h
-		renderer/ogl/detail/bstone_detail_ogl_renderer.h
-		renderer/ogl/detail/bstone_detail_ogl_renderer_utils.h
-		renderer/ogl/detail/bstone_detail_ogl_sampler.h
-		renderer/ogl/detail/bstone_detail_ogl_sampler_manager.h
-		renderer/ogl/detail/bstone_detail_ogl_shader.h
-		renderer/ogl/detail/bstone_detail_ogl_shader_manager.h
-		renderer/ogl/detail/bstone_detail_ogl_shader_stage.h
-		renderer/ogl/detail/bstone_detail_ogl_shader_stage_manager.h
-		renderer/ogl/detail/bstone_detail_ogl_shader_var.h
-		renderer/ogl/detail/bstone_detail_ogl_texture_2d.h
-		renderer/ogl/detail/bstone_detail_ogl_texture_manager.h
-		renderer/ogl/detail/bstone_detail_ogl_vao.h
-		renderer/ogl/detail/bstone_detail_ogl_vao_manager.h
-		renderer/ogl/detail/bstone_detail_ogl_vertex_buffer.h
-		renderer/ogl/detail/bstone_detail_ogl_vertex_input.h
-		renderer/ogl/detail/bstone_detail_ogl_vertex_input_manager.h
+		bstone_detail_gl_api.h
+		bstone_detail_gl_buffer.h
+		bstone_detail_gl_buffer_manager.h
+		bstone_detail_gl_command_executor.h
+		bstone_detail_gl_context.h
+		bstone_detail_gl_context_kind.h
+		bstone_detail_gl_device_features.h
+		bstone_detail_gl_extension_manager.h
+		bstone_detail_gl_renderer_3d.h
+		bstone_detail_gl_renderer_3d_utils.h
+		bstone_detail_gl_sampler.h
+		bstone_detail_gl_sampler_manager.h
+		bstone_detail_gl_shader.h
+		bstone_detail_gl_shader_manager.h
+		bstone_detail_gl_shader_stage.h
+		bstone_detail_gl_shader_stage_manager.h
+		bstone_detail_gl_shader_var.h
+		bstone_detail_gl_texture_2d.h
+		bstone_detail_gl_texture_manager.h
+		bstone_detail_gl_vao.h
+		bstone_detail_gl_vao_manager.h
+		bstone_detail_gl_vertex_input.h
+		bstone_detail_gl_vertex_input_manager.h
 
 		3d_def.h
 		3d_menu.h
@@ -350,41 +344,38 @@ target_sources(
 
 		lib/xbrz/xbrz.cpp
 
-		renderer/bstone_hw_texture_manager.cpp
-		renderer/bstone_missing_sprite_64x64_image.cpp
-		renderer/bstone_missing_wall_64x64_image.cpp
-		renderer/bstone_renderer.cpp
-		renderer/bstone_renderer_manager.cpp
-		renderer/bstone_renderer_shader_registry.cpp
+		bstone_hw_texture_manager.cpp
+		bstone_missing_sprite_64x64_image.cpp
+		bstone_missing_wall_64x64_image.cpp
+		bstone_renderer_3d.cpp
+		bstone_renderer_3d_manager.cpp
+		bstone_renderer_3d_shader_registry.cpp
 
-		renderer/detail/bstone_detail_renderer_command_buffer.cpp
-		renderer/detail/bstone_detail_renderer_command_manager.cpp
-		renderer/detail/bstone_detail_renderer_utils.cpp
+		bstone_detail_renderer_3d_command_buffer.cpp
+		bstone_detail_renderer_3d_command_manager.cpp
+		bstone_detail_renderer_3d_utils.cpp
 
-		renderer/ogl/bstone_ogl_api.cpp
-
-		renderer/ogl/detail/bstone_detail_ogl_buffer.cpp
-		renderer/ogl/detail/bstone_detail_ogl_buffer_manager.cpp
-		renderer/ogl/detail/bstone_detail_ogl_command_executor.cpp
-		renderer/ogl/detail/bstone_detail_ogl_context.cpp
-		renderer/ogl/detail/bstone_detail_ogl_extension_manager.cpp
-		renderer/ogl/detail/bstone_detail_ogl_index_buffer.cpp
-		renderer/ogl/detail/bstone_detail_ogl_renderer.cpp
-		renderer/ogl/detail/bstone_detail_ogl_renderer_utils.cpp
-		renderer/ogl/detail/bstone_detail_ogl_sampler.cpp
-		renderer/ogl/detail/bstone_detail_ogl_sampler_manager.cpp
-		renderer/ogl/detail/bstone_detail_ogl_shader.cpp
-		renderer/ogl/detail/bstone_detail_ogl_shader_manager.cpp
-		renderer/ogl/detail/bstone_detail_ogl_shader_stage.cpp
-		renderer/ogl/detail/bstone_detail_ogl_shader_stage_manager.cpp
-		renderer/ogl/detail/bstone_detail_ogl_shader_var.cpp
-		renderer/ogl/detail/bstone_detail_ogl_texture_2d.cpp
-		renderer/ogl/detail/bstone_detail_ogl_texture_manager.cpp
-		renderer/ogl/detail/bstone_detail_ogl_vao.cpp
-		renderer/ogl/detail/bstone_detail_ogl_vao_manager.cpp
-		renderer/ogl/detail/bstone_detail_ogl_vertex_buffer.cpp
-		renderer/ogl/detail/bstone_detail_ogl_vertex_input.cpp
-		renderer/ogl/detail/bstone_detail_ogl_vertex_input_manager.cpp
+		bstone_detail_gl_api.cpp
+		bstone_detail_gl_buffer.cpp
+		bstone_detail_gl_buffer_manager.cpp
+		bstone_detail_gl_command_executor.cpp
+		bstone_detail_gl_context.cpp
+		bstone_detail_gl_extension_manager.cpp
+		bstone_detail_gl_renderer_3d.cpp
+		bstone_detail_gl_renderer_3d_utils.cpp
+		bstone_detail_gl_sampler.cpp
+		bstone_detail_gl_sampler_manager.cpp
+		bstone_detail_gl_shader.cpp
+		bstone_detail_gl_shader_manager.cpp
+		bstone_detail_gl_shader_stage.cpp
+		bstone_detail_gl_shader_stage_manager.cpp
+		bstone_detail_gl_shader_var.cpp
+		bstone_detail_gl_texture_2d.cpp
+		bstone_detail_gl_texture_manager.cpp
+		bstone_detail_gl_vao.cpp
+		bstone_detail_gl_vao_manager.cpp
+		bstone_detail_gl_vertex_input.cpp
+		bstone_detail_gl_vertex_input_manager.cpp
 
 		3d_act1.cpp
 		3d_act2.cpp

@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -49,7 +49,7 @@ Free Software Foundation, Inc.,
 #include "bstone_string_helper.h"
 #include "bstone_text_reader.h"
 #include "bstone_text_writer.h"
-#include "bstone_renderer_manager.h"
+#include "bstone_renderer_3d_manager.h"
 #include "bstone_version.h"
 
 #ifdef __vita__
@@ -76,9 +76,9 @@ QuitException::QuitException(
 }
 
 QuitException::QuitException(
-	std::string&& message)
+	const std::string& message)
 	:
-	Exception{std::move(message)}
+	Exception{message}
 {
 }
 
@@ -9648,11 +9648,11 @@ void pre_quit()
 }
 
 [[noreturn]] void Quit(
-	std::string&& message)
+	const std::string& message)
 {
 	::pre_quit();
 
-	throw QuitException{std::move(message)};
+	throw QuitException{message};
 }
 
 void DemoLoop()

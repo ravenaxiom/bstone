@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -37,14 +37,14 @@ namespace bstone
 {
 
 
-static_assert(sizeof(R8g8b8a8) == 4, "Class size mismatch.");
+static_assert(sizeof(Rgba8) == 4, "Class size mismatch.");
 
 
 // ==========================================================================
-// R8g8b8
+// Rgb8
 //
 
-R8g8b8::R8g8b8()
+Rgb8::Rgb8()
 	:
 	r_{},
 	g_{},
@@ -52,7 +52,7 @@ R8g8b8::R8g8b8()
 {
 }
 
-R8g8b8::R8g8b8(
+Rgb8::Rgb8(
 	const std::uint8_t r,
 	const std::uint8_t g,
 	const std::uint8_t b)
@@ -63,7 +63,7 @@ R8g8b8::R8g8b8(
 {
 }
 
-std::uint8_t& R8g8b8::get(
+std::uint8_t& Rgb8::get(
 	const int index)
 {
 	assert(index >= 0 && index < 3);
@@ -71,7 +71,7 @@ std::uint8_t& R8g8b8::get(
 	return reinterpret_cast<std::uint8_t*>(this)[index];
 }
 
-const std::uint8_t& R8g8b8::get(
+const std::uint8_t& Rgb8::get(
 	const int index) const
 {
 	assert(index >= 0 && index < 3);
@@ -79,28 +79,28 @@ const std::uint8_t& R8g8b8::get(
 	return reinterpret_cast<const std::uint8_t*>(this)[index];
 }
 
-std::uint8_t& R8g8b8::operator[](
+std::uint8_t& Rgb8::operator[](
 	const int index)
 {
 	return get(index);
 }
 
-const std::uint8_t& R8g8b8::operator[](
+const std::uint8_t& Rgb8::operator[](
 	const int index) const
 {
 	return get(index);
 }
 
 //
-// R8g8b8
+// Rgb8
 // ==========================================================================
 
 
 // ==========================================================================
-// R8g8b8a8
+// Rgba8
 //
 
-R8g8b8a8::R8g8b8a8()
+Rgba8::Rgba8()
 	:
 	r_{},
 	g_{},
@@ -109,7 +109,7 @@ R8g8b8a8::R8g8b8a8()
 {
 }
 
-R8g8b8a8::R8g8b8a8(
+Rgba8::Rgba8(
 	const std::uint8_t r,
 	const std::uint8_t g,
 	const std::uint8_t b,
@@ -122,7 +122,7 @@ R8g8b8a8::R8g8b8a8(
 {
 }
 
-std::uint8_t& R8g8b8a8::get(
+std::uint8_t& Rgba8::get(
 	const int index)
 {
 	assert(index >= 0 && index < 4);
@@ -130,7 +130,7 @@ std::uint8_t& R8g8b8a8::get(
 	return reinterpret_cast<std::uint8_t*>(this)[index];
 }
 
-const std::uint8_t& R8g8b8a8::get(
+const std::uint8_t& Rgba8::get(
 	const int index) const
 {
 	assert(index >= 0 && index < 4);
@@ -138,26 +138,26 @@ const std::uint8_t& R8g8b8a8::get(
 	return reinterpret_cast<const std::uint8_t*>(this)[index];
 }
 
-std::uint8_t& R8g8b8a8::operator[](
+std::uint8_t& Rgba8::operator[](
 	const int index)
 {
 	return get(index);
 }
 
-const std::uint8_t& R8g8b8a8::operator[](
+const std::uint8_t& Rgba8::operator[](
 	const int index) const
 {
 	return get(index);
 }
 
-void R8g8b8a8::reset()
+void Rgba8::reset()
 {
 	*reinterpret_cast<std::uint32_t*>(this) = 0;
 }
 
-R8g8b8a8 R8g8b8a8::average_pa(
-	const R8g8b8a8 color_0,
-	const R8g8b8a8 color_1)
+Rgba8 Rgba8::average_pa(
+	const Rgba8 color_0,
+	const Rgba8 color_1)
 {
 	constexpr auto color_count = 2;
 	constexpr auto denominator = 255 * color_count * color_count;
@@ -167,7 +167,7 @@ R8g8b8a8 R8g8b8a8::average_pa(
 	const auto g_sum = color_0.g_ + color_1.g_;
 	const auto b_sum = color_0.b_ + color_1.b_;
 
-	return R8g8b8a8
+	return Rgba8
 	{
 		static_cast<std::uint8_t>((r_sum * a_sum) / denominator),
 		static_cast<std::uint8_t>((g_sum * a_sum) / denominator),
@@ -176,11 +176,11 @@ R8g8b8a8 R8g8b8a8::average_pa(
 	};
 }
 
-R8g8b8a8 R8g8b8a8::average_pa(
-	const R8g8b8a8 color_0,
-	const R8g8b8a8 color_1,
-	const R8g8b8a8 color_2,
-	const R8g8b8a8 color_3)
+Rgba8 Rgba8::average_pa(
+	const Rgba8 color_0,
+	const Rgba8 color_1,
+	const Rgba8 color_2,
+	const Rgba8 color_3)
 {
 	constexpr auto color_count = 4;
 	constexpr auto denominator = 255 * color_count * color_count;
@@ -190,7 +190,7 @@ R8g8b8a8 R8g8b8a8::average_pa(
 	const auto g_sum = color_0.g_ + color_1.g_ + color_2.g_ + color_3.g_;
 	const auto b_sum = color_0.b_ + color_1.b_ + color_2.b_ + color_3.b_;
 
-	return R8g8b8a8
+	return Rgba8
 	{
 		static_cast<std::uint8_t>((r_sum * a_sum) / denominator),
 		static_cast<std::uint8_t>((g_sum * a_sum) / denominator),
@@ -199,8 +199,22 @@ R8g8b8a8 R8g8b8a8::average_pa(
 	};
 }
 
+bool operator==(
+	const Rgba8& lhs,
+	const Rgba8& rhs)
+{
+	return reinterpret_cast<const std::uint32_t&>(lhs) == reinterpret_cast<const std::uint32_t&>(rhs);
+}
+
+bool operator!=(
+	const Rgba8& lhs,
+	const Rgba8& rhs)
+{
+	return !(lhs == rhs);
+}
+
 //
-// R8g8b8a8
+// Rgba8
 // ==========================================================================
 
 

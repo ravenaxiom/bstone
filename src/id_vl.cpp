@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -26,10 +26,13 @@ Free Software Foundation, Inc.,
 
 
 #include <cassert>
+
 #include <algorithm>
 #include <chrono>
 #include <unordered_set>
+
 #include "glm/gtc/matrix_transform.hpp"
+
 #include "id_heads.h"
 #include "id_ca.h"
 #include "id_in.h"
@@ -38,10 +41,11 @@ Free Software Foundation, Inc.,
 #include "bstone_fixed_point.h"
 #include "bstone_hw_texture_manager.h"
 #include "bstone_logger.h"
+#include "bstone_mod_value.h"
 #include "bstone_mt_task_manager.h"
-#include "bstone_renderer_limits.h"
-#include "bstone_renderer_manager.h"
-#include "bstone_renderer_shader_registry.h"
+#include "bstone_renderer_3d_limits.h"
+#include "bstone_renderer_3d_manager.h"
+#include "bstone_renderer_3d_shader_registry.h"
 #include "bstone_sdl_types.h"
 #include "bstone_sprite.h"
 #include "bstone_sprite_cache.h"
@@ -49,7 +53,7 @@ Free Software Foundation, Inc.,
 #include "bstone_text_writer.h"
 #include "bstone_version.h"
 
-#include "bstone_detail_renderer_utils.h"
+#include "bstone_detail_renderer_3d_utils.h"
 
 
 extern bool is_full_menu_active;
@@ -124,29 +128,31 @@ D  E------------F-----------------------------------------G--------------H  |
 N---------------------------------------------------------------------------+
 
 Legend:
-    - AC - window width;
-    - AN - window height;
-    - AB - window viewport left width;
-    - AD - window viewport top height;
-    - EH - screen width;
-    - EM - screen height;
-    - EF - screen left filler width;
-    - GH - screen right filler width;
-    - EI - screen top filler height;
-    - LM - screen bottom filler height;
-    - FG - screen width (4x3);
-    - EJ - screen viewport top height;
-    - KM - screen viewport bottom height;
-    - JK - screen viewport height;
-    - IJ/KL - margin height.
+	- AC - window width;
+	- AN - window height;
+	- AB - window viewport left width;
+	- AD - window viewport top height;
+	- EH - screen width;
+	- EM - screen height;
+	- EF - screen left filler width;
+	- GH - screen right filler width;
+	- EI - screen top filler height;
+	- LM - screen bottom filler height;
+	- FG - screen width (4x3);
+	- EJ - screen viewport top height;
+	- KM - screen viewport bottom height;
+	- JK - screen viewport height;
+	- IJ/KL - margin height.
 
 Notes:
-    (1) Top status bar if stretch is on or filler otherwise.
-    (2) 3D view if widescreen is on or filler otherwise.
-    (3) Bottom status bar if stretch is on or filler otherwise.
+	(1) Top status bar if stretch is on or filler otherwise.
+	(2) 3D view if widescreen is on or filler otherwise.
+	(3) Bottom status bar if stretch is on or filler otherwise.
 
 */
 
+
+constexpr auto height_compensation_factor = 1.2;
 
 constexpr int default_window_width = 640;
 constexpr int default_window_height = 480;
@@ -154,6 +160,11 @@ constexpr int default_window_height = 480;
 
 struct WindowElementsDimensions
 {
+	bool is_windowed_;
+
+	int windowed_width_;
+	int windowed_height_;
+
 	int screen_width_;
 	int screen_height_;
 
@@ -187,17 +198,17 @@ using SdlPalette = std::array<std::uint32_t, bstone::RgbPalette::get_max_color_c
 VgaBuffer vid_ui_buffer_;
 UiMaskBuffer vid_mask_buffer_;
 
-bstone::R8g8b8a8Palette vid_vga_palette_;
+bstone::Rgba8Palette vid_vga_palette_;
 VgaBuffer sw_vga_buffer_;
 
 WindowElementsDimensions vid_dimensions_;
 
 SDL_DisplayMode desktop_display_mode_;
-bstone::SdlWindowUPtr sw_window_ = nullptr;
-bstone::SdlRendererUPtr sw_renderer_ = nullptr;
-bstone::SdlPixelFormatUPtr sw_texture_pixel_format_ = nullptr;
-bstone::SdlTextureUPtr sw_screen_texture_ = nullptr;
-bstone::SdlTextureUPtr sw_ui_texture_ = nullptr;
+bstone::SdlWindowUPtr sw_window_;
+bstone::SdlRendererUPtr sw_renderer_;
+bstone::SdlPixelFormatUPtr sw_texture_pixel_format_;
+bstone::SdlTextureUPtr sw_screen_texture_;
+bstone::SdlTextureUPtr sw_ui_texture_;
 SdlPalette sw_palette_;
 SDL_Rect sw_ui_whole_src_rect_;
 SDL_Rect sw_ui_whole_dst_rect_;
@@ -221,6 +232,9 @@ struct CalculateScreenSizeInputParam
 {
 	bool is_widescreen_;
 
+	int windowed_width_;
+	int windowed_height_;
+
 	int window_width_;
 	int window_height_;
 }; // CalculateScreenSizeInputParam
@@ -228,203 +242,203 @@ struct CalculateScreenSizeInputParam
 
 const std::string& vid_get_empty_string()
 {
-	static const auto& result = std::string{};
+	static const auto result = std::string{};
 
 	return result;
 }
 
 const std::string& vid_get_nearest_value_string()
 {
-	static const auto& result = std::string{"nearest"};
+	static const auto result = std::string{"nearest"};
 
 	return result;
 }
 
 const std::string& vid_get_linear_value_string()
 {
-	static const auto& result = std::string{"linear"};
+	static const auto result = std::string{"linear"};
 
 	return result;
 }
 
 const std::string& vid_get_none_value_string()
 {
-	static const auto& result = std::string{"none"};
+	static const auto result = std::string{"none"};
 
 	return result;
 }
 
 const std::string& vid_get_msaa_value_string()
 {
-	static const auto& result = std::string{"msaa"};
+	static const auto result = std::string{"msaa"};
 
 	return result;
 }
 
 const std::string& vid_get_auto_detect_value_string()
 {
-	static const auto& result = std::string{"auto-detect"};
+	static const auto result = std::string{"auto-detect"};
 
 	return result;
 }
 
 const std::string& vid_get_software_value_string()
 {
-	static const auto& result = std::string{"software"};
+	static const auto result = std::string{"software"};
 
 	return result;
 }
 
-const std::string& vid_get_ogl_2_value_string()
+const std::string& vid_get_gl_2_value_string()
 {
-	static const auto& result = std::string{"ogl_2"};
+	static const auto result = std::string{"gl_2_0"};
 
 	return result;
 }
 
-const std::string& vid_get_ogl_3_2_c_value_string()
+const std::string& vid_get_gl_3_2_c_value_string()
 {
-	static const auto& result = std::string{"ogl_3_2_c"};
+	static const auto result = std::string{"gl_3_2_c"};
 
 	return result;
 }
 
-const std::string& vid_get_ogl_es_2_0_value_string()
+const std::string& vid_get_gles_2_0_value_string()
 {
-	static const auto& result = std::string{"ogl_es_2_0"};
+	static const auto result = std::string{"gles_2_0"};
 
 	return result;
 }
 
 const std::string& vid_get_xbrz_value_string()
 {
-	static const auto& result = std::string{"xbrz"};
+	static const auto result = std::string{"xbrz"};
 
 	return result;
 }
 
-const std::string& vid_get_renderer_kind_key_name()
+const std::string& vid_get_renderer_key_name()
 {
-	static const auto& result = std::string{"vid_renderer_kind"};
+	static const auto result = std::string{"vid_renderer"};
 
 	return result;
 }
 
 const std::string& vid_get_is_windowed_key_name()
 {
-	static const auto& result = std::string{"vid_is_windowed"};
+	static const auto result = std::string{"vid_is_windowed"};
 
 	return result;
 }
 
 const std::string& vid_get_is_positioned_key_name()
 {
-	static const auto& result = std::string{"vid_is_positioned"};
+	static const auto result = std::string{"vid_is_positioned"};
 
 	return result;
 }
 
-const std::string& vid_get_x_key_name()
+const std::string& vid_get_windowed_x_key_name()
 {
-	static const auto& result = std::string{"vid_x"};
+	static const auto result = std::string{"vid_windowed_x"};
 
 	return result;
 }
 
-const std::string& vid_get_y_key_name()
+const std::string& vid_get_windowed_y_key_name()
 {
-	static const auto& result = std::string{"vid_y"};
+	static const auto result = std::string{"vid_windowed_y"};
 
 	return result;
 }
 
-const std::string& vid_get_width_key_name()
+const std::string& vid_get_windowed_width_key_name()
 {
-	static const auto& result = std::string{"vid_width"};
+	static const auto result = std::string{"vid_windowed_width"};
 
 	return result;
 }
 
-const std::string& vid_get_height_key_name()
+const std::string& vid_get_windowed_height_key_name()
 {
-	static const auto& result = std::string{"vid_height"};
+	static const auto result = std::string{"vid_windowed_height"};
 
 	return result;
 }
 
-const std::string& vid_get_vsync_key_name()
+const std::string& vid_get_is_vsync_key_name()
 {
-	static const auto& result = std::string{"vid_vsync"};
+	static const auto result = std::string{"vid_is_vsync"};
 
 	return result;
 }
 
 const std::string& vid_get_is_ui_stretched_key_name()
 {
-	static const auto& result = std::string{"vid_is_ui_stretched"};
+	static const auto result = std::string{"vid_is_ui_stretched"};
 
 	return result;
 }
 
 const std::string& vid_get_is_widescreen_key_name()
 {
-	static const auto& result = std::string{"vid_is_widescreen"};
+	static const auto result = std::string{"vid_is_widescreen"};
 
 	return result;
 }
 
-const std::string& vid_get_hw_2d_texture_filter_key_name()
+const std::string& vid_get_2d_texture_filter_key_name()
 {
-	static const auto& result = std::string{"vid_hw_2d_texture_filter"};
+	static const auto result = std::string{"vid_2d_texture_filter"};
 
 	return result;
 }
 
-const std::string& vid_get_hw_3d_texture_image_filter_key_name()
+const std::string& vid_get_3d_texture_image_filter_key_name()
 {
-	static const auto& result = std::string{"vid_hw_3d_texture_image_filter"};
+	static const auto result = std::string{"vid_3d_texture_image_filter"};
 
 	return result;
 }
 
-const std::string& vid_get_hw_3d_texture_mipmap_filter_key_name()
+const std::string& vid_get_3d_texture_mipmap_filter_key_name()
 {
-	static const auto& result = std::string{"vid_hw_3d_texture_mipmap_filter"};
+	static const auto result = std::string{"vid_3d_texture_mipmap_filter"};
 
 	return result;
 }
 
-const std::string& vid_get_hw_3d_texture_anisotropy_key_name()
+const std::string& vid_get_3d_texture_anisotropy_key_name()
 {
-	static const auto& result = std::string{"vid_hw_3d_texture_anisotropy"};
+	static const auto result = std::string{"vid_3d_texture_anisotropy"};
 
 	return result;
 }
 
-const std::string& vid_get_hw_aa_kind_key_name()
+const std::string& vid_get_aa_kind_key_name()
 {
-	static const auto& result = std::string{"vid_hw_aa_kind"};
+	static const auto result = std::string{"vid_aa_kind"};
 
 	return result;
 }
 
-const std::string& vid_get_hw_aa_value_key_name()
+const std::string& vid_get_aa_degree_key_name()
 {
-	static const auto& result = std::string{"vid_hw_aa_value"};
+	static const auto result = std::string{"vid_aa_degree"};
 
 	return result;
 }
 
-const std::string& vid_get_hw_texture_upscale_filter_key_name()
+const std::string& vid_get_texture_upscale_filter_key_name()
 {
-	static const auto& result = std::string{"vid_hw_texture_upscale_filter"};
+	static const auto result = std::string{"vid_texture_upscale_filter"};
 
 	return result;
 }
 
-const std::string& vid_get_hw_texture_upscale_xbrz_factor_key_name()
+const std::string& vid_get_texture_upscale_xbrz_degree_key_name()
 {
-	static const auto& result = std::string{"vid_hw_texture_upscale_xbrz_factor"};
+	static const auto result = std::string{"vid_texture_upscale_xbrz_degree"};
 
 	return result;
 }
@@ -438,7 +452,7 @@ int vid_align_dimension(
 }
 
 void vid_cfg_fix_window_dimension(
-	VidCfg::IntModValue& dimension,
+	int& dimension,
 	const int min_value,
 	const int default_value)
 {
@@ -455,32 +469,32 @@ void vid_cfg_fix_window_dimension(
 
 void vid_cfg_fix_window_width()
 {
-	::vid_cfg_fix_window_dimension(
-		::vid_cfg_.width_,
-		::vga_ref_width,
-		::desktop_display_mode_.w
+	vid_cfg_fix_window_dimension(
+		vid_cfg_.windowed_width_,
+		vga_ref_width,
+		desktop_display_mode_.w
 	);
 }
 
 void vid_cfg_fix_window_height()
 {
-	::vid_cfg_fix_window_dimension(
-		::vid_cfg_.height_,
-		::vga_ref_height_4x3,
-		::desktop_display_mode_.h
+	vid_cfg_fix_window_dimension(
+		vid_cfg_.windowed_height_,
+		vga_ref_height_4x3,
+		desktop_display_mode_.h
 	);
 }
 
 void vid_cfg_fix_window_size()
 {
-	::vid_cfg_fix_window_width();
-	::vid_cfg_fix_window_height();
+	vid_cfg_fix_window_width();
+	vid_cfg_fix_window_height();
 }
 
 void vid_cfg_adjust_window_position()
 {
-	auto window_x = *::vid_cfg_.x_;
-	auto window_y = *::vid_cfg_.y_;
+	auto window_x = vid_cfg_.windowed_x_;
+	auto window_y = vid_cfg_.windowed_y_;
 
 	if (window_x < 0)
 	{
@@ -492,14 +506,17 @@ void vid_cfg_adjust_window_position()
 		window_y = 0;
 	}
 
-	::vid_cfg_.x_ = window_x;
-	::vid_cfg_.y_ = window_y;
+	vid_cfg_.windowed_x_ = window_x;
+	vid_cfg_.windowed_y_ = window_y;
 }
 
 void vid_calculate_window_elements_dimensions(
 	const CalculateScreenSizeInputParam& src_param,
 	WindowElementsDimensions& dst_param)
 {
+	dst_param.windowed_width_ = src_param.windowed_width_;
+	dst_param.windowed_height_ = src_param.windowed_height_;
+
 	const auto window_width = src_param.window_width_;
 	const auto window_height = src_param.window_height_;
 
@@ -582,21 +599,32 @@ void vid_calculate_window_elements_dimensions(
 
 CalculateScreenSizeInputParam vid_create_screen_size_param()
 {
-	auto window_width = static_cast<int>(::vid_cfg_.is_windowed_ ? ::vid_cfg_.width_ : ::desktop_display_mode_.w);
-	auto window_height = static_cast<int>(::vid_cfg_.is_windowed_ ? ::vid_cfg_.height_ : ::desktop_display_mode_.h);
+	auto window_width = (
+		vid_cfg_.is_windowed_ ?
+		vid_cfg_.windowed_width_ :
+		desktop_display_mode_.w
+	);
 
-	if (window_width < ::vga_ref_width)
+	auto window_height = (
+		vid_cfg_.is_windowed_ ?
+		vid_cfg_.windowed_height_ :
+		desktop_display_mode_.h
+	);
+
+	if (window_width < vga_ref_width)
 	{
-		window_width = ::vga_ref_width;
+		window_width = vga_ref_width;
 	}
 
-	if (window_height < ::vga_ref_height_4x3)
+	if (window_height < vga_ref_height_4x3)
 	{
-		window_height = ::vga_ref_height_4x3;
+		window_height = vga_ref_height_4x3;
 	}
 
 	auto result = CalculateScreenSizeInputParam{};
-	result.is_widescreen_ = ::vid_cfg_.is_widescreen_;
+	result.is_widescreen_ = vid_cfg_.is_widescreen_;
+	result.windowed_width_ = vid_cfg_.windowed_width_;
+	result.windowed_height_ = vid_cfg_.windowed_height_;
 	result.window_width_ = window_width;
 	result.window_height_ = window_height;
 
@@ -605,17 +633,17 @@ CalculateScreenSizeInputParam vid_create_screen_size_param()
 
 void vid_dimensions_vga_calculate()
 {
-	::vga_width = ::vid_dimensions_.screen_viewport_width_;
-	::vga_height = ::vid_align_dimension((10 * ::vid_dimensions_.screen_height_) / 12);
+	vga_width = vid_dimensions_.screen_viewport_width_;
+	vga_height = vid_align_dimension((10 * vid_dimensions_.screen_height_) / 12);
 
-	::vga_width_scale = static_cast<double>(::vga_width) / static_cast<double>(::vga_ref_width);
-	::vga_height_scale = static_cast<double>(::vga_height) / static_cast<double>(::vga_ref_height);
+	vga_width_scale = static_cast<double>(vga_width) / static_cast<double>(vga_ref_width);
+	vga_height_scale = static_cast<double>(vga_height) / static_cast<double>(vga_ref_height);
 
-	::vga_wide_scale =
-		static_cast<double>(::vga_ref_height * ::vga_width) /
-		static_cast<double>(::vga_ref_width * ::vga_height);
+	vga_wide_scale =
+		static_cast<double>(vga_ref_height * vga_width) /
+		static_cast<double>(vga_ref_width * vga_height);
 
-	::vga_area = ::vga_width * ::vga_height;
+	vga_area = vga_width * vga_height;
 }
 
 std::string vid_get_game_name_and_game_version_string()
@@ -702,69 +730,69 @@ std::string vid_get_window_title_for_renderer();
 
 void vid_cfg_cl_read_bool(
 	const std::string& option_name,
-	VidCfg::BoolModValue& mod_value)
+	bool& value)
 {
-	int value;
+	int int_value;
 
 	const auto& value_string = ::g_args.get_option_value(option_name);
 
-	if (!bstone::StringHelper::string_to_int(value_string, value))
+	if (!bstone::StringHelper::string_to_int(value_string, int_value))
 	{
 		return;
 	}
 
-	mod_value = (value != 0);
+	value = (int_value != 0);
 }
 
 void vid_cfg_cl_read_int(
 	const std::string& option_name,
-	VidCfg::IntModValue& mod_value)
+	int& value)
 {
-	int value;
+	int int_value;
 
 	const auto& value_string = ::g_args.get_option_value(option_name);
 
-	if (!bstone::StringHelper::string_to_int(value_string, value))
+	if (!bstone::StringHelper::string_to_int(value_string, int_value))
 	{
 		return;
 	}
 
-	mod_value = value;
+	value = int_value;
 }
 
 void vid_cfg_cl_read_is_windowed()
 {
-	vid_cfg_cl_read_bool(::vid_get_is_windowed_key_name(), ::vid_cfg_.is_windowed_);
+	vid_cfg_cl_read_bool(::vid_get_is_windowed_key_name(), vid_cfg_.is_windowed_);
 }
 
 void vid_cfg_cl_read_is_positioned()
 {
-	vid_cfg_cl_read_bool(::vid_get_is_positioned_key_name(), ::vid_cfg_.is_positioned_);
+	vid_cfg_cl_read_bool(::vid_get_is_positioned_key_name(), vid_cfg_.is_positioned_);
 }
 
 void vid_cfg_cl_read_window_offset_x()
 {
-	::vid_cfg_cl_read_int(::vid_get_x_key_name(), ::vid_cfg_.x_);
+	vid_cfg_cl_read_int(::vid_get_windowed_x_key_name(), vid_cfg_.windowed_x_);
 }
 
 void vid_cfg_cl_read_window_offset_y()
 {
-	::vid_cfg_cl_read_int(::vid_get_y_key_name(), ::vid_cfg_.y_);
+	vid_cfg_cl_read_int(::vid_get_windowed_y_key_name(), vid_cfg_.windowed_y_);
 }
 
 void vid_cfg_cl_read_window_width()
 {
-	::vid_cfg_cl_read_int(::vid_get_width_key_name(), ::vid_cfg_.width_);
+	vid_cfg_cl_read_int(::vid_get_windowed_width_key_name(), vid_cfg_.windowed_width_);
 }
 
 void vid_cfg_cl_read_window_height()
 {
-	::vid_cfg_cl_read_int(::vid_get_height_key_name(), ::vid_cfg_.height_);
+	vid_cfg_cl_read_int(::vid_get_windowed_height_key_name(), vid_cfg_.windowed_height_);
 }
 
 void vid_cfg_cl_read_vsync()
 {
-	::vid_cfg_cl_read_bool(::vid_get_vsync_key_name(), ::vid_cfg_.is_vsync_);
+	vid_cfg_cl_read_bool(::vid_get_is_vsync_key_name(), vid_cfg_.is_vsync_);
 }
 
 void vid_cfg_cl_read_is_ui_stretched()
@@ -779,89 +807,89 @@ void vid_cfg_cl_read_is_widescreen()
 
 void vid_cfg_cl_read_renderer_filter_kind(
 	const std::string& value_string,
-	VidCfg::FilterModValue& filter_kind)
+	bstone::Renderer3dFilterKind& filter_kind)
 {
 	if (false)
 	{
 	}
 	else if (value_string == ::vid_get_nearest_value_string())
 	{
-		filter_kind = bstone::RendererFilterKind::nearest;
+		filter_kind = bstone::Renderer3dFilterKind::nearest;
 	}
 	else if (value_string == ::vid_get_linear_value_string())
 	{
-		filter_kind = bstone::RendererFilterKind::linear;
+		filter_kind = bstone::Renderer3dFilterKind::linear;
 	}
 }
 
 void vid_cfg_cl_read_hw_2d_texture_filter()
 {
-	const auto& value_string = ::g_args.get_option_value(::vid_get_hw_2d_texture_filter_key_name());
+	const auto& value_string = ::g_args.get_option_value(::vid_get_2d_texture_filter_key_name());
 
-	::vid_cfg_cl_read_renderer_filter_kind(value_string, ::vid_cfg_.hw_2d_texture_filter_);
+	::vid_cfg_cl_read_renderer_filter_kind(value_string, ::vid_cfg_.d2_texture_filter_);
 }
 
 void vid_cfg_cl_read_hw_3d_texture_image_filter()
 {
-	const auto& value_string = ::g_args.get_option_value(::vid_get_hw_3d_texture_image_filter_key_name());
+	const auto& value_string = ::g_args.get_option_value(::vid_get_3d_texture_image_filter_key_name());
 
-	::vid_cfg_cl_read_renderer_filter_kind(value_string, ::vid_cfg_.hw_3d_texture_image_filter_);
+	::vid_cfg_cl_read_renderer_filter_kind(value_string, ::vid_cfg_.d3_texture_image_filter_);
 }
 
 void vid_cfg_cl_read_hw_3d_texture_mipmap_filter()
 {
-	const auto& value_string = ::g_args.get_option_value(::vid_get_hw_3d_texture_mipmap_filter_key_name());
+	const auto& value_string = ::g_args.get_option_value(::vid_get_3d_texture_mipmap_filter_key_name());
 
-	::vid_cfg_cl_read_renderer_filter_kind(value_string, ::vid_cfg_.hw_3d_texture_mipmap_filter_);
+	::vid_cfg_cl_read_renderer_filter_kind(value_string, ::vid_cfg_.d3_texture_mipmap_filter_);
 }
 
 void vid_cfg_cl_read_hw_3d_texture_anisotropy()
 {
-	::vid_cfg_cl_read_int(::vid_get_hw_3d_texture_anisotropy_key_name(), ::vid_cfg_.hw_3d_texture_anisotropy_);
+	::vid_cfg_cl_read_int(::vid_get_3d_texture_anisotropy_key_name(), ::vid_cfg_.d3_texture_anisotropy_);
 }
 
 void vid_cfg_cl_read_hw_aa_kind()
 {
-	const auto& value_string = ::g_args.get_option_value(::vid_get_hw_aa_kind_key_name());
+	const auto& value_string = ::g_args.get_option_value(::vid_get_aa_kind_key_name());
 
 	if (false)
 	{
 	}
 	else if (value_string == ::vid_get_none_value_string())
 	{
-		::vid_cfg_.hw_aa_kind_ = bstone::RendererAaKind::none;
+		::vid_cfg_.aa_kind_ = bstone::Renderer3dAaKind::none;
 	}
 	else if (value_string == ::vid_get_msaa_value_string())
 	{
-		::vid_cfg_.hw_aa_kind_ = bstone::RendererAaKind::ms;
+		::vid_cfg_.aa_kind_ = bstone::Renderer3dAaKind::ms;
 	}
 }
 
 void vid_cfg_cl_read_hw_aa_value()
 {
-	::vid_cfg_cl_read_int(::vid_get_hw_aa_value_key_name(), ::vid_cfg_.hw_aa_value_);
+	::vid_cfg_cl_read_int(::vid_get_aa_degree_key_name(), ::vid_cfg_.aa_degree_);
 }
 
 void vid_cfg_cl_read_hw_upscale_kind()
 {
-	const auto& value_string = ::g_args.get_option_value(::vid_get_hw_texture_upscale_filter_key_name());
+	const auto& value_string = ::g_args.get_option_value(::vid_get_texture_upscale_filter_key_name());
 
 	if (false)
 	{
 	}
 	else if (value_string == ::vid_get_none_value_string())
 	{
-		::vid_cfg_.hw_upscale_kind_ = bstone::HwTextureManagerUpscaleFilterKind::none;
+		::vid_cfg_.texture_upscale_kind_ = bstone::HwTextureManagerUpscaleFilterKind::none;
 	}
 	else if (value_string == ::vid_get_msaa_value_string())
 	{
-		::vid_cfg_.hw_upscale_kind_ = bstone::HwTextureManagerUpscaleFilterKind::xbrz;
+		::vid_cfg_.texture_upscale_kind_ = bstone::HwTextureManagerUpscaleFilterKind::xbrz;
 	}
 }
 
 void vid_cfg_cl_read_hw_upscale_xbrz_factor()
 {
-	::vid_cfg_cl_read_int(::vid_get_hw_texture_upscale_xbrz_factor_key_name(), ::vid_cfg_.hw_upscale_xbrz_factor_);
+	::vid_cfg_cl_read_int(::vid_get_texture_upscale_xbrz_degree_key_name(), ::vid_cfg_.texture_upscale_xbrz_degree_);
 }
 
 const std::string& vid_get_vid_string()
@@ -874,13 +902,6 @@ const std::string& vid_get_vid_string()
 const std::string& vid_get_hw_string()
 {
 	static const auto result = std::string{"[HW]"};
-
-	return result;
-}
-
-const std::string& vid_get_dbg_string()
-{
-	static const auto result = std::string{"[DBG]"};
 
 	return result;
 }
@@ -909,7 +930,7 @@ void vid_throw_sdl_error(
 		error_message = "Generic SDL error.";
 	}
 
-	throw bstone::Exception{std::move(error_message)};
+	throw bstone::Exception{error_message};
 }
 
 [[noreturn]]
@@ -994,18 +1015,6 @@ void vid_log_error(
 	}
 }
 
-void vid_hw_log(
-	const std::string& message)
-{
-	bstone::logger_->write(::vid_get_vid_string() + ::vid_get_hw_string() + ' ' + message);
-}
-
-void vid_hw_dbg_log(
-	const std::string& message)
-{
-	bstone::logger_->write(::vid_get_vid_string() + ::vid_get_hw_string() + ::vid_get_dbg_string() + ' ' + message);
-}
-
 [[noreturn]]
 void vid_hw_log_error_and_throw(
 	const std::string& message)
@@ -1013,13 +1022,12 @@ void vid_hw_log_error_and_throw(
 	auto error_message = std::string{};
 
 	error_message += ::vid_get_vid_string();
-	error_message += ::vid_get_hw_string();
 	error_message += ' ';
 	error_message += message;
 
 	bstone::logger_->write(error_message);
 
-	throw bstone::Exception{std::move(error_message)};
+	throw bstone::Exception{error_message};
 }
 
 void vid_get_current_display_mode()
@@ -1085,14 +1093,14 @@ std::string vid_to_string(
 }
 
 const std::string& vid_to_string(
-	const bstone::RendererFilterKind filter_kind)
+	const bstone::Renderer3dFilterKind filter_kind)
 {
 	switch (filter_kind)
 	{
-		case bstone::RendererFilterKind::nearest:
+		case bstone::Renderer3dFilterKind::nearest:
 			return vid_get_nearest_value_string();
 
-		case bstone::RendererFilterKind::linear:
+		case bstone::Renderer3dFilterKind::linear:
 			return vid_get_linear_value_string();
 
 		default:
@@ -1101,14 +1109,14 @@ const std::string& vid_to_string(
 }
 
 const std::string& vid_to_string(
-	const bstone::RendererAaKind aa_kind)
+	const bstone::Renderer3dAaKind aa_kind)
 {
 	switch (aa_kind)
 	{
-		case bstone::RendererAaKind::ms:
+		case bstone::Renderer3dAaKind::ms:
 			return vid_get_msaa_value_string();
 
-		case bstone::RendererAaKind::none:
+		case bstone::Renderer3dAaKind::none:
 			return vid_get_none_value_string();
 
 		default:
@@ -1119,9 +1127,9 @@ const std::string& vid_to_string(
 const std::string& vid_to_string(
 	const bstone::RendererKind renderer_kind)
 {
-	static const auto ogl_2_string = std::string{"OpenGL 2+"};
-	static const auto ogl_3_2_core_string = std::string{"OpenGL 3.2 core"};
-	static const auto ogl_es_2_0_string = std::string{"OpenGL ES 2.0"};
+	static const auto gl_2_0_string = std::string{"OpenGL 2.0"};
+	static const auto gl_3_2_core_string = std::string{"OpenGL 3.2 core"};
+	static const auto gles_2_0_string = std::string{"OpenGL ES 2.0"};
 
 	switch (renderer_kind)
 	{
@@ -1131,14 +1139,38 @@ const std::string& vid_to_string(
 		case bstone::RendererKind::software:
 			return vid_get_software_value_string();
 
-		case bstone::RendererKind::ogl_2:
-			return ogl_2_string;
+		case bstone::RendererKind::gl_2_0:
+			return gl_2_0_string;
 
-		case bstone::RendererKind::ogl_3_2_core:
-			return ogl_3_2_core_string;
+		case bstone::RendererKind::gl_3_2_core:
+			return gl_3_2_core_string;
 
-		case bstone::RendererKind::ogl_es_2_0:
-			return ogl_es_2_0_string;
+		case bstone::RendererKind::gles_2_0:
+			return gles_2_0_string;
+
+
+		default:
+			throw bstone::Exception{"Unsupported renderer kind."};
+	}
+}
+
+const std::string& vid_to_string(
+	const bstone::Renderer3dKind renderer_kind)
+{
+	static const auto gl_2_0_string = std::string{"OpenGL 2.0"};
+	static const auto gl_3_2_core_string = std::string{"OpenGL 3.2 core"};
+	static const auto gles_2_0_string = std::string{"OpenGL ES 2.0"};
+
+	switch (renderer_kind)
+	{
+		case bstone::Renderer3dKind::gl_2_0:
+			return gl_2_0_string;
+
+		case bstone::Renderer3dKind::gl_3_2_core:
+			return gl_3_2_core_string;
+
+		case bstone::Renderer3dKind::gles_2_0:
+			return gles_2_0_string;
 
 
 		default:
@@ -1156,10 +1188,6 @@ void vid_vanilla_raycaster_initialize()
 const std::string& vid_to_string(
 	const bstone::HwTextureManagerUpscaleFilterKind upscale_filter_kind)
 {
-	static const auto ogl_2_string = std::string{"OpenGL 2+"};
-	static const auto ogl_3_2_core_string = std::string{"OpenGL 3.2 core"};
-	static const auto ogl_es_2_0_string = std::string{"OpenGL ES 2.0"};
-
 	switch (upscale_filter_kind)
 	{
 		case bstone::HwTextureManagerUpscaleFilterKind::none:
@@ -1184,26 +1212,26 @@ void vid_log_common_configuration()
 
 	::vid_log("Is windowed: " + ::vid_to_string(::vid_cfg_.is_windowed_));
 	::vid_log("Window positioned: " + ::vid_to_string(::vid_cfg_.is_positioned_));
-	::vid_log("Window horizontal offset: " + ::vid_to_string(::vid_cfg_.x_));
-	::vid_log("Window vertical offset: " + ::vid_to_string(::vid_cfg_.y_));
-	::vid_log("Window width: " + ::vid_to_string(::vid_cfg_.width_));
-	::vid_log("Window height: " + ::vid_to_string(::vid_cfg_.height_));
+	::vid_log("Windowed x: " + ::vid_to_string(::vid_cfg_.windowed_x_));
+	::vid_log("Windowed y: " + ::vid_to_string(::vid_cfg_.windowed_y_));
+	::vid_log("Windowed width: " + ::vid_to_string(::vid_cfg_.windowed_width_));
+	::vid_log("Windowed height: " + ::vid_to_string(::vid_cfg_.windowed_height_));
 
 	::vid_log("UI stretched: " + ::vid_to_string(::vid_cfg_.is_ui_stretched_));
 	::vid_log("Widescreen: " + ::vid_to_string(::vid_cfg_.is_widescreen_));
 
-	::vid_hw_log("2D texture filter: " + ::vid_to_string(::vid_cfg_.hw_2d_texture_filter_));
+	::vid_log("2D texture filter: " + ::vid_to_string(::vid_cfg_.d2_texture_filter_));
 
-	::vid_hw_log("3D texture image filter: " + ::vid_to_string(::vid_cfg_.hw_3d_texture_image_filter_));
-	::vid_hw_log("3D texture mipmap filter: " + ::vid_to_string(::vid_cfg_.hw_3d_texture_mipmap_filter_));
+	::vid_log("3D texture image filter: " + ::vid_to_string(::vid_cfg_.d3_texture_image_filter_));
+	::vid_log("3D texture mipmap filter: " + ::vid_to_string(::vid_cfg_.d3_texture_mipmap_filter_));
 
-	::vid_hw_log("Texture anisotropy: " + ::vid_to_string(::vid_cfg_.hw_3d_texture_anisotropy_));
+	::vid_log("Texture anisotropy: " + ::vid_to_string(::vid_cfg_.d3_texture_anisotropy_));
 
-	::vid_hw_log("Texture upscale filter: " + ::vid_to_string(::vid_cfg_.hw_upscale_kind_));
-	::vid_hw_log("Texture upscale xBRZ factor: " + ::vid_to_string(::vid_cfg_.hw_upscale_xbrz_factor_));
+	::vid_log("Texture upscale filter: " + ::vid_to_string(::vid_cfg_.texture_upscale_kind_));
+	::vid_log("Texture upscale xBRZ factor: " + ::vid_to_string(::vid_cfg_.texture_upscale_xbrz_degree_));
 
-	::vid_hw_log("Anti-aliasing kind: " + ::vid_to_string(::vid_cfg_.hw_aa_kind_));
-	::vid_hw_log("Anti-aliasing value: " + ::vid_to_string(::vid_cfg_.hw_aa_value_));
+	::vid_log("Anti-aliasing kind: " + ::vid_to_string(::vid_cfg_.aa_kind_));
+	::vid_log("Anti-aliasing value: " + ::vid_to_string(::vid_cfg_.aa_degree_));
 
 	::vid_log("--------------------");
 }
@@ -1274,7 +1302,7 @@ void sw_initialize_ui_buffer()
 
 void sw_window_create()
 {
-	::vid_log("Creating window.");
+	vid_log("Creating window.");
 
 
 	int window_x;
@@ -1282,8 +1310,8 @@ void sw_window_create()
 
 	if (::vid_cfg_.is_positioned_)
 	{
-		window_x = *::vid_cfg_.x_;
-		window_y = *::vid_cfg_.y_;
+		window_x = vid_cfg_.windowed_x_;
+		window_y = vid_cfg_.windowed_y_;
 	}
 	else
 	{
@@ -1292,15 +1320,15 @@ void sw_window_create()
 	}
 
 	auto window_flags = Uint32{
-		SDL_WINDOW_OPENGL |
 		SDL_WINDOW_HIDDEN |
-		0};
+		0
+	};
 
-	if (!::vid_cfg_.is_windowed_)
+	if (!vid_cfg_.is_windowed_)
 	{
 		window_flags |=
-			SDL_WINDOW_BORDERLESS |
-			SDL_WINDOW_FULLSCREEN_DESKTOP;
+			SDL_WINDOW_FULLSCREEN_DESKTOP |
+			0;
 	}
 
 #ifdef __vita__
@@ -1313,8 +1341,8 @@ void sw_window_create()
 		title.c_str(),
 		window_x,
 		window_y,
-		::vid_cfg_.width_,
-		::vid_cfg_.height_,
+		vid_dimensions_.window_width_,
+		vid_dimensions_.window_height_,
 		window_flags
 	)};
 
@@ -1403,7 +1431,7 @@ void sw_initialize_renderer()
 		}
 		else
 		{
-			::vid_log("Current renderer: \"" + std::string{renderer_info.name} + "\".");
+			::vid_log("Renderer: \"" + std::string{renderer_info.name} + "\".");
 		}
 	}
 
@@ -1437,6 +1465,8 @@ void sw_initialize_renderer()
 			pixel_format = SDL_PIXELFORMAT_ARGB8888;
 		}
 
+		const auto pixel_format_name = SDL_GetPixelFormatName(SDL_PIXELFORMAT_ARGB8888);
+		vid_log(std::string{"Pixel format: \""} + pixel_format_name + '\"');
 
 		::vid_log("Allocating a texture pixel format.");
 
@@ -1687,9 +1717,9 @@ void sw_calculate_dimensions()
 	// Filler color.
 	::sw_filler_color_ = SDL_Color
 	{
-		::vgapal[(filler_color_index * 3) + 0],
-		::vgapal[(filler_color_index * 3) + 1],
-		::vgapal[(filler_color_index * 3) + 2],
+		static_cast<Uint8>((255 * ::vgapal[(filler_color_index * 3) + 0]) / 63),
+		static_cast<Uint8>((255 * ::vgapal[(filler_color_index * 3) + 1]) / 63),
+		static_cast<Uint8>((255 * ::vgapal[(filler_color_index * 3) + 2]) / 63),
 		0xFF,
 	};
 
@@ -1856,6 +1886,18 @@ void sw_screen_refresh()
 
 	// Clear all
 	//
+	sdl_result = ::SDL_SetRenderDrawColor(
+		sw_renderer_.get(),
+		0x00,
+		0x00,
+		0x00,
+		0xFF);
+
+	if (sdl_result != 0)
+	{
+		::vid_throw_sdl_error("Failed to set draw color.");
+	}
+	
 	sdl_result = ::SDL_RenderClear(sw_renderer_.get());
 
 	if (sdl_result != 0)
@@ -1879,48 +1921,6 @@ void sw_screen_refresh()
 			::vid_throw_sdl_error("Failed to copy a screen texture on a render target.");
 		}
 	}
-
-
-	// Use filler if necessary
-	//
-	if (!::vid_cfg_.is_ui_stretched_)
-	{
-		const auto is_hud = ::vid_is_hud;
-
-		auto fill_color = SDL_Color{};
-
-		if (!::vid_is_movie)
-		{
-			fill_color = ::sw_filler_color_;
-		}
-
-		sdl_result = ::SDL_SetRenderDrawColor(
-			sw_renderer_.get(),
-			fill_color.r,
-			fill_color.g,
-			fill_color.b,
-			0xFF);
-
-		if (sdl_result != 0)
-		{
-			::vid_throw_sdl_error("Failed to set draw color.");
-		}
-
-		if (is_hud)
-		{
-			sdl_result = ::SDL_RenderFillRects(sw_renderer_.get(), ::sw_filler_hud_rects_.data(), 4);
-		}
-		else
-		{
-			sdl_result = ::SDL_RenderFillRects(sw_renderer_.get(), ::sw_filler_ui_rects_.data(), 2);
-		}
-
-		if (sdl_result != 0)
-		{
-			::vid_throw_sdl_error("Failed to draw fillers.");
-		}
-	}
-
 
 	// Copy 2D stuff
 	//
@@ -2002,6 +2002,46 @@ void sw_screen_refresh()
 		}
 	}
 
+
+	// Use filler if necessary
+	//
+	if (!::vid_cfg_.is_ui_stretched_)
+	{
+		const auto is_hud = ::vid_is_hud;
+
+		auto fill_color = SDL_Color{};
+
+		if (!::vid_is_movie)
+		{
+			fill_color = ::sw_filler_color_;
+		}
+
+		sdl_result = ::SDL_SetRenderDrawColor(
+			sw_renderer_.get(),
+			fill_color.r,
+			fill_color.g,
+			fill_color.b,
+			0xFF);
+
+		if (sdl_result != 0)
+		{
+			::vid_throw_sdl_error("Failed to set draw color.");
+		}
+
+		if (is_hud)
+		{
+			sdl_result = ::SDL_RenderFillRects(sw_renderer_.get(), ::sw_filler_hud_rects_.data(), 4);
+		}
+		else
+		{
+			sdl_result = ::SDL_RenderFillRects(sw_renderer_.get(), ::sw_filler_ui_rects_.data(), 2);
+		}
+
+		if (sdl_result != 0)
+		{
+			::vid_throw_sdl_error("Failed to draw fillers.");
+		}
+	}
 
 	// Present
 	//
@@ -2120,7 +2160,7 @@ template<typename T>
 struct HwVertexHasAttribute<
 	T,
 	HwVertexAttributeLocationId::color,
-	decltype(static_cast<void>(T::rgba_), 0)>
+	decltype(static_cast<void>(T::rgba_8_), 0)>
 	:
 	std::true_type
 {
@@ -2163,10 +2203,10 @@ template<typename T>
 struct HwVertexAttributeTraits<
 	T,
 	HwVertexAttributeLocationId::color,
-	decltype(static_cast<void>(T::rgba_), 0)>
+	decltype(static_cast<void>(T::rgba_8_), 0)>
 {
 	static constexpr auto is_valid = true;
-	static constexpr auto offset = static_cast<int>(offsetof(T, rgba_));
+	static constexpr auto offset = static_cast<int>(offsetof(T, rgba_8_));
 	static constexpr auto stride = static_cast<int>(sizeof(T));
 }; // HwVertexAttributeTraits
 
@@ -2183,7 +2223,7 @@ struct HwVertexAttributeTraits<
 
 
 using HwVertexPosition = glm::vec3;
-using HwVertexColor = bstone::R8g8b8a8;
+using HwVertexColor = bstone::Rgba8;
 using HwVertexTextureCoordinates = glm::vec2;
 
 struct HwVertexXyzUv
@@ -2195,7 +2235,7 @@ struct HwVertexXyzUv
 struct HwVertexXyzRgbaUv
 {
 	HwVertexPosition xyz_;
-	HwVertexColor rgba_;
+	HwVertexColor rgba_8_;
 	HwVertexTextureCoordinates uv_;
 }; // HwVertexXyzRgbaUv
 
@@ -2241,7 +2281,7 @@ struct Hw3dWallSide
 
 	Hw3dWallSideFlags flags_;
 	int vertex_index_;
-	bstone::RendererTexture2dPtr texture_2d_;
+	int texture_id_;
 }; // Hw3dWallSide
 
 using Hw3dWallSidePtr = Hw3dWallSide*;
@@ -2272,7 +2312,7 @@ enum Hw3dXyWallKind
 
 struct Hw3dWallSideDrawItem
 {
-	bstone::RendererTexture2dPtr texture_2d_;
+	int texture_id_;
 	Hw3dWallSideCPtr wall_side_;
 }; // Hw3dWallSideDrawItem
 
@@ -2285,7 +2325,7 @@ struct Hw3dDoorSide
 	Hw3dDoorPtr hw_door_;
 
 	bool is_back_face_;
-	bstone::RendererTexture2dPtr texture_2d_;
+	int texture_id_;
 }; // Hw3dDoorSide
 
 using Hw3dDoorSidePtr = Hw3dDoorSide*;
@@ -2304,7 +2344,7 @@ struct Hw3dDoor
 
 struct Hw3dDoorDrawItem
 {
-	bstone::RendererTexture2dPtr texture_2d_;
+	int texture_id_;
 	Hw3dDoorSideCPtr hw_door_side_;
 }; // Hw3dDoorDrawItem
 
@@ -2353,7 +2393,6 @@ struct Hw3dSprite
 	Hw3dSpriteFlags flags_;
 	int vertex_index_;
 	BsObject bs_object_;
-	bstone::RendererTexture2dPtr texture_2d_;
 }; // Hw3dSprite
 
 
@@ -2362,7 +2401,7 @@ using Hw3dSpriteCPtr = const Hw3dSprite*;
 
 struct Hw3dSpriteDrawItem
 {
-	bstone::RendererTexture2dPtr texture_2d_;
+	int texture_id_;
 	Hw3dSpriteCPtr sprite_;
 }; // Hw3dSpriteDrawItem
 
@@ -2390,6 +2429,9 @@ using Hw3dFadeVbi = HwVertexBufferImageT<Hw3dFadeVertex>;
 
 bstone::MtTaskManagerUPtr hw_mt_task_manager_;
 
+using HwSamplerVarMod = bstone::ModValue<int>;
+HwSamplerVarMod hw_sampler_var_;
+
 using HwShadingModeMod = bstone::ModValue<int>;
 HwShadingModeMod hw_shading_mode_;
 
@@ -2411,9 +2453,6 @@ HwBsViewDirectionMod hw_bs_view_direction_;
 using HwBsViewPositionMod = bstone::ModValue<glm::vec2>;
 HwBsViewPositionMod hw_bs_view_position_;
 
-
-using HwMatrixTextureMod = bstone::ModValue<glm::mat4>;
-HwMatrixTextureMod hw_matrix_texture_;
 
 glm::mat4 hw_2d_matrix_model_ = glm::mat4{};
 glm::mat4 hw_2d_matrix_view_ = glm::mat4{};
@@ -2462,52 +2501,52 @@ double hw_3d_camera_near_distance = 0.0;
 double hw_3d_camera_far_distance = 0.0;
 
 
-bstone::RendererSamplerState hw_2d_ui_s_state_;
-bstone::RendererSamplerPtr hw_2d_ui_s_;
+bstone::Renderer3dSamplerState hw_2d_ui_s_state_;
+bstone::Renderer3dSamplerUPtr hw_2d_ui_s_;
 
-bstone::RendererSamplerState hw_3d_wall_s_state_;
-bstone::RendererSamplerPtr hw_3d_wall_s_;
+bstone::Renderer3dSamplerState hw_3d_wall_s_state_;
+bstone::Renderer3dSamplerUPtr hw_3d_wall_s_;
 
-bstone::RendererSamplerState hw_3d_sprite_s_state_;
-bstone::RendererSamplerPtr hw_3d_sprite_s_;
+bstone::Renderer3dSamplerState hw_3d_sprite_s_state_;
+bstone::Renderer3dSamplerUPtr hw_3d_sprite_s_;
 
-bstone::RendererSamplerState hw_3d_player_weapon_s_state_;
-bstone::RendererSamplerPtr hw_3d_player_weapon_s_;
+bstone::Renderer3dSamplerState hw_3d_player_weapon_s_state_;
+bstone::Renderer3dSamplerUPtr hw_3d_player_weapon_s_;
 
-bstone::RendererSamplerPtr hw_fade_s_;
+bstone::Renderer3dSamplerUPtr hw_fade_s_;
 
 
 Hw2dVbi hw_2d_vertices_;
 
-bstone::RendererDeviceFeatures hw_device_features_;
-bstone::RendererManagerUPtr hw_renderer_manager_ = nullptr;
-bstone::RendererPtr hw_renderer_ = nullptr;
+bstone::Renderer3dDeviceFeatures hw_device_features_;
+bstone::Renderer3dManagerUPtr hw_renderer_manager_;
+bstone::Renderer3dPtr hw_renderer_ = nullptr;
 
-bstone::HwTextureManagerUPtr hw_texture_manager_ = nullptr;
+bstone::HwTextureManagerUPtr hw_texture_manager_;
 
-bstone::R8g8b8a8Palette hw_palette_;
-bstone::R8g8b8a8Palette hw_default_palette_;
+bstone::Rgba8Palette hw_palette_;
+bstone::Rgba8Palette hw_default_palette_;
 
-bstone::RendererCommandManagerUPtr hw_command_manager_;
-bstone::RendererCommandBufferPtr hw_common_command_buffer_;
-bstone::RendererCommandBufferPtr hw_2d_command_buffer_;
-bstone::RendererCommandBufferPtr hw_3d_command_buffer_;
+bstone::Renderer3dCommandManagerUPtr hw_command_manager_;
+bstone::Renderer3dCommandBufferPtr hw_common_command_buffer_;
+bstone::Renderer3dCommandBufferPtr hw_2d_command_buffer_;
+bstone::Renderer3dCommandBufferPtr hw_3d_command_buffer_;
 
-bstone::RendererTexture2dPtr hw_2d_ui_t2d_ = nullptr;
-bstone::RendererIndexBufferPtr hw_2d_ui_ib_ = nullptr;
-bstone::RendererVertexBufferPtr hw_2d_ui_vb_ = nullptr;
-bstone::RendererVertexInputPtr hw_2d_ui_vi_ = nullptr;
+bstone::Renderer3dTexture2dPtr hw_2d_ui_t2d_ = nullptr;
+bstone::Renderer3dBufferUPtr hw_2d_ui_ib_;
+bstone::Renderer3dBufferUPtr hw_2d_ui_vb_;
+bstone::Renderer3dVertexInputUPtr hw_2d_ui_vi_;
 
-bstone::RendererTexture2dPtr hw_2d_black_t2d_1x1_ = nullptr;
-bstone::RendererTexture2dPtr hw_2d_white_t2d_1x1_ = nullptr;
+bstone::Renderer3dTexture2dPtr hw_2d_black_t2d_1x1_ = nullptr;
+bstone::Renderer3dTexture2dPtr hw_2d_white_t2d_1x1_ = nullptr;
 
-bstone::RendererIndexBufferPtr hw_2d_fillers_ib_ = nullptr;
-bstone::RendererVertexBufferPtr hw_2d_fillers_vb_ = nullptr;
-bstone::RendererVertexInputPtr hw_2d_fillers_vi_ = nullptr;
+bstone::Renderer3dBufferUPtr hw_2d_fillers_ib_;
+bstone::Renderer3dBufferUPtr hw_2d_fillers_vb_;
+bstone::Renderer3dVertexInputUPtr hw_2d_fillers_vi_;
 
 bool hw_2d_fade_is_enabled_ = false;
-HwVertexColor hw_2d_fade_color_ = bstone::R8g8b8a8{};
-bstone::RendererTexture2dPtr hw_2d_fade_t2d_ = nullptr;
+HwVertexColor hw_2d_fade_color_ = bstone::Rgba8{};
+bstone::Renderer3dTexture2dPtr hw_2d_fade_t2d_ = nullptr;
 
 
 auto hw_3d_matrix_bs_to_r_ = glm::mat4{};
@@ -2516,17 +2555,17 @@ auto hw_3d_matrix_view_ = glm::mat4{};
 auto hw_3d_matrix_projection_ = glm::mat4{};
 
 
-bstone::RendererIndexBufferPtr hw_3d_flooring_ib_ = nullptr;
-bstone::RendererVertexBufferPtr hw_3d_flooring_vb_ = nullptr;
-bstone::RendererVertexInputPtr hw_3d_flooring_vi_ = nullptr;
-bstone::RendererTexture2dPtr hw_3d_flooring_solid_t2d_ = nullptr;
-bstone::RendererTexture2dPtr hw_3d_flooring_textured_t2d_ = nullptr;
+bstone::Renderer3dBufferUPtr hw_3d_flooring_ib_;
+bstone::Renderer3dBufferUPtr hw_3d_flooring_vb_;
+bstone::Renderer3dVertexInputUPtr hw_3d_flooring_vi_;
+bstone::Renderer3dTexture2dPtr hw_3d_flooring_solid_t2d_ = nullptr;
+bstone::Renderer3dTexture2dPtr hw_3d_flooring_textured_t2d_ = nullptr;
 
-bstone::RendererIndexBufferPtr hw_3d_ceiling_ib_ = nullptr;
-bstone::RendererVertexBufferPtr hw_3d_ceiling_vb_ = nullptr;
-bstone::RendererVertexInputPtr hw_3d_ceiling_vi_ = nullptr;
-bstone::RendererTexture2dPtr hw_3d_ceiling_solid_t2d_ = nullptr;
-bstone::RendererTexture2dPtr hw_3d_ceiling_textured_t2d_ = nullptr;
+bstone::Renderer3dBufferUPtr hw_3d_ceiling_ib_;
+bstone::Renderer3dBufferUPtr hw_3d_ceiling_vb_;
+bstone::Renderer3dVertexInputUPtr hw_3d_ceiling_vi_;
+bstone::Renderer3dTexture2dPtr hw_3d_ceiling_solid_t2d_ = nullptr;
+bstone::Renderer3dTexture2dPtr hw_3d_ceiling_textured_t2d_ = nullptr;
 
 
 auto hw_3d_player_angle_rad_ = double{};
@@ -2549,9 +2588,9 @@ Hw3dWallsToRenderList hw_3d_walls_to_render_;
 int hw_3d_wall_side_draw_item_count_ = 0;
 Hw3dWallSideDrawItems hw_3d_wall_side_draw_items_;
 
-bstone::RendererIndexBufferPtr hw_3d_wall_sides_ib_ = nullptr;
-bstone::RendererVertexBufferPtr hw_3d_wall_sides_vb_ = nullptr;
-bstone::RendererVertexInputPtr hw_3d_wall_sides_vi_ = nullptr;
+bstone::Renderer3dBufferUPtr hw_3d_wall_sides_ib_;
+bstone::Renderer3dBufferUPtr hw_3d_wall_sides_vb_;
+bstone::Renderer3dVertexInputUPtr hw_3d_wall_sides_vi_;
 
 Hw3dWallSideIndexBuffer hw_3d_wall_sides_ibi_;
 
@@ -2566,9 +2605,9 @@ Hw3dWallsToRenderList hw_3d_pushwalls_to_render_;
 int hw_3d_pushwall_side_draw_item_count_ = 0;
 Hw3dWallSideDrawItems hw_3d_pushwall_side_draw_items_;
 
-bstone::RendererIndexBufferPtr hw_3d_pushwall_sides_ib_ = nullptr;
-bstone::RendererVertexBufferPtr hw_3d_pushwall_sides_vb_ = nullptr;
-bstone::RendererVertexInputPtr hw_3d_pushwall_sides_vi_ = nullptr;
+bstone::Renderer3dBufferUPtr hw_3d_pushwall_sides_ib_;
+bstone::Renderer3dBufferUPtr hw_3d_pushwall_sides_vb_;
+bstone::Renderer3dVertexInputUPtr hw_3d_pushwall_sides_vi_;
 
 Hw3dWallSideIndexBuffer hw_3d_pushwall_sides_ibi_;
 Hw3dPushwallsVbi hw_3d_pushwalls_vbi_;
@@ -2583,9 +2622,9 @@ int hw_3d_door_last_xy_to_render_at_ = 0;
 Hw3dDoorsToRenderList hw_3d_doors_to_render_;
 Hw3dDoorDrawItems hw_3d_door_draw_items_;
 
-bstone::RendererIndexBufferPtr hw_3d_door_sides_ib_ = nullptr;
-bstone::RendererVertexBufferPtr hw_3d_door_sides_vb_ = nullptr;
-bstone::RendererVertexInputPtr hw_3d_door_sides_vi_ = nullptr;
+bstone::Renderer3dBufferUPtr hw_3d_door_sides_ib_;
+bstone::Renderer3dBufferUPtr hw_3d_door_sides_vb_;
+bstone::Renderer3dVertexInputUPtr hw_3d_door_sides_vi_;
 
 Hw3dDoorIndexBuffer hw_3d_door_sides_ibi_;
 Hw3dDoorsVbi hw_3d_doors_vbi_;
@@ -2602,49 +2641,49 @@ int hw_3d_sprites_draw_count_ = 0;
 Hw3dActorsToRenderList hw_3d_actors_to_render_;
 Hw3dSpritesDrawList hw_3d_sprites_draw_list_;
 
-bstone::RendererIndexBufferPtr hw_3d_sprites_ib_ = nullptr;
-bstone::RendererVertexBufferPtr hw_3d_sprites_vb_ = nullptr;
-bstone::RendererVertexInputPtr hw_3d_sprites_vi_ = nullptr;
+bstone::Renderer3dBufferUPtr hw_3d_sprites_ib_;
+bstone::Renderer3dBufferUPtr hw_3d_sprites_vb_;
+bstone::Renderer3dVertexInputUPtr hw_3d_sprites_vi_;
 
 Hw3dSpritesIndexBuffer hw_3d_sprites_ibi_;
 HwVbi hw_3d_sprites_vbi_;
 
 
-bstone::RendererIndexBufferPtr hw_3d_player_weapon_ib_ = nullptr;
-bstone::RendererVertexBufferPtr hw_3d_player_weapon_vb_ = nullptr;
-bstone::RendererVertexInputPtr hw_3d_player_weapon_vi_ = nullptr;
+bstone::Renderer3dBufferUPtr hw_3d_player_weapon_ib_;
+bstone::Renderer3dBufferUPtr hw_3d_player_weapon_vb_;
+bstone::Renderer3dVertexInputUPtr hw_3d_player_weapon_vi_;
 glm::mat4 hw_3d_player_weapon_model_matrix_;
 glm::mat4 hw_3d_player_weapon_view_matrix_;
 glm::mat4 hw_3d_player_weapon_projection_matrix_;
 
 
 bool hw_3d_fade_is_enabled_ = false;
-bstone::RendererIndexBufferPtr hw_3d_fade_ib_ = nullptr;
-bstone::RendererVertexBufferPtr hw_3d_fade_vb_ = nullptr;
-bstone::RendererVertexInputPtr hw_3d_fade_vi_ = nullptr;
-bstone::RendererTexture2dPtr hw_3d_fade_t2d_ = nullptr;
+bstone::Renderer3dBufferUPtr hw_3d_fade_ib_;
+bstone::Renderer3dBufferUPtr hw_3d_fade_vb_;
+bstone::Renderer3dVertexInputUPtr hw_3d_fade_vi_;
+bstone::Renderer3dTexture2dPtr hw_3d_fade_t2d_ = nullptr;
 
 bool hw_3d_fizzle_fx_is_enabled_ = false;
 bool hw_3d_fizzle_fx_is_fading_ = false;
 int hw_3d_fizzle_fx_color_index_ = 0;
 float hw_3d_fizzle_fx_ratio_ = 0.0F;
 
-bstone::RendererShaderPtr hw_shader_fragment_;
-bstone::RendererShaderPtr hw_shader_vertex_;
-bstone::RendererShaderStagePtr hw_shader_stage_;
+bstone::Renderer3dShaderUPtr hw_shader_fragment_;
+bstone::Renderer3dShaderUPtr hw_shader_vertex_;
+bstone::Renderer3dShaderStageUPtr hw_shader_stage_;
 
-bstone::RendererShaderVarMat4Ptr hw_shader_var_model_mat_;
-bstone::RendererShaderVarMat4Ptr hw_shader_var_view_mat_;
-bstone::RendererShaderVarMat4Ptr hw_shader_var_projection_mat_;
-bstone::RendererShaderVarMat4Ptr hw_shader_var_texture_mat_;
+bstone::Renderer3dShaderVarMat4Ptr hw_shader_var_model_mat_;
+bstone::Renderer3dShaderVarMat4Ptr hw_shader_var_view_mat_;
+bstone::Renderer3dShaderVarMat4Ptr hw_shader_var_projection_mat_;
 
-bstone::RendererShaderVarInt32Ptr hw_shader_var_shading_mode_;
-bstone::RendererShaderVarFloat32Ptr hw_shader_var_shade_max_;
-bstone::RendererShaderVarFloat32Ptr hw_shader_var_normal_shade_;
-bstone::RendererShaderVarFloat32Ptr hw_shader_var_height_numerator_;
-bstone::RendererShaderVarFloat32Ptr hw_shader_var_extra_lighting_;
-bstone::RendererShaderVarVec2Ptr hw_shader_var_view_direction_;
-bstone::RendererShaderVarVec2Ptr hw_shader_var_view_position_;
+bstone::Renderer3dShaderVarSampler2dPtr hw_shader_var_sampler_;
+bstone::Renderer3dShaderVarInt32Ptr hw_shader_var_shading_mode_;
+bstone::Renderer3dShaderVarFloat32Ptr hw_shader_var_shade_max_;
+bstone::Renderer3dShaderVarFloat32Ptr hw_shader_var_normal_shade_;
+bstone::Renderer3dShaderVarFloat32Ptr hw_shader_var_height_numerator_;
+bstone::Renderer3dShaderVarFloat32Ptr hw_shader_var_extra_lighting_;
+bstone::Renderer3dShaderVarVec2Ptr hw_shader_var_view_direction_;
+bstone::Renderer3dShaderVarVec2Ptr hw_shader_var_view_position_;
 
 
 
@@ -2654,16 +2693,34 @@ void hw_3d_player_weapon_initialize();
 void hw_3d_player_weapon_model_matrix_update();
 
 
-bstone::RendererMipmapMode hw_config_texture_mipmap_filter_to_renderer(
-	const bstone::RendererFilterKind filter_kind)
+const bstone::Renderer3dVec2& hw_cast_glm_vec2(
+	const glm::vec2& glm_vec2)
+{
+	return reinterpret_cast<const bstone::Renderer3dVec2&>(glm_vec2);
+}
+
+const bstone::Renderer3dVec4& hw_cast_glm_vec4(
+	const glm::vec4& glm_vec4)
+{
+	return reinterpret_cast<const bstone::Renderer3dVec4&>(glm_vec4);
+}
+
+const bstone::Renderer3dMat4& hw_cast_glm_mat4(
+	const glm::mat4& glm_mat4)
+{
+	return reinterpret_cast<const bstone::Renderer3dMat4&>(glm_mat4);
+}
+
+bstone::Renderer3dMipmapMode hw_config_texture_mipmap_filter_to_renderer(
+	const bstone::Renderer3dFilterKind filter_kind)
 {
 	switch (filter_kind)
 	{
-		case bstone::RendererFilterKind::nearest:
-			return bstone::RendererMipmapMode::nearest;
+		case bstone::Renderer3dFilterKind::nearest:
+			return bstone::Renderer3dMipmapMode::nearest;
 
-		case bstone::RendererFilterKind::linear:
-			return bstone::RendererMipmapMode::linear;
+		case bstone::Renderer3dFilterKind::linear:
+			return bstone::Renderer3dMipmapMode::linear;
 
 		default:
 			::Quit("Invalid mipmap mode.");
@@ -2673,13 +2730,13 @@ bstone::RendererMipmapMode hw_config_texture_mipmap_filter_to_renderer(
 int hw_config_texture_anisotropy_to_renderer(
 	const int value)
 {
-	if (value < bstone::RendererLimits::anisotropy_min_off)
+	if (value < bstone::Renderer3dLimits::anisotropy_min_off)
 	{
-		return bstone::RendererLimits::anisotropy_min_off;
+		return bstone::Renderer3dLimits::anisotropy_min_off;
 	}
-	else if (value > bstone::RendererLimits::anisotropy_max)
+	else if (value > bstone::Renderer3dLimits::anisotropy_max)
 	{
-		return bstone::RendererLimits::anisotropy_max;
+		return bstone::Renderer3dLimits::anisotropy_max;
 	}
 	else
 	{
@@ -2731,7 +2788,7 @@ constexpr void hw_decode_xy(
 	y = xy & 0xFF;
 }
 
-HwVertexColor hw_vga_color_to_r8g8b8a8(
+HwVertexColor hw_vga_color_to_rgba_8(
 	const int vga_red,
 	const int vga_green,
 	const int vga_blue)
@@ -2746,47 +2803,35 @@ HwVertexColor hw_vga_color_to_r8g8b8a8(
 }
 
 void hw_sampler_destroy(
-	bstone::RendererSamplerPtr& sampler)
+	bstone::Renderer3dSamplerUPtr& sampler)
 {
-	if (sampler == nullptr)
-	{
-		return;
-	}
-
-	::hw_renderer_->sampler_destroy(sampler);
 	sampler = nullptr;
 }
 
 void hw_index_buffer_destroy(
-	bstone::RendererIndexBufferPtr& index_buffer)
+	bstone::Renderer3dBufferUPtr& index_buffer)
 {
-	if (index_buffer == nullptr)
-	{
-		return;
-	}
-
-	::hw_renderer_->index_buffer_destroy(index_buffer);
 	index_buffer = nullptr;
 }
 
-bstone::RendererIndexBufferPtr hw_index_buffer_create(
-	const bstone::RendererBufferUsageKind usage_kind,
+bstone::Renderer3dBufferUPtr hw_index_buffer_create(
+	const bstone::Renderer3dBufferUsageKind usage_kind,
 	const int byte_depth,
 	const int index_count)
 {
 	const auto index_buffer_size = index_count * byte_depth;
 
-	auto param = bstone::RendererIndexBufferCreateParam{};
+	auto param = bstone::Renderer3dBufferCreateParam{};
+	param.kind_ = bstone::Renderer3dBufferKind::index;
 	param.usage_kind_ = usage_kind;
-	param.byte_depth_ = byte_depth;
 	param.size_ = index_buffer_size;
 
-	return ::hw_renderer_->index_buffer_create(param);
+	return hw_renderer_->buffer_create(param);
 }
 
 template<typename TIndex>
 void hw_index_buffer_update(
-	bstone::RendererIndexBufferPtr index_buffer,
+	const bstone::Renderer3dBufferUPtr& index_buffer,
 	const int index_offset,
 	const int index_count,
 	const TIndex* const indices)
@@ -2795,7 +2840,7 @@ void hw_index_buffer_update(
 	const auto offset = index_offset * byte_depth;
 	const auto size = index_count * byte_depth;
 
-	auto param = bstone::RendererBufferUpdateParam{};
+	auto param = bstone::Renderer3dBufferUpdateParam{};
 	param.offset_ = offset;
 	param.size_ = size;
 	param.data_ = indices;
@@ -2804,35 +2849,30 @@ void hw_index_buffer_update(
 }
 
 void hw_vertex_buffer_destroy(
-	bstone::RendererVertexBufferPtr& vertex_buffer)
+	bstone::Renderer3dBufferUPtr& vertex_buffer)
 {
-	if (vertex_buffer == nullptr)
-	{
-		return;
-	}
-
-	::hw_renderer_->vertex_buffer_destroy(vertex_buffer);
 	vertex_buffer = nullptr;
 }
 
 template<typename TVertex>
-bstone::RendererVertexBufferPtr hw_vertex_buffer_create(
-	const bstone::RendererBufferUsageKind usage_kind,
+bstone::Renderer3dBufferUPtr hw_vertex_buffer_create(
+	const bstone::Renderer3dBufferUsageKind usage_kind,
 	const int vertex_count)
 {
 	const auto vertex_size = static_cast<int>(sizeof(TVertex));
 	const auto vertex_buffer_size = vertex_count * vertex_size;
 
-	auto param = bstone::RendererVertexBufferCreateParam{};
+	auto param = bstone::Renderer3dBufferCreateParam{};
+	param.kind_ = bstone::Renderer3dBufferKind::vertex;
 	param.usage_kind_ = usage_kind;
 	param.size_ = vertex_buffer_size;
 
-	return ::hw_renderer_->vertex_buffer_create(param);
+	return hw_renderer_->buffer_create(param);
 }
 
 template<typename TVertex>
 void hw_vertex_buffer_update(
-	bstone::RendererVertexBufferPtr vertex_buffer,
+	const bstone::Renderer3dBufferUPtr& vertex_buffer,
 	const int vertex_offset,
 	const int vertex_count,
 	const TVertex* const vertices)
@@ -2841,7 +2881,7 @@ void hw_vertex_buffer_update(
 	const auto offset = vertex_offset * vertex_size;
 	const auto size = vertex_count * vertex_size;
 
-	auto param = bstone::RendererBufferUpdateParam{};
+	auto param = bstone::Renderer3dBufferUpdateParam{};
 	param.offset_ = offset;
 	param.size_ = size;
 	param.data_ = vertices;
@@ -2850,26 +2890,14 @@ void hw_vertex_buffer_update(
 }
 
 void hw_vertex_input_destroy(
-	bstone::RendererVertexInputPtr& vertex_input)
+	bstone::Renderer3dVertexInputUPtr& vertex_input)
 {
-	if (vertex_input == nullptr)
-	{
-		return;
-	}
-
-	::hw_renderer_->vertex_input_destroy(vertex_input);
 	vertex_input = nullptr;
 }
 
 void hw_texture_2d_destroy(
-	bstone::RendererTexture2dPtr& texture_2d)
+	bstone::Renderer3dTexture2dPtr& texture_2d)
 {
-	if (texture_2d == nullptr)
-	{
-		return;
-	}
-
-	::hw_renderer_->texture_2d_destroy(texture_2d);
 	texture_2d = nullptr;
 }
 
@@ -2881,23 +2909,23 @@ struct HwVertexInputAddAttributeDescription
 {
 	void operator()(
 		const int location,
-		const bstone::RendererVertexAttributeFormat format,
+		const bstone::Renderer3dVertexAttributeFormat format,
 		const int offset,
 		const int stride,
 		const glm::vec4& default_value,
-		bstone::RendererVertexBufferPtr vertex_buffer,
-		bstone::RendererVertexAttributeDescriptions& attribute_descriptions) const
+		const bstone::Renderer3dBufferUPtr& vertex_buffer,
+		bstone::Renderer3dVertexAttributeDescriptions& attribute_descriptions) const
 	{
 		attribute_descriptions.emplace_back();
 
 		auto& description = attribute_descriptions.back();
 		description.is_default_ = true;
 		description.location_ = location;
-		description.format_ = bstone::RendererVertexAttributeFormat::none;
+		description.format_ = bstone::Renderer3dVertexAttributeFormat::none;
 		description.vertex_buffer_ = nullptr;
 		description.offset_ = -1;
 		description.stride_ = -1;
-		description.default_value_ = default_value;
+		description.default_value_ = hw_cast_glm_vec4(default_value);
 	}
 }; // HwVertexInputAddAttributeDescription
 
@@ -2907,12 +2935,12 @@ struct HwVertexInputAddAttributeDescription<TVertex, true>
 {
 	void operator()(
 		const int location,
-		const bstone::RendererVertexAttributeFormat format,
+		const bstone::Renderer3dVertexAttributeFormat format,
 		const int offset,
 		const int stride,
 		const glm::vec4& default_value,
-		bstone::RendererVertexBufferPtr vertex_buffer,
-		bstone::RendererVertexAttributeDescriptions& attribute_descriptions) const
+		const bstone::Renderer3dBufferUPtr& vertex_buffer,
+		bstone::Renderer3dVertexAttributeDescriptions& attribute_descriptions) const
 	{
 		attribute_descriptions.emplace_back();
 
@@ -2920,10 +2948,10 @@ struct HwVertexInputAddAttributeDescription<TVertex, true>
 		description.is_default_ = false;
 		description.location_ = location;
 		description.format_ = format;
-		description.vertex_buffer_ = vertex_buffer;
+		description.vertex_buffer_ = vertex_buffer.get();
 		description.offset_ = offset;
 		description.stride_ = stride;
-		description.default_value_ = default_value;
+		description.default_value_ = hw_cast_glm_vec4(default_value);
 	}
 }; // HwVertexInputAddAttributeDescription
 
@@ -2931,10 +2959,10 @@ template<
 	typename TVertex,
 	HwVertexAttributeLocationId TLocationId>
 void hw_vertex_input_add_attribute_description(
-	const bstone::RendererVertexAttributeFormat format,
+	const bstone::Renderer3dVertexAttributeFormat format,
 	const glm::vec4& default_value,
-	bstone::RendererVertexBufferPtr vertex_buffer,
-	bstone::RendererVertexAttributeDescriptions& attribute_descriptions)
+	const bstone::Renderer3dBufferUPtr& vertex_buffer,
+	bstone::Renderer3dVertexAttributeDescriptions& attribute_descriptions)
 {
 	const auto traits = HwVertexAttributeTraits<TVertex, TLocationId>{};
 	const auto add_attribute = HwVertexInputAddAttributeDescription<TVertex, traits.is_valid>{};
@@ -2944,15 +2972,15 @@ void hw_vertex_input_add_attribute_description(
 	switch (TLocationId)
 	{
 		case HwVertexAttributeLocationId::position:
-			location = bstone::RendererShaderRegistry::get_a_position_location();
+			location = bstone::Renderer3dShaderRegistry::get_a_position_location();
 			break;
 
 		case HwVertexAttributeLocationId::color:
-			location = bstone::RendererShaderRegistry::get_a_color_location();
+			location = bstone::Renderer3dShaderRegistry::get_a_color_location();
 			break;
 
 		case HwVertexAttributeLocationId::texture_coordinates:
-			location = bstone::RendererShaderRegistry::get_a_tx_coords_location();
+			location = bstone::Renderer3dShaderRegistry::get_a_tx_coords_location();
 			break;
 	}
 
@@ -2969,38 +2997,38 @@ void hw_vertex_input_add_attribute_description(
 
 template<typename TVertex>
 void hw_vertex_input_create(
-	bstone::RendererIndexBufferPtr index_buffer,
-	bstone::RendererVertexBufferPtr vertex_buffer,
-	bstone::RendererVertexInputPtr& vertex_input)
+	const bstone::Renderer3dBufferUPtr& index_buffer,
+	const bstone::Renderer3dBufferUPtr& vertex_buffer,
+	bstone::Renderer3dVertexInputUPtr& vertex_input)
 {
-	auto param = bstone::RendererVertexInputCreateParam{};
-	param.index_buffer_ = index_buffer;
+	auto param = bstone::Renderer3dVertexInputCreateParam{};
+	param.index_buffer_ = index_buffer.get();
 
 	auto& descriptions = param.attribute_descriptions_;
 	descriptions.reserve(3);
 
 	::hw_vertex_input_add_attribute_description<TVertex, HwVertexAttributeLocationId::position>(
-		bstone::RendererVertexAttributeFormat::r32g32b32_sfloat,
+		bstone::Renderer3dVertexAttributeFormat::rgb_32_sfloat,
 		glm::vec4{},
 		vertex_buffer,
 		descriptions
 	);
 
 	::hw_vertex_input_add_attribute_description<TVertex, HwVertexAttributeLocationId::color>(
-		bstone::RendererVertexAttributeFormat::r8g8b8a8_unorm,
+		bstone::Renderer3dVertexAttributeFormat::rgba_8_unorm,
 		glm::vec4{1.0F, 1.0F, 1.0F, 1.0F},
 		vertex_buffer,
 		descriptions
 	);
 
 	::hw_vertex_input_add_attribute_description<TVertex, HwVertexAttributeLocationId::texture_coordinates>(
-		bstone::RendererVertexAttributeFormat::r32g32_sfloat,
+		bstone::Renderer3dVertexAttributeFormat::rg_32_sfloat,
 		glm::vec4{},
 		vertex_buffer,
 		descriptions
 	);
 
-	vertex_input = ::hw_renderer_->vertex_input_create(param);
+	vertex_input = hw_renderer_->vertex_input_create(param);
 }
 
 void hw_3d_player_update_direction()
@@ -3047,35 +3075,28 @@ void hw_ui_buffer_initialize()
 }
 
 void hw_shader_destroy(
-	bstone::RendererShaderPtr& shader)
+	bstone::Renderer3dShaderUPtr& shader)
 {
-	if (shader == nullptr)
-	{
-		return;
-	}
-
-	::hw_renderer_->shader_destroy(shader);
-
 	shader = nullptr;
 }
 
 void hw_shader_create(
-	const bstone::RendererShaderKind kind,
-	bstone::RendererShaderPtr& shader)
+	const bstone::Renderer3dShaderKind kind,
+	bstone::Renderer3dShaderUPtr& shader)
 {
-	auto param = bstone::RendererShaderCreateParam{};
+	auto param = bstone::Renderer3dShaderCreateParam{};
 	param.kind_ = kind;
 
 	const auto renderer_kind = ::hw_renderer_->get_kind();
 
 	switch (kind)
 	{
-		case bstone::RendererShaderKind::fragment:
-			param.source_ = bstone::RendererShaderRegistry::get_fragment(renderer_kind);
+		case bstone::Renderer3dShaderKind::fragment:
+			param.source_ = bstone::Renderer3dShaderRegistry::get_fragment(renderer_kind);
 			break;
 
-		case bstone::RendererShaderKind::vertex:
-			param.source_ = bstone::RendererShaderRegistry::get_vertex(renderer_kind);
+		case bstone::Renderer3dShaderKind::vertex:
+			param.source_ = bstone::Renderer3dShaderRegistry::get_vertex(renderer_kind);
 			break;
 
 		default:
@@ -3087,58 +3108,44 @@ void hw_shader_create(
 
 void hw_shader_fragment_destroy()
 {
-	::hw_shader_destroy(::hw_shader_fragment_);
+	::hw_shader_destroy(hw_shader_fragment_);
 }
 
 void hw_shader_fragment_create()
 {
-	::hw_shader_create(bstone::RendererShaderKind::fragment, ::hw_shader_fragment_);
+	::hw_shader_create(bstone::Renderer3dShaderKind::fragment, hw_shader_fragment_);
 }
 
 void hw_shader_vertex_destroy()
 {
-	::hw_shader_destroy(::hw_shader_vertex_);
+	::hw_shader_destroy(hw_shader_vertex_);
 }
 
 void hw_shader_vertex_create()
 {
-	::hw_shader_create(bstone::RendererShaderKind::vertex, ::hw_shader_vertex_);
+	::hw_shader_create(bstone::Renderer3dShaderKind::vertex, hw_shader_vertex_);
 }
 
 void hw_shader_stage_destroy()
 {
-	if (::hw_shader_stage_ == nullptr)
-	{
-		return;
-	}
-
-	::hw_renderer_->shader_stage_destroy(::hw_shader_stage_);
-
-	::hw_shader_stage_ = nullptr;
+	hw_shader_stage_ = nullptr;
 }
 
-bool hw_shader_stage_create()
+void hw_shader_stage_create()
 {
-	static const auto input_bindings = bstone::RendererShaderStageInputBindings
+	static const auto input_bindings = bstone::Renderer3dShaderStageInputBindings
 	{
-		{0, bstone::RendererShaderRegistry::get_a_position_name()},
-		{1, bstone::RendererShaderRegistry::get_a_color_name()},
-		{2, bstone::RendererShaderRegistry::get_a_tx_coords_name()},
+		{0, bstone::Renderer3dShaderRegistry::get_a_position_name()},
+		{1, bstone::Renderer3dShaderRegistry::get_a_color_name()},
+		{2, bstone::Renderer3dShaderRegistry::get_a_tx_coords_name()},
 	};
 
-	auto param = bstone::RendererShaderStageCreateParam{};
-	param.fragment_shader_ = ::hw_shader_fragment_;
-	param.vertex_shader_ = ::hw_shader_vertex_;
+	auto param = bstone::Renderer3dShaderStageCreateParam{};
+	param.fragment_shader_ = hw_shader_fragment_.get();
+	param.vertex_shader_ = hw_shader_vertex_.get();
 	param.input_bindings_ = input_bindings;
 
-	::hw_shader_stage_ = ::hw_renderer_->shader_stage_create(param);
-
-	if (::hw_shader_stage_ == nullptr)
-	{
-		return false;
-	}
-
-	return true;
+	hw_shader_stage_ = hw_renderer_->shader_stage_create(param);
 }
 
 template<typename T>
@@ -3157,10 +3164,11 @@ struct HwProgramInitializeVarInt32Tag{};
 struct HwProgramInitializeVarFloat32Tag{};
 struct HwProgramInitializeVarVec2Tag{};
 struct HwProgramInitializeVarMat4Tag{};
+struct HwProgramInitializeVarSampler2dTag{};
 
 void hw_program_initialize_var(
 	const std::string& name,
-	bstone::RendererShaderVarInt32Ptr& var,
+	bstone::Renderer3dShaderVarInt32Ptr& var,
 	const HwProgramInitializeVarInt32Tag)
 {
 	var = ::hw_shader_stage_->find_var_int32(name);
@@ -3168,7 +3176,7 @@ void hw_program_initialize_var(
 
 void hw_program_initialize_var(
 	const std::string& name,
-	bstone::RendererShaderVarFloat32Ptr& var,
+	bstone::Renderer3dShaderVarFloat32Ptr& var,
 	const HwProgramInitializeVarFloat32Tag)
 {
 	var = ::hw_shader_stage_->find_var_float32(name);
@@ -3176,7 +3184,7 @@ void hw_program_initialize_var(
 
 void hw_program_initialize_var(
 	const std::string& name,
-	bstone::RendererShaderVarVec2Ptr& var,
+	bstone::Renderer3dShaderVarVec2Ptr& var,
 	const HwProgramInitializeVarVec2Tag)
 {
 	var = ::hw_shader_stage_->find_var_vec2(name);
@@ -3184,10 +3192,18 @@ void hw_program_initialize_var(
 
 void hw_program_initialize_var(
 	const std::string& name,
-	bstone::RendererShaderVarMat4Ptr& var,
+	bstone::Renderer3dShaderVarMat4Ptr& var,
 	const HwProgramInitializeVarMat4Tag)
 {
 	var = ::hw_shader_stage_->find_var_mat4(name);
+}
+
+void hw_program_initialize_var(
+	const std::string& name,
+	bstone::Renderer3dShaderVarSampler2dPtr& var,
+	const HwProgramInitializeVarSampler2dTag)
+{
+	var = hw_shader_stage_->find_var_sampler_2d(name);
 }
 
 template<typename T>
@@ -3196,18 +3212,22 @@ void hw_program_initialize_var(
 	T*& var)
 {
 	using Tag = std::conditional_t<
-		std::is_same<T, bstone::RendererShaderVarInt32>::value,
+		std::is_same<T, bstone::Renderer3dShaderVarInt32>::value,
 		HwProgramInitializeVarInt32Tag,
 		std::conditional_t<
-			std::is_same<T, bstone::RendererShaderVarFloat32>::value,
+			std::is_same<T, bstone::Renderer3dShaderVarFloat32>::value,
 			HwProgramInitializeVarFloat32Tag,
 			std::conditional_t<
-				std::is_same<T, bstone::RendererShaderVarVec2>::value,
+				std::is_same<T, bstone::Renderer3dShaderVarVec2>::value,
 				HwProgramInitializeVarVec2Tag,
 				std::conditional_t<
-					std::is_same<T, bstone::RendererShaderVarMat4>::value,
+					std::is_same<T, bstone::Renderer3dShaderVarMat4>::value,
 					HwProgramInitializeVarMat4Tag,
-					void
+					std::conditional_t<
+						std::is_same<T, bstone::Renderer3dShaderVarSampler2d>::value,
+						HwProgramInitializeVarSampler2dTag,
+						void
+					>
 				>
 			>
 		>
@@ -3226,7 +3246,7 @@ void hw_program_initialize_var(
 void hw_program_initialize_var_model_mat()
 {
 	::hw_program_initialize_var(
-		bstone::RendererShaderRegistry::get_u_model_mat_name(),
+		bstone::Renderer3dShaderRegistry::get_u_model_mat_name(),
 		::hw_shader_var_model_mat_
 	);
 }
@@ -3239,7 +3259,7 @@ void hw_program_uninitialize_var_view_mat()
 void hw_program_initialize_var_view_mat()
 {
 	::hw_program_initialize_var(
-		bstone::RendererShaderRegistry::get_u_view_mat_name(),
+		bstone::Renderer3dShaderRegistry::get_u_view_mat_name(),
 		::hw_shader_var_view_mat_
 	);
 }
@@ -3252,21 +3272,23 @@ void hw_program_uninitialize_var_projection_mat()
 void hw_program_initialize_var_projection_mat()
 {
 	::hw_program_initialize_var(
-		bstone::RendererShaderRegistry::get_u_projection_mat_name(),
+		bstone::Renderer3dShaderRegistry::get_u_projection_mat_name(),
 		::hw_shader_var_projection_mat_
 	);
 }
 
-void hw_program_uninitialize_var_texture_mat()
+void hw_program_uninitialize_var_sampler()
 {
-	::hw_program_uninitialize_var(::hw_shader_var_texture_mat_);
+	::hw_program_uninitialize_var(hw_shader_var_sampler_);
 }
 
-void hw_program_initialize_var_texture_mat()
+void hw_program_initialize_var_sampler()
 {
-	::hw_program_initialize_var(
-		bstone::RendererShaderRegistry::get_u_texture_mat_name(),
-		::hw_shader_var_texture_mat_
+	hw_sampler_var_.set_is_modified(true);
+
+	hw_program_initialize_var(
+		bstone::Renderer3dShaderRegistry::get_u_sampler_name(),
+		hw_shader_var_sampler_
 	);
 }
 
@@ -3280,7 +3302,7 @@ void hw_program_initialize_var_shading_mode()
 	hw_shading_mode_.set_is_modified(true);
 
 	::hw_program_initialize_var(
-		bstone::RendererShaderRegistry::get_u_shading_mode_name(),
+		bstone::Renderer3dShaderRegistry::get_u_shading_mode_name(),
 		::hw_shader_var_shading_mode_
 	);
 }
@@ -3295,7 +3317,7 @@ void hw_program_initialize_var_shade_max()
 	hw_bs_shade_max_.set_is_modified(true);
 
 	::hw_program_initialize_var(
-		bstone::RendererShaderRegistry::get_u_shade_max_name(),
+		bstone::Renderer3dShaderRegistry::get_u_shade_max_name(),
 		::hw_shader_var_shade_max_
 	);
 }
@@ -3310,7 +3332,7 @@ void hw_program_initialize_var_normal_shade()
 	hw_bs_normal_shade_.set_is_modified(true);
 
 	::hw_program_initialize_var(
-		bstone::RendererShaderRegistry::get_u_normal_shade_name(),
+		bstone::Renderer3dShaderRegistry::get_u_normal_shade_name(),
 		::hw_shader_var_normal_shade_
 	);
 }
@@ -3325,7 +3347,7 @@ void hw_program_initialize_var_height_numerator()
 	hw_bs_height_numerator_.set_is_modified(true);
 
 	::hw_program_initialize_var(
-		bstone::RendererShaderRegistry::get_u_height_numerator_name(),
+		bstone::Renderer3dShaderRegistry::get_u_height_numerator_name(),
 		::hw_shader_var_height_numerator_
 	);
 }
@@ -3340,7 +3362,7 @@ void hw_program_initialize_var_extra_lighting()
 	hw_bs_lighting_.set_is_modified(true);
 
 	::hw_program_initialize_var(
-		bstone::RendererShaderRegistry::get_u_extra_lighting_name(),
+		bstone::Renderer3dShaderRegistry::get_u_extra_lighting_name(),
 		::hw_shader_var_extra_lighting_
 	);
 }
@@ -3355,7 +3377,7 @@ void hw_program_initialize_var_view_direction()
 	hw_bs_view_direction_.set_is_modified(true);
 
 	::hw_program_initialize_var(
-		bstone::RendererShaderRegistry::get_u_view_direction_name(),
+		bstone::Renderer3dShaderRegistry::get_u_view_direction_name(),
 		::hw_shader_var_view_direction_
 	);
 }
@@ -3370,31 +3392,33 @@ void hw_program_initialize_var_view_position()
 	hw_bs_view_position_.set_is_modified(true);
 
 	::hw_program_initialize_var(
-		bstone::RendererShaderRegistry::get_u_view_position_name(),
+		bstone::Renderer3dShaderRegistry::get_u_view_position_name(),
 		::hw_shader_var_view_position_
 	);
 }
 
 void hw_program_uninitialize_vars_shading()
 {
-	::hw_program_uninitialize_var_shading_mode();
-	::hw_program_uninitialize_var_shade_max();
-	::hw_program_uninitialize_var_normal_shade();
-	::hw_program_uninitialize_var_height_numerator();
-	::hw_program_uninitialize_var_extra_lighting();
-	::hw_program_uninitialize_var_view_direction();
-	::hw_program_uninitialize_var_view_position();
+	hw_program_uninitialize_var_sampler();
+	hw_program_uninitialize_var_shading_mode();
+	hw_program_uninitialize_var_shade_max();
+	hw_program_uninitialize_var_normal_shade();
+	hw_program_uninitialize_var_height_numerator();
+	hw_program_uninitialize_var_extra_lighting();
+	hw_program_uninitialize_var_view_direction();
+	hw_program_uninitialize_var_view_position();
 }
 
 void hw_program_initialize_vars_shading()
 {
-	::hw_program_initialize_var_shading_mode();
-	::hw_program_initialize_var_shade_max();
-	::hw_program_initialize_var_normal_shade();
-	::hw_program_initialize_var_height_numerator();
-	::hw_program_initialize_var_extra_lighting();
-	::hw_program_initialize_var_view_direction();
-	::hw_program_initialize_var_view_position();
+	hw_program_initialize_var_sampler();
+	hw_program_initialize_var_shading_mode();
+	hw_program_initialize_var_shade_max();
+	hw_program_initialize_var_normal_shade();
+	hw_program_initialize_var_height_numerator();
+	hw_program_initialize_var_extra_lighting();
+	hw_program_initialize_var_view_direction();
+	hw_program_initialize_var_view_position();
 }
 
 void hw_program_uninitialize_vars()
@@ -3402,7 +3426,6 @@ void hw_program_uninitialize_vars()
 	::hw_program_uninitialize_var_model_mat();
 	::hw_program_uninitialize_var_view_mat();
 	::hw_program_uninitialize_var_projection_mat();
-	::hw_program_uninitialize_var_texture_mat();
 	::hw_program_uninitialize_vars_shading();
 }
 
@@ -3413,7 +3436,6 @@ void hw_program_initialize_vars()
 	::hw_program_initialize_var_model_mat();
 	::hw_program_initialize_var_view_mat();
 	::hw_program_initialize_var_projection_mat();
-	::hw_program_initialize_var_texture_mat();
 	::hw_program_initialize_vars_shading();
 }
 
@@ -3427,6 +3449,7 @@ void hw_program_uninitialize()
 
 void hw_program_initialize()
 {
+	vid_log();
 	::vid_log("Initializing shader program.");
 
 	::hw_shader_fragment_create();
@@ -3435,10 +3458,53 @@ void hw_program_initialize()
 	::hw_program_initialize_vars();
 }
 
+bstone::Renderer3dKind hw_get_renderer_kind(
+	const bstone::RendererKind renderer_kind)
+{
+	switch (renderer_kind)
+	{
+		case bstone::RendererKind::gl_2_0:
+			return bstone::Renderer3dKind::gl_2_0;
+
+		case bstone::RendererKind::gl_3_2_core:
+			return bstone::Renderer3dKind::gl_3_2_core;
+
+		case bstone::RendererKind::gles_2_0:
+			return bstone::Renderer3dKind::gles_2_0;
+
+		default:
+			throw bstone::Exception{"Unsupported renderer kind."};
+	}
+}
+
+void hw_renderer_device_log_features()
+{
+	const auto& device_features = hw_renderer_->device_get_features();
+
+	vid_log();
+	vid_log("Device features");
+	vid_log("===============");
+	vid_log("V-Sync: " + vid_to_string(device_features.vsync_is_available_));
+	vid_log("V-Sync requires restart: " + vid_to_string(device_features.vsync_is_requires_restart_));
+	vid_log("Texture max dimension: " + vid_to_string(device_features.texture_max_dimension_));
+	vid_log("Viewport max width: " + vid_to_string(device_features.viewport_max_width_));
+	vid_log("Viewport max height: " + vid_to_string(device_features.viewport_max_height_));
+	vid_log("Anisotropy: " + vid_to_string(device_features.anisotropy_is_available_));
+	vid_log("Anisotropy max degree: " + vid_to_string(device_features.anisotropy_max_degree_));
+	vid_log("Non-power-of-two textures: " + vid_to_string(device_features.npot_is_available_));
+	vid_log("Mipmap auto-generation: " + vid_to_string(device_features.mipmap_is_available_));
+	vid_log("Samplers: " + vid_to_string(device_features.mipmap_is_available_));
+	vid_log("MSAA: " + vid_to_string(device_features.msaa_is_available_));
+	vid_log("MSAA (render-to-window): " + vid_to_string(device_features.msaa_is_render_to_window_));
+	vid_log("MSAA requires restart: " + vid_to_string(device_features.msaa_is_requires_restart_));
+	vid_log("MSAA max degree: " + vid_to_string(device_features.msaa_max_degree_));
+	vid_log("Vertex input max locations: " + vid_to_string(device_features.vertex_input_max_locations_));
+}
+
 void hw_renderer_initialize()
 {
 	::vid_log();
-	::vid_log("Initializing renderer.");
+	::vid_log("Initializing 3D renderer.");
 
 
 	const auto title = ::vid_get_game_name_and_game_version_string();
@@ -3446,11 +3512,10 @@ void hw_renderer_initialize()
 
 	// Initialization parameter.
 	//
-	auto param = bstone::RendererCreateParam{};
-	param.renderer_kind_ = ::vid_cfg_.renderer_kind_;
+	auto param = bstone::Renderer3dCreateParam{};
 
-	param.aa_kind_ = ::vid_cfg_.hw_aa_kind_;
-	param.aa_value_ = ::vid_cfg_.hw_aa_value_;
+	param.aa_kind_ = ::vid_cfg_.aa_kind_;
+	param.aa_value_ = ::vid_cfg_.aa_degree_;
 
 	param.is_vsync_ = ::vid_cfg_.is_vsync_;
 
@@ -3458,8 +3523,8 @@ void hw_renderer_initialize()
 	param.window_.is_visible_ = true;
 #endif // __vita__
 
-	param.window_.width_ = ::vid_dimensions_.screen_width_;
-	param.window_.height_ = ::vid_dimensions_.screen_height_;
+	param.window_.width_ = ::vid_dimensions_.window_width_;
+	param.window_.height_ = ::vid_dimensions_.window_height_;
 
 	if (!::vid_cfg_.is_windowed_)
 	{
@@ -3468,12 +3533,60 @@ void hw_renderer_initialize()
 	}
 
 	param.window_.is_positioned_ = ::vid_cfg_.is_positioned_;
-	param.window_.x_ = ::vid_cfg_.x_;
-	param.window_.y_ = ::vid_cfg_.y_;
+	param.window_.x_ = ::vid_cfg_.windowed_x_;
+	param.window_.y_ = ::vid_cfg_.windowed_y_;
 
 	param.window_.title_utf8_ = title;
 
-	::hw_renderer_ = hw_renderer_manager_->renderer_initialize(param);
+	using RendererKindList = std::vector<bstone::Renderer3dKind>;
+
+	auto renderer_kind_list = RendererKindList{};
+
+	const auto is_auto_detect = (vid_cfg_.renderer_kind_ == bstone::RendererKind::auto_detect);
+
+	if (is_auto_detect)
+	{
+#ifndef BSTONE_RENDERER_3D_TEST_NO_GL
+		renderer_kind_list =
+		{
+#ifndef BSTONE_RENDERER_3D_TEST_NO_GL_3_2_C
+			bstone::Renderer3dKind::gl_3_2_core,
+#endif // !BSTONE_RENDERER_3D_TEST_NO_GL_3_2_C
+
+#ifndef BSTONE_RENDERER_3D_TEST_NO_GL_2_0
+			bstone::Renderer3dKind::gl_2_0,
+#endif // !BSTONE_RENDERER_3D_TEST_NO_GL_2_0
+
+#ifndef BSTONE_RENDERER_3D_TEST_NO_GLES_2_0
+			bstone::Renderer3dKind::gles_2_0,
+#endif // !BSTONE_RENDERER_3D_TEST_NO_GLES_2_0
+		};
+#endif // BSTONE_RENDERER_3D_TEST_NO_GL
+	}
+	else
+	{
+		renderer_kind_list = {hw_get_renderer_kind(vid_cfg_.renderer_kind_)};
+	}
+
+	for (const auto renderer_kind : renderer_kind_list)
+	{
+		param.renderer_kind_ = renderer_kind;
+
+		vid_log("Trying to initialize \"" + vid_to_string(renderer_kind) + "\".");
+
+		try
+		{
+			hw_renderer_ = hw_renderer_manager_->renderer_initialize(param);
+
+			return;
+		}
+		catch (const bstone::Exception& ex)
+		{
+			vid_log_error(ex.what());
+		}
+	}
+
+	throw bstone::Exception{"Not found any 3D renderer."};
 }
 
 void hw_2d_ui_ib_destroy()
@@ -3486,7 +3599,7 @@ void hw_2d_ui_ib_create()
 	::vid_log("Creating UI index buffer.");
 
 	::hw_2d_ui_ib_ = ::hw_index_buffer_create(
-		bstone::RendererBufferUsageKind::static_draw,
+		bstone::Renderer3dBufferUsageKind::draw_static,
 		1,
 		::hw_2d_index_count_
 	);
@@ -3507,10 +3620,10 @@ void hw_2d_ui_ib_create()
 		(4 * 1) + 0, (4 * 1) + 2, (4 * 1) + 3,
 	};
 
-	::hw_index_buffer_update(
-		::hw_2d_ui_ib_,
+	hw_index_buffer_update(
+		hw_2d_ui_ib_,
 		0,
-		::hw_2d_index_count_,
+		hw_2d_index_count_,
 		indices.data());
 }
 
@@ -3546,7 +3659,7 @@ void hw_2d_vb_fill_x_stretched(
 	{
 		auto& vertex = vertices[vertex_index++];
 		vertex.xyz_ = HwVertexPosition{left_f, 0.0F, 0.0F};
-		vertex.rgba_ = HwVertexColor{0xFF, 0xFF, 0xFF, 0xFF};
+		vertex.rgba_8_ = HwVertexColor{0xFF, 0xFF, 0xFF, 0xFF};
 		vertex.uv_ = HwVertexTextureCoordinates{0.0F, 0.0F};
 	}
 
@@ -3554,7 +3667,7 @@ void hw_2d_vb_fill_x_stretched(
 	{
 		auto& vertex = vertices[vertex_index++];
 		vertex.xyz_ = HwVertexPosition{right_f, 0.0F, 0.0F};
-		vertex.rgba_ = HwVertexColor{0xFF, 0xFF, 0xFF, 0xFF};
+		vertex.rgba_8_ = HwVertexColor{0xFF, 0xFF, 0xFF, 0xFF};
 		vertex.uv_ = HwVertexTextureCoordinates{1.0F, 0.0F};
 	}
 
@@ -3562,7 +3675,7 @@ void hw_2d_vb_fill_x_stretched(
 	{
 		auto& vertex = vertices[vertex_index++];
 		vertex.xyz_ = HwVertexPosition{right_f, height_f, 0.0F};
-		vertex.rgba_ = HwVertexColor{0xFF, 0xFF, 0xFF, 0xFF};
+		vertex.rgba_8_ = HwVertexColor{0xFF, 0xFF, 0xFF, 0xFF};
 		vertex.uv_ = HwVertexTextureCoordinates{1.0F, 1.0F};
 	}
 
@@ -3570,7 +3683,7 @@ void hw_2d_vb_fill_x_stretched(
 	{
 		auto& vertex = vertices[vertex_index++];
 		vertex.xyz_ = HwVertexPosition{left_f, height_f, 0.0F};
-		vertex.rgba_ = HwVertexColor{0xFF, 0xFF, 0xFF, 0xFF};
+		vertex.rgba_8_ = HwVertexColor{0xFF, 0xFF, 0xFF, 0xFF};
 		vertex.uv_ = HwVertexTextureCoordinates{0.0F, 1.0F};
 	}
 }
@@ -3603,18 +3716,18 @@ void hw_2d_ui_vb_create()
 	::vid_log("Creating UI vertex buffer.");
 
 	::hw_2d_ui_vb_ = ::hw_vertex_buffer_create<HwVertex>(
-		bstone::RendererBufferUsageKind::static_draw,
+		bstone::Renderer3dBufferUsageKind::draw_static,
 		::hw_2d_vertex_count_
 	);
 
 	hw_2d_vb_fill_stretched();
 	hw_2d_vb_fill_non_stretched();
 
-	::hw_vertex_buffer_update(
-		::hw_2d_ui_vb_,
+	hw_vertex_buffer_update(
+		hw_2d_ui_vb_,
 		0,
-		::hw_2d_vertex_count_,
-		::hw_2d_vertices_.data()
+		hw_2d_vertex_count_,
+		hw_2d_vertices_.data()
 	);
 }
 
@@ -3628,7 +3741,7 @@ void hw_2d_fillers_ib_create()
 	::vid_log("Creating 2D filler index buffer.");
 
 	::hw_2d_fillers_ib_ = ::hw_index_buffer_create(
-		bstone::RendererBufferUsageKind::static_draw,
+		bstone::Renderer3dBufferUsageKind::draw_static,
 		1,
 		::hw_2d_fillers_index_count_
 	);
@@ -3685,11 +3798,11 @@ void hw_2d_fillers_vb_create()
 	::vid_log("Creating 2D filler vertex buffer.");
 
 	::hw_2d_fillers_vb_ = ::hw_vertex_buffer_create<HwVertex>(
-		bstone::RendererBufferUsageKind::static_draw,
+		bstone::Renderer3dBufferUsageKind::draw_static,
 		::hw_2d_fillers_vertex_count_
 	);
 
-	const auto& filler_color = ::hw_vga_color_to_r8g8b8a8(
+	const auto& filler_color = ::hw_vga_color_to_rgba_8(
 		::vgapal[(::filler_color_index * 3) + 0],
 		::vgapal[(::filler_color_index * 3) + 1],
 		::vgapal[(::filler_color_index * 3) + 2]
@@ -3733,7 +3846,7 @@ void hw_2d_fillers_vb_create()
 	{
 		auto& vertex = vertices[vertex_index++];
 		vertex.xyz_ = HwVertexPosition{left_left_f, bottom_bottom_f, 0.0F};
-		vertex.rgba_ = filler_color;
+		vertex.rgba_8_ = filler_color;
 		vertex.uv_ = HwVertexTextureCoordinates{0.0F, 0.0F};
 	}
 
@@ -3741,7 +3854,7 @@ void hw_2d_fillers_vb_create()
 	{
 		auto& vertex = vertices[vertex_index++];
 		vertex.xyz_ = HwVertexPosition{left_right_f, bottom_bottom_f, 0.0F};
-		vertex.rgba_ = filler_color;
+		vertex.rgba_8_ = filler_color;
 		vertex.uv_ = HwVertexTextureCoordinates{1.0F, 0.0F};
 	}
 
@@ -3749,7 +3862,7 @@ void hw_2d_fillers_vb_create()
 	{
 		auto& vertex = vertices[vertex_index++];
 		vertex.xyz_ = HwVertexPosition{left_right_f, top_top_f, 0.0F};
-		vertex.rgba_ = filler_color;
+		vertex.rgba_8_ = filler_color;
 		vertex.uv_ = HwVertexTextureCoordinates{1.0F, 1.0F};
 	}
 
@@ -3757,7 +3870,7 @@ void hw_2d_fillers_vb_create()
 	{
 		auto& vertex = vertices[vertex_index++];
 		vertex.xyz_ = HwVertexPosition{left_left_f, top_top_f, 0.0F};
-		vertex.rgba_ = filler_color;
+		vertex.rgba_8_ = filler_color;
 		vertex.uv_ = HwVertexTextureCoordinates{0.0F, 1.0F};
 	}
 
@@ -3782,7 +3895,7 @@ void hw_2d_fillers_vb_create()
 	{
 		auto& vertex = vertices[vertex_index++];
 		vertex.xyz_ = HwVertexPosition{right_left_f, bottom_bottom_f, 0.0F};
-		vertex.rgba_ = filler_color;
+		vertex.rgba_8_ = filler_color;
 		vertex.uv_ = HwVertexTextureCoordinates{0.0F, 0.0F};
 	}
 
@@ -3790,7 +3903,7 @@ void hw_2d_fillers_vb_create()
 	{
 		auto& vertex = vertices[vertex_index++];
 		vertex.xyz_ = HwVertexPosition{right_right_f, bottom_bottom_f, 0.0F};
-		vertex.rgba_ = filler_color;
+		vertex.rgba_8_ = filler_color;
 		vertex.uv_ = HwVertexTextureCoordinates{1.0F, 0.0F};
 	}
 
@@ -3798,7 +3911,7 @@ void hw_2d_fillers_vb_create()
 	{
 		auto& vertex = vertices[vertex_index++];
 		vertex.xyz_ = HwVertexPosition{right_right_f, top_top_f, 0.0F};
-		vertex.rgba_ = filler_color;
+		vertex.rgba_8_ = filler_color;
 		vertex.uv_ = HwVertexTextureCoordinates{1.0F, 1.0F};
 	}
 
@@ -3806,7 +3919,7 @@ void hw_2d_fillers_vb_create()
 	{
 		auto& vertex = vertices[vertex_index++];
 		vertex.xyz_ = HwVertexPosition{right_left_f, top_top_f, 0.0F};
-		vertex.rgba_ = filler_color;
+		vertex.rgba_8_ = filler_color;
 		vertex.uv_ = HwVertexTextureCoordinates{0.0F, 1.0F};
 	}
 
@@ -3839,7 +3952,7 @@ void hw_2d_fillers_vb_create()
 	{
 		auto& vertex = vertices[vertex_index++];
 		vertex.xyz_ = HwVertexPosition{left_left_f, bottom_bottom_f, 0.0F};
-		vertex.rgba_ = filler_color;
+		vertex.rgba_8_ = filler_color;
 		vertex.uv_ = HwVertexTextureCoordinates{0.0F, 0.0F};
 	}
 
@@ -3847,7 +3960,7 @@ void hw_2d_fillers_vb_create()
 	{
 		auto& vertex = vertices[vertex_index++];
 		vertex.xyz_ = HwVertexPosition{left_right_f, bottom_bottom_f, 0.0F};
-		vertex.rgba_ = filler_color;
+		vertex.rgba_8_ = filler_color;
 		vertex.uv_ = HwVertexTextureCoordinates{1.0F, 0.0F};
 	}
 
@@ -3855,7 +3968,7 @@ void hw_2d_fillers_vb_create()
 	{
 		auto& vertex = vertices[vertex_index++];
 		vertex.xyz_ = HwVertexPosition{left_right_f, bottom_top_f, 0.0F};
-		vertex.rgba_ = filler_color;
+		vertex.rgba_8_ = filler_color;
 		vertex.uv_ = HwVertexTextureCoordinates{1.0F, 1.0F};
 	}
 
@@ -3863,7 +3976,7 @@ void hw_2d_fillers_vb_create()
 	{
 		auto& vertex = vertices[vertex_index++];
 		vertex.xyz_ = HwVertexPosition{left_left_f, bottom_top_f, 0.0F};
-		vertex.rgba_ = filler_color;
+		vertex.rgba_8_ = filler_color;
 		vertex.uv_ = HwVertexTextureCoordinates{0.0F, 1.0F};
 	}
 
@@ -3887,7 +4000,7 @@ void hw_2d_fillers_vb_create()
 	{
 		auto& vertex = vertices[vertex_index++];
 		vertex.xyz_ = HwVertexPosition{right_left_f, bottom_bottom_f, 0.0F};
-		vertex.rgba_ = filler_color;
+		vertex.rgba_8_ = filler_color;
 		vertex.uv_ = HwVertexTextureCoordinates{0.0F, 0.0F};
 	}
 
@@ -3895,7 +4008,7 @@ void hw_2d_fillers_vb_create()
 	{
 		auto& vertex = vertices[vertex_index++];
 		vertex.xyz_ = HwVertexPosition{right_right_f, bottom_bottom_f, 0.0F};
-		vertex.rgba_ = filler_color;
+		vertex.rgba_8_ = filler_color;
 		vertex.uv_ = HwVertexTextureCoordinates{1.0F, 0.0F};
 	}
 
@@ -3903,7 +4016,7 @@ void hw_2d_fillers_vb_create()
 	{
 		auto& vertex = vertices[vertex_index++];
 		vertex.xyz_ = HwVertexPosition{right_right_f, bottom_top_f, 0.0F};
-		vertex.rgba_ = filler_color;
+		vertex.rgba_8_ = filler_color;
 		vertex.uv_ = HwVertexTextureCoordinates{1.0F, 1.0F};
 	}
 
@@ -3911,7 +4024,7 @@ void hw_2d_fillers_vb_create()
 	{
 		auto& vertex = vertices[vertex_index++];
 		vertex.xyz_ = HwVertexPosition{right_left_f, bottom_top_f, 0.0F};
-		vertex.rgba_ = filler_color;
+		vertex.rgba_8_ = filler_color;
 		vertex.uv_ = HwVertexTextureCoordinates{0.0F, 1.0F};
 	}
 
@@ -3935,7 +4048,7 @@ void hw_2d_fillers_vb_create()
 	{
 		auto& vertex = vertices[vertex_index++];
 		vertex.xyz_ = HwVertexPosition{right_left_f, top_bottom_f, 0.0F};
-		vertex.rgba_ = filler_color;
+		vertex.rgba_8_ = filler_color;
 		vertex.uv_ = HwVertexTextureCoordinates{0.0F, 0.0F};
 	}
 
@@ -3943,7 +4056,7 @@ void hw_2d_fillers_vb_create()
 	{
 		auto& vertex = vertices[vertex_index++];
 		vertex.xyz_ = HwVertexPosition{right_right_f, top_bottom_f, 0.0F};
-		vertex.rgba_ = filler_color;
+		vertex.rgba_8_ = filler_color;
 		vertex.uv_ = HwVertexTextureCoordinates{1.0F, 0.0F};
 	}
 
@@ -3951,7 +4064,7 @@ void hw_2d_fillers_vb_create()
 	{
 		auto& vertex = vertices[vertex_index++];
 		vertex.xyz_ = HwVertexPosition{right_right_f, top_top_f, 0.0F};
-		vertex.rgba_ = filler_color;
+		vertex.rgba_8_ = filler_color;
 		vertex.uv_ = HwVertexTextureCoordinates{1.0F, 1.0F};
 	}
 
@@ -3959,7 +4072,7 @@ void hw_2d_fillers_vb_create()
 	{
 		auto& vertex = vertices[vertex_index++];
 		vertex.xyz_ = HwVertexPosition{right_left_f, top_top_f, 0.0F};
-		vertex.rgba_ = filler_color;
+		vertex.rgba_8_ = filler_color;
 		vertex.uv_ = HwVertexTextureCoordinates{0.0F, 1.0F};
 	}
 
@@ -3983,7 +4096,7 @@ void hw_2d_fillers_vb_create()
 	{
 		auto& vertex = vertices[vertex_index++];
 		vertex.xyz_ = HwVertexPosition{left_left_f, top_bottom_f, 0.0F};
-		vertex.rgba_ = filler_color;
+		vertex.rgba_8_ = filler_color;
 		vertex.uv_ = HwVertexTextureCoordinates{0.0F, 0.0F};
 	}
 
@@ -3991,7 +4104,7 @@ void hw_2d_fillers_vb_create()
 	{
 		auto& vertex = vertices[vertex_index++];
 		vertex.xyz_ = HwVertexPosition{left_right_f, top_bottom_f, 0.0F};
-		vertex.rgba_ = filler_color;
+		vertex.rgba_8_ = filler_color;
 		vertex.uv_ = HwVertexTextureCoordinates{1.0F, 0.0F};
 	}
 
@@ -3999,7 +4112,7 @@ void hw_2d_fillers_vb_create()
 	{
 		auto& vertex = vertices[vertex_index++];
 		vertex.xyz_ = HwVertexPosition{left_right_f, top_top_f, 0.0F};
-		vertex.rgba_ = filler_color;
+		vertex.rgba_8_ = filler_color;
 		vertex.uv_ = HwVertexTextureCoordinates{1.0F, 1.0F};
 	}
 
@@ -4007,7 +4120,7 @@ void hw_2d_fillers_vb_create()
 	{
 		auto& vertex = vertices[vertex_index++];
 		vertex.xyz_ = HwVertexPosition{left_left_f, top_top_f, 0.0F};
-		vertex.rgba_ = filler_color;
+		vertex.rgba_8_ = filler_color;
 		vertex.uv_ = HwVertexTextureCoordinates{0.0F, 1.0F};
 	}
 
@@ -4165,7 +4278,7 @@ void hw_3d_flooring_ib_create()
 
 	{
 		::hw_3d_flooring_ib_ = ::hw_index_buffer_create(
-			bstone::RendererBufferUsageKind::static_draw,
+			bstone::Renderer3dBufferUsageKind::draw_static,
 			1,
 			index_count
 		);
@@ -4202,7 +4315,7 @@ void hw_3d_flooring_vb_create()
 
 	{
 		::hw_3d_flooring_vb_ = ::hw_vertex_buffer_create<Hw3dFlooringVertex>(
-			bstone::RendererBufferUsageKind::static_draw,
+			bstone::Renderer3dBufferUsageKind::draw_static,
 			vertex_count
 		);
 	}
@@ -4322,7 +4435,7 @@ void hw_3d_ceiling_ib_create()
 
 	{
 		::hw_3d_ceiling_ib_ = ::hw_index_buffer_create(
-			bstone::RendererBufferUsageKind::static_draw,
+			bstone::Renderer3dBufferUsageKind::draw_static,
 			1,
 			index_count
 		);
@@ -4359,7 +4472,7 @@ void hw_3d_ceiling_vb_create()
 
 	{
 		::hw_3d_ceiling_vb_ = ::hw_vertex_buffer_create<Hw3dCeilingVertex>(
-			bstone::RendererBufferUsageKind::static_draw,
+			bstone::Renderer3dBufferUsageKind::draw_static,
 			vertex_count
 		);
 	}
@@ -4469,7 +4582,7 @@ void hw_3d_walls_ib_create()
 	const auto index_count = ::hw_3d_wall_side_count_ * ::hw_3d_indices_per_wall_side;
 
 	::hw_3d_wall_sides_ib_ = ::hw_index_buffer_create(
-		bstone::RendererBufferUsageKind::stream_draw,
+		bstone::Renderer3dBufferUsageKind::draw_streaming,
 		2,
 		index_count
 	);
@@ -4491,7 +4604,7 @@ void hw_3d_walls_vb_create()
 	const auto vertex_count = ::hw_3d_wall_side_count_ * ::hw_3d_vertices_per_wall_side;
 
 	::hw_3d_wall_sides_vb_ = ::hw_vertex_buffer_create<Hw3dWallVertex>(
-		bstone::RendererBufferUsageKind::static_draw,
+		bstone::Renderer3dBufferUsageKind::draw_static,
 		vertex_count
 	);
 }
@@ -4563,7 +4676,7 @@ void hw_3d_pushwalls_ib_create()
 	const auto index_count = ::hw_3d_pushwall_side_count_ * ::hw_3d_indices_per_wall_side;
 
 	::hw_3d_pushwall_sides_ib_ = ::hw_index_buffer_create(
-		bstone::RendererBufferUsageKind::stream_draw,
+		bstone::Renderer3dBufferUsageKind::draw_streaming,
 		2,
 		index_count
 	);
@@ -4586,7 +4699,7 @@ void hw_3d_pushwalls_vb_create()
 	const auto vertex_count = ::hw_3d_pushwall_side_count_ * ::hw_3d_vertices_per_wall_side;
 
 	::hw_3d_pushwall_sides_vb_ = ::hw_vertex_buffer_create<Hw3dPushwallVertex>(
-		bstone::RendererBufferUsageKind::dynamic_draw,
+		bstone::Renderer3dBufferUsageKind::draw_dynamic,
 		vertex_count
 	);
 }
@@ -4665,7 +4778,7 @@ void hw_3d_door_sides_ib_create()
 	const auto index_count = ::hw_3d_door_count_ * ::hw_3d_indices_per_door_side;
 
 	::hw_3d_door_sides_ib_ = ::hw_index_buffer_create(
-		bstone::RendererBufferUsageKind::stream_draw,
+		bstone::Renderer3dBufferUsageKind::draw_streaming,
 		2,
 		index_count
 	);
@@ -4690,7 +4803,7 @@ void hw_3d_door_sides_vb_create()
 	const auto vertex_count = ::hw_3d_door_count_ * ::hw_3d_indices_per_door_side;
 
 	::hw_3d_door_sides_vb_ = ::hw_vertex_buffer_create<Hw3dDoorVertex>(
-		bstone::RendererBufferUsageKind::dynamic_draw,
+		bstone::Renderer3dBufferUsageKind::draw_dynamic,
 		vertex_count
 	);
 }
@@ -4759,7 +4872,7 @@ void hw_palette_update(
 		const auto& vga_color = ::vid_vga_palette_[color_index];
 		auto& hw_color = ::hw_palette_[color_index];
 
-		hw_color = ::hw_vga_color_to_r8g8b8a8(
+		hw_color = ::hw_vga_color_to_rgba_8(
 			vga_color.r_,
 			vga_color.g_,
 			vga_color.b_
@@ -4773,14 +4886,14 @@ void hw_palette_initialize()
 
 	::hw_palette_update(0, bstone::RgbPalette::get_max_color_count());
 
-	::hw_default_palette_ = bstone::R8g8b8a8Palette{};
+	::hw_default_palette_ = bstone::Rgba8Palette{};
 
 	for (int i = 0; i < bstone::RgbPalette::get_max_color_count(); ++i)
 	{
 		const auto vga_color = ::vgapal + (i * 3);
 		auto& hw_color = ::hw_default_palette_[i];
 
-		hw_color = ::hw_vga_color_to_r8g8b8a8(vga_color[0], vga_color[1], vga_color[2]);
+		hw_color = ::hw_vga_color_to_rgba_8(vga_color[0], vga_color[1], vga_color[2]);
 	}
 }
 
@@ -4852,12 +4965,6 @@ void hw_3d_camera_parameters_calculate()
 	::hw_3d_camera_far_distance = (std::sqrt(2.0) * ::hw_3d_map_dimension_d) + 0.5;
 }
 
-void hw_matrix_texture_build()
-{
-	hw_matrix_texture_.set_is_modified(true);
-	::hw_matrix_texture_ = ::hw_renderer_->csc_get_texture();
-}
-
 void hw_3d_matrix_bs_to_r_build()
 {
 	//
@@ -4874,7 +4981,7 @@ void hw_3d_matrix_bs_to_r_build()
 
 	const auto m_21 = 0.0F;
 	const auto m_22 = 0.0F;
-	const auto m_23 = 1.2F;
+	const auto m_23 = static_cast<float>(height_compensation_factor);
 	const auto m_24 = 0.0F;
 
 	const auto m_31 = -1.0F;
@@ -4928,9 +5035,7 @@ void hw_3d_matrix_projection_build()
 		static_cast<float>(::hw_3d_camera_far_distance)
 	);
 
-	const auto& correction = ::hw_renderer_->csc_get_projection();
-
-	::hw_3d_matrix_projection_ = correction * perspective * ::hw_3d_matrix_bs_to_r_;
+	::hw_3d_matrix_projection_ = perspective * ::hw_3d_matrix_bs_to_r_;
 }
 
 void hw_3d_matrices_build()
@@ -4945,25 +5050,24 @@ void hw_3d_matrices_build()
 
 void hw_matrices_build()
 {
-	::hw_matrix_texture_build();
 	::hw_2d_matrices_build();
 	::hw_3d_matrices_build();
 }
 
 void hw_2d_sampler_ui_set_default_state()
 {
-	::hw_2d_ui_s_state_.min_filter_ = bstone::RendererFilterKind::nearest;
-	::hw_2d_ui_s_state_.mag_filter_ = bstone::RendererFilterKind::nearest;
-	::hw_2d_ui_s_state_.mipmap_mode_ = bstone::RendererMipmapMode::none;
-	::hw_2d_ui_s_state_.address_mode_u_ = bstone::RendererAddressMode::clamp;
-	::hw_2d_ui_s_state_.address_mode_v_ = bstone::RendererAddressMode::clamp;
-	::hw_2d_ui_s_state_.anisotropy_ = bstone::RendererLimits::anisotropy_min_off;
+	::hw_2d_ui_s_state_.min_filter_ = bstone::Renderer3dFilterKind::nearest;
+	::hw_2d_ui_s_state_.mag_filter_ = bstone::Renderer3dFilterKind::nearest;
+	::hw_2d_ui_s_state_.mipmap_mode_ = bstone::Renderer3dMipmapMode::none;
+	::hw_2d_ui_s_state_.address_mode_u_ = bstone::Renderer3dAddressMode::clamp;
+	::hw_2d_ui_s_state_.address_mode_v_ = bstone::Renderer3dAddressMode::clamp;
+	::hw_2d_ui_s_state_.anisotropy_ = bstone::Renderer3dLimits::anisotropy_min_off;
 }
 
 void hw_2d_sampler_ui_update_state()
 {
-	::hw_2d_ui_s_state_.min_filter_ = ::vid_cfg_.hw_2d_texture_filter_;
-	::hw_2d_ui_s_state_.mag_filter_ = ::vid_cfg_.hw_2d_texture_filter_;
+	::hw_2d_ui_s_state_.min_filter_ = ::vid_cfg_.d2_texture_filter_;
+	::hw_2d_ui_s_state_.mag_filter_ = ::vid_cfg_.d2_texture_filter_;
 }
 
 void hw_2d_sampler_ui_update()
@@ -4972,7 +5076,7 @@ void hw_2d_sampler_ui_update()
 
 	if (hw_2d_ui_s_ != nullptr)
 	{
-		auto param = bstone::RendererSamplerUpdateParam{};
+		auto param = bstone::Renderer3dSamplerUpdateParam{};
 		param.state_ = ::hw_2d_ui_s_state_;
 		::hw_2d_ui_s_->update(param);
 	}
@@ -4980,11 +5084,7 @@ void hw_2d_sampler_ui_update()
 
 void hw_2d_sampler_ui_destroy()
 {
-	if (::hw_2d_ui_s_)
-	{
-		::hw_renderer_->sampler_destroy(::hw_2d_ui_s_);
-		::hw_2d_ui_s_ = nullptr;
-	}
+	hw_2d_ui_s_ = nullptr;
 }
 
 void hw_2d_sampler_ui_create()
@@ -4993,7 +5093,7 @@ void hw_2d_sampler_ui_create()
 
 	::hw_2d_sampler_ui_update_state();
 
-	auto param = bstone::RendererSamplerCreateParam{};
+	auto param = bstone::Renderer3dSamplerCreateParam{};
 	param.state_ = ::hw_2d_ui_s_state_;
 
 	::hw_2d_ui_s_ = ::hw_renderer_->sampler_create(param);
@@ -5001,24 +5101,24 @@ void hw_2d_sampler_ui_create()
 
 void hw_3d_sampler_sprite_set_default_state()
 {
-	::hw_3d_sprite_s_state_.min_filter_ = bstone::RendererFilterKind::nearest;
-	::hw_3d_sprite_s_state_.mag_filter_ = bstone::RendererFilterKind::nearest;
-	::hw_3d_sprite_s_state_.mipmap_mode_ = bstone::RendererMipmapMode::nearest;
-	::hw_3d_sprite_s_state_.address_mode_u_ = bstone::RendererAddressMode::clamp;
-	::hw_3d_sprite_s_state_.address_mode_v_ = bstone::RendererAddressMode::clamp;
-	::hw_3d_sprite_s_state_.anisotropy_ = bstone::RendererLimits::anisotropy_min_off;
+	::hw_3d_sprite_s_state_.min_filter_ = bstone::Renderer3dFilterKind::nearest;
+	::hw_3d_sprite_s_state_.mag_filter_ = bstone::Renderer3dFilterKind::nearest;
+	::hw_3d_sprite_s_state_.mipmap_mode_ = bstone::Renderer3dMipmapMode::nearest;
+	::hw_3d_sprite_s_state_.address_mode_u_ = bstone::Renderer3dAddressMode::clamp;
+	::hw_3d_sprite_s_state_.address_mode_v_ = bstone::Renderer3dAddressMode::clamp;
+	::hw_3d_sprite_s_state_.anisotropy_ = bstone::Renderer3dLimits::anisotropy_min_off;
 }
 
 void hw_3d_sampler_sprite_update_state()
 {
-	::hw_3d_sprite_s_state_.min_filter_ = ::vid_cfg_.hw_3d_texture_image_filter_;
-	::hw_3d_sprite_s_state_.mag_filter_ = ::vid_cfg_.hw_3d_texture_image_filter_;
+	::hw_3d_sprite_s_state_.min_filter_ = ::vid_cfg_.d3_texture_image_filter_;
+	::hw_3d_sprite_s_state_.mag_filter_ = ::vid_cfg_.d3_texture_image_filter_;
 
 	::hw_3d_sprite_s_state_.mipmap_mode_ = ::hw_config_texture_mipmap_filter_to_renderer(
-		::vid_cfg_.hw_3d_texture_mipmap_filter_);
+		::vid_cfg_.d3_texture_mipmap_filter_);
 
 	::hw_3d_sprite_s_state_.anisotropy_ = ::hw_config_texture_anisotropy_to_renderer(
-		::vid_cfg_.hw_3d_texture_anisotropy_
+		::vid_cfg_.d3_texture_anisotropy_
 	);
 }
 
@@ -5028,7 +5128,7 @@ void hw_3d_sampler_sprite_update()
 
 	if (::hw_3d_sprite_s_)
 	{
-		auto param = bstone::RendererSamplerUpdateParam{};
+		auto param = bstone::Renderer3dSamplerUpdateParam{};
 		param.state_ = ::hw_3d_sprite_s_state_;
 		::hw_3d_sprite_s_->update(param);
 	}
@@ -5045,7 +5145,7 @@ void hw_3d_sampler_sprite_create()
 
 	::hw_3d_sampler_sprite_update_state();
 
-	auto param = bstone::RendererSamplerCreateParam{};
+	auto param = bstone::Renderer3dSamplerCreateParam{};
 	param.state_ = ::hw_3d_sprite_s_state_;
 
 	::hw_3d_sprite_s_ = ::hw_renderer_->sampler_create(param);
@@ -5053,24 +5153,24 @@ void hw_3d_sampler_sprite_create()
 
 void hw_3d_sampler_wall_set_default_state()
 {
-	::hw_3d_wall_s_state_.min_filter_ = bstone::RendererFilterKind::nearest;
-	::hw_3d_wall_s_state_.mag_filter_ = bstone::RendererFilterKind::nearest;
-	::hw_3d_wall_s_state_.mipmap_mode_ = bstone::RendererMipmapMode::nearest;
-	::hw_3d_wall_s_state_.address_mode_u_ = bstone::RendererAddressMode::repeat;
-	::hw_3d_wall_s_state_.address_mode_v_ = bstone::RendererAddressMode::repeat;
-	::hw_3d_wall_s_state_.anisotropy_ = bstone::RendererLimits::anisotropy_min_off;
+	::hw_3d_wall_s_state_.min_filter_ = bstone::Renderer3dFilterKind::nearest;
+	::hw_3d_wall_s_state_.mag_filter_ = bstone::Renderer3dFilterKind::nearest;
+	::hw_3d_wall_s_state_.mipmap_mode_ = bstone::Renderer3dMipmapMode::nearest;
+	::hw_3d_wall_s_state_.address_mode_u_ = bstone::Renderer3dAddressMode::repeat;
+	::hw_3d_wall_s_state_.address_mode_v_ = bstone::Renderer3dAddressMode::repeat;
+	::hw_3d_wall_s_state_.anisotropy_ = bstone::Renderer3dLimits::anisotropy_min_off;
 }
 
 void hw_3d_sampler_wall_update_state()
 {
-	::hw_3d_wall_s_state_.min_filter_ = ::vid_cfg_.hw_3d_texture_image_filter_;
-	::hw_3d_wall_s_state_.mag_filter_ = ::vid_cfg_.hw_3d_texture_image_filter_;
+	::hw_3d_wall_s_state_.min_filter_ = ::vid_cfg_.d3_texture_image_filter_;
+	::hw_3d_wall_s_state_.mag_filter_ = ::vid_cfg_.d3_texture_image_filter_;
 
 	::hw_3d_wall_s_state_.mipmap_mode_ = ::hw_config_texture_mipmap_filter_to_renderer(
-		::vid_cfg_.hw_3d_texture_mipmap_filter_);
+		::vid_cfg_.d3_texture_mipmap_filter_);
 
 	::hw_3d_wall_s_state_.anisotropy_ = ::hw_config_texture_anisotropy_to_renderer(
-		::vid_cfg_.hw_3d_texture_anisotropy_
+		::vid_cfg_.d3_texture_anisotropy_
 	);
 }
 
@@ -5080,7 +5180,7 @@ void hw_3d_sampler_wall_update()
 
 	if (::hw_3d_wall_s_ != nullptr)
 	{
-		auto param = bstone::RendererSamplerUpdateParam{};
+		auto param = bstone::Renderer3dSamplerUpdateParam{};
 		param.state_ = ::hw_3d_wall_s_state_;
 		::hw_3d_wall_s_->update(param);
 	}
@@ -5097,7 +5197,7 @@ void hw_3d_sampler_wall_create()
 
 	::hw_3d_sampler_wall_update_state();
 
-	auto param = bstone::RendererSamplerCreateParam{};
+	auto param = bstone::Renderer3dSamplerCreateParam{};
 	param.state_ = ::hw_3d_wall_s_state_;
 
 	::hw_3d_wall_s_ = ::hw_renderer_->sampler_create(param);
@@ -5165,7 +5265,7 @@ void hw_3d_player_weapon_ib_create()
 	::vid_log("Creating player's weapon index buffer.");
 
 	::hw_3d_player_weapon_ib_ = ::hw_index_buffer_create(
-		bstone::RendererBufferUsageKind::static_draw,
+		bstone::Renderer3dBufferUsageKind::draw_static,
 		1,
 		::hw_3d_indices_per_sprite
 	);
@@ -5199,7 +5299,7 @@ void hw_3d_player_weapon_vb_create()
 	::vid_log("Creating player's weapon vertex buffer.");
 
 	::hw_3d_player_weapon_vb_ = ::hw_vertex_buffer_create<Hw3dPlayerWeaponVertex>(
-		bstone::RendererBufferUsageKind::static_draw,
+		bstone::Renderer3dBufferUsageKind::draw_static,
 		::hw_3d_vertices_per_sprite
 	);
 }
@@ -5223,8 +5323,8 @@ void hw_3d_player_weapon_model_matrix_update()
 {
 	const auto& assets_info = AssetsInfo{};
 
-	const auto aog_scale = 25.0 / 9.0;
-	const auto ps_scale = 91.0 / 45.0;
+	const auto aog_scale = 128.0 / 64.0;
+	const auto ps_scale = 88.0 / 64.0;
 
 	const auto game_scalar = (assets_info.is_ps() ? ps_scale : aog_scale);
 	const auto scalar = game_scalar * ::vga_height_scale;
@@ -5237,14 +5337,17 @@ void hw_3d_player_weapon_model_matrix_update()
 	const auto translate_v = glm::vec3
 	{
 		static_cast<float>(translate_x),
-		static_cast<float>(translate_y),
-		0.0
+		static_cast<float>(height_compensation_factor * translate_y),
+		0.0F
 	};
 
 	const auto& identity = glm::identity<glm::mat4>();
 	const auto& translate = glm::translate(identity, translate_v);
 
-	const auto& scale = glm::scale(identity, glm::vec3{scalar, scalar, 0.0F});
+	const auto& scale = glm::scale(
+		identity,
+		glm::vec3{scalar, height_compensation_factor * scalar, 0.0F}
+	);
 
 	::hw_3d_player_weapon_model_matrix_ = translate * scale;
 }
@@ -5265,25 +5368,23 @@ void hw_3d_player_weapon_projection_matrix_build()
 		1.0F // zFar
 	);
 
-	const auto& correction = ::hw_renderer_->csc_get_projection();
-
-	::hw_3d_player_weapon_projection_matrix_ = correction * ortho;
+	::hw_3d_player_weapon_projection_matrix_ = ortho;
 }
 
 void hw_3d_player_weapon_sampler_set_default_state()
 {
-	::hw_3d_player_weapon_s_state_.min_filter_ = bstone::RendererFilterKind::nearest;
-	::hw_3d_player_weapon_s_state_.mag_filter_ = bstone::RendererFilterKind::nearest;
-	::hw_3d_player_weapon_s_state_.mipmap_mode_ = bstone::RendererMipmapMode::none;
-	::hw_3d_player_weapon_s_state_.address_mode_u_ = bstone::RendererAddressMode::clamp;
-	::hw_3d_player_weapon_s_state_.address_mode_v_ = bstone::RendererAddressMode::clamp;
-	::hw_3d_player_weapon_s_state_.anisotropy_ = bstone::RendererLimits::anisotropy_min_off;
+	::hw_3d_player_weapon_s_state_.min_filter_ = bstone::Renderer3dFilterKind::nearest;
+	::hw_3d_player_weapon_s_state_.mag_filter_ = bstone::Renderer3dFilterKind::nearest;
+	::hw_3d_player_weapon_s_state_.mipmap_mode_ = bstone::Renderer3dMipmapMode::none;
+	::hw_3d_player_weapon_s_state_.address_mode_u_ = bstone::Renderer3dAddressMode::clamp;
+	::hw_3d_player_weapon_s_state_.address_mode_v_ = bstone::Renderer3dAddressMode::clamp;
+	::hw_3d_player_weapon_s_state_.anisotropy_ = bstone::Renderer3dLimits::anisotropy_min_off;
 }
 
 void hw_3d_player_weapon_sampler_update_state()
 {
-	::hw_3d_player_weapon_s_state_.min_filter_ = ::vid_cfg_.hw_3d_texture_image_filter_;
-	::hw_3d_player_weapon_s_state_.mag_filter_ = ::vid_cfg_.hw_3d_texture_image_filter_;
+	::hw_3d_player_weapon_s_state_.min_filter_ = ::vid_cfg_.d3_texture_image_filter_;
+	::hw_3d_player_weapon_s_state_.mag_filter_ = ::vid_cfg_.d3_texture_image_filter_;
 }
 
 void hw_3d_player_weapon_sampler_update()
@@ -5292,7 +5393,7 @@ void hw_3d_player_weapon_sampler_update()
 
 	if (::hw_3d_player_weapon_s_ != nullptr)
 	{
-		auto param = bstone::RendererSamplerUpdateParam{};
+		auto param = bstone::Renderer3dSamplerUpdateParam{};
 		param.state_ = ::hw_3d_player_weapon_s_state_;
 		::hw_3d_player_weapon_s_->update(param);
 	}
@@ -5300,11 +5401,7 @@ void hw_3d_player_weapon_sampler_update()
 
 void hw_3d_player_weapon_sampler_destroy()
 {
-	if (::hw_3d_player_weapon_s_)
-	{
-		::hw_renderer_->sampler_destroy(::hw_3d_player_weapon_s_);
-		::hw_3d_player_weapon_s_ = nullptr;
-	}
+	hw_3d_player_weapon_s_ = nullptr;
 }
 
 void hw_3d_player_weapon_sampler_create()
@@ -5313,7 +5410,7 @@ void hw_3d_player_weapon_sampler_create()
 
 	::hw_3d_player_weapon_sampler_update_state();
 
-	auto param = bstone::RendererSamplerCreateParam{};
+	auto param = bstone::Renderer3dSamplerCreateParam{};
 	param.state_ = ::hw_3d_player_weapon_s_state_;
 
 	::hw_3d_player_weapon_s_ = ::hw_renderer_->sampler_create(param);
@@ -5354,13 +5451,13 @@ void hw_fade_sampler_create()
 {
 	::vid_log("Creating fade sampler.");
 
-	auto param = bstone::RendererSamplerCreateParam{};
-	param.state_.min_filter_ = bstone::RendererFilterKind::nearest;
-	param.state_.mag_filter_ = bstone::RendererFilterKind::nearest;
-	param.state_.mipmap_mode_ = bstone::RendererMipmapMode::none;
-	param.state_.address_mode_u_ = bstone::RendererAddressMode::repeat;
-	param.state_.address_mode_v_ = bstone::RendererAddressMode::repeat;
-	param.state_.anisotropy_ = bstone::RendererLimits::anisotropy_min_off;
+	auto param = bstone::Renderer3dSamplerCreateParam{};
+	param.state_.min_filter_ = bstone::Renderer3dFilterKind::nearest;
+	param.state_.mag_filter_ = bstone::Renderer3dFilterKind::nearest;
+	param.state_.mipmap_mode_ = bstone::Renderer3dMipmapMode::none;
+	param.state_.address_mode_u_ = bstone::Renderer3dAddressMode::repeat;
+	param.state_.address_mode_v_ = bstone::Renderer3dAddressMode::repeat;
+	param.state_.anisotropy_ = bstone::Renderer3dLimits::anisotropy_min_off;
 
 	::hw_fade_s_ = ::hw_renderer_->sampler_create(param);
 }
@@ -5400,7 +5497,7 @@ void hw_command_manager_create()
 {
 	::vid_log("Creating command manager.");
 
-	::hw_command_manager_ = bstone::RendererCommandManagerFactory::create();
+	::hw_command_manager_ = bstone::Renderer3dCommandManagerFactory::create();
 }
 
 void hw_command_buffer_common_destroy()
@@ -5418,7 +5515,7 @@ void hw_command_buffer_common_create()
 {
 	::vid_log("Creating common command buffer.");
 
-	auto param = bstone::RendererCommandManagerBufferAddParam{};
+	auto param = bstone::Renderer3dCommandManagerBufferAddParam{};
 	param.initial_size_ = ::hw_common_command_buffer_initial_size;
 	param.resize_delta_size_ = ::hw_common_command_buffer_resize_delta_size;
 
@@ -5440,7 +5537,7 @@ void hw_command_buffer_2d_create()
 {
 	::vid_log("Creating 2D command buffer.");
 
-	auto param = bstone::RendererCommandManagerBufferAddParam{};
+	auto param = bstone::Renderer3dCommandManagerBufferAddParam{};
 	param.initial_size_ = ::hw_2d_command_buffer_initial_size;
 	param.resize_delta_size_ = ::hw_2d_command_buffer_resize_delta_size;
 
@@ -5462,7 +5559,7 @@ void hw_command_buffer_3d_create()
 {
 	::vid_log("Creating 3D command buffer.");
 
-	auto param = bstone::RendererCommandManagerBufferAddParam{};
+	auto param = bstone::Renderer3dCommandManagerBufferAddParam{};
 	param.initial_size_ = ::hw_3d_command_buffer_initial_size;
 	param.resize_delta_size_ = ::hw_3d_command_buffer_resize_delta_size;
 
@@ -5498,7 +5595,7 @@ void hw_3d_fade_ib_create()
 	::vid_log("Creating 3D fade index buffer.");
 
 	::hw_3d_fade_ib_ = ::hw_index_buffer_create(
-		bstone::RendererBufferUsageKind::static_draw,
+		bstone::Renderer3dBufferUsageKind::draw_static,
 		1,
 		6
 	);
@@ -5514,7 +5611,7 @@ void hw_3d_fade_vb_create()
 	::vid_log("Creating 3D fade vertex buffer.");
 
 	::hw_3d_fade_vb_ = ::hw_vertex_buffer_create<Hw3dFadeVertex>(
-		bstone::RendererBufferUsageKind::static_draw,
+		bstone::Renderer3dBufferUsageKind::draw_static,
 		4
 	);
 }
@@ -5631,6 +5728,7 @@ void hw_texture_manager_destroy()
 
 void hw_texture_manager_create()
 {
+	vid_log();
 	::vid_log("Creating texture manager.");
 
 	::hw_texture_manager_ = bstone::HwTextureManagerFactory::create(
@@ -5656,11 +5754,12 @@ void hw_3d_fade_initialize()
 
 void hw_screen_common_refresh()
 {
-	::hw_shading_mode_ = 0;
-	::hw_bs_shade_max_ = ::shade_max;
-	::hw_bs_normal_shade_ = ::normalshade;
-	::hw_bs_height_numerator_ = ::heightnumerator;
-	::hw_bs_lighting_ = 0;
+	hw_sampler_var_ = 0;
+	hw_shading_mode_ = 0;
+	hw_bs_shade_max_ = shade_max;
+	hw_bs_normal_shade_ = normalshade;
+	hw_bs_height_numerator_ = heightnumerator;
+	hw_bs_lighting_ = 0;
 
 
 	auto command_buffer = ::hw_common_command_buffer_;
@@ -5672,22 +5771,30 @@ void hw_screen_common_refresh()
 	// Build commands.
 	//
 
+	// Clear buffers.
+	//
+	{
+		static const auto clear_color = bstone::Rgba8{};
+		auto& shader_stage = *command_buffer->write_clear();
+		shader_stage.color_ = clear_color;
+	}
+
+	// Set shader's 2D sampler.
+	//
+	if (hw_sampler_var_.is_modified())
+	{
+		hw_sampler_var_.set_is_modified(false);
+
+		auto command = command_buffer->write_shader_var_sampler_2d();
+		command->var_ = hw_shader_var_sampler_;
+		command->value_ = hw_sampler_var_;
+	}
+
 	// Set shader stage.
 	//
 	{
 		auto& shader_stage = command_buffer->write_shader_stage()->shader_stage_;
-		shader_stage = ::hw_shader_stage_;
-	}
-
-	// Set texture matrix.
-	//
-	if (::hw_matrix_texture_.is_modified())
-	{
-		::hw_matrix_texture_.set_is_modified(false);
-
-		auto& command = *command_buffer->write_shader_var_mat4();
-		command.var_ = ::hw_shader_var_texture_mat_;
-		command.value_ = ::hw_matrix_texture_;
+		shader_stage = hw_shader_stage_.get();
 	}
 
 	// Set shading mode.
@@ -5753,7 +5860,7 @@ void hw_screen_common_refresh()
 
 		auto& command = *command_buffer->write_shader_var_vec2();
 		command.var_ = ::hw_shader_var_view_direction_;
-		command.value_ = ::hw_bs_view_direction_;
+		command.value_ = hw_cast_glm_vec2(hw_bs_view_direction_);
 	}
 
 	// Set view_position.
@@ -5764,7 +5871,7 @@ void hw_screen_common_refresh()
 
 		auto& command = *command_buffer->write_shader_var_vec2();
 		command.var_ = ::hw_shader_var_view_position_;
-		command.value_ = ::hw_bs_view_position_;
+		command.value_ = hw_cast_glm_vec2(hw_bs_view_position_);
 	}
 
 	// Finalize.
@@ -5827,7 +5934,7 @@ void hw_screen_2d_refresh()
 	//
 	{
 		auto& command = *command_buffer->write_sampler();
-		command.sampler_ = ::hw_2d_ui_s_;
+		command.sampler_ = hw_2d_ui_s_.get();
 	}
 
 	// Set model matrix.
@@ -5835,7 +5942,7 @@ void hw_screen_2d_refresh()
 	{
 		auto& command = *command_buffer->write_shader_var_mat4();
 		command.var_ = ::hw_shader_var_model_mat_;
-		command.value_ = ::hw_2d_matrix_model_;
+		command.value_ = hw_cast_glm_mat4(hw_2d_matrix_model_);
 	}
 
 	// Set view matrix.
@@ -5843,7 +5950,7 @@ void hw_screen_2d_refresh()
 	{
 		auto& command = *command_buffer->write_shader_var_mat4();
 		command.var_ = ::hw_shader_var_view_mat_;
-		command.value_ = ::hw_2d_matrix_view_;
+		command.value_ = hw_cast_glm_mat4(hw_2d_matrix_view_);
 	}
 
 	// Set projection matrix.
@@ -5851,7 +5958,7 @@ void hw_screen_2d_refresh()
 	{
 		auto& command = *command_buffer->write_shader_var_mat4();
 		command.var_ = ::hw_shader_var_projection_mat_;
-		command.value_ = ::hw_2d_matrix_projection_;
+		command.value_ = hw_cast_glm_mat4(hw_2d_matrix_projection_);
 	}
 
 	// Fillers.
@@ -5860,12 +5967,12 @@ void hw_screen_2d_refresh()
 	{
 		{
 			auto& command = *command_buffer->write_texture();
-			command.texture_2d_ = ::hw_2d_white_t2d_1x1_;
+			command.texture_2d_ = (vid_is_movie ? hw_2d_black_t2d_1x1_ : hw_2d_white_t2d_1x1_);
 		}
 
 		{
 			auto& command = *command_buffer->write_vertex_input();
-			command.vertex_input_ = ::hw_2d_fillers_vi_;
+			command.vertex_input_ = hw_2d_fillers_vi_.get();
 		}
 
 		{
@@ -5886,6 +5993,7 @@ void hw_screen_2d_refresh()
 			auto& command = *command_buffer->write_draw_quads();
 			command.count_ = count;
 			command.index_offset_ = index_offset;
+			command.index_byte_depth_ = 1;
 		}
 	}
 
@@ -5903,8 +6011,8 @@ void hw_screen_2d_refresh()
 			//
 			{
 				auto& blending_func = command_buffer->write_blending_func()->blending_func_;
-				blending_func.src_factor_ = bstone::RendererBlendingFactor::src_alpha;
-				blending_func.dst_factor_ = bstone::RendererBlendingFactor::one_minus_src_alpha;
+				blending_func.src_factor_ = bstone::Renderer3dBlendingFactor::src_alpha;
+				blending_func.dst_factor_ = bstone::Renderer3dBlendingFactor::one_minus_src_alpha;
 			}
 		}
 
@@ -5915,7 +6023,7 @@ void hw_screen_2d_refresh()
 
 		{
 			auto& command = *command_buffer->write_vertex_input();
-			command.vertex_input_ = ::hw_2d_ui_vi_;
+			command.vertex_input_ = hw_2d_ui_vi_.get();
 		}
 
 		{
@@ -5929,6 +6037,7 @@ void hw_screen_2d_refresh()
 			auto& command = *command_buffer->write_draw_quads();
 			command.count_ = 1;
 			command.index_offset_ = index_offset;
+			command.index_byte_depth_ = 1;
 		}
 
 		if (::vid_is_hud)
@@ -5953,8 +6062,8 @@ void hw_screen_2d_refresh()
 		//
 		{
 			auto& blending_func = command_buffer->write_blending_func()->blending_func_;
-			blending_func.src_factor_ = bstone::RendererBlendingFactor::src_alpha;
-			blending_func.dst_factor_ = bstone::RendererBlendingFactor::one_minus_src_alpha;
+			blending_func.src_factor_ = bstone::Renderer3dBlendingFactor::src_alpha;
+			blending_func.dst_factor_ = bstone::Renderer3dBlendingFactor::one_minus_src_alpha;
 		}
 
 		// Set texture.
@@ -5968,14 +6077,14 @@ void hw_screen_2d_refresh()
 		//
 		{
 			auto& command = *command_buffer->write_sampler();
-			command.sampler_ = ::hw_fade_s_;
+			command.sampler_ = hw_fade_s_.get();
 		}
 
 		// Set vertex input.
 		//
 		{
 			auto& command = *command_buffer->write_vertex_input();
-			command.vertex_input_ = ::hw_2d_ui_vi_;
+			command.vertex_input_ = hw_2d_ui_vi_.get();
 		}
 
 		// Draw the quad.
@@ -5991,6 +6100,7 @@ void hw_screen_2d_refresh()
 			auto& command = *command_buffer->write_draw_quads();
 			command.count_ = 1;
 			command.index_offset_ = index_offset;
+			command.index_byte_depth_ = 1;
 		}
 
 		// Disable blending.
@@ -6093,7 +6203,7 @@ void hw_3d_walls_render()
 
 			auto& draw_item = draw_items[draw_side_index++];
 
-			draw_item.texture_2d_ = side.texture_2d_;
+			draw_item.texture_id_ = side.texture_id_;
 			draw_item.wall_side_ = &side;
 		}
 	}
@@ -6105,7 +6215,7 @@ void hw_3d_walls_render()
 		draw_items.begin() + draw_side_index,
 		[](const auto& lhs, const auto& rhs)
 		{
-			return lhs.texture_2d_ < rhs.texture_2d_;
+			return lhs.texture_id_ < rhs.texture_id_;
 		}
 	);
 
@@ -6146,7 +6256,7 @@ void hw_3d_walls_render()
 	while (draw_index < draw_side_index)
 	{
 		auto is_first = true;
-		auto last_texture = bstone::RendererTexture2dPtr{};
+		auto last_texture_id = 0;
 
 		draw_quad_count = 0;
 
@@ -6156,9 +6266,9 @@ void hw_3d_walls_render()
 			{
 				is_first = false;
 
-				last_texture = draw_items[draw_index].texture_2d_;
+				last_texture_id = draw_items[draw_index].texture_id_;
 			}
-			else if (last_texture == draw_items[draw_index].texture_2d_)
+			else if (last_texture_id == draw_items[draw_index].texture_id_)
 			{
 				++draw_quad_count;
 				++draw_index;
@@ -6172,19 +6282,21 @@ void hw_3d_walls_render()
 		if (draw_quad_count > 0)
 		{
 			{
+				const auto texture_2d = hw_texture_manager_->wall_get(last_texture_id);
 				auto& command = *command_buffer->write_texture();
-				command.texture_2d_ = last_texture;
+				command.texture_2d_ = texture_2d;
 			}
 
 			{
 				auto& command = *command_buffer->write_vertex_input();
-				command.vertex_input_ = ::hw_3d_wall_sides_vi_;
+				command.vertex_input_ = hw_3d_wall_sides_vi_.get();
 			}
 
 			{
 				auto& command = *command_buffer->write_draw_quads();
 				command.count_ = draw_quad_count;
 				command.index_offset_ = draw_index_offset_;
+				command.index_byte_depth_ = 2;
 
 				draw_index_offset_ += ::hw_3d_indices_per_wall_side * draw_quad_count;
 			}
@@ -6231,7 +6343,7 @@ void hw_3d_pushwalls_render()
 
 			auto& draw_item = draw_items[draw_side_index++];
 
-			draw_item.texture_2d_ = side.texture_2d_;
+			draw_item.texture_id_ = side.texture_id_;
 			draw_item.wall_side_ = &side;
 		}
 	}
@@ -6243,7 +6355,7 @@ void hw_3d_pushwalls_render()
 		draw_items.begin() + draw_side_index,
 		[](const auto& lhs, const auto& rhs)
 		{
-			return lhs.texture_2d_ < rhs.texture_2d_;
+			return lhs.texture_id_ < rhs.texture_id_;
 		}
 	);
 
@@ -6284,7 +6396,7 @@ void hw_3d_pushwalls_render()
 	while (draw_index < draw_side_index)
 	{
 		auto is_first = true;
-		auto last_texture = bstone::RendererTexture2dPtr{};
+		auto last_texture_id = 0;
 
 		draw_quad_count = 0;
 
@@ -6294,9 +6406,9 @@ void hw_3d_pushwalls_render()
 			{
 				is_first = false;
 
-				last_texture = draw_items[draw_index].texture_2d_;
+				last_texture_id = draw_items[draw_index].texture_id_;
 			}
-			else if (last_texture == draw_items[draw_index].texture_2d_)
+			else if (last_texture_id == draw_items[draw_index].texture_id_)
 			{
 				++draw_quad_count;
 				++draw_index;
@@ -6310,19 +6422,21 @@ void hw_3d_pushwalls_render()
 		if (draw_quad_count > 0)
 		{
 			{
+				const auto texture_2d = hw_texture_manager_->wall_get(last_texture_id);
 				auto& command = *command_buffer->write_texture();
-				command.texture_2d_ = last_texture;
+				command.texture_2d_ = texture_2d;
 			}
 
 			{
 				auto& command = *command_buffer->write_vertex_input();
-				command.vertex_input_ = ::hw_3d_pushwall_sides_vi_;
+				command.vertex_input_ = hw_3d_pushwall_sides_vi_.get();
 			}
 
 			{
 				auto& command = *command_buffer->write_draw_quads();
 				command.count_ = draw_quad_count;
 				command.index_offset_ = draw_index_offset_;
+				command.index_byte_depth_ = 2;
 
 				draw_index_offset_ += ::hw_3d_indices_per_wall_side * draw_quad_count;
 			}
@@ -6428,7 +6542,7 @@ void hw_3d_doors_render()
 		{
 			auto& draw_item = draw_items[draw_side_index++];
 
-			draw_item.texture_2d_ = side.texture_2d_;
+			draw_item.texture_id_ = side.texture_id_;
 			draw_item.hw_door_side_ = &side;
 		}
 	}
@@ -6440,7 +6554,7 @@ void hw_3d_doors_render()
 		draw_items.begin() + draw_side_index,
 		[](const auto& lhs, const auto& rhs)
 		{
-			return lhs.texture_2d_ < rhs.texture_2d_;
+			return lhs.texture_id_ < rhs.texture_id_;
 		}
 	);
 
@@ -6509,7 +6623,7 @@ void hw_3d_doors_render()
 	while (draw_index < draw_side_index)
 	{
 		auto is_first = true;
-		auto last_texture = bstone::RendererTexture2dPtr{};
+		auto last_texture_id = 0;
 
 		draw_quad_count = 0;
 
@@ -6519,9 +6633,9 @@ void hw_3d_doors_render()
 			{
 				is_first = false;
 
-				last_texture = draw_items[draw_index].texture_2d_;
+				last_texture_id = draw_items[draw_index].texture_id_;
 			}
-			else if (last_texture == draw_items[draw_index].texture_2d_)
+			else if (last_texture_id == draw_items[draw_index].texture_id_)
 			{
 				draw_quad_count += 2;
 				++draw_index;
@@ -6535,19 +6649,21 @@ void hw_3d_doors_render()
 		if (draw_quad_count > 0)
 		{
 			{
+				const auto texture_2d = hw_texture_manager_->wall_get(last_texture_id);
 				auto& command = *command_buffer->write_texture();
-				command.texture_2d_ = last_texture;
+				command.texture_2d_ = texture_2d;
 			}
 
 			{
 				auto& command = *command_buffer->write_vertex_input();
-				command.vertex_input_ = ::hw_3d_door_sides_vi_;
+				command.vertex_input_ = hw_3d_door_sides_vi_.get();
 			}
 
 			{
 				auto& command = *command_buffer->write_draw_quads();
 				command.count_ = draw_quad_count;
 				command.index_offset_ = draw_index_offset;
+				command.index_byte_depth_ = 2;
 
 				draw_index_offset += 6 * draw_quad_count;
 			}
@@ -6623,25 +6739,25 @@ void hw_3d_actor_cloak_update(
 	// Bottom-left.
 	{
 		auto& vertex = ::hw_3d_sprites_vbi_[vertex_index++];
-		vertex.rgba_ = vertex_color;
+		vertex.rgba_8_ = vertex_color;
 	}
 
 	// Bottom-right.
 	{
 		auto& vertex = ::hw_3d_sprites_vbi_[vertex_index++];
-		vertex.rgba_ = vertex_color;
+		vertex.rgba_8_ = vertex_color;
 	}
 
 	// Top-right.
 	{
 		auto& vertex = ::hw_3d_sprites_vbi_[vertex_index++];
-		vertex.rgba_ = vertex_color;
+		vertex.rgba_8_ = vertex_color;
 	}
 
 	// Top-left.
 	{
 		auto& vertex = ::hw_3d_sprites_vbi_[vertex_index++];
-		vertex.rgba_ = vertex_color;
+		vertex.rgba_8_ = vertex_color;
 	}
 }
 
@@ -6729,15 +6845,6 @@ void hw_actor_update(
 	if (hw_actor.bs_sprite_id_ == 0 || hw_actor.bs_sprite_id_ != new_bs_sprite_id)
 	{
 		hw_actor.bs_sprite_id_ = new_bs_sprite_id;
-
-		if (hw_actor.bs_sprite_id_ > 0)
-		{
-			hw_actor.texture_2d_ = ::hw_texture_manager_->sprite_get(hw_actor.bs_sprite_id_);
-		}
-		else
-		{
-			hw_actor.texture_2d_ = nullptr;
-		}
 	}
 
 	if (hw_actor.x_ != bs_actor.x || hw_actor.y_ != bs_actor.y)
@@ -6752,7 +6859,7 @@ void hw_3d_sprite_orient(
 {
 	sprite.flags_.is_visible_ = false;
 
-	if (!sprite.texture_2d_)
+	if (sprite.bs_sprite_id_ <= 0)
 	{
 		return;
 	}
@@ -6897,7 +7004,7 @@ void hw_3d_sprites_render()
 		const auto& hw_static = ::hw_3d_statics_[bs_static_index];
 
 		auto& draw_item = draw_items[draw_sprite_index++];
-		draw_item.texture_2d_ = hw_static.texture_2d_;
+		draw_item.texture_id_ = hw_static.bs_sprite_id_;
 		draw_item.sprite_ = &hw_static;
 
 		min_vertex_index = std::min(hw_static.vertex_index_, min_vertex_index);
@@ -6912,7 +7019,7 @@ void hw_3d_sprites_render()
 		::hw_3d_sprite_orient(hw_actor);
 
 		auto& draw_item = draw_items[draw_sprite_index++];
-		draw_item.texture_2d_ = hw_actor.texture_2d_;
+		draw_item.texture_id_ = hw_actor.bs_sprite_id_;
 		draw_item.sprite_ = &hw_actor;
 
 		min_vertex_index = std::min(hw_actor.vertex_index_, min_vertex_index);
@@ -6989,17 +7096,17 @@ void hw_3d_sprites_render()
 		command.is_enable_ = true;
 	}
 
-	using CurrentTexture = bstone::ModValue<bstone::RendererTexture2dPtr>;
+	using CurrentTextureId = bstone::ModValue<int>;
 
 	auto draw_index = 0;
 	auto draw_quad_count = 0;
 	auto draw_index_offset_ = 0;
-	auto current_texture = CurrentTexture{};
+	auto current_texture_id = CurrentTextureId{};
 
 	while (draw_index < draw_sprite_index)
 	{
 		auto is_first = true;
-		auto last_texture = bstone::RendererTexture2dPtr{};
+		auto last_texture_id = 0;
 		auto last_lighting = 0;
 
 		draw_quad_count = 0;
@@ -7008,7 +7115,7 @@ void hw_3d_sprites_render()
 		{
 			const auto& draw_item = draw_items[draw_index];
 
-			const auto texture = draw_item.texture_2d_;
+			const auto texture_id = draw_item.texture_id_;
 
 			auto lighting = 0;
 
@@ -7041,10 +7148,10 @@ void hw_3d_sprites_render()
 			{
 				is_first = false;
 
-				last_texture = texture;
+				last_texture_id = texture_id;
 				last_lighting = lighting;
 			}
-			else if (last_texture == texture && last_lighting == lighting)
+			else if (last_texture_id == texture_id && last_lighting == lighting)
 			{
 				++draw_quad_count;
 				++draw_index;
@@ -7073,25 +7180,27 @@ void hw_3d_sprites_render()
 				}
 			}
 
-			current_texture = last_texture;
+			current_texture_id = last_texture_id;
 
-			if (current_texture.is_modified())
+			if (current_texture_id.is_modified())
 			{
-				current_texture.set_is_modified(false);
+				current_texture_id.set_is_modified(false);
+				const auto texture_2d = hw_texture_manager_->sprite_get(current_texture_id);
 
 				auto& command = *command_buffer->write_texture();
-				command.texture_2d_ = current_texture;
+				command.texture_2d_ = texture_2d;
 			}
 
 			{
 				auto& command = *command_buffer->write_vertex_input();
-				command.vertex_input_ = ::hw_3d_sprites_vi_;
+				command.vertex_input_ = hw_3d_sprites_vi_.get();
 			}
 
 			{
 				auto& command = *command_buffer->write_draw_quads();
 				command.count_ = draw_quad_count;
 				command.index_offset_ = draw_index_offset_;
+				command.index_byte_depth_ = 2;
 
 				draw_index_offset_ += ::hw_3d_indices_per_sprite * draw_quad_count;
 			}
@@ -7117,99 +7226,11 @@ void hw_3d_sprites_render()
 
 void hw_widescreen_apply()
 {
-	::vid_cfg_.is_widescreen_.set_is_modified(false);
-
 	::hw_dimensions_calculate();
 	::SetViewSize();
 	::hw_3d_matrix_projection_build();
 	::hw_3d_player_weapon_projection_matrix_build();
 	::hw_3d_fade_vb_update();
-}
-
-void vid_apply_hw_2d_texture_filter_configuration()
-{
-	if (!::vid_cfg_.hw_2d_texture_filter_.is_modified())
-	{
-		return;
-	}
-
-	::vid_cfg_.hw_2d_texture_filter_.set_is_modified(false);
-
-	::hw_2d_sampler_ui_update();
-}
-
-void vid_apply_hw_3d_texture_filter_configuration()
-{
-	if (!::vid_cfg_.hw_3d_texture_image_filter_.is_modified() &&
-		!::vid_cfg_.hw_3d_texture_mipmap_filter_.is_modified() &&
-		!::vid_cfg_.hw_3d_texture_anisotropy_.is_modified())
-	{
-		return;
-	}
-
-	::vid_cfg_.hw_3d_texture_image_filter_.set_is_modified(false);
-	::vid_cfg_.hw_3d_texture_mipmap_filter_.set_is_modified(false);
-	::vid_cfg_.hw_3d_texture_anisotropy_.set_is_modified(false);
-
-	::hw_3d_sampler_sprite_update();
-	::hw_3d_sampler_wall_update();
-	::hw_3d_player_weapon_sampler_update();
-}
-
-void vid_apply_hw_aa_configuration()
-{
-	if (!::vid_cfg_.hw_aa_kind_.is_modified() &&
-		!::vid_cfg_.hw_aa_value_.is_modified())
-	{
-		return;
-	}
-
-	::vid_cfg_.hw_aa_kind_.set_is_modified(false);
-	::vid_cfg_.hw_aa_value_.set_is_modified(false);
-
-	if (*::vid_cfg_.hw_aa_kind_ == bstone::RendererAaKind::ms &&
-		::hw_device_features_.msaa_is_requires_restart_)
-	{
-		return;
-	}
-
-	::hw_renderer_->aa_set(
-		::vid_cfg_.hw_aa_kind_,
-		::vid_cfg_.hw_aa_value_);
-}
-
-void vid_apply_hw_vsync_configuration()
-{
-	if (!::vid_cfg_.is_vsync_.is_modified())
-	{
-		return;
-	}
-
-	::vid_cfg_.is_vsync_.set_is_modified(false);
-
-	if (!::hw_device_features_.vsync_is_available_)
-	{
-		return;
-	}
-
-	if (::hw_device_features_.vsync_is_requires_restart_)
-	{
-		// FIXME
-	}
-
-	::hw_renderer_->vsync_set(::vid_cfg_.is_vsync_);
-}
-
-void vid_apply_hw_texture_upscale_filter_configuration()
-{
-	if (!::vid_cfg_.hw_upscale_kind_.is_modified() &&
-		!::vid_cfg_.hw_upscale_xbrz_factor_.is_modified())
-	{
-		return;
-	}
-
-	::vid_cfg_.hw_upscale_kind_.set_is_modified(false);
-	::vid_cfg_.hw_upscale_xbrz_factor_.set_is_modified(false);
 }
 
 void hw_3d_fade_update()
@@ -7235,7 +7256,7 @@ void hw_3d_fade_update()
 		}
 
 		const auto vga_color = ::vgapal + (3 * ::hw_3d_fizzle_fx_color_index_);
-		const auto& color_32 = ::hw_vga_color_to_r8g8b8a8(vga_color[0], vga_color[1], vga_color[2]);
+		const auto& color_32 = ::hw_vga_color_to_rgba_8(vga_color[0], vga_color[1], vga_color[2]);
 
 		r_f = static_cast<float>(color_32.r_) / 255.0F;
 		g_f = static_cast<float>(color_32.g_) / 255.0F;
@@ -7273,9 +7294,9 @@ void hw_3d_fade_update()
 	const auto b = static_cast<std::uint8_t>(a_f * b_f * 255.0F);
 	const auto a = static_cast<std::uint8_t>(a_f * 255.0F);
 
-	const auto r8g8b8a8_unorm = bstone::R8g8b8a8{r, g, b, a};
+	const auto rgba_8 = bstone::Rgba8{r, g, b, a};
 
-	::hw_texture_manager_->solid_1x1_update(bstone::HwTextureManagerSolid1x1Id::fade_3d, r8g8b8a8_unorm);
+	::hw_texture_manager_->solid_1x1_update(bstone::HwTextureManagerSolid1x1Id::fade_3d, rgba_8);
 }
 
 void hw_screen_3d_refresh()
@@ -7337,7 +7358,7 @@ void hw_screen_3d_refresh()
 	{
 		auto& command = *command_buffer->write_shader_var_mat4();
 		command.var_ = ::hw_shader_var_model_mat_;
-		command.value_ = ::hw_3d_matrix_model_;
+		command.value_ = hw_cast_glm_mat4(hw_3d_matrix_model_);
 	}
 
 	// Set view matrix.
@@ -7345,7 +7366,7 @@ void hw_screen_3d_refresh()
 	{
 		auto& command = *command_buffer->write_shader_var_mat4();
 		command.var_ = ::hw_shader_var_view_mat_;
-		command.value_ = ::hw_3d_matrix_view_;
+		command.value_ = hw_cast_glm_mat4(hw_3d_matrix_view_);
 	}
 
 	// Set projection matrix.
@@ -7353,14 +7374,14 @@ void hw_screen_3d_refresh()
 	{
 		auto& command = *command_buffer->write_shader_var_mat4();
 		command.var_ = ::hw_shader_var_projection_mat_;
-		command.value_ = ::hw_3d_matrix_projection_;
+		command.value_ = hw_cast_glm_mat4(hw_3d_matrix_projection_);
 	}
 
 	// Set sampler.
 	//
 	{
 		auto& command = *command_buffer->write_sampler();
-		command.sampler_ = ::hw_3d_wall_s_;
+		command.sampler_ = hw_3d_wall_s_.get();
 	}
 
 	// Set shading mode.
@@ -7390,7 +7411,7 @@ void hw_screen_3d_refresh()
 	//
 	{
 		auto& command = *command_buffer->write_sampler();
-		command.sampler_ = ::hw_3d_sprite_s_;
+		command.sampler_ = hw_3d_sprite_s_.get();
 	}
 
 	// Draw doors.
@@ -7401,7 +7422,7 @@ void hw_screen_3d_refresh()
 	//
 	{
 		auto& command = *command_buffer->write_sampler();
-		command.sampler_ = ::hw_3d_wall_s_;
+		command.sampler_ = hw_3d_wall_s_.get();
 	}
 
 	// Draw flooring.
@@ -7421,13 +7442,14 @@ void hw_screen_3d_refresh()
 
 		{
 			auto& command = *command_buffer->write_vertex_input();
-			command.vertex_input_ = ::hw_3d_flooring_vi_;
+			command.vertex_input_ = hw_3d_flooring_vi_.get();
 		}
 
 		{
 			auto& command = *command_buffer->write_draw_quads();
 			command.count_ = 1;
 			command.index_offset_ = 0;
+			command.index_byte_depth_ = 1;
 		}
 	}
 
@@ -7448,13 +7470,14 @@ void hw_screen_3d_refresh()
 
 		{
 			auto& command = *command_buffer->write_vertex_input();
-			command.vertex_input_ = ::hw_3d_ceiling_vi_;
+			command.vertex_input_ = hw_3d_ceiling_vi_.get();
 		}
 
 		{
 			auto& command = *command_buffer->write_draw_quads();
 			command.count_ = 1;
 			command.index_offset_ = 0;
+			command.index_byte_depth_ = 1;
 		}
 	}
 
@@ -7462,7 +7485,7 @@ void hw_screen_3d_refresh()
 	//
 	{
 		auto& command = *command_buffer->write_sampler();
-		command.sampler_ = ::hw_3d_sprite_s_;
+		command.sampler_ = hw_3d_sprite_s_.get();
 	}
 
 	// Draw statics and actors.
@@ -7512,7 +7535,7 @@ void hw_screen_3d_refresh()
 			{
 				auto& command = *command_buffer->write_shader_var_mat4();
 				command.var_ = ::hw_shader_var_projection_mat_;
-				command.value_ = ::hw_3d_player_weapon_projection_matrix_;
+				command.value_ = hw_cast_glm_mat4(hw_3d_player_weapon_projection_matrix_);
 			}
 		}
 
@@ -7530,7 +7553,7 @@ void hw_screen_3d_refresh()
 			{
 				auto& command = *command_buffer->write_shader_var_mat4();
 				command.var_ = ::hw_shader_var_model_mat_;
-				command.value_ = ::hw_3d_player_weapon_model_matrix_;
+				command.value_ = hw_cast_glm_mat4(hw_3d_player_weapon_model_matrix_);
 			}
 
 			// Set view matrix.
@@ -7538,7 +7561,7 @@ void hw_screen_3d_refresh()
 			{
 				auto& command = *command_buffer->write_shader_var_mat4();
 				command.var_ = ::hw_shader_var_view_mat_;
-				command.value_ = ::hw_3d_player_weapon_view_matrix_;
+				command.value_ = hw_cast_glm_mat4(hw_3d_player_weapon_view_matrix_);
 			}
 
 			// Set texture.
@@ -7552,14 +7575,14 @@ void hw_screen_3d_refresh()
 			//
 			{
 				auto& command = *command_buffer->write_sampler();
-				command.sampler_ = ::hw_3d_player_weapon_s_;
+				command.sampler_ = hw_3d_player_weapon_s_.get();
 			}
 
 			// Set vertex input.
 			//
 			{
 				auto& command = *command_buffer->write_vertex_input();
-				command.vertex_input_ = ::hw_3d_player_weapon_vi_;
+				command.vertex_input_ = hw_3d_player_weapon_vi_.get();
 			}
 
 			// Enable blending.
@@ -7573,8 +7596,8 @@ void hw_screen_3d_refresh()
 			//
 			{
 				auto& blending_func = command_buffer->write_blending_func()->blending_func_;
-				blending_func.src_factor_ = bstone::RendererBlendingFactor::src_alpha;
-				blending_func.dst_factor_ = bstone::RendererBlendingFactor::one_minus_src_alpha;
+				blending_func.src_factor_ = bstone::Renderer3dBlendingFactor::src_alpha;
+				blending_func.dst_factor_ = bstone::Renderer3dBlendingFactor::one_minus_src_alpha;
 			}
 
 			// Draw the weapon.
@@ -7583,6 +7606,7 @@ void hw_screen_3d_refresh()
 				auto& command = *command_buffer->write_draw_quads();
 				command.index_offset_ = 0;
 				command.count_ = 1;
+				command.index_byte_depth_ = 1;
 			}
 
 			// Disable blending.
@@ -7603,7 +7627,7 @@ void hw_screen_3d_refresh()
 			{
 				auto& command = *command_buffer->write_shader_var_mat4();
 				command.var_ = ::hw_shader_var_model_mat_;
-				command.value_ = glm::identity<glm::mat4>();
+				command.value_ = hw_cast_glm_mat4(glm::identity<glm::mat4>());
 			}
 
 			// Set view matrix.
@@ -7611,7 +7635,7 @@ void hw_screen_3d_refresh()
 			{
 				auto& command = *command_buffer->write_shader_var_mat4();
 				command.var_ = ::hw_shader_var_view_mat_;
-				command.value_ = glm::identity<glm::mat4>();
+				command.value_ = hw_cast_glm_mat4(glm::identity<glm::mat4>());
 			}
 
 			// Enable blending.
@@ -7625,8 +7649,8 @@ void hw_screen_3d_refresh()
 			//
 			{
 				auto& blending_func = command_buffer->write_blending_func()->blending_func_;
-				blending_func.src_factor_ = bstone::RendererBlendingFactor::src_alpha;
-				blending_func.dst_factor_ = bstone::RendererBlendingFactor::one_minus_src_alpha;
+				blending_func.src_factor_ = bstone::Renderer3dBlendingFactor::src_alpha;
+				blending_func.dst_factor_ = bstone::Renderer3dBlendingFactor::one_minus_src_alpha;
 			}
 
 			// Set texture.
@@ -7640,14 +7664,14 @@ void hw_screen_3d_refresh()
 			//
 			{
 				auto& command = *command_buffer->write_sampler();
-				command.sampler_ = ::hw_fade_s_;
+				command.sampler_ = hw_fade_s_.get();
 			}
 
 			// Set vertex input.
 			//
 			{
 				auto& command = *command_buffer->write_vertex_input();
-				command.vertex_input_ = ::hw_3d_fade_vi_;
+				command.vertex_input_ = hw_3d_fade_vi_.get();
 			}
 
 			// Draw the quad.
@@ -7656,6 +7680,7 @@ void hw_screen_3d_refresh()
 				auto& command = *command_buffer->write_draw_quads();
 				command.count_ = 1;
 				command.index_offset_ = 0;
+				command.index_byte_depth_ = 1;
 			}
 
 			// Disable blending.
@@ -7687,8 +7712,6 @@ void hw_screen_refresh()
 		::hw_3d_matrix_view_build();
 	}
 
-	::hw_renderer_->clear_buffers();
-
 	::hw_screen_common_refresh();
 	::hw_screen_3d_refresh();
 	::hw_screen_2d_refresh();
@@ -7707,7 +7730,7 @@ void hw_precache_flooring()
 	const auto vga_index = ::BottomColor & 0xFF;
 	const auto vga_color = ::vgapal + (3 * vga_index);
 
-	const auto renderer_color = ::hw_vga_color_to_r8g8b8a8(
+	const auto renderer_color = ::hw_vga_color_to_rgba_8(
 		vga_color[0],
 		vga_color[1],
 		vga_color[2]
@@ -7724,7 +7747,7 @@ void hw_precache_ceiling()
 	const auto vga_index = ::TopColor & 0xFF;
 	const auto vga_color = ::vgapal + (3 * vga_index);
 
-	const auto renderer_color = ::hw_vga_color_to_r8g8b8a8(
+	const auto renderer_color = ::hw_vga_color_to_rgba_8(
 		vga_color[0],
 		vga_color[1],
 		vga_color[2]
@@ -7974,7 +7997,7 @@ void hw_precache_doors()
 {
 	::hw_3d_door_count_ = 0;
 
-	for (auto bs_door = ::doorobjlist; bs_door != ::lastdoorobj; ++bs_door)
+	for (auto bs_door = ::doorobjlist; ::lastdoorobj && bs_door != ::lastdoorobj; ++bs_door)
 	{
 		++::hw_3d_door_count_;
 
@@ -8085,10 +8108,10 @@ struct HwUpdateVertexRgba
 {
 	void operator()(
 		TVertex& vertex,
-		const HwVertexColor& r8g8b8a8_unorm) const
+		const HwVertexColor& rgba_8) const
 	{
 		static_cast<void>(vertex);
-		static_cast<void>(r8g8b8a8_unorm);
+		static_cast<void>(rgba_8);
 	}
 }; // HwUpdateVertexRgba
 
@@ -8097,20 +8120,20 @@ struct HwUpdateVertexRgba<TVertex, true>
 {
 	void operator()(
 		TVertex& vertex,
-		const HwVertexColor& r8g8b8a8_unorm) const
+		const HwVertexColor& rgba_8) const
 	{
-		vertex.rgba_ = r8g8b8a8_unorm;
+		vertex.rgba_8_ = rgba_8;
 	}
 }; // HwUpdateVertexRgba
 
 template<typename TVertex>
 void hw_update_vertex_rgba(
 	TVertex& vertex,
-	const HwVertexColor& r8g8b8a8_unorm)
+	const HwVertexColor& rgba_8)
 {
 	const auto traits = HwVertexAttributeTraits<TVertex, HwVertexAttributeLocationId::color>{};
 
-	HwUpdateVertexRgba<TVertex, traits.is_valid>{}(vertex, r8g8b8a8_unorm);
+	HwUpdateVertexRgba<TVertex, traits.is_valid>{}(vertex, rgba_8);
 }
 
 template<typename TVertex, bool TIsExists = false>
@@ -8210,10 +8233,10 @@ void hw_3d_map_wall_side(
 	side.flags_.is_vertical_ = is_vertical;
 	side.flags_.is_door_track_ = is_door_track;
 	side.vertex_index_ = vertex_index;
-	side.texture_2d_ = ::hw_texture_manager_->wall_get(wall_texture_id);
+	side.texture_id_ = wall_texture_id;
 	side.wall_ = &wall;
 
-	const auto& r8g8b8a8_unorm = HwVertexColor{0xFF, 0xFF, 0xFF, 0xFF};
+	const auto& rgba_8 = HwVertexColor{0xFF, 0xFF, 0xFF, 0xFF};
 
 	// Bottom-left (when looking at face side).
 	{
@@ -8229,7 +8252,7 @@ void hw_3d_map_wall_side(
 		const auto& uv = HwVertexTextureCoordinates{0.0F, 0.0F};
 
 		::hw_update_vertex_xyz(vertex, xyz);
-		::hw_update_vertex_rgba(vertex, r8g8b8a8_unorm);
+		::hw_update_vertex_rgba(vertex, rgba_8);
 		::hw_update_vertex_uv(vertex, uv);
 	}
 
@@ -8247,7 +8270,7 @@ void hw_3d_map_wall_side(
 		const auto& uv = HwVertexTextureCoordinates{1.0F, 0.0F};
 
 		::hw_update_vertex_xyz(vertex, xyz);
-		::hw_update_vertex_rgba(vertex, r8g8b8a8_unorm);
+		::hw_update_vertex_rgba(vertex, rgba_8);
 		::hw_update_vertex_uv(vertex, uv);
 	}
 
@@ -8265,7 +8288,7 @@ void hw_3d_map_wall_side(
 		const auto& uv = HwVertexTextureCoordinates{1.0F, 1.0F};
 
 		::hw_update_vertex_xyz(vertex, xyz);
-		::hw_update_vertex_rgba(vertex, r8g8b8a8_unorm);
+		::hw_update_vertex_rgba(vertex, rgba_8);
 		::hw_update_vertex_uv(vertex, uv);
 	}
 
@@ -8283,7 +8306,7 @@ void hw_3d_map_wall_side(
 		const auto& uv = HwVertexTextureCoordinates{0.0F, 1.0F};
 
 		::hw_update_vertex_xyz(vertex, xyz);
-		::hw_update_vertex_rgba(vertex, r8g8b8a8_unorm);
+		::hw_update_vertex_rgba(vertex, rgba_8);
 		::hw_update_vertex_uv(vertex, uv);
 	}
 }
@@ -9017,14 +9040,8 @@ void hw_3d_xy_to_door_map(
 
 	::door_get_page_numbers(bs_door, front_face_page_number, back_face_page_number);
 
-	const auto front_face_texture_2d = ::hw_texture_manager_->wall_get(front_face_page_number);
-	const auto back_face_texture_2d = ::hw_texture_manager_->wall_get(back_face_page_number);
-
-	assert(front_face_texture_2d);
-	assert(back_face_texture_2d);
-
-	hw_door.sides_[0].texture_2d_ = front_face_texture_2d;
-	hw_door.sides_[1].texture_2d_ = back_face_texture_2d;
+	hw_door.sides_[0].texture_id_ = front_face_page_number;
+	hw_door.sides_[1].texture_id_ = back_face_page_number;
 }
 
 void hw_3d_doors_build()
@@ -9079,7 +9096,7 @@ void hw_sprites_ibi_initialize()
 	const auto index_count = ::hw_3d_max_sprites_indices;
 
 	::hw_3d_sprites_ib_ = ::hw_index_buffer_create(
-		bstone::RendererBufferUsageKind::stream_draw,
+		bstone::Renderer3dBufferUsageKind::draw_streaming,
 		2,
 		index_count
 	);
@@ -9090,13 +9107,8 @@ void hw_sprites_ibi_initialize()
 
 void hw_3d_sprites_ib_uninitialize()
 {
-	if (::hw_3d_sprites_ib_)
-	{
-		::hw_renderer_->index_buffer_destroy(::hw_3d_sprites_ib_);
-		::hw_3d_sprites_ib_ = nullptr;
-	}
-
-	::hw_3d_sprites_ibi_.clear();
+	hw_index_buffer_destroy(hw_3d_sprites_ib_);
+	hw_3d_sprites_ibi_.clear();
 }
 
 void hw_sprites_vb_initialize()
@@ -9106,7 +9118,7 @@ void hw_sprites_vb_initialize()
 	const auto vertex_count = ::hw_3d_max_sprites_vertices;
 
 	::hw_3d_sprites_vb_ = ::hw_vertex_buffer_create<Hw3dSpriteVertex>(
-		bstone::RendererBufferUsageKind::stream_draw,
+		bstone::Renderer3dBufferUsageKind::draw_streaming,
 		vertex_count
 	);
 
@@ -9115,13 +9127,8 @@ void hw_sprites_vb_initialize()
 
 void hw_3d_sprites_vb_uninitialize()
 {
-	if (::hw_3d_sprites_vb_)
-	{
-		::hw_renderer_->vertex_buffer_destroy(::hw_3d_sprites_vb_);
-		::hw_3d_sprites_vb_ = nullptr;
-	}
-
-	::hw_3d_sprites_vbi_.clear();
+	hw_vertex_buffer_destroy(hw_3d_sprites_vb_);
+	hw_3d_sprites_vbi_.clear();
 }
 
 void hw_3d_sprites_vi_uninitialize()
@@ -9215,7 +9222,7 @@ void hw_3d_sprite_map(
 	//
 	{
 		auto& vertex = ::hw_3d_sprites_vbi_[vertex_index++];
-		vertex.rgba_ = HwVertexColor{0xFF, 0xFF, 0xFF, 0xFF};
+		vertex.rgba_8_ = HwVertexColor{0xFF, 0xFF, 0xFF, 0xFF};
 		vertex.uv_ = HwVertexTextureCoordinates{0.0F, 0.0F};
 	}
 
@@ -9223,7 +9230,7 @@ void hw_3d_sprite_map(
 	//
 	{
 		auto& vertex = ::hw_3d_sprites_vbi_[vertex_index++];
-		vertex.rgba_ = HwVertexColor{0xFF, 0xFF, 0xFF, 0xFF};
+		vertex.rgba_8_ = HwVertexColor{0xFF, 0xFF, 0xFF, 0xFF};
 		vertex.uv_ = HwVertexTextureCoordinates{1.0F, 0.0F};
 	}
 
@@ -9231,7 +9238,7 @@ void hw_3d_sprite_map(
 	//
 	{
 		auto& vertex = ::hw_3d_sprites_vbi_[vertex_index++];
-		vertex.rgba_ = HwVertexColor{0xFF, 0xFF, 0xFF, 0xFF};
+		vertex.rgba_8_ = HwVertexColor{0xFF, 0xFF, 0xFF, 0xFF};
 		vertex.uv_ = HwVertexTextureCoordinates{1.0F, 1.0F};
 	}
 
@@ -9239,7 +9246,7 @@ void hw_3d_sprite_map(
 	//
 	{
 		auto& vertex = ::hw_3d_sprites_vbi_[vertex_index];
-		vertex.rgba_ = bstone::R8g8b8a8{0xFF, 0xFF, 0xFF, 0xFF};
+		vertex.rgba_8_ = bstone::Rgba8{0xFF, 0xFF, 0xFF, 0xFF};
 		vertex.uv_ = HwVertexTextureCoordinates{0.0F, 1.0F};
 	}
 }
@@ -9256,40 +9263,9 @@ void hw_3d_static_map(
 	sprite.tile_x_ = bs_static.tilex;
 	sprite.tile_y_ = bs_static.tiley;
 	sprite.bs_object_.stat_ = &bs_static;
-	sprite.texture_2d_ = ::hw_texture_manager_->sprite_get(bs_static.shapenum);
+	sprite.bs_sprite_id_ = bs_static.shapenum;
 
 	::hw_3d_sprite_map(Hw3dSpriteKind::stat, vertex_index, sprite);
-}
-
-void hw_3d_sprite_texture_change(
-	const Hw3dSpriteKind sprite_kind,
-	Hw3dSprite& sprite)
-{
-	auto sprite_id = 0;
-
-	switch (sprite_kind)
-	{
-	case Hw3dSpriteKind::stat:
-		sprite_id = sprite.bs_object_.stat_->shapenum;;
-		break;
-
-	case Hw3dSpriteKind::actor:
-		sprite_id = ::hw_3d_bs_actor_sprite_get_id(*sprite.bs_object_.actor_);
-		break;
-
-	default:
-		::vid_quit("Invalid sprite kind.");
-	}
-
-	sprite.texture_2d_ = ::hw_texture_manager_->sprite_get(sprite_id);
-}
-
-void hw_3d_static_texture_change(
-	const statobj_t& bs_static)
-{
-	auto& hw_static = ::hw_get_static(bs_static);
-
-	::hw_3d_sprite_texture_change(Hw3dSpriteKind::stat, hw_static);
 }
 
 void hw_3d_static_precache(
@@ -9354,7 +9330,7 @@ void hw_3d_static_precache(
 
 void hw_3d_statics_precache()
 {
-	for (auto bs_static = ::statobjlist; bs_static != ::laststatobj; ++bs_static)
+	for (auto bs_static = ::statobjlist; laststatobj && bs_static != ::laststatobj; ++bs_static)
 	{
 		if (bs_static->shapenum == -1 ||
 			(bs_static->tilex == 0 && bs_static->tiley == 0))
@@ -9391,11 +9367,6 @@ void hw_3d_actor_map(
 	sprite.bs_sprite_id_ = ::hw_3d_bs_actor_sprite_get_id(bs_actor);
 
 	sprite.bs_object_.actor_ = &bs_actor;
-
-	if (sprite.bs_sprite_id_ > 0)
-	{
-		sprite.texture_2d_ = ::hw_texture_manager_->sprite_get(sprite.bs_sprite_id_);
-	}
 }
 
 // Explosion.
@@ -11093,6 +11064,11 @@ void hw_precache_dead(
 
 void hw_precache_actors()
 {
+	if (!player)
+	{
+		return;
+	}
+
 	for (auto bs_actor = ::player->next; bs_actor; bs_actor = bs_actor->next)
 	{
 		switch (bs_actor->obclass)
@@ -11538,8 +11514,8 @@ void hw_texture_upscale_apply()
 	::hw_texture_upscale_resources_destroy();
 
 	::hw_texture_manager_->upscale_filter_set(
-		::vid_cfg_.hw_upscale_kind_,
-		::vid_cfg_.hw_upscale_xbrz_factor_
+		::vid_cfg_.texture_upscale_kind_,
+		::vid_cfg_.texture_upscale_xbrz_degree_
 	);
 
 	::hw_texture_upscale_resources_create();
@@ -11600,7 +11576,7 @@ void hw_video_initialize()
 
 	::vid_log("Creating renderer manager.");
 
-	hw_renderer_manager_ = bstone::RendererManagerFactory::create();
+	hw_renderer_manager_ = bstone::Renderer3dManagerFactory::create();
 
 	::vid_common_initialize();
 	::hw_dimensions_calculate();
@@ -11608,6 +11584,7 @@ void hw_video_initialize()
 	vid_vanilla_raycaster_initialize();
 
 	::hw_renderer_initialize();
+	hw_renderer_device_log_features();
 	::hw_program_initialize();
 	::hw_texture_manager_create();
 	::hw_ui_buffer_initialize();
@@ -11624,8 +11601,6 @@ void hw_video_initialize()
 	::hw_device_features_ = ::hw_renderer_->device_get_features();
 
 	::vid_is_hw_ = true;
-
-	::hw_renderer_->color_buffer_set_clear_color(bstone::R8g8b8a8{});
 
 	hw_texture_upscale_apply();
 
@@ -11729,7 +11704,7 @@ void VL_Startup()
 #if BSTONE_DBG_FORCE_SW
 	const auto is_sw = true;
 #else
-	const auto is_sw = (*::vid_cfg_.renderer_kind_ == bstone::RendererKind::software);
+	const auto is_sw = (vid_cfg_.renderer_kind_ == bstone::RendererKind::software);
 #endif // BSTONE_DBG_FORCE_SW
 
 	auto is_try_sw = false;
@@ -11879,7 +11854,7 @@ void vl_hw_fade_out(
 {
 	::hw_2d_fade_is_enabled_ = true;
 
-	::hw_2d_fade_color_ = ::hw_vga_color_to_r8g8b8a8(red, green, blue);
+	::hw_2d_fade_color_ = ::hw_vga_color_to_rgba_8(red, green, blue);
 
 	if (!::g_no_fade_in_or_out)
 	{
@@ -11975,10 +11950,6 @@ void VL_FadeOut(
 				*newptr++ = static_cast<std::uint8_t>(orig + ((delta * i) / steps));
 			}
 
-			::sw_filler_color_.r = ::palette2[filler_color_index][0];
-			::sw_filler_color_.g = ::palette2[filler_color_index][1];
-			::sw_filler_color_.b = ::palette2[filler_color_index][2];
-
 			::VL_SetPalette(0, 256, &::palette2[0][0]);
 
 			::VL_RefreshScreen();
@@ -11993,14 +11964,6 @@ void VL_FadeOut(
 	//
 	// final color
 	//
-	::sw_filler_color_ = SDL_Color
-	{
-		static_cast<std::uint8_t>(red),
-		static_cast<std::uint8_t>(green),
-		static_cast<std::uint8_t>(blue),
-		0xFF
-	};
-
 	::VL_FillPalette(
 		static_cast<std::uint8_t>(red),
 		static_cast<std::uint8_t>(green),
@@ -12100,10 +12063,6 @@ void VL_FadeIn(
 					static_cast<std::uint8_t>(::palette1[0][j] + ((delta * i) / steps));
 			}
 
-			::sw_filler_color_.r = ::palette2[filler_color_index][0];
-			::sw_filler_color_.g = ::palette2[filler_color_index][1];
-			::sw_filler_color_.b = ::palette2[filler_color_index][2];
-
 			::VL_SetPalette(0, 256, &::palette2[0][0]);
 
 			::VL_RefreshScreen();
@@ -12118,10 +12077,6 @@ void VL_FadeIn(
 	//
 	// final color
 	//
-	::sw_filler_color_.r = palette[(filler_color_index * 3) + 0];
-	::sw_filler_color_.g = palette[(filler_color_index * 3) + 1];
-	::sw_filler_color_.b = palette[(filler_color_index * 3) + 2];
-
 	::VL_SetPalette(0, 256, palette);
 
 	::VL_RefreshScreen();
@@ -12560,45 +12515,18 @@ void vid_import_ui_mask(
 }
 
 const std::string& vid_filter_to_string(
-	const bstone::RendererFilterKind filter)
+	const bstone::Renderer3dFilterKind filter)
 {
 	switch (filter)
 	{
-		case bstone::RendererFilterKind::nearest:
+		case bstone::Renderer3dFilterKind::nearest:
 			return vid_get_nearest_value_string();
 
-		case bstone::RendererFilterKind::linear:
+		case bstone::Renderer3dFilterKind::linear:
 			return vid_get_linear_value_string();
 
 		default:
 			::Quit("Invalid filter.");
-
-			return ::vid_get_empty_string();
-	}
-}
-
-const std::string& vid_renderer_kind_to_string(
-	const bstone::RendererKind kind)
-{
-	switch (kind)
-	{
-		case bstone::RendererKind::auto_detect:
-			return vid_get_auto_detect_value_string();
-
-		case bstone::RendererKind::software:
-			return vid_get_software_value_string();
-
-		case bstone::RendererKind::ogl_2:
-			return vid_get_ogl_2_value_string();
-
-		case bstone::RendererKind::ogl_3_2_core:
-			return vid_get_ogl_3_2_c_value_string();
-
-		case bstone::RendererKind::ogl_es_2_0:
-			return vid_get_ogl_es_2_0_value_string();
-
-		default:
-			::Quit("Invalid renderer kind.");
 
 			return ::vid_get_empty_string();
 	}
@@ -12619,17 +12547,17 @@ void vid_cfg_file_read_renderer_kind(
 	{
 		::vid_cfg_.renderer_kind_ = bstone::RendererKind::software;
 	}
-	else if (value_string == ::vid_get_ogl_2_value_string())
+	else if (value_string == ::vid_get_gl_2_value_string())
 	{
-		::vid_cfg_.renderer_kind_ = bstone::RendererKind::ogl_2;
+		::vid_cfg_.renderer_kind_ = bstone::RendererKind::gl_2_0;
 	}
-	else if (value_string == ::vid_get_ogl_3_2_c_value_string())
+	else if (value_string == ::vid_get_gl_3_2_c_value_string())
 	{
-		::vid_cfg_.renderer_kind_ = bstone::RendererKind::ogl_3_2_core;
+		::vid_cfg_.renderer_kind_ = bstone::RendererKind::gl_3_2_core;
 	}
-	else if (value_string == ::vid_get_ogl_es_2_0_value_string())
+	else if (value_string == ::vid_get_gles_2_0_value_string())
 	{
-		::vid_cfg_.renderer_kind_ = bstone::RendererKind::ogl_es_2_0;
+		::vid_cfg_.renderer_kind_ = bstone::RendererKind::gles_2_0;
 	}
 }
 
@@ -12640,7 +12568,7 @@ void vid_cfg_file_read_width(
 
 	if (bstone::StringHelper::string_to_int(value_string, value))
 	{
-		::vid_cfg_.width_ = value;
+		::vid_cfg_.windowed_width_ = value;
 	}
 }
 
@@ -12651,7 +12579,7 @@ void vid_cfg_file_read_height(
 
 	if (bstone::StringHelper::string_to_int(value_string, value))
 	{
-		::vid_cfg_.height_ = value;
+		::vid_cfg_.windowed_height_ = value;
 	}
 }
 
@@ -12704,11 +12632,11 @@ void vid_cfg_file_read_hw_2d_texture_filter(
 {
 	if (value_string == ::vid_get_nearest_value_string())
 	{
-		::vid_cfg_.hw_2d_texture_filter_ = bstone::RendererFilterKind::nearest;
+		::vid_cfg_.d2_texture_filter_ = bstone::Renderer3dFilterKind::nearest;
 	}
 	else if (value_string == ::vid_get_linear_value_string())
 	{
-		::vid_cfg_.hw_2d_texture_filter_ = bstone::RendererFilterKind::linear;
+		::vid_cfg_.d2_texture_filter_ = bstone::Renderer3dFilterKind::linear;
 	}
 }
 
@@ -12717,11 +12645,11 @@ void vid_cfg_file_read_hw_3d_texture_image_filter(
 {
 	if (value_string == ::vid_get_nearest_value_string())
 	{
-		::vid_cfg_.hw_3d_texture_image_filter_ = bstone::RendererFilterKind::nearest;
+		::vid_cfg_.d3_texture_image_filter_ = bstone::Renderer3dFilterKind::nearest;
 	}
 	else if (value_string == ::vid_get_linear_value_string())
 	{
-		::vid_cfg_.hw_3d_texture_image_filter_ = bstone::RendererFilterKind::linear;
+		::vid_cfg_.d3_texture_image_filter_ = bstone::Renderer3dFilterKind::linear;
 	}
 }
 
@@ -12730,11 +12658,11 @@ void vid_cfg_file_read_hw_3d_texture_mipmap_filter(
 {
 	if (value_string == ::vid_get_nearest_value_string())
 	{
-		::vid_cfg_.hw_3d_texture_mipmap_filter_ = bstone::RendererFilterKind::nearest;
+		::vid_cfg_.d3_texture_mipmap_filter_ = bstone::Renderer3dFilterKind::nearest;
 	}
 	else if (value_string == ::vid_get_linear_value_string())
 	{
-		::vid_cfg_.hw_3d_texture_mipmap_filter_ = bstone::RendererFilterKind::linear;
+		::vid_cfg_.d3_texture_mipmap_filter_ = bstone::Renderer3dFilterKind::linear;
 	}
 }
 
@@ -12745,20 +12673,20 @@ void vid_cfg_file_read_hw_3d_texture_anisotropy(
 
 	if (bstone::StringHelper::string_to_int(value_string, value))
 	{
-		::vid_cfg_.hw_3d_texture_anisotropy_ = value;
+		::vid_cfg_.d3_texture_anisotropy_ = value;
 	}
 }
 
 void vid_cfg_file_read_hw_aa_kind(
 	const std::string& value_string)
 {
-	if (value_string == ::vid_get_none_value_string())
+	if (value_string == ::vid_get_msaa_value_string())
 	{
-		::vid_cfg_.hw_aa_kind_ = bstone::RendererAaKind::none;
+		::vid_cfg_.aa_kind_ = bstone::Renderer3dAaKind::ms;
 	}
-	else if (value_string == ::vid_get_msaa_value_string())
+	else
 	{
-		::vid_cfg_.hw_aa_kind_ = bstone::RendererAaKind::ms;
+		::vid_cfg_.aa_kind_ = bstone::Renderer3dAaKind::none;
 	}
 }
 
@@ -12769,7 +12697,7 @@ void vid_cfg_file_read_hw_aa_value(
 
 	if (bstone::StringHelper::string_to_int(value_string, value))
 	{
-		::vid_cfg_.hw_aa_value_ = value;
+		::vid_cfg_.aa_degree_ = value;
 	}
 }
 
@@ -12778,11 +12706,11 @@ void vid_cfg_file_read_hw_texture_upscale_filter(
 {
 	if (value_string == ::vid_get_none_value_string())
 	{
-		::vid_cfg_.hw_upscale_kind_ = bstone::HwTextureManagerUpscaleFilterKind::none;
+		::vid_cfg_.texture_upscale_kind_ = bstone::HwTextureManagerUpscaleFilterKind::none;
 	}
 	else if (value_string == ::vid_get_xbrz_value_string())
 	{
-		::vid_cfg_.hw_upscale_kind_ = bstone::HwTextureManagerUpscaleFilterKind::xbrz;
+		::vid_cfg_.texture_upscale_kind_ = bstone::HwTextureManagerUpscaleFilterKind::xbrz;
 	}
 }
 
@@ -12793,7 +12721,7 @@ void vid_cfg_file_read_hw_texture_upscale_xbrz_factor(
 
 	if (bstone::StringHelper::string_to_int(value_string, value))
 	{
-		::vid_cfg_.hw_upscale_xbrz_factor_ = value;
+		::vid_cfg_.texture_upscale_xbrz_degree_ = value;
 	}
 }
 
@@ -12804,7 +12732,7 @@ bool vid_cfg_file_parse_key_value(
 	if (false)
 	{
 	}
-	else if (key_string == ::vid_get_renderer_kind_key_name())
+	else if (key_string == ::vid_get_renderer_key_name())
 	{
 		::vid_cfg_file_read_renderer_kind(value_string);
 	}
@@ -12812,15 +12740,15 @@ bool vid_cfg_file_parse_key_value(
 	{
 		::vid_cfg_file_read_is_windowed(value_string);
 	}
-	else if (key_string == ::vid_get_vsync_key_name())
+	else if (key_string == ::vid_get_is_vsync_key_name())
 	{
 		::vid_cfg_file_read_vsync(value_string);
 	}
-	else if (key_string == ::vid_get_width_key_name())
+	else if (key_string == ::vid_get_windowed_width_key_name())
 	{
 		::vid_cfg_file_read_width(value_string);
 	}
-	else if (key_string == ::vid_get_height_key_name())
+	else if (key_string == ::vid_get_windowed_height_key_name())
 	{
 		::vid_cfg_file_read_height(value_string);
 	}
@@ -12832,35 +12760,35 @@ bool vid_cfg_file_parse_key_value(
 	{
 		::vid_cfg_file_read_is_ui_stretched(value_string);
 	}
-	else if (key_string == ::vid_get_hw_2d_texture_filter_key_name())
+	else if (key_string == ::vid_get_2d_texture_filter_key_name())
 	{
 		::vid_cfg_file_read_hw_2d_texture_filter(value_string);
 	}
-	else if (key_string == ::vid_get_hw_3d_texture_image_filter_key_name())
+	else if (key_string == ::vid_get_3d_texture_image_filter_key_name())
 	{
 		::vid_cfg_file_read_hw_3d_texture_image_filter(value_string);
 	}
-	else if (key_string == ::vid_get_hw_3d_texture_mipmap_filter_key_name())
+	else if (key_string == ::vid_get_3d_texture_mipmap_filter_key_name())
 	{
 		::vid_cfg_file_read_hw_3d_texture_mipmap_filter(value_string);
 	}
-	else if (key_string == ::vid_get_hw_3d_texture_anisotropy_key_name())
+	else if (key_string == ::vid_get_3d_texture_anisotropy_key_name())
 	{
 		::vid_cfg_file_read_hw_3d_texture_anisotropy(value_string);
 	}
-	else if (key_string == ::vid_get_hw_aa_kind_key_name())
+	else if (key_string == ::vid_get_aa_kind_key_name())
 	{
 		::vid_cfg_file_read_hw_aa_kind(value_string);
 	}
-	else if (key_string == ::vid_get_hw_aa_value_key_name())
+	else if (key_string == ::vid_get_aa_degree_key_name())
 	{
 		::vid_cfg_file_read_hw_aa_value(value_string);
 	}
-	else if (key_string == ::vid_get_hw_texture_upscale_filter_key_name())
+	else if (key_string == ::vid_get_texture_upscale_filter_key_name())
 	{
 		::vid_cfg_file_read_hw_texture_upscale_filter(value_string);
 	}
-	else if (key_string == ::vid_get_hw_texture_upscale_xbrz_factor_key_name())
+	else if (key_string == ::vid_get_texture_upscale_xbrz_degree_key_name())
 	{
 		::vid_cfg_file_read_hw_texture_upscale_xbrz_factor(value_string);
 	}
@@ -12875,12 +12803,12 @@ bool vid_cfg_file_parse_key_value(
 void vid_write_hw_aa_kind_configuration(
 	bstone::TextWriter& text_writer)
 {
-	switch (::vid_cfg_.hw_aa_kind_)
+	switch (::vid_cfg_.aa_kind_)
 	{
-		case bstone::RendererAaKind::ms:
+		case bstone::Renderer3dAaKind::ms:
 			::cfg_file_write_entry(
 				text_writer,
-				::vid_get_hw_aa_kind_key_name(),
+				::vid_get_aa_kind_key_name(),
 				::vid_get_msaa_value_string()
 			);
 
@@ -12889,7 +12817,7 @@ void vid_write_hw_aa_kind_configuration(
 		default:
 			::cfg_file_write_entry(
 				text_writer,
-				::vid_get_hw_aa_kind_key_name(),
+				::vid_get_aa_kind_key_name(),
 				::vid_get_none_value_string()
 			);
 
@@ -12905,35 +12833,35 @@ void vid_write_renderer_kind_configuration(
 		case bstone::RendererKind::software:
 			::cfg_file_write_entry(
 				text_writer,
-				::vid_get_renderer_kind_key_name(),
+				::vid_get_renderer_key_name(),
 				::vid_get_software_value_string()
 			);
 
 			break;
 
-		case bstone::RendererKind::ogl_2:
+		case bstone::RendererKind::gl_2_0:
 			::cfg_file_write_entry(
 				text_writer,
-				::vid_get_renderer_kind_key_name(),
-				::vid_get_ogl_2_value_string()
+				::vid_get_renderer_key_name(),
+				::vid_get_gl_2_value_string()
 			);
 
 			break;
 
-		case bstone::RendererKind::ogl_3_2_core:
+		case bstone::RendererKind::gl_3_2_core:
 			::cfg_file_write_entry(
 				text_writer,
-				::vid_get_renderer_kind_key_name(),
-				::vid_get_ogl_3_2_c_value_string()
+				::vid_get_renderer_key_name(),
+				::vid_get_gl_3_2_c_value_string()
 			);
 
 			break;
 
-		case bstone::RendererKind::ogl_es_2_0:
+		case bstone::RendererKind::gles_2_0:
 			::cfg_file_write_entry(
 				text_writer,
-				::vid_get_renderer_kind_key_name(),
-				::vid_get_ogl_es_2_0_value_string()
+				::vid_get_renderer_key_name(),
+				::vid_get_gles_2_0_value_string()
 			);
 
 			break;
@@ -12942,7 +12870,7 @@ void vid_write_renderer_kind_configuration(
 		default:
 			::cfg_file_write_entry(
 				text_writer,
-				::vid_get_renderer_kind_key_name(),
+				::vid_get_renderer_key_name(),
 				::vid_get_auto_detect_value_string()
 			);
 
@@ -12953,12 +12881,12 @@ void vid_write_renderer_kind_configuration(
 void vid_write_hw_texture_upscale_filter_kind_configuration(
 	bstone::TextWriter& text_writer)
 {
-	switch (::vid_cfg_.hw_upscale_kind_)
+	switch (::vid_cfg_.texture_upscale_kind_)
 	{
 		case bstone::HwTextureManagerUpscaleFilterKind::xbrz:
 			::cfg_file_write_entry(
 				text_writer,
-				::vid_get_hw_texture_upscale_filter_key_name(),
+				::vid_get_texture_upscale_filter_key_name(),
 				::vid_get_xbrz_value_string()
 			);
 
@@ -12967,7 +12895,7 @@ void vid_write_hw_texture_upscale_filter_kind_configuration(
 		default:
 			::cfg_file_write_entry(
 				text_writer,
-				::vid_get_hw_texture_upscale_filter_key_name(),
+				::vid_get_texture_upscale_filter_key_name(),
 				::vid_get_none_value_string()
 			);
 
@@ -12996,31 +12924,31 @@ void vid_cfg_file_write(
 
 	::cfg_file_write_entry(
 		text_writer,
-		::vid_get_x_key_name(),
-		std::to_string(::vid_cfg_.x_)
+		::vid_get_windowed_x_key_name(),
+		std::to_string(::vid_cfg_.windowed_x_)
 	);
 
 	::cfg_file_write_entry(
 		text_writer,
-		::vid_get_y_key_name(),
-		std::to_string(::vid_cfg_.y_)
+		::vid_get_windowed_y_key_name(),
+		std::to_string(::vid_cfg_.windowed_y_)
 	);
 
 	::cfg_file_write_entry(
 		text_writer,
-		::vid_get_width_key_name(),
-		std::to_string(::vid_cfg_.width_)
+		::vid_get_windowed_width_key_name(),
+		std::to_string(::vid_cfg_.windowed_width_)
 	);
 
 	::cfg_file_write_entry(
 		text_writer,
-		::vid_get_height_key_name(),
-		std::to_string(::vid_cfg_.height_)
+		::vid_get_windowed_height_key_name(),
+		std::to_string(::vid_cfg_.windowed_height_)
 	);
 
 	::cfg_file_write_entry(
 		text_writer,
-		::vid_get_vsync_key_name(),
+		::vid_get_is_vsync_key_name(),
 		std::to_string(::vid_cfg_.is_vsync_)
 	);
 
@@ -13040,40 +12968,40 @@ void vid_cfg_file_write(
 
 	::cfg_file_write_entry(
 		text_writer,
-		::vid_get_hw_aa_value_key_name(),
-		std::to_string(::vid_cfg_.hw_aa_value_)
+		::vid_get_aa_degree_key_name(),
+		std::to_string(::vid_cfg_.aa_degree_)
 	);
 
 	::vid_write_hw_texture_upscale_filter_kind_configuration(text_writer);
 
 	::cfg_file_write_entry(
 		text_writer,
-		::vid_get_hw_texture_upscale_xbrz_factor_key_name(),
-		std::to_string(::vid_cfg_.hw_upscale_xbrz_factor_)
+		::vid_get_texture_upscale_xbrz_degree_key_name(),
+		std::to_string(::vid_cfg_.texture_upscale_xbrz_degree_)
 	);
 
 	::cfg_file_write_entry(
 		text_writer,
-		::vid_get_hw_2d_texture_filter_key_name(),
-		::vid_filter_to_string(::vid_cfg_.hw_2d_texture_filter_)
+		::vid_get_2d_texture_filter_key_name(),
+		::vid_filter_to_string(::vid_cfg_.d2_texture_filter_)
 	);
 
 	::cfg_file_write_entry(
 		text_writer,
-		::vid_get_hw_3d_texture_image_filter_key_name(),
-		::vid_filter_to_string(::vid_cfg_.hw_3d_texture_image_filter_)
+		::vid_get_3d_texture_image_filter_key_name(),
+		::vid_filter_to_string(::vid_cfg_.d3_texture_image_filter_)
 	);
 
 	::cfg_file_write_entry(
 		text_writer,
-		::vid_get_hw_3d_texture_mipmap_filter_key_name(),
-		::vid_filter_to_string(::vid_cfg_.hw_3d_texture_mipmap_filter_)
+		::vid_get_3d_texture_mipmap_filter_key_name(),
+		::vid_filter_to_string(::vid_cfg_.d3_texture_mipmap_filter_)
 	);
 
 	::cfg_file_write_entry(
 		text_writer,
-		::vid_get_hw_3d_texture_anisotropy_key_name(),
-		std::to_string(::vid_cfg_.hw_3d_texture_anisotropy_)
+		::vid_get_3d_texture_anisotropy_key_name(),
+		std::to_string(::vid_cfg_.d3_texture_anisotropy_)
 	);
 }
 
@@ -13083,29 +13011,29 @@ void vid_cfg_set_defaults()
 
 	::vid_cfg_.renderer_kind_ = bstone::RendererKind::auto_detect;
 
-	::vid_cfg_.is_windowed_ = false;
+	::vid_cfg_.is_windowed_ = true;
 	::vid_cfg_.is_positioned_ = false;
-	::vid_cfg_.x_ = 0;
-	::vid_cfg_.y_ = 0;
-	::vid_cfg_.width_ = 0;
-	::vid_cfg_.height_ = 0;
+	::vid_cfg_.windowed_x_ = 0;
+	::vid_cfg_.windowed_y_ = 0;
+	::vid_cfg_.windowed_width_ = default_window_width;
+	::vid_cfg_.windowed_height_ = default_window_height;
 	::vid_cfg_.is_vsync_ = true;
 
 	::vid_cfg_.is_ui_stretched_ = false;
 	::vid_cfg_.is_widescreen_ = true;
 
-	::vid_cfg_.hw_2d_texture_filter_ = bstone::RendererFilterKind::nearest;
+	::vid_cfg_.d2_texture_filter_ = bstone::Renderer3dFilterKind::nearest;
 
-	::vid_cfg_.hw_3d_texture_image_filter_ = bstone::RendererFilterKind::nearest;
-	::vid_cfg_.hw_3d_texture_mipmap_filter_ = bstone::RendererFilterKind::nearest;
+	::vid_cfg_.d3_texture_image_filter_ = bstone::Renderer3dFilterKind::nearest;
+	::vid_cfg_.d3_texture_mipmap_filter_ = bstone::Renderer3dFilterKind::nearest;
 
-	::vid_cfg_.hw_3d_texture_anisotropy_ = 4;
+	::vid_cfg_.d3_texture_anisotropy_ = bstone::Renderer3dLimits::anisotropy_min_off;
 
-	::vid_cfg_.hw_aa_kind_ = bstone::RendererAaKind::ms;
-	::vid_cfg_.hw_aa_value_ = 0;
+	::vid_cfg_.aa_kind_ = bstone::Renderer3dAaKind::none;
+	::vid_cfg_.aa_degree_ = bstone::Renderer3dLimits::aa_min_off;
 
-	::vid_cfg_.hw_upscale_kind_ = bstone::HwTextureManagerUpscaleFilterKind::none;
-	::vid_cfg_.hw_upscale_xbrz_factor_ = 0;
+	::vid_cfg_.texture_upscale_kind_ = bstone::HwTextureManagerUpscaleFilterKind::none;
+	::vid_cfg_.texture_upscale_xbrz_degree_ = 0;
 }
 
 VidCfg& vid_cfg_get()
@@ -13120,9 +13048,9 @@ const VidRendererKinds& vid_renderer_kinds_get_available()
 		bstone::RendererKind::auto_detect,
 		bstone::RendererKind::software,
 
-		bstone::RendererKind::ogl_2,
-		bstone::RendererKind::ogl_3_2_core,
-		bstone::RendererKind::ogl_es_2_0,
+		bstone::RendererKind::gl_2_0,
+		bstone::RendererKind::gl_3_2_core,
+		bstone::RendererKind::gles_2_0,
 	};
 
 	return result;
@@ -13145,7 +13073,7 @@ const VidWindowSizes& vid_window_size_get_list()
 
 	for (int i = 0; i < sdl_mode_count; ++i)
 	{
-		sdl_result = ::SDL_GetDisplayMode(display_index, i, &sdl_mode);
+		sdl_result = SDL_GetDisplayMode(display_index, i, &sdl_mode);
 
 		if (sdl_result == 0)
 		{
@@ -13154,7 +13082,7 @@ const VidWindowSizes& vid_window_size_get_list()
 				result.cend(),
 				[&](const auto& item)
 				{
-					return item.width_ == sdl_mode.w && item.height_ == sdl_mode.h;
+					return item.windowed_width_ == sdl_mode.w && item.windowed_height_ == sdl_mode.h;
 				}
 			);
 
@@ -13162,13 +13090,13 @@ const VidWindowSizes& vid_window_size_get_list()
 			{
 				result.emplace_back();
 				auto& window_size = result.back();
-				window_size.width_ = sdl_mode.w;
-				window_size.height_ = sdl_mode.h;
+				window_size.windowed_width_ = sdl_mode.w;
+				window_size.windowed_height_ = sdl_mode.h;
 
 				//
 				const auto is_current =
-					sdl_mode.w == ::vid_dimensions_.window_width_ &&
-					sdl_mode.h == ::vid_dimensions_.window_height_;
+					sdl_mode.w == vid_dimensions_.windowed_width_ &&
+					sdl_mode.h == vid_dimensions_.windowed_height_;
 
 				window_size.is_current_ = is_current;
 
@@ -13179,8 +13107,8 @@ const VidWindowSizes& vid_window_size_get_list()
 
 				//
 				const auto is_custom =
-					sdl_mode.w == ::vid_cfg_.width_ &&
-					sdl_mode.h == ::vid_cfg_.height_;
+					sdl_mode.w == ::vid_cfg_.windowed_width_ &&
+					sdl_mode.h == ::vid_cfg_.windowed_height_;
 
 				window_size.is_custom_ = is_custom;
 
@@ -13197,12 +13125,12 @@ const VidWindowSizes& vid_window_size_get_list()
 		result.end(),
 		[](const auto& lhs, const auto& rhs)
 		{
-			if (lhs.width_ != rhs.width_)
+			if (lhs.windowed_width_ != rhs.windowed_width_)
 			{
-				return lhs.width_ < rhs.width_;
+				return lhs.windowed_width_ < rhs.windowed_width_;
 			}
 
-			return lhs.height_ < rhs.height_;
+			return lhs.windowed_height_ < rhs.windowed_height_;
 		}
 	);
 
@@ -13210,8 +13138,8 @@ const VidWindowSizes& vid_window_size_get_list()
 	{
 		result.emplace_back();
 		auto& window_size = result.back();
-		window_size.width_ = ::vid_cfg_.width_;
-		window_size.height_ = ::vid_cfg_.height_;
+		window_size.windowed_width_ = vid_cfg_.windowed_width_;
+		window_size.windowed_height_ = vid_cfg_.windowed_height_;
 
 		window_size.is_current_ = true;
 		window_size.is_custom_ = true;
@@ -13334,12 +13262,7 @@ void vid_hw_on_wall_switch_update(
 	assert(tile_wall == OFF_SWITCH || tile_wall == ON_SWITCH);
 
 	const auto horizontal_wall_id = ::horizwall[tile_wall];
-	const auto horizontal_texture_2d = ::hw_texture_manager_->wall_get(horizontal_wall_id);
-	assert(horizontal_texture_2d);
-
 	const auto vertical_wall_id = ::vertwall[tile_wall];
-	const auto vertical_texture_2d = ::hw_texture_manager_->wall_get(vertical_wall_id);
-	assert(vertical_texture_2d);
 
 	auto& wall = wall_it->second;
 
@@ -13354,11 +13277,11 @@ void vid_hw_on_wall_switch_update(
 
 		if (flags.is_vertical_)
 		{
-			side.texture_2d_ = vertical_texture_2d;
+			side.texture_id_ = vertical_wall_id;
 		}
 		else
 		{
-			side.texture_2d_ = horizontal_texture_2d;
+			side.texture_id_ = horizontal_wall_id;
 		}
 	}
 }
@@ -13506,14 +13429,8 @@ void vid_hw_on_door_lock_update(
 
 	::door_get_page_numbers(bs_door, front_face_page_number, back_face_page_number);
 
-	const auto front_face_texture_2d = ::hw_texture_manager_->wall_get(front_face_page_number);
-	const auto back_face_texture_2d = ::hw_texture_manager_->wall_get(back_face_page_number);
-
-	assert(front_face_texture_2d);
-	assert(back_face_texture_2d);
-
-	door.sides_[0].texture_2d_ = front_face_texture_2d;
-	door.sides_[1].texture_2d_ = back_face_texture_2d;
+	door.sides_[0].texture_id_ = front_face_page_number;
+	door.sides_[1].texture_id_ = back_face_page_number;
 }
 
 void vid_hw_on_static_remove(
@@ -13527,17 +13444,6 @@ void vid_hw_on_static_remove(
 	const auto bs_static_index = ::hw_get_static_index(bs_static);
 	auto& hw_static = ::hw_3d_statics_[bs_static_index];
 	hw_static = {};
-}
-
-void vid_hw_on_static_change_texture(
-	const statobj_t& bs_static)
-{
-	if (!::vid_is_hw_)
-	{
-		return;
-	}
-
-	::hw_3d_static_texture_change(bs_static);
 }
 
 void vid_hw_on_actor_remove(
@@ -13724,7 +13630,7 @@ void vid_hw_actors_add_render_item(
 	::hw_3d_actors_to_render_.emplace(bs_actor_index);
 }
 
-const bstone::R8g8b8a8Palette& vid_hw_get_default_palette()
+const bstone::Rgba8Palette& vid_hw_get_default_palette()
 {
 	return ::hw_default_palette_;
 }
@@ -13734,11 +13640,11 @@ void vid_video_mode_apply_window_sw()
 	sw_calculate_dimensions();
 	vid_vanilla_raycaster_initialize();
 
-	auto param = bstone::RendererWindowSetModeParam{};
+	auto param = bstone::Renderer3dWindowSetModeParam{};
 	param.is_windowed_ = vid_cfg_.is_windowed_;
-	param.width_ = vid_cfg_.width_;
-	param.height_ = vid_cfg_.height_;
-	bstone::detail::RendererUtils::window_set_mode(sw_window_.get(), param);
+	param.width_ = vid_cfg_.windowed_width_;
+	param.height_ = vid_cfg_.windowed_height_;
+	bstone::detail::Renderer3dUtils::window_set_mode(sw_window_.get(), param);
 
 	vid_common_initialize();
 
@@ -13751,10 +13657,10 @@ void vid_video_mode_apply_window_hw()
 	hw_dimensions_calculate();
 	vid_vanilla_raycaster_initialize();
 
-	auto param = bstone::RendererWindowSetModeParam{};
+	auto param = bstone::Renderer3dWindowSetModeParam{};
 	param.is_windowed_ = vid_cfg_.is_windowed_;
-	param.width_ = vid_cfg_.width_;
-	param.height_ = vid_cfg_.height_;
+	param.width_ = vid_dimensions_.window_width_;
+	param.height_ = vid_dimensions_.window_height_;
 	hw_renderer_->window_set_mode(param);
 
 	vid_common_initialize();
@@ -13798,7 +13704,7 @@ void vid_video_mode_apply_vsync()
 
 void vid_video_mode_apply_msaa_hw()
 {
-	hw_renderer_->aa_set(vid_cfg_.hw_aa_kind_, vid_cfg_.hw_aa_value_);
+	hw_renderer_->aa_set(vid_cfg_.aa_kind_, vid_cfg_.aa_degree_);
 }
 
 void vid_video_mode_apply_msaa()
@@ -13815,7 +13721,7 @@ void vid_video_mode_apply(
 	auto is_restart = false;
 
 	if (!is_restart &&
-		*vid_cfg_.renderer_kind_ != video_mode_cfg.renderer_kind_)
+		vid_cfg_.renderer_kind_ != video_mode_cfg.renderer_kind_)
 	{
 		is_restart = true;
 	}
@@ -13832,10 +13738,10 @@ void vid_video_mode_apply(
 	}
 
 	if (!is_restart &&
-		(*vid_cfg_.hw_aa_kind_ != video_mode_cfg.aa_kind_ ||
-			*vid_cfg_.hw_aa_value_ != video_mode_cfg.aa_factor_) &&
+		(vid_cfg_.aa_kind_ != video_mode_cfg.aa_kind_ ||
+			vid_cfg_.aa_degree_ != video_mode_cfg.aa_degree_) &&
 		vid_is_hw_ &&
-		video_mode_cfg.aa_kind_ == bstone::RendererAaKind::ms &&
+		video_mode_cfg.aa_kind_ == bstone::Renderer3dAaKind::ms &&
 		hw_device_features_.msaa_is_available_ &&
 		hw_device_features_.msaa_is_requires_restart_)
 	{
@@ -13844,22 +13750,28 @@ void vid_video_mode_apply(
 
 	const auto is_window_modified = (
 		vid_cfg_.is_windowed_ != video_mode_cfg.is_windowed_ ||
-		vid_cfg_.width_ != video_mode_cfg.width_ ||
-		vid_cfg_.height_ != video_mode_cfg.height_);
+		(
+			video_mode_cfg.is_windowed_ &&
+			(
+				vid_cfg_.windowed_width_ != video_mode_cfg.windowed_width_ ||
+				vid_cfg_.windowed_height_ != video_mode_cfg.windowed_height_
+			)
+		)
+	);
 
 	const auto is_vsync_modified = (vid_cfg_.is_vsync_ != video_mode_cfg.is_vsync_);
 
 	const auto is_aa_modified = (
-		*vid_cfg_.hw_aa_kind_ != video_mode_cfg.aa_kind_ ||
-		*vid_cfg_.hw_aa_value_ != video_mode_cfg.aa_factor_);
+		vid_cfg_.aa_kind_ != video_mode_cfg.aa_kind_ ||
+		vid_cfg_.aa_degree_ != video_mode_cfg.aa_degree_);
 
 	vid_cfg_.renderer_kind_ = video_mode_cfg.renderer_kind_;
 	vid_cfg_.is_windowed_ = video_mode_cfg.is_windowed_;
-	vid_cfg_.width_ = video_mode_cfg.width_;
-	vid_cfg_.height_ = video_mode_cfg.height_;
+	vid_cfg_.windowed_width_ = video_mode_cfg.windowed_width_;
+	vid_cfg_.windowed_height_ = video_mode_cfg.windowed_height_;
 	vid_cfg_.is_vsync_ = video_mode_cfg.is_vsync_;
-	vid_cfg_.hw_aa_kind_ = video_mode_cfg.aa_kind_;
-	vid_cfg_.hw_aa_value_ = video_mode_cfg.aa_factor_;
+	vid_cfg_.aa_kind_ = video_mode_cfg.aa_kind_;
+	vid_cfg_.aa_degree_ = video_mode_cfg.aa_degree_;
 
 	if (is_restart)
 	{
@@ -13889,52 +13801,42 @@ void vid_video_mode_apply(
 
 void vid_texturing_apply_anisotropy()
 {
-	if (!vid_is_hw_)
+	if (vid_is_hw_)
 	{
-		return;
+		hw_samplers_update();
 	}
-
-	hw_samplers_update();
 }
 
 void vid_texturing_apply_2d_image_filter()
 {
-	if (!vid_is_hw_)
+	if (vid_is_hw_)
 	{
-		return;
+		hw_samplers_update();
 	}
-
-	hw_samplers_update();
 }
 
 void vid_texturing_apply_3d_image_filter()
 {
-	if (!vid_is_hw_)
+	if (vid_is_hw_)
 	{
-		return;
+		hw_samplers_update();
 	}
-
-	hw_samplers_update();
 }
 
 void vid_texturing_apply_3d_mipmap_filter()
 {
-	if (!vid_is_hw_)
+	if (vid_is_hw_)
 	{
-		return;
+		hw_samplers_update();
 	}
-
-	hw_samplers_update();
 }
 
 void vid_texturing_apply_upscale()
 {
-	if (!vid_is_hw_)
+	if (vid_is_hw_)
 	{
-		return;
+		hw_texture_upscale_apply();
 	}
-
-	hw_texture_upscale_apply();
 }
 
 bool operator==(
@@ -13944,11 +13846,11 @@ bool operator==(
 	return
 		lhs.renderer_kind_ == rhs.renderer_kind_ &&
 		lhs.is_windowed_ == rhs.is_windowed_ &&
-		lhs.width_ == rhs.width_ &&
-		lhs.height_ == rhs.height_ &&
+		lhs.windowed_width_ == rhs.windowed_width_ &&
+		lhs.windowed_height_ == rhs.windowed_height_ &&
 		lhs.is_vsync_ == rhs.is_vsync_ &&
 		lhs.aa_kind_ == rhs.aa_kind_ &&
-		lhs.aa_factor_ == rhs.aa_factor_;
+		lhs.aa_degree_ == rhs.aa_degree_;
 }
 
 bool operator!=(

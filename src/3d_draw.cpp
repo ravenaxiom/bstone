@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -2340,15 +2340,7 @@ void door_get_page_numbers_for_caching(
 		break;
 
 	default:
-		horizontal_locked_page_number = 0;
-		horizontal_unlocked_page_number = 0;
-
-		vertical_locked_page_number = 0;
-		vertical_unlocked_page_number = 0;
-
 		::Quit("Invalid door type.");
-
-		break;
 	}
 }
 

@@ -3,7 +3,7 @@ BStone: A Source port of
 Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2019 Boris I. Bendovsky (bibendovsky@hotmail.com)
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -43,10 +43,10 @@ namespace bstone
 
 
 // ==========================================================================
-// R8g8b8
+// Rgb8
 //
 
-class R8g8b8
+class Rgb8
 {
 public:
 	std::uint8_t r_;
@@ -54,9 +54,9 @@ public:
 	std::uint8_t b_;
 
 
-	R8g8b8();
+	Rgb8();
 
-	R8g8b8(
+	Rgb8(
 		const std::uint8_t r,
 		const std::uint8_t g,
 		const std::uint8_t b);
@@ -74,21 +74,21 @@ public:
 
 	const std::uint8_t& operator[](
 		const int index) const;
-}; // R8g8b8
+}; // Rgb8
 
-using R8g8b8Ptr = R8g8b8*;
-using R8g8b8CPtr = const R8g8b8*;
+using Rgb8Ptr = Rgb8*;
+using Rgb8CPtr = const Rgb8*;
 
 //
-// R8g8b8
+// Rgb8
 // ==========================================================================
 
 
 // ==========================================================================
-// R8g8b8a8
+// Rgba8
 //
 
-class R8g8b8a8
+class Rgba8
 {
 public:
 	std::uint8_t r_;
@@ -97,9 +97,9 @@ public:
 	std::uint8_t a_;
 
 
-	R8g8b8a8();
+	Rgba8();
 
-	R8g8b8a8(
+	Rgba8(
 		const std::uint8_t r,
 		const std::uint8_t g,
 		const std::uint8_t b,
@@ -124,23 +124,32 @@ public:
 
 
 	// Averages two colors and premultiplies alpha.
-	static R8g8b8a8 average_pa(
-		const R8g8b8a8 color_0,
-		const R8g8b8a8 color_1);
+	static Rgba8 average_pa(
+		const Rgba8 color_0,
+		const Rgba8 color_1);
 
 	// Averages four colors and premultiplies alpha.
-	static R8g8b8a8 average_pa(
-		const R8g8b8a8 color_0,
-		const R8g8b8a8 color_1,
-		const R8g8b8a8 color_2,
-		const R8g8b8a8 color_3);
-}; // R8g8b8a8
+	static Rgba8 average_pa(
+		const Rgba8 color_0,
+		const Rgba8 color_1,
+		const Rgba8 color_2,
+		const Rgba8 color_3);
+}; // Rgba8
 
-using R8g8b8a8Ptr = R8g8b8a8*;
-using R8g8b8a8CPtr = const R8g8b8a8*;
+using Rgba8Ptr = Rgba8*;
+using Rgba8CPtr = const Rgba8*;
+
+
+bool operator==(
+	const Rgba8& lhs,
+	const Rgba8& rhs);
+
+bool operator!=(
+	const Rgba8& lhs,
+	const Rgba8& rhs);
 
 //
-// R8g8b8a8
+// Rgba8
 // ==========================================================================
 
 
