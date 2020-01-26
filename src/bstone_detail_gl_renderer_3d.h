@@ -46,7 +46,6 @@ Free Software Foundation, Inc.,
 #include "bstone_detail_gl_shader_stage.h"
 #include "bstone_detail_gl_renderer_3d_utils.h"
 #include "bstone_detail_gl_context.h"
-#include "bstone_detail_gl_command_executor.h"
 
 
 namespace bstone
@@ -163,10 +162,6 @@ public:
 		const Renderer3dDrawIndexedParam& param) override;
 
 
-	void execute_commands(
-		const Renderer3dCommandManagerPtr command_manager) override;
-
-
 private:
 	static void fbo_resource_deleter(
 		const GLuint& gl_name) noexcept;
@@ -193,7 +188,6 @@ private:
 
 	GlExtensionManagerUPtr extension_manager_;
 	GlContextUPtr gl_context_;
-	GlCommandExecutorUPtr command_executor_;
 
 	Renderer3dDeviceInfo device_info_;
 	Renderer3dDeviceFeatures device_features_;

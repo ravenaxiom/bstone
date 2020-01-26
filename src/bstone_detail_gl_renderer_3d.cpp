@@ -68,7 +68,6 @@ GlRenderer3d::GlRenderer3d(
 	sdl_gl_context_{},
 	extension_manager_{},
 	gl_context_{},
-	command_executor_{},
 	device_info_{},
 	device_features_{},
 	gl_device_features_{},
@@ -337,8 +336,6 @@ void GlRenderer3d::initialize(
 		device_features_,
 		gl_device_features_
 	);
-
-	command_executor_ = GlCommandExecutorFactory::create(gl_context_.get());
 
 	if (device_features_.vsync_is_available_)
 	{
@@ -670,12 +667,6 @@ void GlRenderer3d::draw_indexed(
 	assert(!GlRenderer3dUtils::was_errors());
 }
 
-void GlRenderer3d::execute_commands(
-	const Renderer3dCommandManagerPtr command_manager)
-{
-	command_executor_->execute(command_manager);
-}
-
 Renderer3dTexture2dUPtr GlRenderer3d::texture_2d_create(
 	const Renderer3dTexture2dCreateParam& param)
 {
@@ -691,7 +682,6 @@ Renderer3dSamplerUPtr GlRenderer3d::sampler_create(
 void GlRenderer3d::uninitialize_internal()
 {
 	kind_ = {};
-	command_executor_ = {};
 	gl_context_ = {};
 	extension_manager_ = {};
 

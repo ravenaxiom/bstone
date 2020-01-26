@@ -43,6 +43,7 @@ Free Software Foundation, Inc.,
 #include "bstone_logger.h"
 #include "bstone_mod_value.h"
 #include "bstone_mt_task_manager.h"
+#include "bstone_renderer_3d_command_manager.h"
 #include "bstone_renderer_3d_limits.h"
 #include "bstone_renderer_3d_manager.h"
 #include "bstone_renderer_3d_shader_registry.h"
@@ -5502,7 +5503,7 @@ void hw_command_manager_create()
 {
 	::vid_log("Creating command manager.");
 
-	::hw_command_manager_ = bstone::Renderer3dCommandManagerFactory::create();
+	::hw_command_manager_ = bstone::Renderer3dCommandManagerFactory::create(hw_renderer_);
 }
 
 void hw_command_buffer_common_destroy()
@@ -7765,7 +7766,7 @@ void hw_screen_refresh()
 	::hw_screen_3d_refresh();
 	::hw_screen_2d_refresh();
 
-	::hw_renderer_->execute_commands(::hw_command_manager_.get());
+	hw_command_manager_->command_execute();
 	::hw_renderer_->present();
 
 	::vid_hw_is_draw_3d_ = false;

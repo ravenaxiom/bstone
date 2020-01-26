@@ -101,18 +101,4 @@ Renderer3dShaderStage::~Renderer3dShaderStage() = default;
 // ==========================================================================
 
 
-// ==========================================================================
-// Renderer3dCommandManagerFactory
-//
-
-Renderer3dCommandManagerUPtr Renderer3dCommandManagerFactory::create()
-{
-	return detail::RendererCommandManagerImplUPtr{new detail::Renderer3dCommandManagerImpl{}};
-}
-
-//
-// Renderer3dCommandManagerFactory
-// ==========================================================================
-
-
 } // bstone
