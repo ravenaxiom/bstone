@@ -148,8 +148,8 @@ private:
 	void command_execute_shader_var_sampler_2d(
 		const Renderer3dCommandShaderVarSampler2d& command);
 
-	void command_execute_draw_quads(
-		const Renderer3dCommandDrawQuads& command);
+	void command_execute_draw_indexed(
+		const Renderer3dCommandDrawIndexed& command);
 }; // GlCommandExecutorImpl
 
 
@@ -279,8 +279,8 @@ void GlCommandExecutorImpl::execute(
 				command_execute_shader_var_sampler_2d(*command_buffer->read_shader_var_sampler_2d());
 				break;
 
-			case Renderer3dCommandId::draw_quads:
-				command_execute_draw_quads(*command_buffer->read_draw_quads());
+			case Renderer3dCommandId::draw_indexed:
+				command_execute_draw_indexed(*command_buffer->read_draw_indexed());
 				break;
 
 			default:
@@ -451,20 +451,50 @@ void GlCommandExecutorImpl::command_execute_shader_var_sampler_2d(
 	command.var_->set_sampler_2d(command.value_);
 }
 
-void GlCommandExecutorImpl::command_execute_draw_quads(
-	const Renderer3dCommandDrawQuads& command)
+void GlCommandExecutorImpl::command_execute_draw_indexed(
+	const Renderer3dCommandDrawIndexed& command)
 {
-	if (command.count_ <= 0)
+	const auto& param = command.param_;
+
+	auto gl_primitive_topology = GLenum{};
+
+	switch (param.primitive_topology_)
 	{
-		throw Exception{"Quad count out of range."};
+		case Renderer3dPrimitiveTopology::point_list:
+			gl_primitive_topology = GL_POINTS;
+			break;
+
+		case Renderer3dPrimitiveTopology::line_list:
+			gl_primitive_topology = GL_LINES;
+			break;
+
+		case Renderer3dPrimitiveTopology::line_strip:
+			gl_primitive_topology = GL_LINE_STRIP;
+			break;
+
+		case Renderer3dPrimitiveTopology::triangle_list:
+			gl_primitive_topology = GL_TRIANGLES;
+			break;
+
+		case Renderer3dPrimitiveTopology::triangle_strip:
+			gl_primitive_topology = GL_TRIANGLE_STRIP;
+			break;
+
+		default:
+			throw Exception{"Unsupported primitive topology."};
 	}
 
-	if (command.index_offset_ < 0)
+	if (param.vertex_count_ < 0)
 	{
-		throw Exception{"Index offset out of range."};
+		throw Exception{"Vertex count out of range."};
 	}
 
-	switch (command.index_byte_depth_)
+	if (param.vertex_count_ == 0)
+	{
+		return;
+	}
+
+	switch (param.index_byte_depth_)
 	{
 		case 1:
 		case 2:
@@ -472,42 +502,39 @@ void GlCommandExecutorImpl::command_execute_draw_quads(
 			break;
 
 		default:
-			throw Exception{"Unsupported index byte depth."};
+			throw Exception{"Unsupported index value byte depth."};
 	}
 
-	const auto triangles_per_quad = 2;
-	const auto triangle_count = command.count_ * triangles_per_quad;
+	if (param.index_buffer_offset_ < 0)
+	{
+		throw Exception{"Offset to indices out of range."};
+	}
 
-	const auto indices_per_triangle = 3;
-	const auto indices_per_quad = triangles_per_quad * indices_per_triangle;
-	const auto index_count = indices_per_quad * command.count_;
+	if (param.index_offset_ < 0)
+	{
+		throw Exception{"Index offset out of range."};
+	}
 
-	auto index_buffer = static_cast<GlBuffer*>(
-		gl_context_->vertex_input_get_manager()->get_current_index_buffer());
+	auto index_buffer = static_cast<GlBufferPtr>(gl_context_->vertex_input_get_manager()->get_current_index_buffer());
 
 	if (!index_buffer)
 	{
 		throw Exception{"Null index buffer."};
 	}
 
-	const auto index_byte_depth = command.index_byte_depth_;
-	const auto index_byte_offset = command.index_offset_ * index_byte_depth;
-
-
-	// Draw the quads.
-	//
-	const auto index_buffer_data = reinterpret_cast<const void*>(static_cast<std::intptr_t>(index_byte_offset));
+	const auto index_buffer_offset = param.index_buffer_offset_ + (param.index_offset_ * param.index_byte_depth_);
+	const auto index_buffer_indices = reinterpret_cast<const void*>(static_cast<std::intptr_t>(index_buffer_offset));
 
 	const auto gl_element_type = GlRenderer3dUtils::index_buffer_get_element_type_by_byte_depth(
-		index_byte_depth);
+		param.index_byte_depth_);
 
 	index_buffer->set(true);
 
 	glDrawElements(
-		GL_TRIANGLES, // mode
-		index_count, // count
+		gl_primitive_topology, // mode
+		param.vertex_count_, // count
 		gl_element_type, // type
-		index_buffer_data // indices
+		index_buffer_indices // indices
 	);
 
 	assert(!GlRenderer3dUtils::was_errors());

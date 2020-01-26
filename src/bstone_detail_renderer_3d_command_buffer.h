@@ -95,7 +95,7 @@ public:
 	Renderer3dCommandShaderVarMat4* write_shader_var_mat4() override;
 	Renderer3dCommandShaderVarSampler2d* write_shader_var_sampler_2d() override;
 
-	Renderer3dCommandDrawQuads* write_draw_quads() override;
+	Renderer3dCommandDrawIndexed* write_draw_indexed() override;
 
 
 	void read_begin() override;
@@ -133,7 +133,7 @@ public:
 	const Renderer3dCommandShaderVarMat4* read_shader_var_mat4() override;
 	const Renderer3dCommandShaderVarSampler2d* read_shader_var_sampler_2d() override;
 
-	const Renderer3dCommandDrawQuads* read_draw_quads() override;
+	const Renderer3dCommandDrawIndexed* read_draw_indexed() override;
 
 
 	void initialize(

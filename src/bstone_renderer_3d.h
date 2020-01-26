@@ -57,6 +57,19 @@ enum class Renderer3dKind
 	gles_2_0,
 }; // Renderer3dKind
 
+enum class Renderer3dPrimitiveTopology
+{
+	none,
+
+	point_list,
+
+	line_list,
+	line_strip,
+
+	triangle_list,
+	triangle_strip,
+}; // Renderer3dPrimitiveTopology
+
 enum class Renderer3dCommandId
 {
 	none,
@@ -90,7 +103,7 @@ enum class Renderer3dCommandId
 	shader_var_mat4,
 	shader_var_sampler_2d,
 
-	draw_quads,
+	draw_indexed,
 }; // Renderer3dCommandId
 
 enum class Renderer3dCullingFace
@@ -206,6 +219,24 @@ struct Renderer3dBlendingFunc
 	Renderer3dBlendingFactor src_factor_;
 	Renderer3dBlendingFactor dst_factor_;
 }; // Renderer3dBlendingFunc
+
+struct Renderer3dDrawIndexedParam
+{
+	// Primitive topology.
+	Renderer3dPrimitiveTopology primitive_topology_;
+
+	// Vertex count.
+	int vertex_count_;
+
+	// Size of the element in bytes.
+	int index_byte_depth_;
+
+	// Offset in bytes from the start of index buffer.
+	int index_buffer_offset_;
+
+	// Number of the index to draw from.
+	int index_offset_;
+}; // Renderer3dDrawIndexedParam
 
 
 // ==========================================================================
@@ -772,12 +803,10 @@ struct Renderer3dCommandShaderVarSampler2d
 	std::int32_t value_;
 }; // Renderer3dCommandShaderVarSampler2d
 
-struct Renderer3dCommandDrawQuads
+struct Renderer3dCommandDrawIndexed
 {
-	int count_;
-	int index_offset_;
-	int index_byte_depth_;
-}; // Renderer3dCommandDrawQuads
+	Renderer3dDrawIndexedParam param_;
+}; // Renderer3dCommandDrawIndexed
 
 
 // ==========================================================================
@@ -835,7 +864,7 @@ public:
 	virtual Renderer3dCommandShaderVarMat4* write_shader_var_mat4() = 0;
 	virtual Renderer3dCommandShaderVarSampler2d* write_shader_var_sampler_2d() = 0;
 
-	virtual Renderer3dCommandDrawQuads* write_draw_quads() = 0;
+	virtual Renderer3dCommandDrawIndexed* write_draw_indexed() = 0;
 
 
 	virtual void read_begin() = 0;
@@ -873,7 +902,7 @@ public:
 	virtual const Renderer3dCommandShaderVarMat4* read_shader_var_mat4() = 0;
 	virtual const Renderer3dCommandShaderVarSampler2d* read_shader_var_sampler_2d() = 0;
 
-	virtual const Renderer3dCommandDrawQuads* read_draw_quads() = 0;
+	virtual const Renderer3dCommandDrawIndexed* read_draw_indexed() = 0;
 }; // Renderer3dCommandBuffer
 
 using Renderer3dCommandBufferPtr = Renderer3dCommandBuffer*;

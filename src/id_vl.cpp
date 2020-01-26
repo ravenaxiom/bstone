@@ -2090,6 +2090,11 @@ constexpr auto hw_3d_tile_half_dimension = hw_3d_tile_dimension<T> / static_cast
 constexpr auto hw_3d_tile_half_dimension_f = ::hw_3d_tile_half_dimension<float>;
 constexpr auto hw_3d_tile_half_dimension_d = ::hw_3d_tile_half_dimension<double>;
 
+
+constexpr auto hw_vertices_per_triangle = 3;
+constexpr auto hw_triangles_per_quad = 2;
+constexpr auto hw_vertices_per_quad = hw_triangles_per_quad * hw_vertices_per_triangle;
+
 constexpr auto hw_3d_sides_per_wall = 4;
 constexpr auto hw_3d_indices_per_wall_side = 6;
 constexpr auto hw_3d_vertices_per_wall_side = 4;
@@ -5990,10 +5995,14 @@ void hw_screen_2d_refresh()
 				index_offset = ::hw_2d_fillers_ui_index_offset_;
 			}
 
-			auto& command = *command_buffer->write_draw_quads();
-			command.count_ = count;
-			command.index_offset_ = index_offset;
-			command.index_byte_depth_ = 1;
+			auto& command = *command_buffer->write_draw_indexed();
+			auto& param = command.param_;
+
+			param.primitive_topology_ = bstone::Renderer3dPrimitiveTopology::triangle_list;
+			param.vertex_count_ = count * hw_vertices_per_quad;
+			param.index_byte_depth_ = 1;
+			param.index_buffer_offset_ = 0;
+			param.index_offset_ = index_offset;
 		}
 	}
 
@@ -6034,10 +6043,14 @@ void hw_screen_2d_refresh()
 				::hw_2d_non_stretched_index_offset_
 			);
 
-			auto& command = *command_buffer->write_draw_quads();
-			command.count_ = 1;
-			command.index_offset_ = index_offset;
-			command.index_byte_depth_ = 1;
+			auto& command = *command_buffer->write_draw_indexed();
+			auto& param = command.param_;
+
+			param.primitive_topology_ = bstone::Renderer3dPrimitiveTopology::triangle_list;
+			param.vertex_count_ = hw_vertices_per_quad;
+			param.index_byte_depth_ = 1;
+			param.index_buffer_offset_ = 0;
+			param.index_offset_ = index_offset;
 		}
 
 		if (::vid_is_hud)
@@ -6097,10 +6110,14 @@ void hw_screen_2d_refresh()
 				::hw_2d_non_stretched_index_offset_
 			);
 
-			auto& command = *command_buffer->write_draw_quads();
-			command.count_ = 1;
-			command.index_offset_ = index_offset;
-			command.index_byte_depth_ = 1;
+			auto& command = *command_buffer->write_draw_indexed();
+			auto& param = command.param_;
+
+			param.primitive_topology_ = bstone::Renderer3dPrimitiveTopology::triangle_list;
+			param.vertex_count_ = hw_vertices_per_quad;
+			param.index_byte_depth_ = 1;
+			param.index_buffer_offset_ = 0;
+			param.index_offset_ = index_offset;
 		}
 
 		// Disable blending.
@@ -6293,10 +6310,14 @@ void hw_3d_walls_render()
 			}
 
 			{
-				auto& command = *command_buffer->write_draw_quads();
-				command.count_ = draw_quad_count;
-				command.index_offset_ = draw_index_offset_;
-				command.index_byte_depth_ = 2;
+				auto& command = *command_buffer->write_draw_indexed();
+				auto& param = command.param_;
+
+				param.primitive_topology_ = bstone::Renderer3dPrimitiveTopology::triangle_list;
+				param.vertex_count_ = draw_quad_count * hw_vertices_per_quad;
+				param.index_byte_depth_ = 2;
+				param.index_buffer_offset_ = 0;
+				param.index_offset_ = draw_index_offset_;
 
 				draw_index_offset_ += ::hw_3d_indices_per_wall_side * draw_quad_count;
 			}
@@ -6433,10 +6454,14 @@ void hw_3d_pushwalls_render()
 			}
 
 			{
-				auto& command = *command_buffer->write_draw_quads();
-				command.count_ = draw_quad_count;
-				command.index_offset_ = draw_index_offset_;
-				command.index_byte_depth_ = 2;
+				auto& command = *command_buffer->write_draw_indexed();
+				auto& param = command.param_;
+
+				param.primitive_topology_ = bstone::Renderer3dPrimitiveTopology::triangle_list;
+				param.vertex_count_ = draw_quad_count * hw_vertices_per_quad;
+				param.index_byte_depth_ = 2;
+				param.index_buffer_offset_ = 0;
+				param.index_offset_ = draw_index_offset_;
 
 				draw_index_offset_ += ::hw_3d_indices_per_wall_side * draw_quad_count;
 			}
@@ -6660,10 +6685,14 @@ void hw_3d_doors_render()
 			}
 
 			{
-				auto& command = *command_buffer->write_draw_quads();
-				command.count_ = draw_quad_count;
-				command.index_offset_ = draw_index_offset;
-				command.index_byte_depth_ = 2;
+				auto& command = *command_buffer->write_draw_indexed();
+				auto& param = command.param_;
+
+				param.primitive_topology_ = bstone::Renderer3dPrimitiveTopology::triangle_list;
+				param.vertex_count_ = draw_quad_count * hw_vertices_per_quad;
+				param.index_byte_depth_ = 2;
+				param.index_buffer_offset_ = 0;
+				param.index_offset_ = draw_index_offset;
 
 				draw_index_offset += 6 * draw_quad_count;
 			}
@@ -7197,10 +7226,14 @@ void hw_3d_sprites_render()
 			}
 
 			{
-				auto& command = *command_buffer->write_draw_quads();
-				command.count_ = draw_quad_count;
-				command.index_offset_ = draw_index_offset_;
-				command.index_byte_depth_ = 2;
+				auto& command = *command_buffer->write_draw_indexed();
+				auto& param = command.param_;
+
+				param.primitive_topology_ = bstone::Renderer3dPrimitiveTopology::triangle_list;
+				param.vertex_count_ = draw_quad_count * hw_vertices_per_quad;
+				param.index_byte_depth_ = 2;
+				param.index_buffer_offset_ = 0;
+				param.index_offset_ = draw_index_offset_;
 
 				draw_index_offset_ += ::hw_3d_indices_per_sprite * draw_quad_count;
 			}
@@ -7446,10 +7479,14 @@ void hw_screen_3d_refresh()
 		}
 
 		{
-			auto& command = *command_buffer->write_draw_quads();
-			command.count_ = 1;
-			command.index_offset_ = 0;
-			command.index_byte_depth_ = 1;
+			auto& command = *command_buffer->write_draw_indexed();
+			auto& param = command.param_;
+
+			param.primitive_topology_ = bstone::Renderer3dPrimitiveTopology::triangle_list;
+			param.vertex_count_ = hw_vertices_per_quad;
+			param.index_byte_depth_ = 1;
+			param.index_buffer_offset_ = 0;
+			param.index_offset_ = 0;
 		}
 	}
 
@@ -7474,10 +7511,14 @@ void hw_screen_3d_refresh()
 		}
 
 		{
-			auto& command = *command_buffer->write_draw_quads();
-			command.count_ = 1;
-			command.index_offset_ = 0;
-			command.index_byte_depth_ = 1;
+			auto& command = *command_buffer->write_draw_indexed();
+			auto& param = command.param_;
+
+			param.primitive_topology_ = bstone::Renderer3dPrimitiveTopology::triangle_list;
+			param.vertex_count_ = hw_vertices_per_quad;
+			param.index_byte_depth_ = 1;
+			param.index_buffer_offset_ = 0;
+			param.index_offset_ = 0;
 		}
 	}
 
@@ -7603,10 +7644,14 @@ void hw_screen_3d_refresh()
 			// Draw the weapon.
 			//
 			{
-				auto& command = *command_buffer->write_draw_quads();
-				command.index_offset_ = 0;
-				command.count_ = 1;
-				command.index_byte_depth_ = 1;
+				auto& command = *command_buffer->write_draw_indexed();
+				auto& param = command.param_;
+
+				param.primitive_topology_ = bstone::Renderer3dPrimitiveTopology::triangle_list;
+				param.vertex_count_ = hw_vertices_per_quad;
+				param.index_byte_depth_ = 1;
+				param.index_buffer_offset_ = 0;
+				param.index_offset_ = 0;
 			}
 
 			// Disable blending.
@@ -7677,10 +7722,14 @@ void hw_screen_3d_refresh()
 			// Draw the quad.
 			//
 			{
-				auto& command = *command_buffer->write_draw_quads();
-				command.count_ = 1;
-				command.index_offset_ = 0;
-				command.index_byte_depth_ = 1;
+				auto& command = *command_buffer->write_draw_indexed();
+				auto& param = command.param_;
+
+				param.primitive_topology_ = bstone::Renderer3dPrimitiveTopology::triangle_list;
+				param.vertex_count_ = hw_vertices_per_quad;
+				param.index_byte_depth_ = 1;
+				param.index_buffer_offset_ = 0;
+				param.index_offset_ = 0;
 			}
 
 			// Disable blending.

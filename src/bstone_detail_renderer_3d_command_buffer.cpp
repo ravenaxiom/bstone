@@ -204,9 +204,9 @@ Renderer3dCommandShaderVarSampler2d* Renderer3dCommandBufferImpl::write_shader_v
 	return write<Renderer3dCommandShaderVarSampler2d>(Renderer3dCommandId::shader_var_sampler_2d);
 }
 
-Renderer3dCommandDrawQuads* Renderer3dCommandBufferImpl::write_draw_quads()
+Renderer3dCommandDrawIndexed* Renderer3dCommandBufferImpl::write_draw_indexed()
 {
-	return write<Renderer3dCommandDrawQuads>(Renderer3dCommandId::draw_quads);
+	return write<Renderer3dCommandDrawIndexed>(Renderer3dCommandId::draw_indexed);
 }
 
 void Renderer3dCommandBufferImpl::read_begin()
@@ -352,9 +352,9 @@ const Renderer3dCommandShaderVarSampler2d* Renderer3dCommandBufferImpl::read_sha
 	return read<Renderer3dCommandShaderVarSampler2d>();
 }
 
-const Renderer3dCommandDrawQuads* Renderer3dCommandBufferImpl::read_draw_quads()
+const Renderer3dCommandDrawIndexed* Renderer3dCommandBufferImpl::read_draw_indexed()
 {
-	return read<Renderer3dCommandDrawQuads>();
+	return read<Renderer3dCommandDrawIndexed>();
 }
 
 void Renderer3dCommandBufferImpl::initialize(
