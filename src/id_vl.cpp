@@ -11067,6 +11067,7 @@ void hw_precache_player_weapon_plasma_discharge_unit()
 
 	::hw_precache_flying_grenade();
 	::hw_precache_grenade_explosion();
+	hw_precache_explosion();
 }
 
 void hw_precache_player_weapon_anti_plasma_cannon()

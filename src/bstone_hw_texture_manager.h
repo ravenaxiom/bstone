@@ -23,7 +23,7 @@ Free Software Foundation, Inc.,
 
 
 //
-// Renderer3d texture manager.
+// Texture manager (hardware).
 //
 
 
