@@ -66,6 +66,41 @@ GlBuffer::~GlBuffer() = default;
 // GlBufferImpl
 //
 
+struct GlBufferImplException :
+	public Exception
+{
+	explicit GlBufferImplException(
+		const char* const message)
+		:
+		Exception{std::string{"[GL_BUF] "} + message}
+	{
+	}
+}; // GlBufferImplException
+
+
+struct GlBufferImplCreateException :
+	public Exception
+{
+	explicit GlBufferImplCreateException(
+		const char* const message)
+		:
+		Exception{std::string{"[GL_BUF_INIT] "} + message}
+	{
+	}
+}; // GlBufferImplCreateException
+
+struct GlBufferImplUpdateException :
+	public Exception
+{
+	explicit GlBufferImplUpdateException(
+		const char* const message)
+		:
+		Exception{std::string{"[GL_BUF_UPD] "} + message}
+	{
+	}
+}; // GlBufferImplUpdateException
+
+
 class GlBufferImpl final :
 	public GlBuffer
 {
@@ -116,9 +151,6 @@ private:
 
 	static GLenum gl_get_usage(
 		const Renderer3dBufferUsageKind usage_kind);
-
-	void initialize(
-		const Renderer3dBufferCreateParam& param);
 }; // GlBufferImpl
 
 
@@ -144,7 +176,70 @@ GlBufferImpl::GlBufferImpl(
 	gl_resource_{},
 	gl_target_{}
 {
-	initialize(param);
+	if (!gl_buffer_manager_)
+	{
+		throw GlBufferImplCreateException{"Null buffer manager."};
+	}
+
+	validate_param(param);
+
+	const auto gl_context = gl_buffer_manager_->get_context();
+	const auto& gl_device_features = gl_context->get_gl_device_features();
+
+	auto gl_name = GLuint{};
+
+	if (gl_device_features.dsa_is_available_)
+	{
+		glCreateBuffers(1, &gl_name);
+		assert(!detail::GlRenderer3dUtils::was_errors());
+	}
+	else
+	{
+		glGenBuffers(1, &gl_name);
+		assert(!detail::GlRenderer3dUtils::was_errors());
+	}
+
+	if (gl_name == 0)
+	{
+		throw GlBufferImplCreateException{"Failed to create a buffer object."};
+	}
+
+	kind_ = param.kind_;
+	usage_kind_ = param.usage_kind_;
+	size_ = param.size_;
+	gl_resource_.reset(gl_name);
+	gl_target_ = gl_get_target(param.kind_);
+
+	const auto gl_usage = gl_get_usage(param.usage_kind_);
+
+	if (gl_device_features.dsa_is_available_ &&
+		gl_device_features.buffer_storage_is_available_)
+	{
+		glNamedBufferStorage(gl_resource_.get(), param.size_, nullptr, GL_DYNAMIC_STORAGE_BIT);
+		assert(!detail::GlRenderer3dUtils::was_errors());
+	}
+	else
+	{
+		const auto gl_context = gl_buffer_manager_->get_context();
+		const auto gl_vao_manager = gl_context->vao_get_manager();
+
+		const auto is_index = (kind_ == Renderer3dBufferKind::index);
+
+		if (is_index)
+		{
+			gl_vao_manager->push_current_set_default();
+		}
+
+		set(true);
+
+		glBufferData(gl_target_, param.size_, nullptr, gl_usage);
+		assert(!detail::GlRenderer3dUtils::was_errors());
+
+		if (is_index)
+		{
+			gl_vao_manager->pop();
+		}
+	}
 }
 
 GlBufferImpl::~GlBufferImpl()
@@ -241,75 +336,6 @@ void GlBufferImpl::resource_deleter(
 	assert(!detail::GlRenderer3dUtils::was_errors());
 }
 
-void GlBufferImpl::initialize(
-	const Renderer3dBufferCreateParam& param)
-{
-	if (!gl_buffer_manager_)
-	{
-		throw Exception{"Null buffer manager."};
-	}
-
-	validate_param(param);
-
-	const auto gl_context = gl_buffer_manager_->get_context();
-	const auto& gl_device_features = gl_context->get_gl_device_features();
-
-	auto gl_name = GLuint{};
-
-	if (gl_device_features.dsa_is_available_)
-	{
-		glCreateBuffers(1, &gl_name);
-		assert(!detail::GlRenderer3dUtils::was_errors());
-	}
-	else
-	{
-		glGenBuffers(1, &gl_name);
-		assert(!detail::GlRenderer3dUtils::was_errors());
-	}
-
-	if (gl_name == 0)
-	{
-		throw Exception{"Failed to create OpenGL buffer object."};
-	}
-
-	kind_ = param.kind_;
-	usage_kind_ = param.usage_kind_;
-	size_ = param.size_;
-	gl_resource_.reset(gl_name);
-	gl_target_ = gl_get_target(param.kind_);
-
-	const auto gl_usage = gl_get_usage(param.usage_kind_);
-
-	if (gl_device_features.dsa_is_available_ &&
-		gl_device_features.buffer_storage_is_available_)
-	{
-		glNamedBufferStorage(gl_resource_.get(), param.size_, nullptr, GL_DYNAMIC_STORAGE_BIT);
-		assert(!detail::GlRenderer3dUtils::was_errors());
-	}
-	else
-	{
-		const auto gl_context = gl_buffer_manager_->get_context();
-		const auto gl_vao_manager = gl_context->vao_get_manager();
-
-		const auto is_index = (kind_ == Renderer3dBufferKind::index);
-
-		if (is_index)
-		{
-			gl_vao_manager->push_current_set_default();
-		}
-
-		set(true);
-
-		glBufferData(gl_target_, param.size_, nullptr, gl_usage);
-		assert(!detail::GlRenderer3dUtils::was_errors());
-
-		if (is_index)
-		{
-			gl_vao_manager->pop();
-		}
-	}
-}
-
 void GlBufferImpl::validate_param(
 	const Renderer3dBufferCreateParam& param)
 {
@@ -320,7 +346,7 @@ void GlBufferImpl::validate_param(
 			break;
 
 		default:
-			throw Exception{"Invalid kind."};
+			throw GlBufferImplCreateException{"Unsupported kind."};
 	}
 
 	switch (param.usage_kind_)
@@ -331,12 +357,12 @@ void GlBufferImpl::validate_param(
 			break;
 
 		default:
-			throw Exception{"Invalid usage kind."};
+			throw GlBufferImplCreateException{"Unsupported usage kind."};
 	}
 
 	if (param.size_ <= 0)
 	{
-		throw Exception{"Non-positive size."};
+		throw GlBufferImplCreateException{"Size out of range."};
 	}
 }
 
@@ -345,32 +371,32 @@ void GlBufferImpl::validate_param(
 {
 	if (param.offset_ < 0)
 	{
-		throw Exception{"Negative offset."};
+		throw GlBufferImplUpdateException{"Offset out of range."};
 	}
 
 	if (param.size_ < 0)
 	{
-		throw Exception{"Negative size."};
+		throw GlBufferImplUpdateException{"Size out of range."};
 	}
 
 	if (param.offset_ > size_)
 	{
-		throw Exception{"Offset out of range."};
+		throw GlBufferImplUpdateException{"Offset out of range."};
 	}
 
 	if (param.size_ > size_)
 	{
-		throw Exception{"Size out of range."};
+		throw GlBufferImplUpdateException{"Size out of range."};
 	}
 
 	if ((param.offset_ + param.size_) > size_)
 	{
-		throw Exception{"End offset out of range."};
+		throw GlBufferImplUpdateException{"End offset out of range."};
 	}
 
-	if (param.size_ > 0 && param.data_ == nullptr)
+	if (param.size_ > 0 && !param.data_)
 	{
-		throw Exception{"Null data."};
+		throw GlBufferImplUpdateException{"Null data."};
 	}
 }
 
@@ -386,7 +412,7 @@ GLenum GlBufferImpl::gl_get_target(
 			return GL_ARRAY_BUFFER;
 
 		default:
-			throw Exception{"Unsupported buffer kind."};
+			throw GlBufferImplException{"Unsupported kind."};
 	}
 }
 
@@ -405,7 +431,7 @@ GLenum GlBufferImpl::gl_get_usage(
 			return GL_DYNAMIC_DRAW;
 
 		default:
-			throw Exception{"Unsupported usage kind."};
+			throw GlBufferImplException{"Unsupported usage kind."};
 	}
 }
 
