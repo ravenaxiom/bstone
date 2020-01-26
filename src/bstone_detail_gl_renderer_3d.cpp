@@ -505,6 +505,171 @@ Renderer3dShaderStageUPtr GlRenderer3d::shader_stage_create(
 	return gl_context_->shader_stage_get_manager()->create(param);
 }
 
+void GlRenderer3d::clear(
+	const Renderer3dClearParam& param)
+{
+	gl_context_->clear(param.color_);
+}
+
+void GlRenderer3d::viewport_set(
+	const Renderer3dViewport& viewport)
+{
+	gl_context_->viewport_set(viewport);
+}
+
+void GlRenderer3d::scissor_enable(
+	const bool is_enable)
+{
+	gl_context_->scissor_enable(is_enable);
+}
+
+void GlRenderer3d::scissor_box_set(
+	const Renderer3dScissorBox& scissor_box)
+{
+	gl_context_->scissor_set_box(scissor_box);
+}
+
+void GlRenderer3d::culling_enable(
+	const bool is_enable)
+{
+	gl_context_->culling_enable(is_enable);
+}
+
+void GlRenderer3d::depth_test_enable(
+	const bool is_enable)
+{
+	gl_context_->depth_test_enable(is_enable);
+}
+
+void GlRenderer3d::depth_write_enable(
+	const bool is_enable)
+{
+	gl_context_->depth_write_enable(is_enable);
+}
+
+void GlRenderer3d::blending_enable(
+	const bool is_enable)
+{
+	gl_context_->blending_enable(is_enable);
+}
+
+void GlRenderer3d::blending_function_set(
+	const Renderer3dBlendingFunc& blending_function)
+{
+	gl_context_->blending_set_func(blending_function);
+}
+
+void GlRenderer3d::texture_2d_set(
+	const Renderer3dTexture2dPtr texture_2d)
+{
+	gl_context_->texture_get_manager()->set(texture_2d);
+}
+
+void GlRenderer3d::sampler_set(
+	const Renderer3dSamplerPtr sampler)
+{
+	gl_context_->sampler_get_manager()->set(sampler);
+}
+
+void GlRenderer3d::vertex_input_set(
+	const Renderer3dVertexInputPtr vertex_input)
+{
+	gl_context_->vertex_input_get_manager()->set(vertex_input);
+}
+
+void GlRenderer3d::shader_stage_set(
+	const Renderer3dShaderStagePtr shader_stage)
+{
+	gl_context_->shader_stage_get_manager()->set_current(shader_stage);
+}
+
+void GlRenderer3d::draw_indexed(
+	const Renderer3dDrawIndexedParam& param)
+{
+	auto gl_primitive_topology = GLenum{};
+
+	switch (param.primitive_topology_)
+	{
+		case Renderer3dPrimitiveTopology::point_list:
+			gl_primitive_topology = GL_POINTS;
+			break;
+
+		case Renderer3dPrimitiveTopology::line_list:
+			gl_primitive_topology = GL_LINES;
+			break;
+
+		case Renderer3dPrimitiveTopology::line_strip:
+			gl_primitive_topology = GL_LINE_STRIP;
+			break;
+
+		case Renderer3dPrimitiveTopology::triangle_list:
+			gl_primitive_topology = GL_TRIANGLES;
+			break;
+
+		case Renderer3dPrimitiveTopology::triangle_strip:
+			gl_primitive_topology = GL_TRIANGLE_STRIP;
+			break;
+
+		default:
+			throw Exception{"Unsupported primitive topology."};
+	}
+
+	if (param.vertex_count_ < 0)
+	{
+		throw Exception{"Vertex count out of range."};
+	}
+
+	if (param.vertex_count_ == 0)
+	{
+		return;
+	}
+
+	switch (param.index_byte_depth_)
+	{
+		case 1:
+		case 2:
+		case 4:
+			break;
+
+		default:
+			throw Exception{"Unsupported index value byte depth."};
+	}
+
+	if (param.index_buffer_offset_ < 0)
+	{
+		throw Exception{"Offset to indices out of range."};
+	}
+
+	if (param.index_offset_ < 0)
+	{
+		throw Exception{"Index offset out of range."};
+	}
+
+	auto index_buffer = static_cast<GlBufferPtr>(gl_context_->vertex_input_get_manager()->get_current_index_buffer());
+
+	if (!index_buffer)
+	{
+		throw Exception{"Null index buffer."};
+	}
+
+	const auto index_buffer_offset = param.index_buffer_offset_ + (param.index_offset_ * param.index_byte_depth_);
+	const auto index_buffer_indices = reinterpret_cast<const void*>(static_cast<std::intptr_t>(index_buffer_offset));
+
+	const auto gl_element_type = GlRenderer3dUtils::index_buffer_get_element_type_by_byte_depth(
+		param.index_byte_depth_);
+
+	index_buffer->set(true);
+
+	glDrawElements(
+		gl_primitive_topology, // mode
+		param.vertex_count_, // count
+		gl_element_type, // type
+		index_buffer_indices // indices
+	);
+
+	assert(!GlRenderer3dUtils::was_errors());
+}
+
 void GlRenderer3d::execute_commands(
 	const Renderer3dCommandManagerPtr command_manager)
 {

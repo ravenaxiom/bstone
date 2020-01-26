@@ -220,6 +220,11 @@ struct Renderer3dBlendingFunc
 	Renderer3dBlendingFactor dst_factor_;
 }; // Renderer3dBlendingFunc
 
+struct Renderer3dClearParam
+{
+	Rgba8 color_;
+}; // Renderer3dClearParam
+
 struct Renderer3dDrawIndexedParam
 {
 	// Primitive topology.
@@ -704,7 +709,7 @@ using Renderer3dShaderStageUPtr = std::unique_ptr<Renderer3dShaderStage>;
 
 struct Renderer3dCommandClear
 {
-	Rgba8 color_;
+	Renderer3dClearParam param_;
 }; // Renderer3dCommandClear
 
 struct Renderer3dCommandViewport
@@ -1080,6 +1085,49 @@ public:
 
 	virtual Renderer3dShaderStageUPtr shader_stage_create(
 		const Renderer3dShaderStageCreateParam& param) = 0;
+
+
+	virtual void clear(
+		const Renderer3dClearParam& param) = 0;
+
+	virtual void viewport_set(
+		const Renderer3dViewport& viewport) = 0;
+
+	virtual void scissor_enable(
+		const bool is_enable) = 0;
+
+	virtual void scissor_box_set(
+		const Renderer3dScissorBox& scissor_box) = 0;
+
+	virtual void culling_enable(
+		const bool is_enable) = 0;
+
+	virtual void depth_test_enable(
+		const bool is_enable) = 0;
+
+	virtual void depth_write_enable(
+		const bool is_enable) = 0;
+
+	virtual void blending_enable(
+		const bool is_enable) = 0;
+
+	virtual void blending_function_set(
+		const Renderer3dBlendingFunc& blending_function) = 0;
+
+	virtual void texture_2d_set(
+		const Renderer3dTexture2dPtr texture_2d) = 0;
+
+	virtual void sampler_set(
+		const Renderer3dSamplerPtr sampler) = 0;
+
+	virtual void vertex_input_set(
+		const Renderer3dVertexInputPtr vertex_input) = 0;
+
+	virtual void shader_stage_set(
+		const Renderer3dShaderStagePtr shader_stage) = 0;
+
+	virtual void draw_indexed(
+		const Renderer3dDrawIndexedParam& param) = 0;
 
 
 	virtual void execute_commands(

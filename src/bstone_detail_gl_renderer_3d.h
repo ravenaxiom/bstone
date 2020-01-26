@@ -120,6 +120,49 @@ public:
 		const Renderer3dShaderStageCreateParam& param) override;
 
 
+	void clear(
+		const Renderer3dClearParam& param) override;
+
+	void viewport_set(
+		const Renderer3dViewport& viewport) override;
+
+	void scissor_enable(
+		const bool is_enable) override;
+
+	void scissor_box_set(
+		const Renderer3dScissorBox& scissor_box) override;
+
+	void culling_enable(
+		const bool is_enable) override;
+
+	void depth_test_enable(
+		const bool is_enable) override;
+
+	void depth_write_enable(
+		const bool is_enable) override;
+
+	void blending_enable(
+		const bool is_enable) override;
+
+	void blending_function_set(
+		const Renderer3dBlendingFunc& blending_function) override;
+
+	void texture_2d_set(
+		const Renderer3dTexture2dPtr texture_2d) override;
+
+	void sampler_set(
+		const Renderer3dSamplerPtr sampler) override;
+
+	void vertex_input_set(
+		const Renderer3dVertexInputPtr vertex_input) override;
+
+	void shader_stage_set(
+		const Renderer3dShaderStagePtr shader_stage) override;
+
+	void draw_indexed(
+		const Renderer3dDrawIndexedParam& param) override;
+
+
 	void execute_commands(
 		const Renderer3dCommandManagerPtr command_manager) override;
 

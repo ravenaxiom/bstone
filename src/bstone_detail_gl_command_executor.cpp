@@ -303,7 +303,7 @@ void GlCommandExecutorImpl::initialize()
 void GlCommandExecutorImpl::command_execute_clear(
 	const Renderer3dCommandClear& command)
 {
-	gl_context_->clear(command.color_);
+	gl_context_->clear(command.param_.color_);
 }
 
 void GlCommandExecutorImpl::command_execute_culling(

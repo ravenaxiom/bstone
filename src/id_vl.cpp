@@ -5781,7 +5781,7 @@ void hw_screen_common_refresh()
 	{
 		static const auto clear_color = bstone::Rgba8{};
 		auto& shader_stage = *command_buffer->write_clear();
-		shader_stage.color_ = clear_color;
+		shader_stage.param_.color_ = clear_color;
 	}
 
 	// Set shader's 2D sampler.
