@@ -36,13 +36,11 @@ class QuitException :
 public:
 	QuitException();
 
-	QuitException(
+	explicit QuitException(
 		const char* const message);
 
-	QuitException(
+	explicit QuitException(
 		const std::string& message);
-
-	~QuitException() override;
 }; // QuitException
 
 

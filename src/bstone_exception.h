@@ -31,7 +31,7 @@ Free Software Foundation, Inc.,
 #define BSTONE_EXCEPTION_INCLUDED
 
 
-#include <exception>
+#include <stdexcept>
 #include <string>
 
 
@@ -40,24 +40,14 @@ namespace bstone
 
 
 class Exception :
-	public std::exception
+	public std::runtime_error
 {
 public:
-	Exception();
-
 	explicit Exception(
 		const char* const message);
 
 	explicit Exception(
 		const std::string& message);
-
-	~Exception() override;
-
-	const char* what() const noexcept override;
-
-
-private:
-	std::string message_;
 }; // Exception
 
 

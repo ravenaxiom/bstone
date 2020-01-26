@@ -64,7 +64,7 @@ int _newlib_heap_size_user = 192 * 1024 * 1024;
 
 QuitException::QuitException()
 	:
-	Exception{}
+	Exception{""}
 {
 }
 
@@ -81,8 +81,6 @@ QuitException::QuitException(
 	Exception{message}
 {
 }
-
-QuitException::~QuitException() = default;
 
 //
 // QuitException

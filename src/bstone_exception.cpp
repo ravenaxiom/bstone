@@ -35,34 +35,18 @@ namespace bstone
 {
 
 
-Exception::Exception()
-	:
-	std::exception{},
-	message_{}
-{
-}
-
 Exception::Exception(
 	const char* const message)
 	:
-	std::exception{},
-	message_{message}
+	std::runtime_error{message}
 {
 }
 
 Exception::Exception(
 	const std::string& message)
 	:
-	std::exception{},
-	message_{message}
+	std::runtime_error{message}
 {
-}
-
-Exception::~Exception() = default;
-
-const char* Exception::what() const noexcept
-{
-	return message_.c_str();
 }
 
 
