@@ -27,8 +27,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_GL_INCLUDED
-#define BSTONE_GL_INCLUDED
+#ifndef BSTONE_GL_API_INCLUDED
+#define BSTONE_GL_API_INCLUDED
 
 
 #include <cstddef>
@@ -5297,4 +5297,4 @@ GLAPI PFNGLSAMPLEMASKIPROC glSampleMaski;
 } // bstone
 
 
-#endif // !BSTONE_GL_INCLUDED
+#endif // !BSTONE_GL_API_INCLUDED

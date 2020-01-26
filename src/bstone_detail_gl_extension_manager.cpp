@@ -31,12 +31,17 @@ Free Software Foundation, Inc.,
 
 #include "bstone_precompiled.h"
 #include "bstone_detail_gl_extension_manager.h"
+
 #include <cassert>
+
 #include <algorithm>
 #include <iterator>
 #include <sstream>
+#include <unordered_map>
+
 #include "bstone_exception.h"
 #include "bstone_sdl_types.h"
+
 #include "bstone_detail_gl_renderer_3d_utils.h"
 
 
@@ -44,6 +49,18 @@ namespace bstone
 {
 namespace detail
 {
+
+
+struct GlExtensionManagerImplMissingSymbolException :
+	public Exception
+{
+	GlExtensionManagerImplMissingSymbolException(
+		const char* const symbol_name)
+		:
+		Exception{std::string{"[GL_EXT_MGR] ["} + symbol_name + "] Symbol not found."}
+	{
+	}
+}; // GlExtensionManagerImplMissingSymbolException
 
 
 // ==========================================================================
@@ -79,6 +96,9 @@ public:
 private:
 	using ExtensionNames = std::vector<std::string>;
 
+	using GlSymbolPtrs = std::vector<void**>;
+	using GlSymbolRegistry = std::unordered_map<void**, const char*>;
+
 	struct RegistryItem
 	{
 		bool is_virtual_;
@@ -87,8 +107,7 @@ private:
 
 		std::string extension_name_;
 
-		using ResolveSymbolsFunction = void (GlExtensionManagerImpl::*)();
-		ResolveSymbolsFunction resolve_symbols_function_;
+		GlSymbolPtrs* gl_symbol_ptrs_;
 	}; // RegistryItem
 
 	using Registry = std::vector<RegistryItem>;
@@ -101,26 +120,50 @@ private:
 	Registry registry_;
 
 
+	static GlSymbolRegistry& gl_symbol_get_registry();
+
+	static void gl_symbol_clear();
+
+	static void gl_symbol_resolve();
+
+
+	static bool gl_symbol_has(
+		const GlSymbolPtrs& gl_symbol_ptrs);
+
+
+	static GlSymbolPtrs& gl_symbol_get_essentials();
+
+	static GlSymbolPtrs& gl_symbol_get_v2_0();
+
+	static GlSymbolPtrs& gl_symbol_get_v3_2_core();
+
+	static GlSymbolPtrs& gl_symbol_get_es_v2_0();
+
+	static GlSymbolPtrs& gl_symbol_get_arb_buffer_storage();
+
+	static GlSymbolPtrs& gl_symbol_get_arb_direct_state_access();
+
+	static GlSymbolPtrs& gl_symbol_get_arb_framebuffer_object();
+
+	static GlSymbolPtrs& gl_symbol_get_arb_sampler_objects();
+
+	static GlSymbolPtrs& gl_symbol_get_arb_separate_shader_objects();
+
+	static GlSymbolPtrs& gl_symbol_get_arb_vertex_array_object();
+
+	static GlSymbolPtrs& gl_symbol_get_ext_framebuffer_blit();
+
+	static GlSymbolPtrs& gl_symbol_get_ext_framebuffer_multisample();
+
+	static GlSymbolPtrs& gl_symbol_get_ext_framebuffer_object();
+
+
 	static const std::string& get_empty_extension_name() noexcept;
 
 	static int get_registered_extension_count() noexcept;
 
 	static int get_extension_index(
 		const GlExtensionId extension_id) noexcept;
-
-
-	template<typename T>
-	static void resolve_symbol(
-		const char* const name,
-		T& symbol)
-	{
-		symbol = reinterpret_cast<T>(GlRenderer3dUtils::resolve_symbol(name));
-
-		if (!symbol)
-		{
-			throw Exception{name};
-		}
-	}
 
 
 	void initialize();
@@ -131,45 +174,15 @@ private:
 	void get_context_attributes();
 
 
-	void get_core_extension_names();
+	void get_names_multiple_strings();
 
-	void get_compatibility_extension_names();
+	void get_names_one_string();
 
 	void get_extension_names();
 
 
 	void probe_generic(
 		const GlExtensionId extension_id);
-
-
-	void resolve_essentials();
-
-
-	void resolve_v2_0();
-
-	void resolve_v3_2_core();
-
-	void resolve_es_v2_0();
-
-
-	void resolve_arb_buffer_storage();
-
-	void resolve_arb_direct_state_access();
-
-	void resolve_arb_framebuffer_object();
-
-	void resolve_arb_sampler_objects();
-
-	void resolve_arb_separate_shader_objects();
-
-	void resolve_arb_vertex_array_object();
-
-
-	void resolve_ext_framebuffer_blit();
-
-	void resolve_ext_framebuffer_multisample();
-
-	void resolve_ext_framebuffer_object();
 }; // GlExtensionManagerImpl
 
 
@@ -190,6 +203,9 @@ GlExtensionManagerImpl::~GlExtensionManagerImpl() = default;
 
 void GlExtensionManagerImpl::initialize()
 {
+	gl_symbol_clear();
+	gl_symbol_resolve();
+
 	get_context_attributes();
 	get_extension_names();
 
@@ -237,6 +253,2261 @@ bool GlExtensionManagerImpl::operator[](
 	return has(extension_id);
 }
 
+GlExtensionManagerImpl::GlSymbolRegistry& GlExtensionManagerImpl::gl_symbol_get_registry()
+{
+	static auto gl_symbol_registry = GlSymbolRegistry
+	{
+		{reinterpret_cast<void**>(&glAccum), "glAccum"},
+		{reinterpret_cast<void**>(&glActiveShaderProgram), "glActiveShaderProgram"},
+		{reinterpret_cast<void**>(&glActiveTexture), "glActiveTexture"},
+		{reinterpret_cast<void**>(&glAlphaFunc), "glAlphaFunc"},
+		{reinterpret_cast<void**>(&glAreTexturesResident), "glAreTexturesResident"},
+		{reinterpret_cast<void**>(&glArrayElement), "glArrayElement"},
+		{reinterpret_cast<void**>(&glAttachShader), "glAttachShader"},
+		{reinterpret_cast<void**>(&glBeginConditionalRender), "glBeginConditionalRender"},
+		{reinterpret_cast<void**>(&glBegin), "glBegin"},
+		{reinterpret_cast<void**>(&glBeginQuery), "glBeginQuery"},
+		{reinterpret_cast<void**>(&glBeginTransformFeedback), "glBeginTransformFeedback"},
+		{reinterpret_cast<void**>(&glBindAttribLocation), "glBindAttribLocation"},
+		{reinterpret_cast<void**>(&glBindBufferARB), "glBindBufferARB"},
+		{reinterpret_cast<void**>(&glBindBufferBase), "glBindBufferBase"},
+		{reinterpret_cast<void**>(&glBindBuffer), "glBindBuffer"},
+		{reinterpret_cast<void**>(&glBindBufferRange), "glBindBufferRange"},
+		{reinterpret_cast<void**>(&glBindFragDataLocation), "glBindFragDataLocation"},
+		{reinterpret_cast<void**>(&glBindFramebufferEXT), "glBindFramebufferEXT"},
+		{reinterpret_cast<void**>(&glBindFramebuffer), "glBindFramebuffer"},
+		{reinterpret_cast<void**>(&glBindProgramPipeline), "glBindProgramPipeline"},
+		{reinterpret_cast<void**>(&glBindRenderbufferEXT), "glBindRenderbufferEXT"},
+		{reinterpret_cast<void**>(&glBindRenderbuffer), "glBindRenderbuffer"},
+		{reinterpret_cast<void**>(&glBindSampler), "glBindSampler"},
+		{reinterpret_cast<void**>(&glBindTexture), "glBindTexture"},
+		{reinterpret_cast<void**>(&glBindTextureUnit), "glBindTextureUnit"},
+		{reinterpret_cast<void**>(&glBindVertexArray), "glBindVertexArray"},
+		{reinterpret_cast<void**>(&glBitmap), "glBitmap"},
+		{reinterpret_cast<void**>(&glBlendColor), "glBlendColor"},
+		{reinterpret_cast<void**>(&glBlendEquation), "glBlendEquation"},
+		{reinterpret_cast<void**>(&glBlendEquationSeparate), "glBlendEquationSeparate"},
+		{reinterpret_cast<void**>(&glBlendFunc), "glBlendFunc"},
+		{reinterpret_cast<void**>(&glBlendFuncSeparate), "glBlendFuncSeparate"},
+		{reinterpret_cast<void**>(&glBlitFramebufferEXT), "glBlitFramebufferEXT"},
+		{reinterpret_cast<void**>(&glBlitFramebuffer), "glBlitFramebuffer"},
+		{reinterpret_cast<void**>(&glBlitNamedFramebuffer), "glBlitNamedFramebuffer"},
+		{reinterpret_cast<void**>(&glBufferDataARB), "glBufferDataARB"},
+		{reinterpret_cast<void**>(&glBufferData), "glBufferData"},
+		{reinterpret_cast<void**>(&glBufferStorage), "glBufferStorage"},
+		{reinterpret_cast<void**>(&glBufferSubDataARB), "glBufferSubDataARB"},
+		{reinterpret_cast<void**>(&glBufferSubData), "glBufferSubData"},
+		{reinterpret_cast<void**>(&glCallList), "glCallList"},
+		{reinterpret_cast<void**>(&glCallLists), "glCallLists"},
+		{reinterpret_cast<void**>(&glCheckFramebufferStatusEXT), "glCheckFramebufferStatusEXT"},
+		{reinterpret_cast<void**>(&glCheckFramebufferStatus), "glCheckFramebufferStatus"},
+		{reinterpret_cast<void**>(&glCheckNamedFramebufferStatus), "glCheckNamedFramebufferStatus"},
+		{reinterpret_cast<void**>(&glClampColorARB), "glClampColorARB"},
+		{reinterpret_cast<void**>(&glClampColor), "glClampColor"},
+		{reinterpret_cast<void**>(&glClearAccum), "glClearAccum"},
+		{reinterpret_cast<void**>(&glClearBufferfi), "glClearBufferfi"},
+		{reinterpret_cast<void**>(&glClearBufferfv), "glClearBufferfv"},
+		{reinterpret_cast<void**>(&glClearBufferiv), "glClearBufferiv"},
+		{reinterpret_cast<void**>(&glClearBufferuiv), "glClearBufferuiv"},
+		{reinterpret_cast<void**>(&glClearColor), "glClearColor"},
+		{reinterpret_cast<void**>(&glClearDepthf), "glClearDepthf"},
+		{reinterpret_cast<void**>(&glClearDepth), "glClearDepth"},
+		{reinterpret_cast<void**>(&glClearIndex), "glClearIndex"},
+		{reinterpret_cast<void**>(&glClearNamedBufferData), "glClearNamedBufferData"},
+		{reinterpret_cast<void**>(&glClearNamedBufferSubData), "glClearNamedBufferSubData"},
+		{reinterpret_cast<void**>(&glClearNamedFramebufferfi), "glClearNamedFramebufferfi"},
+		{reinterpret_cast<void**>(&glClearNamedFramebufferfv), "glClearNamedFramebufferfv"},
+		{reinterpret_cast<void**>(&glClearNamedFramebufferiv), "glClearNamedFramebufferiv"},
+		{reinterpret_cast<void**>(&glClearNamedFramebufferuiv), "glClearNamedFramebufferuiv"},
+		{reinterpret_cast<void**>(&glClear), "glClear"},
+		{reinterpret_cast<void**>(&glClearStencil), "glClearStencil"},
+		{reinterpret_cast<void**>(&glClientActiveTexture), "glClientActiveTexture"},
+		{reinterpret_cast<void**>(&glClientWaitSync), "glClientWaitSync"},
+		{reinterpret_cast<void**>(&glClipPlane), "glClipPlane"},
+		{reinterpret_cast<void**>(&glColor3b), "glColor3b"},
+		{reinterpret_cast<void**>(&glColor3bv), "glColor3bv"},
+		{reinterpret_cast<void**>(&glColor3d), "glColor3d"},
+		{reinterpret_cast<void**>(&glColor3dv), "glColor3dv"},
+		{reinterpret_cast<void**>(&glColor3f), "glColor3f"},
+		{reinterpret_cast<void**>(&glColor3fv), "glColor3fv"},
+		{reinterpret_cast<void**>(&glColor3i), "glColor3i"},
+		{reinterpret_cast<void**>(&glColor3iv), "glColor3iv"},
+		{reinterpret_cast<void**>(&glColor3s), "glColor3s"},
+		{reinterpret_cast<void**>(&glColor3sv), "glColor3sv"},
+		{reinterpret_cast<void**>(&glColor3ub), "glColor3ub"},
+		{reinterpret_cast<void**>(&glColor3ubv), "glColor3ubv"},
+		{reinterpret_cast<void**>(&glColor3ui), "glColor3ui"},
+		{reinterpret_cast<void**>(&glColor3uiv), "glColor3uiv"},
+		{reinterpret_cast<void**>(&glColor3us), "glColor3us"},
+		{reinterpret_cast<void**>(&glColor3usv), "glColor3usv"},
+		{reinterpret_cast<void**>(&glColor4b), "glColor4b"},
+		{reinterpret_cast<void**>(&glColor4bv), "glColor4bv"},
+		{reinterpret_cast<void**>(&glColor4d), "glColor4d"},
+		{reinterpret_cast<void**>(&glColor4dv), "glColor4dv"},
+		{reinterpret_cast<void**>(&glColor4f), "glColor4f"},
+		{reinterpret_cast<void**>(&glColor4fv), "glColor4fv"},
+		{reinterpret_cast<void**>(&glColor4i), "glColor4i"},
+		{reinterpret_cast<void**>(&glColor4iv), "glColor4iv"},
+		{reinterpret_cast<void**>(&glColor4s), "glColor4s"},
+		{reinterpret_cast<void**>(&glColor4sv), "glColor4sv"},
+		{reinterpret_cast<void**>(&glColor4ub), "glColor4ub"},
+		{reinterpret_cast<void**>(&glColor4ubv), "glColor4ubv"},
+		{reinterpret_cast<void**>(&glColor4ui), "glColor4ui"},
+		{reinterpret_cast<void**>(&glColor4uiv), "glColor4uiv"},
+		{reinterpret_cast<void**>(&glColor4us), "glColor4us"},
+		{reinterpret_cast<void**>(&glColor4usv), "glColor4usv"},
+		{reinterpret_cast<void**>(&glColorMaski), "glColorMaski"},
+		{reinterpret_cast<void**>(&glColorMask), "glColorMask"},
+		{reinterpret_cast<void**>(&glColorMaterial), "glColorMaterial"},
+		{reinterpret_cast<void**>(&glColorPointer), "glColorPointer"},
+		{reinterpret_cast<void**>(&glCompileShader), "glCompileShader"},
+		{reinterpret_cast<void**>(&glCompressedTexImage1D), "glCompressedTexImage1D"},
+		{reinterpret_cast<void**>(&glCompressedTexImage2D), "glCompressedTexImage2D"},
+		{reinterpret_cast<void**>(&glCompressedTexImage3D), "glCompressedTexImage3D"},
+		{reinterpret_cast<void**>(&glCompressedTexSubImage1D), "glCompressedTexSubImage1D"},
+		{reinterpret_cast<void**>(&glCompressedTexSubImage2D), "glCompressedTexSubImage2D"},
+		{reinterpret_cast<void**>(&glCompressedTexSubImage3D), "glCompressedTexSubImage3D"},
+		{reinterpret_cast<void**>(&glCompressedTextureSubImage1D), "glCompressedTextureSubImage1D"},
+		{reinterpret_cast<void**>(&glCompressedTextureSubImage2D), "glCompressedTextureSubImage2D"},
+		{reinterpret_cast<void**>(&glCompressedTextureSubImage3D), "glCompressedTextureSubImage3D"},
+		{reinterpret_cast<void**>(&glCopyBufferSubData), "glCopyBufferSubData"},
+		{reinterpret_cast<void**>(&glCopyNamedBufferSubData), "glCopyNamedBufferSubData"},
+		{reinterpret_cast<void**>(&glCopyPixels), "glCopyPixels"},
+		{reinterpret_cast<void**>(&glCopyTexImage1D), "glCopyTexImage1D"},
+		{reinterpret_cast<void**>(&glCopyTexImage2D), "glCopyTexImage2D"},
+		{reinterpret_cast<void**>(&glCopyTexSubImage1D), "glCopyTexSubImage1D"},
+		{reinterpret_cast<void**>(&glCopyTexSubImage2D), "glCopyTexSubImage2D"},
+		{reinterpret_cast<void**>(&glCopyTexSubImage3D), "glCopyTexSubImage3D"},
+		{reinterpret_cast<void**>(&glCopyTextureSubImage1D), "glCopyTextureSubImage1D"},
+		{reinterpret_cast<void**>(&glCopyTextureSubImage2D), "glCopyTextureSubImage2D"},
+		{reinterpret_cast<void**>(&glCopyTextureSubImage3D), "glCopyTextureSubImage3D"},
+		{reinterpret_cast<void**>(&glCreateBuffers), "glCreateBuffers"},
+		{reinterpret_cast<void**>(&glCreateFramebuffers), "glCreateFramebuffers"},
+		{reinterpret_cast<void**>(&glCreateProgramPipelines), "glCreateProgramPipelines"},
+		{reinterpret_cast<void**>(&glCreateProgram), "glCreateProgram"},
+		{reinterpret_cast<void**>(&glCreateQueries), "glCreateQueries"},
+		{reinterpret_cast<void**>(&glCreateRenderbuffers), "glCreateRenderbuffers"},
+		{reinterpret_cast<void**>(&glCreateSamplers), "glCreateSamplers"},
+		{reinterpret_cast<void**>(&glCreateShader), "glCreateShader"},
+		{reinterpret_cast<void**>(&glCreateShaderProgramv), "glCreateShaderProgramv"},
+		{reinterpret_cast<void**>(&glCreateTextures), "glCreateTextures"},
+		{reinterpret_cast<void**>(&glCreateTransformFeedbacks), "glCreateTransformFeedbacks"},
+		{reinterpret_cast<void**>(&glCreateVertexArrays), "glCreateVertexArrays"},
+		{reinterpret_cast<void**>(&glCullFace), "glCullFace"},
+		{reinterpret_cast<void**>(&glDeleteBuffersARB), "glDeleteBuffersARB"},
+		{reinterpret_cast<void**>(&glDeleteBuffers), "glDeleteBuffers"},
+		{reinterpret_cast<void**>(&glDeleteFramebuffersEXT), "glDeleteFramebuffersEXT"},
+		{reinterpret_cast<void**>(&glDeleteFramebuffers), "glDeleteFramebuffers"},
+		{reinterpret_cast<void**>(&glDeleteLists), "glDeleteLists"},
+		{reinterpret_cast<void**>(&glDeleteProgramPipelines), "glDeleteProgramPipelines"},
+		{reinterpret_cast<void**>(&glDeleteProgram), "glDeleteProgram"},
+		{reinterpret_cast<void**>(&glDeleteQueries), "glDeleteQueries"},
+		{reinterpret_cast<void**>(&glDeleteRenderbuffersEXT), "glDeleteRenderbuffersEXT"},
+		{reinterpret_cast<void**>(&glDeleteRenderbuffers), "glDeleteRenderbuffers"},
+		{reinterpret_cast<void**>(&glDeleteSamplers), "glDeleteSamplers"},
+		{reinterpret_cast<void**>(&glDeleteShader), "glDeleteShader"},
+		{reinterpret_cast<void**>(&glDeleteSync), "glDeleteSync"},
+		{reinterpret_cast<void**>(&glDeleteTextures), "glDeleteTextures"},
+		{reinterpret_cast<void**>(&glDeleteVertexArrays), "glDeleteVertexArrays"},
+		{reinterpret_cast<void**>(&glDepthFunc), "glDepthFunc"},
+		{reinterpret_cast<void**>(&glDepthMask), "glDepthMask"},
+		{reinterpret_cast<void**>(&glDepthRangef), "glDepthRangef"},
+		{reinterpret_cast<void**>(&glDepthRange), "glDepthRange"},
+		{reinterpret_cast<void**>(&glDetachShader), "glDetachShader"},
+		{reinterpret_cast<void**>(&glDisableClientState), "glDisableClientState"},
+		{reinterpret_cast<void**>(&glDisablei), "glDisablei"},
+		{reinterpret_cast<void**>(&glDisable), "glDisable"},
+		{reinterpret_cast<void**>(&glDisableVertexArrayAttrib), "glDisableVertexArrayAttrib"},
+		{reinterpret_cast<void**>(&glDisableVertexAttribArray), "glDisableVertexAttribArray"},
+		{reinterpret_cast<void**>(&glDrawArraysInstanced), "glDrawArraysInstanced"},
+		{reinterpret_cast<void**>(&glDrawArrays), "glDrawArrays"},
+		{reinterpret_cast<void**>(&glDrawBuffer), "glDrawBuffer"},
+		{reinterpret_cast<void**>(&glDrawBuffers), "glDrawBuffers"},
+		{reinterpret_cast<void**>(&glDrawElementsBaseVertex), "glDrawElementsBaseVertex"},
+		{reinterpret_cast<void**>(&glDrawElementsInstancedBaseVertex), "glDrawElementsInstancedBaseVertex"},
+		{reinterpret_cast<void**>(&glDrawElementsInstanced), "glDrawElementsInstanced"},
+		{reinterpret_cast<void**>(&glDrawElements), "glDrawElements"},
+		{reinterpret_cast<void**>(&glDrawPixels), "glDrawPixels"},
+		{reinterpret_cast<void**>(&glDrawRangeElementsBaseVertex), "glDrawRangeElementsBaseVertex"},
+		{reinterpret_cast<void**>(&glDrawRangeElements), "glDrawRangeElements"},
+		{reinterpret_cast<void**>(&glEdgeFlagPointer), "glEdgeFlagPointer"},
+		{reinterpret_cast<void**>(&glEdgeFlag), "glEdgeFlag"},
+		{reinterpret_cast<void**>(&glEdgeFlagv), "glEdgeFlagv"},
+		{reinterpret_cast<void**>(&glEnableClientState), "glEnableClientState"},
+		{reinterpret_cast<void**>(&glEnablei), "glEnablei"},
+		{reinterpret_cast<void**>(&glEnable), "glEnable"},
+		{reinterpret_cast<void**>(&glEnableVertexArrayAttrib), "glEnableVertexArrayAttrib"},
+		{reinterpret_cast<void**>(&glEnableVertexAttribArray), "glEnableVertexAttribArray"},
+		{reinterpret_cast<void**>(&glEndConditionalRender), "glEndConditionalRender"},
+		{reinterpret_cast<void**>(&glEndList), "glEndList"},
+		{reinterpret_cast<void**>(&glEnd), "glEnd"},
+		{reinterpret_cast<void**>(&glEndQuery), "glEndQuery"},
+		{reinterpret_cast<void**>(&glEndTransformFeedback), "glEndTransformFeedback"},
+		{reinterpret_cast<void**>(&glEvalCoord1d), "glEvalCoord1d"},
+		{reinterpret_cast<void**>(&glEvalCoord1dv), "glEvalCoord1dv"},
+		{reinterpret_cast<void**>(&glEvalCoord1f), "glEvalCoord1f"},
+		{reinterpret_cast<void**>(&glEvalCoord1fv), "glEvalCoord1fv"},
+		{reinterpret_cast<void**>(&glEvalCoord2d), "glEvalCoord2d"},
+		{reinterpret_cast<void**>(&glEvalCoord2dv), "glEvalCoord2dv"},
+		{reinterpret_cast<void**>(&glEvalCoord2f), "glEvalCoord2f"},
+		{reinterpret_cast<void**>(&glEvalCoord2fv), "glEvalCoord2fv"},
+		{reinterpret_cast<void**>(&glEvalMesh1), "glEvalMesh1"},
+		{reinterpret_cast<void**>(&glEvalMesh2), "glEvalMesh2"},
+		{reinterpret_cast<void**>(&glEvalPoint1), "glEvalPoint1"},
+		{reinterpret_cast<void**>(&glEvalPoint2), "glEvalPoint2"},
+		{reinterpret_cast<void**>(&glFeedbackBuffer), "glFeedbackBuffer"},
+		{reinterpret_cast<void**>(&glFenceSync), "glFenceSync"},
+		{reinterpret_cast<void**>(&glFinish), "glFinish"},
+		{reinterpret_cast<void**>(&glFlushMappedBufferRange), "glFlushMappedBufferRange"},
+		{reinterpret_cast<void**>(&glFlushMappedNamedBufferRange), "glFlushMappedNamedBufferRange"},
+		{reinterpret_cast<void**>(&glFlush), "glFlush"},
+		{reinterpret_cast<void**>(&glFogCoordd), "glFogCoordd"},
+		{reinterpret_cast<void**>(&glFogCoorddv), "glFogCoorddv"},
+		{reinterpret_cast<void**>(&glFogCoordf), "glFogCoordf"},
+		{reinterpret_cast<void**>(&glFogCoordfv), "glFogCoordfv"},
+		{reinterpret_cast<void**>(&glFogCoordPointer), "glFogCoordPointer"},
+		{reinterpret_cast<void**>(&glFogf), "glFogf"},
+		{reinterpret_cast<void**>(&glFogfv), "glFogfv"},
+		{reinterpret_cast<void**>(&glFogi), "glFogi"},
+		{reinterpret_cast<void**>(&glFogiv), "glFogiv"},
+		{reinterpret_cast<void**>(&glFramebufferRenderbufferEXT), "glFramebufferRenderbufferEXT"},
+		{reinterpret_cast<void**>(&glFramebufferRenderbuffer), "glFramebufferRenderbuffer"},
+		{reinterpret_cast<void**>(&glFramebufferTexture1DEXT), "glFramebufferTexture1DEXT"},
+		{reinterpret_cast<void**>(&glFramebufferTexture1D), "glFramebufferTexture1D"},
+		{reinterpret_cast<void**>(&glFramebufferTexture2DEXT), "glFramebufferTexture2DEXT"},
+		{reinterpret_cast<void**>(&glFramebufferTexture2D), "glFramebufferTexture2D"},
+		{reinterpret_cast<void**>(&glFramebufferTexture3DEXT), "glFramebufferTexture3DEXT"},
+		{reinterpret_cast<void**>(&glFramebufferTexture3D), "glFramebufferTexture3D"},
+		{reinterpret_cast<void**>(&glFramebufferTextureLayer), "glFramebufferTextureLayer"},
+		{reinterpret_cast<void**>(&glFramebufferTexture), "glFramebufferTexture"},
+		{reinterpret_cast<void**>(&glFrontFace), "glFrontFace"},
+		{reinterpret_cast<void**>(&glFrustum), "glFrustum"},
+		{reinterpret_cast<void**>(&glGenBuffersARB), "glGenBuffersARB"},
+		{reinterpret_cast<void**>(&glGenBuffers), "glGenBuffers"},
+		{reinterpret_cast<void**>(&glGenerateMipmapEXT), "glGenerateMipmapEXT"},
+		{reinterpret_cast<void**>(&glGenerateMipmap), "glGenerateMipmap"},
+		{reinterpret_cast<void**>(&glGenerateTextureMipmap), "glGenerateTextureMipmap"},
+		{reinterpret_cast<void**>(&glGenFramebuffersEXT), "glGenFramebuffersEXT"},
+		{reinterpret_cast<void**>(&glGenFramebuffers), "glGenFramebuffers"},
+		{reinterpret_cast<void**>(&glGenLists), "glGenLists"},
+		{reinterpret_cast<void**>(&glGenProgramPipelines), "glGenProgramPipelines"},
+		{reinterpret_cast<void**>(&glGenQueries), "glGenQueries"},
+		{reinterpret_cast<void**>(&glGenRenderbuffersEXT), "glGenRenderbuffersEXT"},
+		{reinterpret_cast<void**>(&glGenRenderbuffers), "glGenRenderbuffers"},
+		{reinterpret_cast<void**>(&glGenSamplers), "glGenSamplers"},
+		{reinterpret_cast<void**>(&glGenTextures), "glGenTextures"},
+		{reinterpret_cast<void**>(&glGenVertexArrays), "glGenVertexArrays"},
+		{reinterpret_cast<void**>(&glGetActiveAttrib), "glGetActiveAttrib"},
+		{reinterpret_cast<void**>(&glGetActiveUniformBlockiv), "glGetActiveUniformBlockiv"},
+		{reinterpret_cast<void**>(&glGetActiveUniformBlockName), "glGetActiveUniformBlockName"},
+		{reinterpret_cast<void**>(&glGetActiveUniformName), "glGetActiveUniformName"},
+		{reinterpret_cast<void**>(&glGetActiveUniform), "glGetActiveUniform"},
+		{reinterpret_cast<void**>(&glGetActiveUniformsiv), "glGetActiveUniformsiv"},
+		{reinterpret_cast<void**>(&glGetAttachedShaders), "glGetAttachedShaders"},
+		{reinterpret_cast<void**>(&glGetAttribLocation), "glGetAttribLocation"},
+		{reinterpret_cast<void**>(&glGetBooleani_v), "glGetBooleani_v"},
+		{reinterpret_cast<void**>(&glGetBooleanv), "glGetBooleanv"},
+		{reinterpret_cast<void**>(&glGetBufferParameteri64v), "glGetBufferParameteri64v"},
+		{reinterpret_cast<void**>(&glGetBufferParameterivARB), "glGetBufferParameterivARB"},
+		{reinterpret_cast<void**>(&glGetBufferParameteriv), "glGetBufferParameteriv"},
+		{reinterpret_cast<void**>(&glGetBufferPointervARB), "glGetBufferPointervARB"},
+		{reinterpret_cast<void**>(&glGetBufferPointerv), "glGetBufferPointerv"},
+		{reinterpret_cast<void**>(&glGetBufferSubDataARB), "glGetBufferSubDataARB"},
+		{reinterpret_cast<void**>(&glGetBufferSubData), "glGetBufferSubData"},
+		{reinterpret_cast<void**>(&glGetClipPlane), "glGetClipPlane"},
+		{reinterpret_cast<void**>(&glGetCompressedTexImage), "glGetCompressedTexImage"},
+		{reinterpret_cast<void**>(&glGetCompressedTextureImage), "glGetCompressedTextureImage"},
+		{reinterpret_cast<void**>(&glGetDoublev), "glGetDoublev"},
+		{reinterpret_cast<void**>(&glGetError), "glGetError"},
+		{reinterpret_cast<void**>(&glGetFloatv), "glGetFloatv"},
+		{reinterpret_cast<void**>(&glGetFragDataLocation), "glGetFragDataLocation"},
+		{reinterpret_cast<void**>(&glGetFramebufferAttachmentParameterivEXT), "glGetFramebufferAttachmentParameterivEXT"},
+		{reinterpret_cast<void**>(&glGetFramebufferAttachmentParameteriv), "glGetFramebufferAttachmentParameteriv"},
+		{reinterpret_cast<void**>(&glGetInteger64i_v), "glGetInteger64i_v"},
+		{reinterpret_cast<void**>(&glGetInteger64v), "glGetInteger64v"},
+		{reinterpret_cast<void**>(&glGetIntegeri_v), "glGetIntegeri_v"},
+		{reinterpret_cast<void**>(&glGetIntegerv), "glGetIntegerv"},
+		{reinterpret_cast<void**>(&glGetLightfv), "glGetLightfv"},
+		{reinterpret_cast<void**>(&glGetLightiv), "glGetLightiv"},
+		{reinterpret_cast<void**>(&glGetMapdv), "glGetMapdv"},
+		{reinterpret_cast<void**>(&glGetMapfv), "glGetMapfv"},
+		{reinterpret_cast<void**>(&glGetMapiv), "glGetMapiv"},
+		{reinterpret_cast<void**>(&glGetMaterialfv), "glGetMaterialfv"},
+		{reinterpret_cast<void**>(&glGetMaterialiv), "glGetMaterialiv"},
+		{reinterpret_cast<void**>(&glGetMultisamplefv), "glGetMultisamplefv"},
+		{reinterpret_cast<void**>(&glGetNamedBufferParameteri64v), "glGetNamedBufferParameteri64v"},
+		{reinterpret_cast<void**>(&glGetNamedBufferParameteriv), "glGetNamedBufferParameteriv"},
+		{reinterpret_cast<void**>(&glGetNamedBufferPointerv), "glGetNamedBufferPointerv"},
+		{reinterpret_cast<void**>(&glGetNamedBufferSubData), "glGetNamedBufferSubData"},
+		{reinterpret_cast<void**>(&glGetNamedFramebufferAttachmentParameteriv), "glGetNamedFramebufferAttachmentParameteriv"},
+		{reinterpret_cast<void**>(&glGetNamedFramebufferParameteriv), "glGetNamedFramebufferParameteriv"},
+		{reinterpret_cast<void**>(&glGetNamedRenderbufferParameteriv), "glGetNamedRenderbufferParameteriv"},
+		{reinterpret_cast<void**>(&glGetPixelMapfv), "glGetPixelMapfv"},
+		{reinterpret_cast<void**>(&glGetPixelMapuiv), "glGetPixelMapuiv"},
+		{reinterpret_cast<void**>(&glGetPixelMapusv), "glGetPixelMapusv"},
+		{reinterpret_cast<void**>(&glGetPointerv), "glGetPointerv"},
+		{reinterpret_cast<void**>(&glGetPolygonStipple), "glGetPolygonStipple"},
+		{reinterpret_cast<void**>(&glGetProgramInfoLog), "glGetProgramInfoLog"},
+		{reinterpret_cast<void**>(&glGetProgramiv), "glGetProgramiv"},
+		{reinterpret_cast<void**>(&glGetProgramPipelineInfoLog), "glGetProgramPipelineInfoLog"},
+		{reinterpret_cast<void**>(&glGetProgramPipelineiv), "glGetProgramPipelineiv"},
+		{reinterpret_cast<void**>(&glGetQueryBufferObjecti64v), "glGetQueryBufferObjecti64v"},
+		{reinterpret_cast<void**>(&glGetQueryBufferObjectiv), "glGetQueryBufferObjectiv"},
+		{reinterpret_cast<void**>(&glGetQueryBufferObjectui64v), "glGetQueryBufferObjectui64v"},
+		{reinterpret_cast<void**>(&glGetQueryBufferObjectuiv), "glGetQueryBufferObjectuiv"},
+		{reinterpret_cast<void**>(&glGetQueryiv), "glGetQueryiv"},
+		{reinterpret_cast<void**>(&glGetQueryObjectiv), "glGetQueryObjectiv"},
+		{reinterpret_cast<void**>(&glGetQueryObjectuiv), "glGetQueryObjectuiv"},
+		{reinterpret_cast<void**>(&glGetRenderbufferParameterivEXT), "glGetRenderbufferParameterivEXT"},
+		{reinterpret_cast<void**>(&glGetRenderbufferParameteriv), "glGetRenderbufferParameteriv"},
+		{reinterpret_cast<void**>(&glGetSamplerParameterfv), "glGetSamplerParameterfv"},
+		{reinterpret_cast<void**>(&glGetSamplerParameterIiv), "glGetSamplerParameterIiv"},
+		{reinterpret_cast<void**>(&glGetSamplerParameterIuiv), "glGetSamplerParameterIuiv"},
+		{reinterpret_cast<void**>(&glGetSamplerParameteriv), "glGetSamplerParameteriv"},
+		{reinterpret_cast<void**>(&glGetShaderInfoLog), "glGetShaderInfoLog"},
+		{reinterpret_cast<void**>(&glGetShaderiv), "glGetShaderiv"},
+		{reinterpret_cast<void**>(&glGetShaderPrecisionFormat), "glGetShaderPrecisionFormat"},
+		{reinterpret_cast<void**>(&glGetShaderSource), "glGetShaderSource"},
+		{reinterpret_cast<void**>(&glGetStringi), "glGetStringi"},
+		{reinterpret_cast<void**>(&glGetString), "glGetString"},
+		{reinterpret_cast<void**>(&glGetSynciv), "glGetSynciv"},
+		{reinterpret_cast<void**>(&glGetTexEnvfv), "glGetTexEnvfv"},
+		{reinterpret_cast<void**>(&glGetTexEnviv), "glGetTexEnviv"},
+		{reinterpret_cast<void**>(&glGetTexGendv), "glGetTexGendv"},
+		{reinterpret_cast<void**>(&glGetTexGenfv), "glGetTexGenfv"},
+		{reinterpret_cast<void**>(&glGetTexGeniv), "glGetTexGeniv"},
+		{reinterpret_cast<void**>(&glGetTexImage), "glGetTexImage"},
+		{reinterpret_cast<void**>(&glGetTexLevelParameterfv), "glGetTexLevelParameterfv"},
+		{reinterpret_cast<void**>(&glGetTexLevelParameteriv), "glGetTexLevelParameteriv"},
+		{reinterpret_cast<void**>(&glGetTexParameterfv), "glGetTexParameterfv"},
+		{reinterpret_cast<void**>(&glGetTexParameterIiv), "glGetTexParameterIiv"},
+		{reinterpret_cast<void**>(&glGetTexParameterIuiv), "glGetTexParameterIuiv"},
+		{reinterpret_cast<void**>(&glGetTexParameteriv), "glGetTexParameteriv"},
+		{reinterpret_cast<void**>(&glGetTextureImage), "glGetTextureImage"},
+		{reinterpret_cast<void**>(&glGetTextureLevelParameterfv), "glGetTextureLevelParameterfv"},
+		{reinterpret_cast<void**>(&glGetTextureLevelParameteriv), "glGetTextureLevelParameteriv"},
+		{reinterpret_cast<void**>(&glGetTextureParameterfv), "glGetTextureParameterfv"},
+		{reinterpret_cast<void**>(&glGetTextureParameterIiv), "glGetTextureParameterIiv"},
+		{reinterpret_cast<void**>(&glGetTextureParameterIuiv), "glGetTextureParameterIuiv"},
+		{reinterpret_cast<void**>(&glGetTextureParameteriv), "glGetTextureParameteriv"},
+		{reinterpret_cast<void**>(&glGetTransformFeedbacki64_v), "glGetTransformFeedbacki64_v"},
+		{reinterpret_cast<void**>(&glGetTransformFeedbackiv), "glGetTransformFeedbackiv"},
+		{reinterpret_cast<void**>(&glGetTransformFeedbacki_v), "glGetTransformFeedbacki_v"},
+		{reinterpret_cast<void**>(&glGetTransformFeedbackVarying), "glGetTransformFeedbackVarying"},
+		{reinterpret_cast<void**>(&glGetUniformBlockIndex), "glGetUniformBlockIndex"},
+		{reinterpret_cast<void**>(&glGetUniformfv), "glGetUniformfv"},
+		{reinterpret_cast<void**>(&glGetUniformIndices), "glGetUniformIndices"},
+		{reinterpret_cast<void**>(&glGetUniformiv), "glGetUniformiv"},
+		{reinterpret_cast<void**>(&glGetUniformLocation), "glGetUniformLocation"},
+		{reinterpret_cast<void**>(&glGetUniformuiv), "glGetUniformuiv"},
+		{reinterpret_cast<void**>(&glGetVertexArrayIndexed64iv), "glGetVertexArrayIndexed64iv"},
+		{reinterpret_cast<void**>(&glGetVertexArrayIndexediv), "glGetVertexArrayIndexediv"},
+		{reinterpret_cast<void**>(&glGetVertexArrayiv), "glGetVertexArrayiv"},
+		{reinterpret_cast<void**>(&glGetVertexAttribdv), "glGetVertexAttribdv"},
+		{reinterpret_cast<void**>(&glGetVertexAttribfv), "glGetVertexAttribfv"},
+		{reinterpret_cast<void**>(&glGetVertexAttribIiv), "glGetVertexAttribIiv"},
+		{reinterpret_cast<void**>(&glGetVertexAttribIuiv), "glGetVertexAttribIuiv"},
+		{reinterpret_cast<void**>(&glGetVertexAttribiv), "glGetVertexAttribiv"},
+		{reinterpret_cast<void**>(&glGetVertexAttribPointerv), "glGetVertexAttribPointerv"},
+		{reinterpret_cast<void**>(&glHint), "glHint"},
+		{reinterpret_cast<void**>(&glIndexd), "glIndexd"},
+		{reinterpret_cast<void**>(&glIndexdv), "glIndexdv"},
+		{reinterpret_cast<void**>(&glIndexf), "glIndexf"},
+		{reinterpret_cast<void**>(&glIndexfv), "glIndexfv"},
+		{reinterpret_cast<void**>(&glIndexi), "glIndexi"},
+		{reinterpret_cast<void**>(&glIndexiv), "glIndexiv"},
+		{reinterpret_cast<void**>(&glIndexMask), "glIndexMask"},
+		{reinterpret_cast<void**>(&glIndexPointer), "glIndexPointer"},
+		{reinterpret_cast<void**>(&glIndexs), "glIndexs"},
+		{reinterpret_cast<void**>(&glIndexsv), "glIndexsv"},
+		{reinterpret_cast<void**>(&glIndexub), "glIndexub"},
+		{reinterpret_cast<void**>(&glIndexubv), "glIndexubv"},
+		{reinterpret_cast<void**>(&glInitNames), "glInitNames"},
+		{reinterpret_cast<void**>(&glInterleavedArrays), "glInterleavedArrays"},
+		{reinterpret_cast<void**>(&glInvalidateNamedFramebufferData), "glInvalidateNamedFramebufferData"},
+		{reinterpret_cast<void**>(&glInvalidateNamedFramebufferSubData), "glInvalidateNamedFramebufferSubData"},
+		{reinterpret_cast<void**>(&glIsBufferARB), "glIsBufferARB"},
+		{reinterpret_cast<void**>(&glIsBuffer), "glIsBuffer"},
+		{reinterpret_cast<void**>(&glIsEnabledi), "glIsEnabledi"},
+		{reinterpret_cast<void**>(&glIsEnabled), "glIsEnabled"},
+		{reinterpret_cast<void**>(&glIsFramebufferEXT), "glIsFramebufferEXT"},
+		{reinterpret_cast<void**>(&glIsFramebuffer), "glIsFramebuffer"},
+		{reinterpret_cast<void**>(&glIsList), "glIsList"},
+		{reinterpret_cast<void**>(&glIsProgramPipeline), "glIsProgramPipeline"},
+		{reinterpret_cast<void**>(&glIsProgram), "glIsProgram"},
+		{reinterpret_cast<void**>(&glIsQuery), "glIsQuery"},
+		{reinterpret_cast<void**>(&glIsRenderbufferEXT), "glIsRenderbufferEXT"},
+		{reinterpret_cast<void**>(&glIsRenderbuffer), "glIsRenderbuffer"},
+		{reinterpret_cast<void**>(&glIsSampler), "glIsSampler"},
+		{reinterpret_cast<void**>(&glIsShader), "glIsShader"},
+		{reinterpret_cast<void**>(&glIsSync), "glIsSync"},
+		{reinterpret_cast<void**>(&glIsTexture), "glIsTexture"},
+		{reinterpret_cast<void**>(&glIsVertexArray), "glIsVertexArray"},
+		{reinterpret_cast<void**>(&glLightf), "glLightf"},
+		{reinterpret_cast<void**>(&glLightfv), "glLightfv"},
+		{reinterpret_cast<void**>(&glLighti), "glLighti"},
+		{reinterpret_cast<void**>(&glLightiv), "glLightiv"},
+		{reinterpret_cast<void**>(&glLightModelf), "glLightModelf"},
+		{reinterpret_cast<void**>(&glLightModelfv), "glLightModelfv"},
+		{reinterpret_cast<void**>(&glLightModeli), "glLightModeli"},
+		{reinterpret_cast<void**>(&glLightModeliv), "glLightModeliv"},
+		{reinterpret_cast<void**>(&glLineStipple), "glLineStipple"},
+		{reinterpret_cast<void**>(&glLineWidth), "glLineWidth"},
+		{reinterpret_cast<void**>(&glLinkProgram), "glLinkProgram"},
+		{reinterpret_cast<void**>(&glListBase), "glListBase"},
+		{reinterpret_cast<void**>(&glLoadIdentity), "glLoadIdentity"},
+		{reinterpret_cast<void**>(&glLoadMatrixd), "glLoadMatrixd"},
+		{reinterpret_cast<void**>(&glLoadMatrixf), "glLoadMatrixf"},
+		{reinterpret_cast<void**>(&glLoadName), "glLoadName"},
+		{reinterpret_cast<void**>(&glLoadTransposeMatrixd), "glLoadTransposeMatrixd"},
+		{reinterpret_cast<void**>(&glLoadTransposeMatrixf), "glLoadTransposeMatrixf"},
+		{reinterpret_cast<void**>(&glLogicOp), "glLogicOp"},
+		{reinterpret_cast<void**>(&glMap1d), "glMap1d"},
+		{reinterpret_cast<void**>(&glMap1f), "glMap1f"},
+		{reinterpret_cast<void**>(&glMap2d), "glMap2d"},
+		{reinterpret_cast<void**>(&glMap2f), "glMap2f"},
+		{reinterpret_cast<void**>(&glMapBufferARB), "glMapBufferARB"},
+		{reinterpret_cast<void**>(&glMapBuffer), "glMapBuffer"},
+		{reinterpret_cast<void**>(&glMapBufferRange), "glMapBufferRange"},
+		{reinterpret_cast<void**>(&glMapGrid1d), "glMapGrid1d"},
+		{reinterpret_cast<void**>(&glMapGrid1f), "glMapGrid1f"},
+		{reinterpret_cast<void**>(&glMapGrid2d), "glMapGrid2d"},
+		{reinterpret_cast<void**>(&glMapGrid2f), "glMapGrid2f"},
+		{reinterpret_cast<void**>(&glMapNamedBuffer), "glMapNamedBuffer"},
+		{reinterpret_cast<void**>(&glMapNamedBufferRange), "glMapNamedBufferRange"},
+		{reinterpret_cast<void**>(&glMaterialf), "glMaterialf"},
+		{reinterpret_cast<void**>(&glMaterialfv), "glMaterialfv"},
+		{reinterpret_cast<void**>(&glMateriali), "glMateriali"},
+		{reinterpret_cast<void**>(&glMaterialiv), "glMaterialiv"},
+		{reinterpret_cast<void**>(&glMatrixMode), "glMatrixMode"},
+		{reinterpret_cast<void**>(&glMultiDrawArrays), "glMultiDrawArrays"},
+		{reinterpret_cast<void**>(&glMultiDrawElementsBaseVertex), "glMultiDrawElementsBaseVertex"},
+		{reinterpret_cast<void**>(&glMultiDrawElements), "glMultiDrawElements"},
+		{reinterpret_cast<void**>(&glMultiTexCoord1d), "glMultiTexCoord1d"},
+		{reinterpret_cast<void**>(&glMultiTexCoord1dv), "glMultiTexCoord1dv"},
+		{reinterpret_cast<void**>(&glMultiTexCoord1f), "glMultiTexCoord1f"},
+		{reinterpret_cast<void**>(&glMultiTexCoord1fv), "glMultiTexCoord1fv"},
+		{reinterpret_cast<void**>(&glMultiTexCoord1i), "glMultiTexCoord1i"},
+		{reinterpret_cast<void**>(&glMultiTexCoord1iv), "glMultiTexCoord1iv"},
+		{reinterpret_cast<void**>(&glMultiTexCoord1s), "glMultiTexCoord1s"},
+		{reinterpret_cast<void**>(&glMultiTexCoord1sv), "glMultiTexCoord1sv"},
+		{reinterpret_cast<void**>(&glMultiTexCoord2d), "glMultiTexCoord2d"},
+		{reinterpret_cast<void**>(&glMultiTexCoord2dv), "glMultiTexCoord2dv"},
+		{reinterpret_cast<void**>(&glMultiTexCoord2f), "glMultiTexCoord2f"},
+		{reinterpret_cast<void**>(&glMultiTexCoord2fv), "glMultiTexCoord2fv"},
+		{reinterpret_cast<void**>(&glMultiTexCoord2i), "glMultiTexCoord2i"},
+		{reinterpret_cast<void**>(&glMultiTexCoord2iv), "glMultiTexCoord2iv"},
+		{reinterpret_cast<void**>(&glMultiTexCoord2s), "glMultiTexCoord2s"},
+		{reinterpret_cast<void**>(&glMultiTexCoord2sv), "glMultiTexCoord2sv"},
+		{reinterpret_cast<void**>(&glMultiTexCoord3d), "glMultiTexCoord3d"},
+		{reinterpret_cast<void**>(&glMultiTexCoord3dv), "glMultiTexCoord3dv"},
+		{reinterpret_cast<void**>(&glMultiTexCoord3f), "glMultiTexCoord3f"},
+		{reinterpret_cast<void**>(&glMultiTexCoord3fv), "glMultiTexCoord3fv"},
+		{reinterpret_cast<void**>(&glMultiTexCoord3i), "glMultiTexCoord3i"},
+		{reinterpret_cast<void**>(&glMultiTexCoord3iv), "glMultiTexCoord3iv"},
+		{reinterpret_cast<void**>(&glMultiTexCoord3s), "glMultiTexCoord3s"},
+		{reinterpret_cast<void**>(&glMultiTexCoord3sv), "glMultiTexCoord3sv"},
+		{reinterpret_cast<void**>(&glMultiTexCoord4d), "glMultiTexCoord4d"},
+		{reinterpret_cast<void**>(&glMultiTexCoord4dv), "glMultiTexCoord4dv"},
+		{reinterpret_cast<void**>(&glMultiTexCoord4f), "glMultiTexCoord4f"},
+		{reinterpret_cast<void**>(&glMultiTexCoord4fv), "glMultiTexCoord4fv"},
+		{reinterpret_cast<void**>(&glMultiTexCoord4i), "glMultiTexCoord4i"},
+		{reinterpret_cast<void**>(&glMultiTexCoord4iv), "glMultiTexCoord4iv"},
+		{reinterpret_cast<void**>(&glMultiTexCoord4s), "glMultiTexCoord4s"},
+		{reinterpret_cast<void**>(&glMultiTexCoord4sv), "glMultiTexCoord4sv"},
+		{reinterpret_cast<void**>(&glMultMatrixd), "glMultMatrixd"},
+		{reinterpret_cast<void**>(&glMultMatrixf), "glMultMatrixf"},
+		{reinterpret_cast<void**>(&glMultTransposeMatrixd), "glMultTransposeMatrixd"},
+		{reinterpret_cast<void**>(&glMultTransposeMatrixf), "glMultTransposeMatrixf"},
+		{reinterpret_cast<void**>(&glNamedBufferData), "glNamedBufferData"},
+		{reinterpret_cast<void**>(&glNamedBufferStorage), "glNamedBufferStorage"},
+		{reinterpret_cast<void**>(&glNamedBufferSubData), "glNamedBufferSubData"},
+		{reinterpret_cast<void**>(&glNamedFramebufferDrawBuffer), "glNamedFramebufferDrawBuffer"},
+		{reinterpret_cast<void**>(&glNamedFramebufferDrawBuffers), "glNamedFramebufferDrawBuffers"},
+		{reinterpret_cast<void**>(&glNamedFramebufferParameteri), "glNamedFramebufferParameteri"},
+		{reinterpret_cast<void**>(&glNamedFramebufferReadBuffer), "glNamedFramebufferReadBuffer"},
+		{reinterpret_cast<void**>(&glNamedFramebufferRenderbuffer), "glNamedFramebufferRenderbuffer"},
+		{reinterpret_cast<void**>(&glNamedFramebufferTextureLayer), "glNamedFramebufferTextureLayer"},
+		{reinterpret_cast<void**>(&glNamedFramebufferTexture), "glNamedFramebufferTexture"},
+		{reinterpret_cast<void**>(&glNamedRenderbufferStorageMultisample), "glNamedRenderbufferStorageMultisample"},
+		{reinterpret_cast<void**>(&glNamedRenderbufferStorage), "glNamedRenderbufferStorage"},
+		{reinterpret_cast<void**>(&glNewList), "glNewList"},
+		{reinterpret_cast<void**>(&glNormal3b), "glNormal3b"},
+		{reinterpret_cast<void**>(&glNormal3bv), "glNormal3bv"},
+		{reinterpret_cast<void**>(&glNormal3d), "glNormal3d"},
+		{reinterpret_cast<void**>(&glNormal3dv), "glNormal3dv"},
+		{reinterpret_cast<void**>(&glNormal3f), "glNormal3f"},
+		{reinterpret_cast<void**>(&glNormal3fv), "glNormal3fv"},
+		{reinterpret_cast<void**>(&glNormal3i), "glNormal3i"},
+		{reinterpret_cast<void**>(&glNormal3iv), "glNormal3iv"},
+		{reinterpret_cast<void**>(&glNormal3s), "glNormal3s"},
+		{reinterpret_cast<void**>(&glNormal3sv), "glNormal3sv"},
+		{reinterpret_cast<void**>(&glNormalPointer), "glNormalPointer"},
+		{reinterpret_cast<void**>(&glOrtho), "glOrtho"},
+		{reinterpret_cast<void**>(&glPassThrough), "glPassThrough"},
+		{reinterpret_cast<void**>(&glPixelMapfv), "glPixelMapfv"},
+		{reinterpret_cast<void**>(&glPixelMapuiv), "glPixelMapuiv"},
+		{reinterpret_cast<void**>(&glPixelMapusv), "glPixelMapusv"},
+		{reinterpret_cast<void**>(&glPixelStoref), "glPixelStoref"},
+		{reinterpret_cast<void**>(&glPixelStorei), "glPixelStorei"},
+		{reinterpret_cast<void**>(&glPixelTransferf), "glPixelTransferf"},
+		{reinterpret_cast<void**>(&glPixelTransferi), "glPixelTransferi"},
+		{reinterpret_cast<void**>(&glPixelZoom), "glPixelZoom"},
+		{reinterpret_cast<void**>(&glPointParameterf), "glPointParameterf"},
+		{reinterpret_cast<void**>(&glPointParameterfv), "glPointParameterfv"},
+		{reinterpret_cast<void**>(&glPointParameteri), "glPointParameteri"},
+		{reinterpret_cast<void**>(&glPointParameteriv), "glPointParameteriv"},
+		{reinterpret_cast<void**>(&glPointSize), "glPointSize"},
+		{reinterpret_cast<void**>(&glPolygonMode), "glPolygonMode"},
+		{reinterpret_cast<void**>(&glPolygonOffset), "glPolygonOffset"},
+		{reinterpret_cast<void**>(&glPolygonStipple), "glPolygonStipple"},
+		{reinterpret_cast<void**>(&glPopAttrib), "glPopAttrib"},
+		{reinterpret_cast<void**>(&glPopClientAttrib), "glPopClientAttrib"},
+		{reinterpret_cast<void**>(&glPopMatrix), "glPopMatrix"},
+		{reinterpret_cast<void**>(&glPopName), "glPopName"},
+		{reinterpret_cast<void**>(&glPrimitiveRestartIndex), "glPrimitiveRestartIndex"},
+		{reinterpret_cast<void**>(&glPrioritizeTextures), "glPrioritizeTextures"},
+		{reinterpret_cast<void**>(&glProgramParameteri), "glProgramParameteri"},
+		{reinterpret_cast<void**>(&glProgramUniform1d), "glProgramUniform1d"},
+		{reinterpret_cast<void**>(&glProgramUniform1dv), "glProgramUniform1dv"},
+		{reinterpret_cast<void**>(&glProgramUniform1f), "glProgramUniform1f"},
+		{reinterpret_cast<void**>(&glProgramUniform1fv), "glProgramUniform1fv"},
+		{reinterpret_cast<void**>(&glProgramUniform1i), "glProgramUniform1i"},
+		{reinterpret_cast<void**>(&glProgramUniform1iv), "glProgramUniform1iv"},
+		{reinterpret_cast<void**>(&glProgramUniform1ui), "glProgramUniform1ui"},
+		{reinterpret_cast<void**>(&glProgramUniform1uiv), "glProgramUniform1uiv"},
+		{reinterpret_cast<void**>(&glProgramUniform2d), "glProgramUniform2d"},
+		{reinterpret_cast<void**>(&glProgramUniform2dv), "glProgramUniform2dv"},
+		{reinterpret_cast<void**>(&glProgramUniform2f), "glProgramUniform2f"},
+		{reinterpret_cast<void**>(&glProgramUniform2fv), "glProgramUniform2fv"},
+		{reinterpret_cast<void**>(&glProgramUniform2i), "glProgramUniform2i"},
+		{reinterpret_cast<void**>(&glProgramUniform2iv), "glProgramUniform2iv"},
+		{reinterpret_cast<void**>(&glProgramUniform2ui), "glProgramUniform2ui"},
+		{reinterpret_cast<void**>(&glProgramUniform2uiv), "glProgramUniform2uiv"},
+		{reinterpret_cast<void**>(&glProgramUniform3d), "glProgramUniform3d"},
+		{reinterpret_cast<void**>(&glProgramUniform3dv), "glProgramUniform3dv"},
+		{reinterpret_cast<void**>(&glProgramUniform3f), "glProgramUniform3f"},
+		{reinterpret_cast<void**>(&glProgramUniform3fv), "glProgramUniform3fv"},
+		{reinterpret_cast<void**>(&glProgramUniform3i), "glProgramUniform3i"},
+		{reinterpret_cast<void**>(&glProgramUniform3iv), "glProgramUniform3iv"},
+		{reinterpret_cast<void**>(&glProgramUniform3ui), "glProgramUniform3ui"},
+		{reinterpret_cast<void**>(&glProgramUniform3uiv), "glProgramUniform3uiv"},
+		{reinterpret_cast<void**>(&glProgramUniform4d), "glProgramUniform4d"},
+		{reinterpret_cast<void**>(&glProgramUniform4dv), "glProgramUniform4dv"},
+		{reinterpret_cast<void**>(&glProgramUniform4f), "glProgramUniform4f"},
+		{reinterpret_cast<void**>(&glProgramUniform4fv), "glProgramUniform4fv"},
+		{reinterpret_cast<void**>(&glProgramUniform4i), "glProgramUniform4i"},
+		{reinterpret_cast<void**>(&glProgramUniform4iv), "glProgramUniform4iv"},
+		{reinterpret_cast<void**>(&glProgramUniform4ui), "glProgramUniform4ui"},
+		{reinterpret_cast<void**>(&glProgramUniform4uiv), "glProgramUniform4uiv"},
+		{reinterpret_cast<void**>(&glProgramUniformMatrix2dv), "glProgramUniformMatrix2dv"},
+		{reinterpret_cast<void**>(&glProgramUniformMatrix2fv), "glProgramUniformMatrix2fv"},
+		{reinterpret_cast<void**>(&glProgramUniformMatrix2x3dv), "glProgramUniformMatrix2x3dv"},
+		{reinterpret_cast<void**>(&glProgramUniformMatrix2x3fv), "glProgramUniformMatrix2x3fv"},
+		{reinterpret_cast<void**>(&glProgramUniformMatrix2x4dv), "glProgramUniformMatrix2x4dv"},
+		{reinterpret_cast<void**>(&glProgramUniformMatrix2x4fv), "glProgramUniformMatrix2x4fv"},
+		{reinterpret_cast<void**>(&glProgramUniformMatrix3dv), "glProgramUniformMatrix3dv"},
+		{reinterpret_cast<void**>(&glProgramUniformMatrix3fv), "glProgramUniformMatrix3fv"},
+		{reinterpret_cast<void**>(&glProgramUniformMatrix3x2dv), "glProgramUniformMatrix3x2dv"},
+		{reinterpret_cast<void**>(&glProgramUniformMatrix3x2fv), "glProgramUniformMatrix3x2fv"},
+		{reinterpret_cast<void**>(&glProgramUniformMatrix3x4dv), "glProgramUniformMatrix3x4dv"},
+		{reinterpret_cast<void**>(&glProgramUniformMatrix3x4fv), "glProgramUniformMatrix3x4fv"},
+		{reinterpret_cast<void**>(&glProgramUniformMatrix4dv), "glProgramUniformMatrix4dv"},
+		{reinterpret_cast<void**>(&glProgramUniformMatrix4fv), "glProgramUniformMatrix4fv"},
+		{reinterpret_cast<void**>(&glProgramUniformMatrix4x2dv), "glProgramUniformMatrix4x2dv"},
+		{reinterpret_cast<void**>(&glProgramUniformMatrix4x2fv), "glProgramUniformMatrix4x2fv"},
+		{reinterpret_cast<void**>(&glProgramUniformMatrix4x3dv), "glProgramUniformMatrix4x3dv"},
+		{reinterpret_cast<void**>(&glProgramUniformMatrix4x3fv), "glProgramUniformMatrix4x3fv"},
+		{reinterpret_cast<void**>(&glProvokingVertex), "glProvokingVertex"},
+		{reinterpret_cast<void**>(&glPushAttrib), "glPushAttrib"},
+		{reinterpret_cast<void**>(&glPushClientAttrib), "glPushClientAttrib"},
+		{reinterpret_cast<void**>(&glPushMatrix), "glPushMatrix"},
+		{reinterpret_cast<void**>(&glPushName), "glPushName"},
+		{reinterpret_cast<void**>(&glRasterPos2d), "glRasterPos2d"},
+		{reinterpret_cast<void**>(&glRasterPos2dv), "glRasterPos2dv"},
+		{reinterpret_cast<void**>(&glRasterPos2f), "glRasterPos2f"},
+		{reinterpret_cast<void**>(&glRasterPos2fv), "glRasterPos2fv"},
+		{reinterpret_cast<void**>(&glRasterPos2i), "glRasterPos2i"},
+		{reinterpret_cast<void**>(&glRasterPos2iv), "glRasterPos2iv"},
+		{reinterpret_cast<void**>(&glRasterPos2s), "glRasterPos2s"},
+		{reinterpret_cast<void**>(&glRasterPos2sv), "glRasterPos2sv"},
+		{reinterpret_cast<void**>(&glRasterPos3d), "glRasterPos3d"},
+		{reinterpret_cast<void**>(&glRasterPos3dv), "glRasterPos3dv"},
+		{reinterpret_cast<void**>(&glRasterPos3f), "glRasterPos3f"},
+		{reinterpret_cast<void**>(&glRasterPos3fv), "glRasterPos3fv"},
+		{reinterpret_cast<void**>(&glRasterPos3i), "glRasterPos3i"},
+		{reinterpret_cast<void**>(&glRasterPos3iv), "glRasterPos3iv"},
+		{reinterpret_cast<void**>(&glRasterPos3s), "glRasterPos3s"},
+		{reinterpret_cast<void**>(&glRasterPos3sv), "glRasterPos3sv"},
+		{reinterpret_cast<void**>(&glRasterPos4d), "glRasterPos4d"},
+		{reinterpret_cast<void**>(&glRasterPos4dv), "glRasterPos4dv"},
+		{reinterpret_cast<void**>(&glRasterPos4f), "glRasterPos4f"},
+		{reinterpret_cast<void**>(&glRasterPos4fv), "glRasterPos4fv"},
+		{reinterpret_cast<void**>(&glRasterPos4i), "glRasterPos4i"},
+		{reinterpret_cast<void**>(&glRasterPos4iv), "glRasterPos4iv"},
+		{reinterpret_cast<void**>(&glRasterPos4s), "glRasterPos4s"},
+		{reinterpret_cast<void**>(&glRasterPos4sv), "glRasterPos4sv"},
+		{reinterpret_cast<void**>(&glReadBuffer), "glReadBuffer"},
+		{reinterpret_cast<void**>(&glReadPixels), "glReadPixels"},
+		{reinterpret_cast<void**>(&glRectd), "glRectd"},
+		{reinterpret_cast<void**>(&glRectdv), "glRectdv"},
+		{reinterpret_cast<void**>(&glRectf), "glRectf"},
+		{reinterpret_cast<void**>(&glRectfv), "glRectfv"},
+		{reinterpret_cast<void**>(&glRecti), "glRecti"},
+		{reinterpret_cast<void**>(&glRectiv), "glRectiv"},
+		{reinterpret_cast<void**>(&glRects), "glRects"},
+		{reinterpret_cast<void**>(&glRectsv), "glRectsv"},
+		{reinterpret_cast<void**>(&glReleaseShaderCompiler), "glReleaseShaderCompiler"},
+		{reinterpret_cast<void**>(&glRenderbufferStorageEXT), "glRenderbufferStorageEXT"},
+		{reinterpret_cast<void**>(&glRenderbufferStorageMultisampleEXT), "glRenderbufferStorageMultisampleEXT"},
+		{reinterpret_cast<void**>(&glRenderbufferStorageMultisample), "glRenderbufferStorageMultisample"},
+		{reinterpret_cast<void**>(&glRenderbufferStorage), "glRenderbufferStorage"},
+		{reinterpret_cast<void**>(&glRenderMode), "glRenderMode"},
+		{reinterpret_cast<void**>(&glRotated), "glRotated"},
+		{reinterpret_cast<void**>(&glRotatef), "glRotatef"},
+		{reinterpret_cast<void**>(&glSampleCoverage), "glSampleCoverage"},
+		{reinterpret_cast<void**>(&glSampleMaski), "glSampleMaski"},
+		{reinterpret_cast<void**>(&glSamplerParameterf), "glSamplerParameterf"},
+		{reinterpret_cast<void**>(&glSamplerParameterfv), "glSamplerParameterfv"},
+		{reinterpret_cast<void**>(&glSamplerParameterIiv), "glSamplerParameterIiv"},
+		{reinterpret_cast<void**>(&glSamplerParameteri), "glSamplerParameteri"},
+		{reinterpret_cast<void**>(&glSamplerParameterIuiv), "glSamplerParameterIuiv"},
+		{reinterpret_cast<void**>(&glSamplerParameteriv), "glSamplerParameteriv"},
+		{reinterpret_cast<void**>(&glScaled), "glScaled"},
+		{reinterpret_cast<void**>(&glScalef), "glScalef"},
+		{reinterpret_cast<void**>(&glScissor), "glScissor"},
+		{reinterpret_cast<void**>(&glSecondaryColor3b), "glSecondaryColor3b"},
+		{reinterpret_cast<void**>(&glSecondaryColor3bv), "glSecondaryColor3bv"},
+		{reinterpret_cast<void**>(&glSecondaryColor3d), "glSecondaryColor3d"},
+		{reinterpret_cast<void**>(&glSecondaryColor3dv), "glSecondaryColor3dv"},
+		{reinterpret_cast<void**>(&glSecondaryColor3f), "glSecondaryColor3f"},
+		{reinterpret_cast<void**>(&glSecondaryColor3fv), "glSecondaryColor3fv"},
+		{reinterpret_cast<void**>(&glSecondaryColor3i), "glSecondaryColor3i"},
+		{reinterpret_cast<void**>(&glSecondaryColor3iv), "glSecondaryColor3iv"},
+		{reinterpret_cast<void**>(&glSecondaryColor3s), "glSecondaryColor3s"},
+		{reinterpret_cast<void**>(&glSecondaryColor3sv), "glSecondaryColor3sv"},
+		{reinterpret_cast<void**>(&glSecondaryColor3ub), "glSecondaryColor3ub"},
+		{reinterpret_cast<void**>(&glSecondaryColor3ubv), "glSecondaryColor3ubv"},
+		{reinterpret_cast<void**>(&glSecondaryColor3ui), "glSecondaryColor3ui"},
+		{reinterpret_cast<void**>(&glSecondaryColor3uiv), "glSecondaryColor3uiv"},
+		{reinterpret_cast<void**>(&glSecondaryColor3us), "glSecondaryColor3us"},
+		{reinterpret_cast<void**>(&glSecondaryColor3usv), "glSecondaryColor3usv"},
+		{reinterpret_cast<void**>(&glSecondaryColorPointer), "glSecondaryColorPointer"},
+		{reinterpret_cast<void**>(&glSelectBuffer), "glSelectBuffer"},
+		{reinterpret_cast<void**>(&glShadeModel), "glShadeModel"},
+		{reinterpret_cast<void**>(&glShaderBinary), "glShaderBinary"},
+		{reinterpret_cast<void**>(&glShaderSource), "glShaderSource"},
+		{reinterpret_cast<void**>(&glStencilFunc), "glStencilFunc"},
+		{reinterpret_cast<void**>(&glStencilFuncSeparate), "glStencilFuncSeparate"},
+		{reinterpret_cast<void**>(&glStencilMask), "glStencilMask"},
+		{reinterpret_cast<void**>(&glStencilMaskSeparate), "glStencilMaskSeparate"},
+		{reinterpret_cast<void**>(&glStencilOp), "glStencilOp"},
+		{reinterpret_cast<void**>(&glStencilOpSeparate), "glStencilOpSeparate"},
+		{reinterpret_cast<void**>(&glTexBuffer), "glTexBuffer"},
+		{reinterpret_cast<void**>(&glTexCoord1d), "glTexCoord1d"},
+		{reinterpret_cast<void**>(&glTexCoord1dv), "glTexCoord1dv"},
+		{reinterpret_cast<void**>(&glTexCoord1f), "glTexCoord1f"},
+		{reinterpret_cast<void**>(&glTexCoord1fv), "glTexCoord1fv"},
+		{reinterpret_cast<void**>(&glTexCoord1i), "glTexCoord1i"},
+		{reinterpret_cast<void**>(&glTexCoord1iv), "glTexCoord1iv"},
+		{reinterpret_cast<void**>(&glTexCoord1s), "glTexCoord1s"},
+		{reinterpret_cast<void**>(&glTexCoord1sv), "glTexCoord1sv"},
+		{reinterpret_cast<void**>(&glTexCoord2d), "glTexCoord2d"},
+		{reinterpret_cast<void**>(&glTexCoord2dv), "glTexCoord2dv"},
+		{reinterpret_cast<void**>(&glTexCoord2f), "glTexCoord2f"},
+		{reinterpret_cast<void**>(&glTexCoord2fv), "glTexCoord2fv"},
+		{reinterpret_cast<void**>(&glTexCoord2i), "glTexCoord2i"},
+		{reinterpret_cast<void**>(&glTexCoord2iv), "glTexCoord2iv"},
+		{reinterpret_cast<void**>(&glTexCoord2s), "glTexCoord2s"},
+		{reinterpret_cast<void**>(&glTexCoord2sv), "glTexCoord2sv"},
+		{reinterpret_cast<void**>(&glTexCoord3d), "glTexCoord3d"},
+		{reinterpret_cast<void**>(&glTexCoord3dv), "glTexCoord3dv"},
+		{reinterpret_cast<void**>(&glTexCoord3f), "glTexCoord3f"},
+		{reinterpret_cast<void**>(&glTexCoord3fv), "glTexCoord3fv"},
+		{reinterpret_cast<void**>(&glTexCoord3i), "glTexCoord3i"},
+		{reinterpret_cast<void**>(&glTexCoord3iv), "glTexCoord3iv"},
+		{reinterpret_cast<void**>(&glTexCoord3s), "glTexCoord3s"},
+		{reinterpret_cast<void**>(&glTexCoord3sv), "glTexCoord3sv"},
+		{reinterpret_cast<void**>(&glTexCoord4d), "glTexCoord4d"},
+		{reinterpret_cast<void**>(&glTexCoord4dv), "glTexCoord4dv"},
+		{reinterpret_cast<void**>(&glTexCoord4f), "glTexCoord4f"},
+		{reinterpret_cast<void**>(&glTexCoord4fv), "glTexCoord4fv"},
+		{reinterpret_cast<void**>(&glTexCoord4i), "glTexCoord4i"},
+		{reinterpret_cast<void**>(&glTexCoord4iv), "glTexCoord4iv"},
+		{reinterpret_cast<void**>(&glTexCoord4s), "glTexCoord4s"},
+		{reinterpret_cast<void**>(&glTexCoord4sv), "glTexCoord4sv"},
+		{reinterpret_cast<void**>(&glTexCoordPointer), "glTexCoordPointer"},
+		{reinterpret_cast<void**>(&glTexEnvf), "glTexEnvf"},
+		{reinterpret_cast<void**>(&glTexEnvfv), "glTexEnvfv"},
+		{reinterpret_cast<void**>(&glTexEnvi), "glTexEnvi"},
+		{reinterpret_cast<void**>(&glTexEnviv), "glTexEnviv"},
+		{reinterpret_cast<void**>(&glTexGend), "glTexGend"},
+		{reinterpret_cast<void**>(&glTexGendv), "glTexGendv"},
+		{reinterpret_cast<void**>(&glTexGenf), "glTexGenf"},
+		{reinterpret_cast<void**>(&glTexGenfv), "glTexGenfv"},
+		{reinterpret_cast<void**>(&glTexGeni), "glTexGeni"},
+		{reinterpret_cast<void**>(&glTexGeniv), "glTexGeniv"},
+		{reinterpret_cast<void**>(&glTexImage1D), "glTexImage1D"},
+		{reinterpret_cast<void**>(&glTexImage2DMultisample), "glTexImage2DMultisample"},
+		{reinterpret_cast<void**>(&glTexImage2D), "glTexImage2D"},
+		{reinterpret_cast<void**>(&glTexImage3DMultisample), "glTexImage3DMultisample"},
+		{reinterpret_cast<void**>(&glTexImage3D), "glTexImage3D"},
+		{reinterpret_cast<void**>(&glTexParameterf), "glTexParameterf"},
+		{reinterpret_cast<void**>(&glTexParameterfv), "glTexParameterfv"},
+		{reinterpret_cast<void**>(&glTexParameterIiv), "glTexParameterIiv"},
+		{reinterpret_cast<void**>(&glTexParameteri), "glTexParameteri"},
+		{reinterpret_cast<void**>(&glTexParameterIuiv), "glTexParameterIuiv"},
+		{reinterpret_cast<void**>(&glTexParameteriv), "glTexParameteriv"},
+		{reinterpret_cast<void**>(&glTexSubImage1D), "glTexSubImage1D"},
+		{reinterpret_cast<void**>(&glTexSubImage2D), "glTexSubImage2D"},
+		{reinterpret_cast<void**>(&glTexSubImage3D), "glTexSubImage3D"},
+		{reinterpret_cast<void**>(&glTextureBuffer), "glTextureBuffer"},
+		{reinterpret_cast<void**>(&glTextureBufferRange), "glTextureBufferRange"},
+		{reinterpret_cast<void**>(&glTextureParameterf), "glTextureParameterf"},
+		{reinterpret_cast<void**>(&glTextureParameterfv), "glTextureParameterfv"},
+		{reinterpret_cast<void**>(&glTextureParameterIiv), "glTextureParameterIiv"},
+		{reinterpret_cast<void**>(&glTextureParameteri), "glTextureParameteri"},
+		{reinterpret_cast<void**>(&glTextureParameterIuiv), "glTextureParameterIuiv"},
+		{reinterpret_cast<void**>(&glTextureParameteriv), "glTextureParameteriv"},
+		{reinterpret_cast<void**>(&glTextureStorage1D), "glTextureStorage1D"},
+		{reinterpret_cast<void**>(&glTextureStorage2DMultisample), "glTextureStorage2DMultisample"},
+		{reinterpret_cast<void**>(&glTextureStorage2D), "glTextureStorage2D"},
+		{reinterpret_cast<void**>(&glTextureStorage3DMultisample), "glTextureStorage3DMultisample"},
+		{reinterpret_cast<void**>(&glTextureStorage3D), "glTextureStorage3D"},
+		{reinterpret_cast<void**>(&glTextureSubImage1D), "glTextureSubImage1D"},
+		{reinterpret_cast<void**>(&glTextureSubImage2D), "glTextureSubImage2D"},
+		{reinterpret_cast<void**>(&glTextureSubImage3D), "glTextureSubImage3D"},
+		{reinterpret_cast<void**>(&glTransformFeedbackBufferBase), "glTransformFeedbackBufferBase"},
+		{reinterpret_cast<void**>(&glTransformFeedbackBufferRange), "glTransformFeedbackBufferRange"},
+		{reinterpret_cast<void**>(&glTransformFeedbackVaryings), "glTransformFeedbackVaryings"},
+		{reinterpret_cast<void**>(&glTranslated), "glTranslated"},
+		{reinterpret_cast<void**>(&glTranslatef), "glTranslatef"},
+		{reinterpret_cast<void**>(&glUniform1f), "glUniform1f"},
+		{reinterpret_cast<void**>(&glUniform1fv), "glUniform1fv"},
+		{reinterpret_cast<void**>(&glUniform1i), "glUniform1i"},
+		{reinterpret_cast<void**>(&glUniform1iv), "glUniform1iv"},
+		{reinterpret_cast<void**>(&glUniform1ui), "glUniform1ui"},
+		{reinterpret_cast<void**>(&glUniform1uiv), "glUniform1uiv"},
+		{reinterpret_cast<void**>(&glUniform2f), "glUniform2f"},
+		{reinterpret_cast<void**>(&glUniform2fv), "glUniform2fv"},
+		{reinterpret_cast<void**>(&glUniform2i), "glUniform2i"},
+		{reinterpret_cast<void**>(&glUniform2iv), "glUniform2iv"},
+		{reinterpret_cast<void**>(&glUniform2ui), "glUniform2ui"},
+		{reinterpret_cast<void**>(&glUniform2uiv), "glUniform2uiv"},
+		{reinterpret_cast<void**>(&glUniform3f), "glUniform3f"},
+		{reinterpret_cast<void**>(&glUniform3fv), "glUniform3fv"},
+		{reinterpret_cast<void**>(&glUniform3i), "glUniform3i"},
+		{reinterpret_cast<void**>(&glUniform3iv), "glUniform3iv"},
+		{reinterpret_cast<void**>(&glUniform3ui), "glUniform3ui"},
+		{reinterpret_cast<void**>(&glUniform3uiv), "glUniform3uiv"},
+		{reinterpret_cast<void**>(&glUniform4f), "glUniform4f"},
+		{reinterpret_cast<void**>(&glUniform4fv), "glUniform4fv"},
+		{reinterpret_cast<void**>(&glUniform4i), "glUniform4i"},
+		{reinterpret_cast<void**>(&glUniform4iv), "glUniform4iv"},
+		{reinterpret_cast<void**>(&glUniform4ui), "glUniform4ui"},
+		{reinterpret_cast<void**>(&glUniform4uiv), "glUniform4uiv"},
+		{reinterpret_cast<void**>(&glUniformBlockBinding), "glUniformBlockBinding"},
+		{reinterpret_cast<void**>(&glUniformMatrix2fv), "glUniformMatrix2fv"},
+		{reinterpret_cast<void**>(&glUniformMatrix2x3fv), "glUniformMatrix2x3fv"},
+		{reinterpret_cast<void**>(&glUniformMatrix2x4fv), "glUniformMatrix2x4fv"},
+		{reinterpret_cast<void**>(&glUniformMatrix3fv), "glUniformMatrix3fv"},
+		{reinterpret_cast<void**>(&glUniformMatrix3x2fv), "glUniformMatrix3x2fv"},
+		{reinterpret_cast<void**>(&glUniformMatrix3x4fv), "glUniformMatrix3x4fv"},
+		{reinterpret_cast<void**>(&glUniformMatrix4fv), "glUniformMatrix4fv"},
+		{reinterpret_cast<void**>(&glUniformMatrix4x2fv), "glUniformMatrix4x2fv"},
+		{reinterpret_cast<void**>(&glUniformMatrix4x3fv), "glUniformMatrix4x3fv"},
+		{reinterpret_cast<void**>(&glUnmapBufferARB), "glUnmapBufferARB"},
+		{reinterpret_cast<void**>(&glUnmapBuffer), "glUnmapBuffer"},
+		{reinterpret_cast<void**>(&glUnmapNamedBuffer), "glUnmapNamedBuffer"},
+		{reinterpret_cast<void**>(&glUseProgram), "glUseProgram"},
+		{reinterpret_cast<void**>(&glUseProgramStages), "glUseProgramStages"},
+		{reinterpret_cast<void**>(&glValidateProgramPipeline), "glValidateProgramPipeline"},
+		{reinterpret_cast<void**>(&glValidateProgram), "glValidateProgram"},
+		{reinterpret_cast<void**>(&glVertex2d), "glVertex2d"},
+		{reinterpret_cast<void**>(&glVertex2dv), "glVertex2dv"},
+		{reinterpret_cast<void**>(&glVertex2f), "glVertex2f"},
+		{reinterpret_cast<void**>(&glVertex2fv), "glVertex2fv"},
+		{reinterpret_cast<void**>(&glVertex2i), "glVertex2i"},
+		{reinterpret_cast<void**>(&glVertex2iv), "glVertex2iv"},
+		{reinterpret_cast<void**>(&glVertex2s), "glVertex2s"},
+		{reinterpret_cast<void**>(&glVertex2sv), "glVertex2sv"},
+		{reinterpret_cast<void**>(&glVertex3d), "glVertex3d"},
+		{reinterpret_cast<void**>(&glVertex3dv), "glVertex3dv"},
+		{reinterpret_cast<void**>(&glVertex3f), "glVertex3f"},
+		{reinterpret_cast<void**>(&glVertex3fv), "glVertex3fv"},
+		{reinterpret_cast<void**>(&glVertex3i), "glVertex3i"},
+		{reinterpret_cast<void**>(&glVertex3iv), "glVertex3iv"},
+		{reinterpret_cast<void**>(&glVertex3s), "glVertex3s"},
+		{reinterpret_cast<void**>(&glVertex3sv), "glVertex3sv"},
+		{reinterpret_cast<void**>(&glVertex4d), "glVertex4d"},
+		{reinterpret_cast<void**>(&glVertex4dv), "glVertex4dv"},
+		{reinterpret_cast<void**>(&glVertex4f), "glVertex4f"},
+		{reinterpret_cast<void**>(&glVertex4fv), "glVertex4fv"},
+		{reinterpret_cast<void**>(&glVertex4i), "glVertex4i"},
+		{reinterpret_cast<void**>(&glVertex4iv), "glVertex4iv"},
+		{reinterpret_cast<void**>(&glVertex4s), "glVertex4s"},
+		{reinterpret_cast<void**>(&glVertex4sv), "glVertex4sv"},
+		{reinterpret_cast<void**>(&glVertexArrayAttribBinding), "glVertexArrayAttribBinding"},
+		{reinterpret_cast<void**>(&glVertexArrayAttribFormat), "glVertexArrayAttribFormat"},
+		{reinterpret_cast<void**>(&glVertexArrayAttribIFormat), "glVertexArrayAttribIFormat"},
+		{reinterpret_cast<void**>(&glVertexArrayAttribLFormat), "glVertexArrayAttribLFormat"},
+		{reinterpret_cast<void**>(&glVertexArrayBindingDivisor), "glVertexArrayBindingDivisor"},
+		{reinterpret_cast<void**>(&glVertexArrayElementBuffer), "glVertexArrayElementBuffer"},
+		{reinterpret_cast<void**>(&glVertexArrayVertexBuffer), "glVertexArrayVertexBuffer"},
+		{reinterpret_cast<void**>(&glVertexArrayVertexBuffers), "glVertexArrayVertexBuffers"},
+		{reinterpret_cast<void**>(&glVertexAttrib1d), "glVertexAttrib1d"},
+		{reinterpret_cast<void**>(&glVertexAttrib1dv), "glVertexAttrib1dv"},
+		{reinterpret_cast<void**>(&glVertexAttrib1f), "glVertexAttrib1f"},
+		{reinterpret_cast<void**>(&glVertexAttrib1fv), "glVertexAttrib1fv"},
+		{reinterpret_cast<void**>(&glVertexAttrib1s), "glVertexAttrib1s"},
+		{reinterpret_cast<void**>(&glVertexAttrib1sv), "glVertexAttrib1sv"},
+		{reinterpret_cast<void**>(&glVertexAttrib2d), "glVertexAttrib2d"},
+		{reinterpret_cast<void**>(&glVertexAttrib2dv), "glVertexAttrib2dv"},
+		{reinterpret_cast<void**>(&glVertexAttrib2f), "glVertexAttrib2f"},
+		{reinterpret_cast<void**>(&glVertexAttrib2fv), "glVertexAttrib2fv"},
+		{reinterpret_cast<void**>(&glVertexAttrib2s), "glVertexAttrib2s"},
+		{reinterpret_cast<void**>(&glVertexAttrib2sv), "glVertexAttrib2sv"},
+		{reinterpret_cast<void**>(&glVertexAttrib3d), "glVertexAttrib3d"},
+		{reinterpret_cast<void**>(&glVertexAttrib3dv), "glVertexAttrib3dv"},
+		{reinterpret_cast<void**>(&glVertexAttrib3f), "glVertexAttrib3f"},
+		{reinterpret_cast<void**>(&glVertexAttrib3fv), "glVertexAttrib3fv"},
+		{reinterpret_cast<void**>(&glVertexAttrib3s), "glVertexAttrib3s"},
+		{reinterpret_cast<void**>(&glVertexAttrib3sv), "glVertexAttrib3sv"},
+		{reinterpret_cast<void**>(&glVertexAttrib4bv), "glVertexAttrib4bv"},
+		{reinterpret_cast<void**>(&glVertexAttrib4d), "glVertexAttrib4d"},
+		{reinterpret_cast<void**>(&glVertexAttrib4dv), "glVertexAttrib4dv"},
+		{reinterpret_cast<void**>(&glVertexAttrib4f), "glVertexAttrib4f"},
+		{reinterpret_cast<void**>(&glVertexAttrib4fv), "glVertexAttrib4fv"},
+		{reinterpret_cast<void**>(&glVertexAttrib4iv), "glVertexAttrib4iv"},
+		{reinterpret_cast<void**>(&glVertexAttrib4Nbv), "glVertexAttrib4Nbv"},
+		{reinterpret_cast<void**>(&glVertexAttrib4Niv), "glVertexAttrib4Niv"},
+		{reinterpret_cast<void**>(&glVertexAttrib4Nsv), "glVertexAttrib4Nsv"},
+		{reinterpret_cast<void**>(&glVertexAttrib4Nub), "glVertexAttrib4Nub"},
+		{reinterpret_cast<void**>(&glVertexAttrib4Nubv), "glVertexAttrib4Nubv"},
+		{reinterpret_cast<void**>(&glVertexAttrib4Nuiv), "glVertexAttrib4Nuiv"},
+		{reinterpret_cast<void**>(&glVertexAttrib4Nusv), "glVertexAttrib4Nusv"},
+		{reinterpret_cast<void**>(&glVertexAttrib4s), "glVertexAttrib4s"},
+		{reinterpret_cast<void**>(&glVertexAttrib4sv), "glVertexAttrib4sv"},
+		{reinterpret_cast<void**>(&glVertexAttrib4ubv), "glVertexAttrib4ubv"},
+		{reinterpret_cast<void**>(&glVertexAttrib4uiv), "glVertexAttrib4uiv"},
+		{reinterpret_cast<void**>(&glVertexAttrib4usv), "glVertexAttrib4usv"},
+		{reinterpret_cast<void**>(&glVertexAttribI1i), "glVertexAttribI1i"},
+		{reinterpret_cast<void**>(&glVertexAttribI1iv), "glVertexAttribI1iv"},
+		{reinterpret_cast<void**>(&glVertexAttribI1ui), "glVertexAttribI1ui"},
+		{reinterpret_cast<void**>(&glVertexAttribI1uiv), "glVertexAttribI1uiv"},
+		{reinterpret_cast<void**>(&glVertexAttribI2i), "glVertexAttribI2i"},
+		{reinterpret_cast<void**>(&glVertexAttribI2iv), "glVertexAttribI2iv"},
+		{reinterpret_cast<void**>(&glVertexAttribI2ui), "glVertexAttribI2ui"},
+		{reinterpret_cast<void**>(&glVertexAttribI2uiv), "glVertexAttribI2uiv"},
+		{reinterpret_cast<void**>(&glVertexAttribI3i), "glVertexAttribI3i"},
+		{reinterpret_cast<void**>(&glVertexAttribI3iv), "glVertexAttribI3iv"},
+		{reinterpret_cast<void**>(&glVertexAttribI3ui), "glVertexAttribI3ui"},
+		{reinterpret_cast<void**>(&glVertexAttribI3uiv), "glVertexAttribI3uiv"},
+		{reinterpret_cast<void**>(&glVertexAttribI4bv), "glVertexAttribI4bv"},
+		{reinterpret_cast<void**>(&glVertexAttribI4i), "glVertexAttribI4i"},
+		{reinterpret_cast<void**>(&glVertexAttribI4iv), "glVertexAttribI4iv"},
+		{reinterpret_cast<void**>(&glVertexAttribI4sv), "glVertexAttribI4sv"},
+		{reinterpret_cast<void**>(&glVertexAttribI4ubv), "glVertexAttribI4ubv"},
+		{reinterpret_cast<void**>(&glVertexAttribI4ui), "glVertexAttribI4ui"},
+		{reinterpret_cast<void**>(&glVertexAttribI4uiv), "glVertexAttribI4uiv"},
+		{reinterpret_cast<void**>(&glVertexAttribI4usv), "glVertexAttribI4usv"},
+		{reinterpret_cast<void**>(&glVertexAttribIPointer), "glVertexAttribIPointer"},
+		{reinterpret_cast<void**>(&glVertexAttribPointer), "glVertexAttribPointer"},
+		{reinterpret_cast<void**>(&glVertexPointer), "glVertexPointer"},
+		{reinterpret_cast<void**>(&glViewport), "glViewport"},
+		{reinterpret_cast<void**>(&glWaitSync), "glWaitSync"},
+		{reinterpret_cast<void**>(&glWindowPos2d), "glWindowPos2d"},
+		{reinterpret_cast<void**>(&glWindowPos2dv), "glWindowPos2dv"},
+		{reinterpret_cast<void**>(&glWindowPos2f), "glWindowPos2f"},
+		{reinterpret_cast<void**>(&glWindowPos2fv), "glWindowPos2fv"},
+		{reinterpret_cast<void**>(&glWindowPos2i), "glWindowPos2i"},
+		{reinterpret_cast<void**>(&glWindowPos2iv), "glWindowPos2iv"},
+		{reinterpret_cast<void**>(&glWindowPos2s), "glWindowPos2s"},
+		{reinterpret_cast<void**>(&glWindowPos2sv), "glWindowPos2sv"},
+		{reinterpret_cast<void**>(&glWindowPos3d), "glWindowPos3d"},
+		{reinterpret_cast<void**>(&glWindowPos3dv), "glWindowPos3dv"},
+		{reinterpret_cast<void**>(&glWindowPos3f), "glWindowPos3f"},
+		{reinterpret_cast<void**>(&glWindowPos3fv), "glWindowPos3fv"},
+		{reinterpret_cast<void**>(&glWindowPos3i), "glWindowPos3i"},
+		{reinterpret_cast<void**>(&glWindowPos3iv), "glWindowPos3iv"},
+		{reinterpret_cast<void**>(&glWindowPos3s), "glWindowPos3s"},
+		{reinterpret_cast<void**>(&glWindowPos3sv), "glWindowPos3sv"},
+	};
+
+	return gl_symbol_registry;
+}
+
+void GlExtensionManagerImpl::gl_symbol_clear()
+{
+	auto& gl_symbol_registry = gl_symbol_get_registry();
+
+	for (auto& gl_symbol_item : gl_symbol_registry)
+	{
+		*gl_symbol_item.first = nullptr;
+	}
+}
+
+void GlExtensionManagerImpl::gl_symbol_resolve()
+{
+	auto& gl_symbol_registry = gl_symbol_get_registry();
+
+	for (auto& gl_symbol_item : gl_symbol_registry)
+	{
+		*gl_symbol_item.first = GlRenderer3dUtils::resolve_symbol(gl_symbol_item.second);
+	}
+}
+
+bool GlExtensionManagerImpl::gl_symbol_has(
+	const GlSymbolPtrs& gl_symbol_ptrs)
+{
+	return std::all_of(
+		gl_symbol_ptrs.cbegin(),
+		gl_symbol_ptrs.cend(),
+		[](const auto item)
+		{
+			return *item;
+		}
+	);
+}
+
+GlExtensionManagerImpl::GlSymbolPtrs& GlExtensionManagerImpl::gl_symbol_get_essentials()
+{
+	static auto gl_symbols = GlSymbolPtrs
+	{
+		reinterpret_cast<void**>(&glGetError),
+		reinterpret_cast<void**>(&glGetIntegerv),
+	};
+
+	return gl_symbols;
+}
+
+GlExtensionManagerImpl::GlSymbolPtrs& GlExtensionManagerImpl::gl_symbol_get_v2_0()
+{
+	static auto gl_symbols = GlSymbolPtrs
+	{
+		reinterpret_cast<void**>(&glAccum),
+		reinterpret_cast<void**>(&glActiveTexture),
+		reinterpret_cast<void**>(&glAlphaFunc),
+		reinterpret_cast<void**>(&glAreTexturesResident),
+		reinterpret_cast<void**>(&glArrayElement),
+		reinterpret_cast<void**>(&glAttachShader),
+		reinterpret_cast<void**>(&glBegin),
+		reinterpret_cast<void**>(&glBeginQuery),
+		reinterpret_cast<void**>(&glBindAttribLocation),
+		reinterpret_cast<void**>(&glBindBuffer),
+		reinterpret_cast<void**>(&glBindTexture),
+		reinterpret_cast<void**>(&glBitmap),
+		reinterpret_cast<void**>(&glBlendColor),
+		reinterpret_cast<void**>(&glBlendEquation),
+		reinterpret_cast<void**>(&glBlendEquationSeparate),
+		reinterpret_cast<void**>(&glBlendFunc),
+		reinterpret_cast<void**>(&glBlendFuncSeparate),
+		reinterpret_cast<void**>(&glBufferData),
+		reinterpret_cast<void**>(&glBufferSubData),
+		reinterpret_cast<void**>(&glCallList),
+		reinterpret_cast<void**>(&glCallLists),
+		reinterpret_cast<void**>(&glClear),
+		reinterpret_cast<void**>(&glClearAccum),
+		reinterpret_cast<void**>(&glClearColor),
+		reinterpret_cast<void**>(&glClearDepth),
+		reinterpret_cast<void**>(&glClearIndex),
+		reinterpret_cast<void**>(&glClearStencil),
+		reinterpret_cast<void**>(&glClientActiveTexture),
+		reinterpret_cast<void**>(&glClipPlane),
+		reinterpret_cast<void**>(&glColor3b),
+		reinterpret_cast<void**>(&glColor3bv),
+		reinterpret_cast<void**>(&glColor3d),
+		reinterpret_cast<void**>(&glColor3dv),
+		reinterpret_cast<void**>(&glColor3f),
+		reinterpret_cast<void**>(&glColor3fv),
+		reinterpret_cast<void**>(&glColor3i),
+		reinterpret_cast<void**>(&glColor3iv),
+		reinterpret_cast<void**>(&glColor3s),
+		reinterpret_cast<void**>(&glColor3sv),
+		reinterpret_cast<void**>(&glColor3ub),
+		reinterpret_cast<void**>(&glColor3ubv),
+		reinterpret_cast<void**>(&glColor3ui),
+		reinterpret_cast<void**>(&glColor3uiv),
+		reinterpret_cast<void**>(&glColor3us),
+		reinterpret_cast<void**>(&glColor3usv),
+		reinterpret_cast<void**>(&glColor4b),
+		reinterpret_cast<void**>(&glColor4bv),
+		reinterpret_cast<void**>(&glColor4d),
+		reinterpret_cast<void**>(&glColor4dv),
+		reinterpret_cast<void**>(&glColor4f),
+		reinterpret_cast<void**>(&glColor4fv),
+		reinterpret_cast<void**>(&glColor4i),
+		reinterpret_cast<void**>(&glColor4iv),
+		reinterpret_cast<void**>(&glColor4s),
+		reinterpret_cast<void**>(&glColor4sv),
+		reinterpret_cast<void**>(&glColor4ub),
+		reinterpret_cast<void**>(&glColor4ubv),
+		reinterpret_cast<void**>(&glColor4ui),
+		reinterpret_cast<void**>(&glColor4uiv),
+		reinterpret_cast<void**>(&glColor4us),
+		reinterpret_cast<void**>(&glColor4usv),
+		reinterpret_cast<void**>(&glColorMask),
+		reinterpret_cast<void**>(&glColorMaterial),
+		reinterpret_cast<void**>(&glColorPointer),
+		reinterpret_cast<void**>(&glCompileShader),
+		reinterpret_cast<void**>(&glCompressedTexImage1D),
+		reinterpret_cast<void**>(&glCompressedTexImage2D),
+		reinterpret_cast<void**>(&glCompressedTexImage3D),
+		reinterpret_cast<void**>(&glCompressedTexSubImage1D),
+		reinterpret_cast<void**>(&glCompressedTexSubImage2D),
+		reinterpret_cast<void**>(&glCompressedTexSubImage3D),
+		reinterpret_cast<void**>(&glCopyPixels),
+		reinterpret_cast<void**>(&glCopyTexImage1D),
+		reinterpret_cast<void**>(&glCopyTexImage2D),
+		reinterpret_cast<void**>(&glCopyTexSubImage1D),
+		reinterpret_cast<void**>(&glCopyTexSubImage2D),
+		reinterpret_cast<void**>(&glCopyTexSubImage3D),
+		reinterpret_cast<void**>(&glCreateProgram),
+		reinterpret_cast<void**>(&glCreateShader),
+		reinterpret_cast<void**>(&glCullFace),
+		reinterpret_cast<void**>(&glDeleteBuffers),
+		reinterpret_cast<void**>(&glDeleteLists),
+		reinterpret_cast<void**>(&glDeleteProgram),
+		reinterpret_cast<void**>(&glDeleteQueries),
+		reinterpret_cast<void**>(&glDeleteShader),
+		reinterpret_cast<void**>(&glDeleteTextures),
+		reinterpret_cast<void**>(&glDepthFunc),
+		reinterpret_cast<void**>(&glDepthMask),
+		reinterpret_cast<void**>(&glDepthRange),
+		reinterpret_cast<void**>(&glDetachShader),
+		reinterpret_cast<void**>(&glDisable),
+		reinterpret_cast<void**>(&glDisableClientState),
+		reinterpret_cast<void**>(&glDisableVertexAttribArray),
+		reinterpret_cast<void**>(&glDrawArrays),
+		reinterpret_cast<void**>(&glDrawBuffer),
+		reinterpret_cast<void**>(&glDrawBuffers),
+		reinterpret_cast<void**>(&glDrawElements),
+		reinterpret_cast<void**>(&glDrawPixels),
+		reinterpret_cast<void**>(&glDrawRangeElements),
+		reinterpret_cast<void**>(&glEdgeFlag),
+		reinterpret_cast<void**>(&glEdgeFlagPointer),
+		reinterpret_cast<void**>(&glEdgeFlagv),
+		reinterpret_cast<void**>(&glEnable),
+		reinterpret_cast<void**>(&glEnableClientState),
+		reinterpret_cast<void**>(&glEnableVertexAttribArray),
+		reinterpret_cast<void**>(&glEnd),
+		reinterpret_cast<void**>(&glEndList),
+		reinterpret_cast<void**>(&glEndQuery),
+		reinterpret_cast<void**>(&glEvalCoord1d),
+		reinterpret_cast<void**>(&glEvalCoord1dv),
+		reinterpret_cast<void**>(&glEvalCoord1f),
+		reinterpret_cast<void**>(&glEvalCoord1fv),
+		reinterpret_cast<void**>(&glEvalCoord2d),
+		reinterpret_cast<void**>(&glEvalCoord2dv),
+		reinterpret_cast<void**>(&glEvalCoord2f),
+		reinterpret_cast<void**>(&glEvalCoord2fv),
+		reinterpret_cast<void**>(&glEvalMesh1),
+		reinterpret_cast<void**>(&glEvalMesh2),
+		reinterpret_cast<void**>(&glEvalPoint1),
+		reinterpret_cast<void**>(&glEvalPoint2),
+		reinterpret_cast<void**>(&glFeedbackBuffer),
+		reinterpret_cast<void**>(&glFinish),
+		reinterpret_cast<void**>(&glFlush),
+		reinterpret_cast<void**>(&glFogCoordPointer),
+		reinterpret_cast<void**>(&glFogCoordd),
+		reinterpret_cast<void**>(&glFogCoorddv),
+		reinterpret_cast<void**>(&glFogCoordf),
+		reinterpret_cast<void**>(&glFogCoordfv),
+		reinterpret_cast<void**>(&glFogf),
+		reinterpret_cast<void**>(&glFogfv),
+		reinterpret_cast<void**>(&glFogi),
+		reinterpret_cast<void**>(&glFogiv),
+		reinterpret_cast<void**>(&glFrontFace),
+		reinterpret_cast<void**>(&glFrustum),
+		reinterpret_cast<void**>(&glGenBuffers),
+		reinterpret_cast<void**>(&glGenLists),
+		reinterpret_cast<void**>(&glGenQueries),
+		reinterpret_cast<void**>(&glGenTextures),
+		reinterpret_cast<void**>(&glGetActiveAttrib),
+		reinterpret_cast<void**>(&glGetActiveUniform),
+		reinterpret_cast<void**>(&glGetAttachedShaders),
+		reinterpret_cast<void**>(&glGetAttribLocation),
+		reinterpret_cast<void**>(&glGetBooleanv),
+		reinterpret_cast<void**>(&glGetBufferParameteriv),
+		reinterpret_cast<void**>(&glGetBufferPointerv),
+		reinterpret_cast<void**>(&glGetBufferSubData),
+		reinterpret_cast<void**>(&glGetClipPlane),
+		reinterpret_cast<void**>(&glGetCompressedTexImage),
+		reinterpret_cast<void**>(&glGetDoublev),
+		reinterpret_cast<void**>(&glGetError),
+		reinterpret_cast<void**>(&glGetFloatv),
+		reinterpret_cast<void**>(&glGetIntegerv),
+		reinterpret_cast<void**>(&glGetLightfv),
+		reinterpret_cast<void**>(&glGetLightiv),
+		reinterpret_cast<void**>(&glGetMapdv),
+		reinterpret_cast<void**>(&glGetMapfv),
+		reinterpret_cast<void**>(&glGetMapiv),
+		reinterpret_cast<void**>(&glGetMaterialfv),
+		reinterpret_cast<void**>(&glGetMaterialiv),
+		reinterpret_cast<void**>(&glGetPixelMapfv),
+		reinterpret_cast<void**>(&glGetPixelMapuiv),
+		reinterpret_cast<void**>(&glGetPixelMapusv),
+		reinterpret_cast<void**>(&glGetPointerv),
+		reinterpret_cast<void**>(&glGetPolygonStipple),
+		reinterpret_cast<void**>(&glGetProgramInfoLog),
+		reinterpret_cast<void**>(&glGetProgramiv),
+		reinterpret_cast<void**>(&glGetQueryObjectiv),
+		reinterpret_cast<void**>(&glGetQueryObjectuiv),
+		reinterpret_cast<void**>(&glGetQueryiv),
+		reinterpret_cast<void**>(&glGetShaderInfoLog),
+		reinterpret_cast<void**>(&glGetShaderSource),
+		reinterpret_cast<void**>(&glGetShaderiv),
+		reinterpret_cast<void**>(&glGetString),
+		reinterpret_cast<void**>(&glGetTexEnvfv),
+		reinterpret_cast<void**>(&glGetTexEnviv),
+		reinterpret_cast<void**>(&glGetTexGendv),
+		reinterpret_cast<void**>(&glGetTexGenfv),
+		reinterpret_cast<void**>(&glGetTexGeniv),
+		reinterpret_cast<void**>(&glGetTexImage),
+		reinterpret_cast<void**>(&glGetTexLevelParameterfv),
+		reinterpret_cast<void**>(&glGetTexLevelParameteriv),
+		reinterpret_cast<void**>(&glGetTexParameterfv),
+		reinterpret_cast<void**>(&glGetTexParameteriv),
+		reinterpret_cast<void**>(&glGetUniformLocation),
+		reinterpret_cast<void**>(&glGetUniformfv),
+		reinterpret_cast<void**>(&glGetUniformiv),
+		reinterpret_cast<void**>(&glGetVertexAttribPointerv),
+		reinterpret_cast<void**>(&glGetVertexAttribdv),
+		reinterpret_cast<void**>(&glGetVertexAttribfv),
+		reinterpret_cast<void**>(&glGetVertexAttribiv),
+		reinterpret_cast<void**>(&glHint),
+		reinterpret_cast<void**>(&glIndexMask),
+		reinterpret_cast<void**>(&glIndexPointer),
+		reinterpret_cast<void**>(&glIndexd),
+		reinterpret_cast<void**>(&glIndexdv),
+		reinterpret_cast<void**>(&glIndexf),
+		reinterpret_cast<void**>(&glIndexfv),
+		reinterpret_cast<void**>(&glIndexi),
+		reinterpret_cast<void**>(&glIndexiv),
+		reinterpret_cast<void**>(&glIndexs),
+		reinterpret_cast<void**>(&glIndexsv),
+		reinterpret_cast<void**>(&glIndexub),
+		reinterpret_cast<void**>(&glIndexubv),
+		reinterpret_cast<void**>(&glInitNames),
+		reinterpret_cast<void**>(&glInterleavedArrays),
+		reinterpret_cast<void**>(&glIsBuffer),
+		reinterpret_cast<void**>(&glIsEnabled),
+		reinterpret_cast<void**>(&glIsList),
+		reinterpret_cast<void**>(&glIsProgram),
+		reinterpret_cast<void**>(&glIsQuery),
+		reinterpret_cast<void**>(&glIsShader),
+		reinterpret_cast<void**>(&glIsTexture),
+		reinterpret_cast<void**>(&glLightModelf),
+		reinterpret_cast<void**>(&glLightModelfv),
+		reinterpret_cast<void**>(&glLightModeli),
+		reinterpret_cast<void**>(&glLightModeliv),
+		reinterpret_cast<void**>(&glLightf),
+		reinterpret_cast<void**>(&glLightfv),
+		reinterpret_cast<void**>(&glLighti),
+		reinterpret_cast<void**>(&glLightiv),
+		reinterpret_cast<void**>(&glLineStipple),
+		reinterpret_cast<void**>(&glLineWidth),
+		reinterpret_cast<void**>(&glLinkProgram),
+		reinterpret_cast<void**>(&glListBase),
+		reinterpret_cast<void**>(&glLoadIdentity),
+		reinterpret_cast<void**>(&glLoadMatrixd),
+		reinterpret_cast<void**>(&glLoadMatrixf),
+		reinterpret_cast<void**>(&glLoadName),
+		reinterpret_cast<void**>(&glLoadTransposeMatrixd),
+		reinterpret_cast<void**>(&glLoadTransposeMatrixf),
+		reinterpret_cast<void**>(&glLogicOp),
+		reinterpret_cast<void**>(&glMap1d),
+		reinterpret_cast<void**>(&glMap1f),
+		reinterpret_cast<void**>(&glMap2d),
+		reinterpret_cast<void**>(&glMap2f),
+		reinterpret_cast<void**>(&glMapBuffer),
+		reinterpret_cast<void**>(&glMapGrid1d),
+		reinterpret_cast<void**>(&glMapGrid1f),
+		reinterpret_cast<void**>(&glMapGrid2d),
+		reinterpret_cast<void**>(&glMapGrid2f),
+		reinterpret_cast<void**>(&glMaterialf),
+		reinterpret_cast<void**>(&glMaterialfv),
+		reinterpret_cast<void**>(&glMateriali),
+		reinterpret_cast<void**>(&glMaterialiv),
+		reinterpret_cast<void**>(&glMatrixMode),
+		reinterpret_cast<void**>(&glMultMatrixd),
+		reinterpret_cast<void**>(&glMultMatrixf),
+		reinterpret_cast<void**>(&glMultTransposeMatrixd),
+		reinterpret_cast<void**>(&glMultTransposeMatrixf),
+		reinterpret_cast<void**>(&glMultiDrawArrays),
+		reinterpret_cast<void**>(&glMultiDrawElements),
+		reinterpret_cast<void**>(&glMultiTexCoord1d),
+		reinterpret_cast<void**>(&glMultiTexCoord1dv),
+		reinterpret_cast<void**>(&glMultiTexCoord1f),
+		reinterpret_cast<void**>(&glMultiTexCoord1fv),
+		reinterpret_cast<void**>(&glMultiTexCoord1i),
+		reinterpret_cast<void**>(&glMultiTexCoord1iv),
+		reinterpret_cast<void**>(&glMultiTexCoord1s),
+		reinterpret_cast<void**>(&glMultiTexCoord1sv),
+		reinterpret_cast<void**>(&glMultiTexCoord2d),
+		reinterpret_cast<void**>(&glMultiTexCoord2dv),
+		reinterpret_cast<void**>(&glMultiTexCoord2f),
+		reinterpret_cast<void**>(&glMultiTexCoord2fv),
+		reinterpret_cast<void**>(&glMultiTexCoord2i),
+		reinterpret_cast<void**>(&glMultiTexCoord2iv),
+		reinterpret_cast<void**>(&glMultiTexCoord2s),
+		reinterpret_cast<void**>(&glMultiTexCoord2sv),
+		reinterpret_cast<void**>(&glMultiTexCoord3d),
+		reinterpret_cast<void**>(&glMultiTexCoord3dv),
+		reinterpret_cast<void**>(&glMultiTexCoord3f),
+		reinterpret_cast<void**>(&glMultiTexCoord3fv),
+		reinterpret_cast<void**>(&glMultiTexCoord3i),
+		reinterpret_cast<void**>(&glMultiTexCoord3iv),
+		reinterpret_cast<void**>(&glMultiTexCoord3s),
+		reinterpret_cast<void**>(&glMultiTexCoord3sv),
+		reinterpret_cast<void**>(&glMultiTexCoord4d),
+		reinterpret_cast<void**>(&glMultiTexCoord4dv),
+		reinterpret_cast<void**>(&glMultiTexCoord4f),
+		reinterpret_cast<void**>(&glMultiTexCoord4fv),
+		reinterpret_cast<void**>(&glMultiTexCoord4i),
+		reinterpret_cast<void**>(&glMultiTexCoord4iv),
+		reinterpret_cast<void**>(&glMultiTexCoord4s),
+		reinterpret_cast<void**>(&glMultiTexCoord4sv),
+		reinterpret_cast<void**>(&glNewList),
+		reinterpret_cast<void**>(&glNormal3b),
+		reinterpret_cast<void**>(&glNormal3bv),
+		reinterpret_cast<void**>(&glNormal3d),
+		reinterpret_cast<void**>(&glNormal3dv),
+		reinterpret_cast<void**>(&glNormal3f),
+		reinterpret_cast<void**>(&glNormal3fv),
+		reinterpret_cast<void**>(&glNormal3i),
+		reinterpret_cast<void**>(&glNormal3iv),
+		reinterpret_cast<void**>(&glNormal3s),
+		reinterpret_cast<void**>(&glNormal3sv),
+		reinterpret_cast<void**>(&glNormalPointer),
+		reinterpret_cast<void**>(&glOrtho),
+		reinterpret_cast<void**>(&glPassThrough),
+		reinterpret_cast<void**>(&glPixelMapfv),
+		reinterpret_cast<void**>(&glPixelMapuiv),
+		reinterpret_cast<void**>(&glPixelMapusv),
+		reinterpret_cast<void**>(&glPixelStoref),
+		reinterpret_cast<void**>(&glPixelStorei),
+		reinterpret_cast<void**>(&glPixelTransferf),
+		reinterpret_cast<void**>(&glPixelTransferi),
+		reinterpret_cast<void**>(&glPixelZoom),
+		reinterpret_cast<void**>(&glPointParameterf),
+		reinterpret_cast<void**>(&glPointParameterfv),
+		reinterpret_cast<void**>(&glPointParameteri),
+		reinterpret_cast<void**>(&glPointParameteriv),
+		reinterpret_cast<void**>(&glPointSize),
+		reinterpret_cast<void**>(&glPolygonMode),
+		reinterpret_cast<void**>(&glPolygonOffset),
+		reinterpret_cast<void**>(&glPolygonStipple),
+		reinterpret_cast<void**>(&glPopAttrib),
+		reinterpret_cast<void**>(&glPopClientAttrib),
+		reinterpret_cast<void**>(&glPopMatrix),
+		reinterpret_cast<void**>(&glPopName),
+		reinterpret_cast<void**>(&glPrioritizeTextures),
+		reinterpret_cast<void**>(&glPushAttrib),
+		reinterpret_cast<void**>(&glPushClientAttrib),
+		reinterpret_cast<void**>(&glPushMatrix),
+		reinterpret_cast<void**>(&glPushName),
+		reinterpret_cast<void**>(&glRasterPos2d),
+		reinterpret_cast<void**>(&glRasterPos2dv),
+		reinterpret_cast<void**>(&glRasterPos2f),
+		reinterpret_cast<void**>(&glRasterPos2fv),
+		reinterpret_cast<void**>(&glRasterPos2i),
+		reinterpret_cast<void**>(&glRasterPos2iv),
+		reinterpret_cast<void**>(&glRasterPos2s),
+		reinterpret_cast<void**>(&glRasterPos2sv),
+		reinterpret_cast<void**>(&glRasterPos3d),
+		reinterpret_cast<void**>(&glRasterPos3dv),
+		reinterpret_cast<void**>(&glRasterPos3f),
+		reinterpret_cast<void**>(&glRasterPos3fv),
+		reinterpret_cast<void**>(&glRasterPos3i),
+		reinterpret_cast<void**>(&glRasterPos3iv),
+		reinterpret_cast<void**>(&glRasterPos3s),
+		reinterpret_cast<void**>(&glRasterPos3sv),
+		reinterpret_cast<void**>(&glRasterPos4d),
+		reinterpret_cast<void**>(&glRasterPos4dv),
+		reinterpret_cast<void**>(&glRasterPos4f),
+		reinterpret_cast<void**>(&glRasterPos4fv),
+		reinterpret_cast<void**>(&glRasterPos4i),
+		reinterpret_cast<void**>(&glRasterPos4iv),
+		reinterpret_cast<void**>(&glRasterPos4s),
+		reinterpret_cast<void**>(&glRasterPos4sv),
+		reinterpret_cast<void**>(&glReadBuffer),
+		reinterpret_cast<void**>(&glReadPixels),
+		reinterpret_cast<void**>(&glRectd),
+		reinterpret_cast<void**>(&glRectdv),
+		reinterpret_cast<void**>(&glRectf),
+		reinterpret_cast<void**>(&glRectfv),
+		reinterpret_cast<void**>(&glRecti),
+		reinterpret_cast<void**>(&glRectiv),
+		reinterpret_cast<void**>(&glRects),
+		reinterpret_cast<void**>(&glRectsv),
+		reinterpret_cast<void**>(&glRenderMode),
+		reinterpret_cast<void**>(&glRotated),
+		reinterpret_cast<void**>(&glRotatef),
+		reinterpret_cast<void**>(&glSampleCoverage),
+		reinterpret_cast<void**>(&glScaled),
+		reinterpret_cast<void**>(&glScalef),
+		reinterpret_cast<void**>(&glScissor),
+		reinterpret_cast<void**>(&glSecondaryColor3b),
+		reinterpret_cast<void**>(&glSecondaryColor3bv),
+		reinterpret_cast<void**>(&glSecondaryColor3d),
+		reinterpret_cast<void**>(&glSecondaryColor3dv),
+		reinterpret_cast<void**>(&glSecondaryColor3f),
+		reinterpret_cast<void**>(&glSecondaryColor3fv),
+		reinterpret_cast<void**>(&glSecondaryColor3i),
+		reinterpret_cast<void**>(&glSecondaryColor3iv),
+		reinterpret_cast<void**>(&glSecondaryColor3s),
+		reinterpret_cast<void**>(&glSecondaryColor3sv),
+		reinterpret_cast<void**>(&glSecondaryColor3ub),
+		reinterpret_cast<void**>(&glSecondaryColor3ubv),
+		reinterpret_cast<void**>(&glSecondaryColor3ui),
+		reinterpret_cast<void**>(&glSecondaryColor3uiv),
+		reinterpret_cast<void**>(&glSecondaryColor3us),
+		reinterpret_cast<void**>(&glSecondaryColor3usv),
+		reinterpret_cast<void**>(&glSecondaryColorPointer),
+		reinterpret_cast<void**>(&glSelectBuffer),
+		reinterpret_cast<void**>(&glShadeModel),
+		reinterpret_cast<void**>(&glShaderSource),
+		reinterpret_cast<void**>(&glStencilFunc),
+		reinterpret_cast<void**>(&glStencilFuncSeparate),
+		reinterpret_cast<void**>(&glStencilMask),
+		reinterpret_cast<void**>(&glStencilMaskSeparate),
+		reinterpret_cast<void**>(&glStencilOp),
+		reinterpret_cast<void**>(&glStencilOpSeparate),
+		reinterpret_cast<void**>(&glTexCoord1d),
+		reinterpret_cast<void**>(&glTexCoord1dv),
+		reinterpret_cast<void**>(&glTexCoord1f),
+		reinterpret_cast<void**>(&glTexCoord1fv),
+		reinterpret_cast<void**>(&glTexCoord1i),
+		reinterpret_cast<void**>(&glTexCoord1iv),
+		reinterpret_cast<void**>(&glTexCoord1s),
+		reinterpret_cast<void**>(&glTexCoord1sv),
+		reinterpret_cast<void**>(&glTexCoord2d),
+		reinterpret_cast<void**>(&glTexCoord2dv),
+		reinterpret_cast<void**>(&glTexCoord2f),
+		reinterpret_cast<void**>(&glTexCoord2fv),
+		reinterpret_cast<void**>(&glTexCoord2i),
+		reinterpret_cast<void**>(&glTexCoord2iv),
+		reinterpret_cast<void**>(&glTexCoord2s),
+		reinterpret_cast<void**>(&glTexCoord2sv),
+		reinterpret_cast<void**>(&glTexCoord3d),
+		reinterpret_cast<void**>(&glTexCoord3dv),
+		reinterpret_cast<void**>(&glTexCoord3f),
+		reinterpret_cast<void**>(&glTexCoord3fv),
+		reinterpret_cast<void**>(&glTexCoord3i),
+		reinterpret_cast<void**>(&glTexCoord3iv),
+		reinterpret_cast<void**>(&glTexCoord3s),
+		reinterpret_cast<void**>(&glTexCoord3sv),
+		reinterpret_cast<void**>(&glTexCoord4d),
+		reinterpret_cast<void**>(&glTexCoord4dv),
+		reinterpret_cast<void**>(&glTexCoord4f),
+		reinterpret_cast<void**>(&glTexCoord4fv),
+		reinterpret_cast<void**>(&glTexCoord4i),
+		reinterpret_cast<void**>(&glTexCoord4iv),
+		reinterpret_cast<void**>(&glTexCoord4s),
+		reinterpret_cast<void**>(&glTexCoord4sv),
+		reinterpret_cast<void**>(&glTexCoordPointer),
+		reinterpret_cast<void**>(&glTexEnvf),
+		reinterpret_cast<void**>(&glTexEnvfv),
+		reinterpret_cast<void**>(&glTexEnvi),
+		reinterpret_cast<void**>(&glTexEnviv),
+		reinterpret_cast<void**>(&glTexGend),
+		reinterpret_cast<void**>(&glTexGendv),
+		reinterpret_cast<void**>(&glTexGenf),
+		reinterpret_cast<void**>(&glTexGenfv),
+		reinterpret_cast<void**>(&glTexGeni),
+		reinterpret_cast<void**>(&glTexGeniv),
+		reinterpret_cast<void**>(&glTexImage1D),
+		reinterpret_cast<void**>(&glTexImage2D),
+		reinterpret_cast<void**>(&glTexImage3D),
+		reinterpret_cast<void**>(&glTexParameterf),
+		reinterpret_cast<void**>(&glTexParameterfv),
+		reinterpret_cast<void**>(&glTexParameteri),
+		reinterpret_cast<void**>(&glTexParameteriv),
+		reinterpret_cast<void**>(&glTexSubImage1D),
+		reinterpret_cast<void**>(&glTexSubImage2D),
+		reinterpret_cast<void**>(&glTexSubImage3D),
+		reinterpret_cast<void**>(&glTranslated),
+		reinterpret_cast<void**>(&glTranslatef),
+		reinterpret_cast<void**>(&glUniform1f),
+		reinterpret_cast<void**>(&glUniform1fv),
+		reinterpret_cast<void**>(&glUniform1i),
+		reinterpret_cast<void**>(&glUniform1iv),
+		reinterpret_cast<void**>(&glUniform2f),
+		reinterpret_cast<void**>(&glUniform2fv),
+		reinterpret_cast<void**>(&glUniform2i),
+		reinterpret_cast<void**>(&glUniform2iv),
+		reinterpret_cast<void**>(&glUniform3f),
+		reinterpret_cast<void**>(&glUniform3fv),
+		reinterpret_cast<void**>(&glUniform3i),
+		reinterpret_cast<void**>(&glUniform3iv),
+		reinterpret_cast<void**>(&glUniform4f),
+		reinterpret_cast<void**>(&glUniform4fv),
+		reinterpret_cast<void**>(&glUniform4i),
+		reinterpret_cast<void**>(&glUniform4iv),
+		reinterpret_cast<void**>(&glUniformMatrix2fv),
+		reinterpret_cast<void**>(&glUniformMatrix3fv),
+		reinterpret_cast<void**>(&glUniformMatrix4fv),
+		reinterpret_cast<void**>(&glUnmapBuffer),
+		reinterpret_cast<void**>(&glUseProgram),
+		reinterpret_cast<void**>(&glValidateProgram),
+		reinterpret_cast<void**>(&glVertex2d),
+		reinterpret_cast<void**>(&glVertex2dv),
+		reinterpret_cast<void**>(&glVertex2f),
+		reinterpret_cast<void**>(&glVertex2fv),
+		reinterpret_cast<void**>(&glVertex2i),
+		reinterpret_cast<void**>(&glVertex2iv),
+		reinterpret_cast<void**>(&glVertex2s),
+		reinterpret_cast<void**>(&glVertex2sv),
+		reinterpret_cast<void**>(&glVertex3d),
+		reinterpret_cast<void**>(&glVertex3dv),
+		reinterpret_cast<void**>(&glVertex3f),
+		reinterpret_cast<void**>(&glVertex3fv),
+		reinterpret_cast<void**>(&glVertex3i),
+		reinterpret_cast<void**>(&glVertex3iv),
+		reinterpret_cast<void**>(&glVertex3s),
+		reinterpret_cast<void**>(&glVertex3sv),
+		reinterpret_cast<void**>(&glVertex4d),
+		reinterpret_cast<void**>(&glVertex4dv),
+		reinterpret_cast<void**>(&glVertex4f),
+		reinterpret_cast<void**>(&glVertex4fv),
+		reinterpret_cast<void**>(&glVertex4i),
+		reinterpret_cast<void**>(&glVertex4iv),
+		reinterpret_cast<void**>(&glVertex4s),
+		reinterpret_cast<void**>(&glVertex4sv),
+		reinterpret_cast<void**>(&glVertexAttrib1d),
+		reinterpret_cast<void**>(&glVertexAttrib1dv),
+		reinterpret_cast<void**>(&glVertexAttrib1f),
+		reinterpret_cast<void**>(&glVertexAttrib1fv),
+		reinterpret_cast<void**>(&glVertexAttrib1s),
+		reinterpret_cast<void**>(&glVertexAttrib1sv),
+		reinterpret_cast<void**>(&glVertexAttrib2d),
+		reinterpret_cast<void**>(&glVertexAttrib2dv),
+		reinterpret_cast<void**>(&glVertexAttrib2f),
+		reinterpret_cast<void**>(&glVertexAttrib2fv),
+		reinterpret_cast<void**>(&glVertexAttrib2s),
+		reinterpret_cast<void**>(&glVertexAttrib2sv),
+		reinterpret_cast<void**>(&glVertexAttrib3d),
+		reinterpret_cast<void**>(&glVertexAttrib3dv),
+		reinterpret_cast<void**>(&glVertexAttrib3f),
+		reinterpret_cast<void**>(&glVertexAttrib3fv),
+		reinterpret_cast<void**>(&glVertexAttrib3s),
+		reinterpret_cast<void**>(&glVertexAttrib3sv),
+		reinterpret_cast<void**>(&glVertexAttrib4Nbv),
+		reinterpret_cast<void**>(&glVertexAttrib4Niv),
+		reinterpret_cast<void**>(&glVertexAttrib4Nsv),
+		reinterpret_cast<void**>(&glVertexAttrib4Nub),
+		reinterpret_cast<void**>(&glVertexAttrib4Nubv),
+		reinterpret_cast<void**>(&glVertexAttrib4Nuiv),
+		reinterpret_cast<void**>(&glVertexAttrib4Nusv),
+		reinterpret_cast<void**>(&glVertexAttrib4bv),
+		reinterpret_cast<void**>(&glVertexAttrib4d),
+		reinterpret_cast<void**>(&glVertexAttrib4dv),
+		reinterpret_cast<void**>(&glVertexAttrib4f),
+		reinterpret_cast<void**>(&glVertexAttrib4fv),
+		reinterpret_cast<void**>(&glVertexAttrib4iv),
+		reinterpret_cast<void**>(&glVertexAttrib4s),
+		reinterpret_cast<void**>(&glVertexAttrib4sv),
+		reinterpret_cast<void**>(&glVertexAttrib4ubv),
+		reinterpret_cast<void**>(&glVertexAttrib4uiv),
+		reinterpret_cast<void**>(&glVertexAttrib4usv),
+		reinterpret_cast<void**>(&glVertexAttribPointer),
+		reinterpret_cast<void**>(&glVertexPointer),
+		reinterpret_cast<void**>(&glViewport),
+		reinterpret_cast<void**>(&glWindowPos2d),
+		reinterpret_cast<void**>(&glWindowPos2dv),
+		reinterpret_cast<void**>(&glWindowPos2f),
+		reinterpret_cast<void**>(&glWindowPos2fv),
+		reinterpret_cast<void**>(&glWindowPos2i),
+		reinterpret_cast<void**>(&glWindowPos2iv),
+		reinterpret_cast<void**>(&glWindowPos2s),
+		reinterpret_cast<void**>(&glWindowPos2sv),
+		reinterpret_cast<void**>(&glWindowPos3d),
+		reinterpret_cast<void**>(&glWindowPos3dv),
+		reinterpret_cast<void**>(&glWindowPos3f),
+		reinterpret_cast<void**>(&glWindowPos3fv),
+		reinterpret_cast<void**>(&glWindowPos3i),
+		reinterpret_cast<void**>(&glWindowPos3iv),
+		reinterpret_cast<void**>(&glWindowPos3s),
+		reinterpret_cast<void**>(&glWindowPos3sv),
+	};
+
+	return gl_symbols;
+}
+
+GlExtensionManagerImpl::GlSymbolPtrs& GlExtensionManagerImpl::gl_symbol_get_v3_2_core()
+{
+	static auto gl_symbols = GlSymbolPtrs
+	{
+		reinterpret_cast<void**>(&glActiveTexture),
+		reinterpret_cast<void**>(&glAttachShader),
+		reinterpret_cast<void**>(&glBeginConditionalRender),
+		reinterpret_cast<void**>(&glBeginQuery),
+		reinterpret_cast<void**>(&glBeginTransformFeedback),
+		reinterpret_cast<void**>(&glBindAttribLocation),
+		reinterpret_cast<void**>(&glBindBuffer),
+		reinterpret_cast<void**>(&glBindBufferBase),
+		reinterpret_cast<void**>(&glBindBufferRange),
+		reinterpret_cast<void**>(&glBindFragDataLocation),
+		reinterpret_cast<void**>(&glBindFramebuffer),
+		reinterpret_cast<void**>(&glBindRenderbuffer),
+		reinterpret_cast<void**>(&glBindTexture),
+		reinterpret_cast<void**>(&glBindVertexArray),
+		reinterpret_cast<void**>(&glBlendColor),
+		reinterpret_cast<void**>(&glBlendEquation),
+		reinterpret_cast<void**>(&glBlendEquationSeparate),
+		reinterpret_cast<void**>(&glBlendFunc),
+		reinterpret_cast<void**>(&glBlendFuncSeparate),
+		reinterpret_cast<void**>(&glBlitFramebuffer),
+		reinterpret_cast<void**>(&glBufferData),
+		reinterpret_cast<void**>(&glBufferSubData),
+		reinterpret_cast<void**>(&glCheckFramebufferStatus),
+		reinterpret_cast<void**>(&glClampColor),
+		reinterpret_cast<void**>(&glClear),
+		reinterpret_cast<void**>(&glClearBufferfi),
+		reinterpret_cast<void**>(&glClearBufferfv),
+		reinterpret_cast<void**>(&glClearBufferiv),
+		reinterpret_cast<void**>(&glClearBufferuiv),
+		reinterpret_cast<void**>(&glClearColor),
+		reinterpret_cast<void**>(&glClearDepth),
+		reinterpret_cast<void**>(&glClearStencil),
+		reinterpret_cast<void**>(&glClientWaitSync),
+		reinterpret_cast<void**>(&glColorMask),
+		reinterpret_cast<void**>(&glColorMaski),
+		reinterpret_cast<void**>(&glCompileShader),
+		reinterpret_cast<void**>(&glCompressedTexImage1D),
+		reinterpret_cast<void**>(&glCompressedTexImage2D),
+		reinterpret_cast<void**>(&glCompressedTexImage3D),
+		reinterpret_cast<void**>(&glCompressedTexSubImage1D),
+		reinterpret_cast<void**>(&glCompressedTexSubImage2D),
+		reinterpret_cast<void**>(&glCompressedTexSubImage3D),
+		reinterpret_cast<void**>(&glCopyBufferSubData),
+		reinterpret_cast<void**>(&glCopyTexImage1D),
+		reinterpret_cast<void**>(&glCopyTexImage2D),
+		reinterpret_cast<void**>(&glCopyTexSubImage1D),
+		reinterpret_cast<void**>(&glCopyTexSubImage2D),
+		reinterpret_cast<void**>(&glCopyTexSubImage3D),
+		reinterpret_cast<void**>(&glCreateProgram),
+		reinterpret_cast<void**>(&glCreateShader),
+		reinterpret_cast<void**>(&glCullFace),
+		reinterpret_cast<void**>(&glDeleteBuffers),
+		reinterpret_cast<void**>(&glDeleteFramebuffers),
+		reinterpret_cast<void**>(&glDeleteProgram),
+		reinterpret_cast<void**>(&glDeleteQueries),
+		reinterpret_cast<void**>(&glDeleteRenderbuffers),
+		reinterpret_cast<void**>(&glDeleteShader),
+		reinterpret_cast<void**>(&glDeleteSync),
+		reinterpret_cast<void**>(&glDeleteTextures),
+		reinterpret_cast<void**>(&glDeleteVertexArrays),
+		reinterpret_cast<void**>(&glDepthFunc),
+		reinterpret_cast<void**>(&glDepthMask),
+		reinterpret_cast<void**>(&glDepthRange),
+		reinterpret_cast<void**>(&glDetachShader),
+		reinterpret_cast<void**>(&glDisable),
+		reinterpret_cast<void**>(&glDisableVertexAttribArray),
+		reinterpret_cast<void**>(&glDisablei),
+		reinterpret_cast<void**>(&glDrawArrays),
+		reinterpret_cast<void**>(&glDrawArraysInstanced),
+		reinterpret_cast<void**>(&glDrawBuffer),
+		reinterpret_cast<void**>(&glDrawBuffers),
+		reinterpret_cast<void**>(&glDrawElements),
+		reinterpret_cast<void**>(&glDrawElementsBaseVertex),
+		reinterpret_cast<void**>(&glDrawElementsInstanced),
+		reinterpret_cast<void**>(&glDrawElementsInstancedBaseVertex),
+		reinterpret_cast<void**>(&glDrawRangeElements),
+		reinterpret_cast<void**>(&glDrawRangeElementsBaseVertex),
+		reinterpret_cast<void**>(&glEnable),
+		reinterpret_cast<void**>(&glEnableVertexAttribArray),
+		reinterpret_cast<void**>(&glEnablei),
+		reinterpret_cast<void**>(&glEndConditionalRender),
+		reinterpret_cast<void**>(&glEndQuery),
+		reinterpret_cast<void**>(&glEndTransformFeedback),
+		reinterpret_cast<void**>(&glFenceSync),
+		reinterpret_cast<void**>(&glFinish),
+		reinterpret_cast<void**>(&glFlush),
+		reinterpret_cast<void**>(&glFlushMappedBufferRange),
+		reinterpret_cast<void**>(&glFramebufferRenderbuffer),
+		reinterpret_cast<void**>(&glFramebufferTexture),
+		reinterpret_cast<void**>(&glFramebufferTexture1D),
+		reinterpret_cast<void**>(&glFramebufferTexture2D),
+		reinterpret_cast<void**>(&glFramebufferTexture3D),
+		reinterpret_cast<void**>(&glFramebufferTextureLayer),
+		reinterpret_cast<void**>(&glFrontFace),
+		reinterpret_cast<void**>(&glGenBuffers),
+		reinterpret_cast<void**>(&glGenFramebuffers),
+		reinterpret_cast<void**>(&glGenQueries),
+		reinterpret_cast<void**>(&glGenRenderbuffers),
+		reinterpret_cast<void**>(&glGenTextures),
+		reinterpret_cast<void**>(&glGenVertexArrays),
+		reinterpret_cast<void**>(&glGenerateMipmap),
+		reinterpret_cast<void**>(&glGetActiveAttrib),
+		reinterpret_cast<void**>(&glGetActiveUniform),
+		reinterpret_cast<void**>(&glGetActiveUniformBlockName),
+		reinterpret_cast<void**>(&glGetActiveUniformBlockiv),
+		reinterpret_cast<void**>(&glGetActiveUniformName),
+		reinterpret_cast<void**>(&glGetActiveUniformsiv),
+		reinterpret_cast<void**>(&glGetAttachedShaders),
+		reinterpret_cast<void**>(&glGetAttribLocation),
+		reinterpret_cast<void**>(&glGetBooleani_v),
+		reinterpret_cast<void**>(&glGetBooleanv),
+		reinterpret_cast<void**>(&glGetBufferParameteri64v),
+		reinterpret_cast<void**>(&glGetBufferParameteriv),
+		reinterpret_cast<void**>(&glGetBufferPointerv),
+		reinterpret_cast<void**>(&glGetBufferSubData),
+		reinterpret_cast<void**>(&glGetCompressedTexImage),
+		reinterpret_cast<void**>(&glGetDoublev),
+		reinterpret_cast<void**>(&glGetError),
+		reinterpret_cast<void**>(&glGetFloatv),
+		reinterpret_cast<void**>(&glGetFragDataLocation),
+		reinterpret_cast<void**>(&glGetFramebufferAttachmentParameteriv),
+		reinterpret_cast<void**>(&glGetInteger64i_v),
+		reinterpret_cast<void**>(&glGetInteger64v),
+		reinterpret_cast<void**>(&glGetIntegeri_v),
+		reinterpret_cast<void**>(&glGetIntegerv),
+		reinterpret_cast<void**>(&glGetMultisamplefv),
+		reinterpret_cast<void**>(&glGetProgramInfoLog),
+		reinterpret_cast<void**>(&glGetProgramiv),
+		reinterpret_cast<void**>(&glGetQueryObjectiv),
+		reinterpret_cast<void**>(&glGetQueryObjectuiv),
+		reinterpret_cast<void**>(&glGetQueryiv),
+		reinterpret_cast<void**>(&glGetRenderbufferParameteriv),
+		reinterpret_cast<void**>(&glGetShaderInfoLog),
+		reinterpret_cast<void**>(&glGetShaderSource),
+		reinterpret_cast<void**>(&glGetShaderiv),
+		reinterpret_cast<void**>(&glGetString),
+		reinterpret_cast<void**>(&glGetStringi),
+		reinterpret_cast<void**>(&glGetSynciv),
+		reinterpret_cast<void**>(&glGetTexImage),
+		reinterpret_cast<void**>(&glGetTexLevelParameterfv),
+		reinterpret_cast<void**>(&glGetTexLevelParameteriv),
+		reinterpret_cast<void**>(&glGetTexParameterIiv),
+		reinterpret_cast<void**>(&glGetTexParameterIuiv),
+		reinterpret_cast<void**>(&glGetTexParameterfv),
+		reinterpret_cast<void**>(&glGetTexParameteriv),
+		reinterpret_cast<void**>(&glGetTransformFeedbackVarying),
+		reinterpret_cast<void**>(&glGetUniformBlockIndex),
+		reinterpret_cast<void**>(&glGetUniformIndices),
+		reinterpret_cast<void**>(&glGetUniformLocation),
+		reinterpret_cast<void**>(&glGetUniformfv),
+		reinterpret_cast<void**>(&glGetUniformiv),
+		reinterpret_cast<void**>(&glGetUniformuiv),
+		reinterpret_cast<void**>(&glGetVertexAttribIiv),
+		reinterpret_cast<void**>(&glGetVertexAttribIuiv),
+		reinterpret_cast<void**>(&glGetVertexAttribPointerv),
+		reinterpret_cast<void**>(&glGetVertexAttribdv),
+		reinterpret_cast<void**>(&glGetVertexAttribfv),
+		reinterpret_cast<void**>(&glGetVertexAttribiv),
+		reinterpret_cast<void**>(&glHint),
+		reinterpret_cast<void**>(&glIsBuffer),
+		reinterpret_cast<void**>(&glIsEnabled),
+		reinterpret_cast<void**>(&glIsEnabledi),
+		reinterpret_cast<void**>(&glIsFramebuffer),
+		reinterpret_cast<void**>(&glIsProgram),
+		reinterpret_cast<void**>(&glIsQuery),
+		reinterpret_cast<void**>(&glIsRenderbuffer),
+		reinterpret_cast<void**>(&glIsShader),
+		reinterpret_cast<void**>(&glIsSync),
+		reinterpret_cast<void**>(&glIsTexture),
+		reinterpret_cast<void**>(&glIsVertexArray),
+		reinterpret_cast<void**>(&glLineWidth),
+		reinterpret_cast<void**>(&glLinkProgram),
+		reinterpret_cast<void**>(&glLogicOp),
+		reinterpret_cast<void**>(&glMapBuffer),
+		reinterpret_cast<void**>(&glMapBufferRange),
+		reinterpret_cast<void**>(&glMultiDrawArrays),
+		reinterpret_cast<void**>(&glMultiDrawElements),
+		reinterpret_cast<void**>(&glMultiDrawElementsBaseVertex),
+		reinterpret_cast<void**>(&glPixelStoref),
+		reinterpret_cast<void**>(&glPixelStorei),
+		reinterpret_cast<void**>(&glPointParameterf),
+		reinterpret_cast<void**>(&glPointParameterfv),
+		reinterpret_cast<void**>(&glPointParameteri),
+		reinterpret_cast<void**>(&glPointParameteriv),
+		reinterpret_cast<void**>(&glPointSize),
+		reinterpret_cast<void**>(&glPolygonMode),
+		reinterpret_cast<void**>(&glPolygonOffset),
+		reinterpret_cast<void**>(&glPrimitiveRestartIndex),
+		reinterpret_cast<void**>(&glProvokingVertex),
+		reinterpret_cast<void**>(&glReadBuffer),
+		reinterpret_cast<void**>(&glReadPixels),
+		reinterpret_cast<void**>(&glRenderbufferStorage),
+		reinterpret_cast<void**>(&glRenderbufferStorageMultisample),
+		reinterpret_cast<void**>(&glSampleCoverage),
+		reinterpret_cast<void**>(&glSampleMaski),
+		reinterpret_cast<void**>(&glScissor),
+		reinterpret_cast<void**>(&glShaderSource),
+		reinterpret_cast<void**>(&glStencilFunc),
+		reinterpret_cast<void**>(&glStencilFuncSeparate),
+		reinterpret_cast<void**>(&glStencilMask),
+		reinterpret_cast<void**>(&glStencilMaskSeparate),
+		reinterpret_cast<void**>(&glStencilOp),
+		reinterpret_cast<void**>(&glStencilOpSeparate),
+		reinterpret_cast<void**>(&glTexBuffer),
+		reinterpret_cast<void**>(&glTexImage1D),
+		reinterpret_cast<void**>(&glTexImage2D),
+		reinterpret_cast<void**>(&glTexImage2DMultisample),
+		reinterpret_cast<void**>(&glTexImage3D),
+		reinterpret_cast<void**>(&glTexImage3DMultisample),
+		reinterpret_cast<void**>(&glTexParameterIiv),
+		reinterpret_cast<void**>(&glTexParameterIuiv),
+		reinterpret_cast<void**>(&glTexParameterf),
+		reinterpret_cast<void**>(&glTexParameterfv),
+		reinterpret_cast<void**>(&glTexParameteri),
+		reinterpret_cast<void**>(&glTexParameteriv),
+		reinterpret_cast<void**>(&glTexSubImage1D),
+		reinterpret_cast<void**>(&glTexSubImage2D),
+		reinterpret_cast<void**>(&glTexSubImage3D),
+		reinterpret_cast<void**>(&glTransformFeedbackVaryings),
+		reinterpret_cast<void**>(&glUniform1f),
+		reinterpret_cast<void**>(&glUniform1fv),
+		reinterpret_cast<void**>(&glUniform1i),
+		reinterpret_cast<void**>(&glUniform1iv),
+		reinterpret_cast<void**>(&glUniform1ui),
+		reinterpret_cast<void**>(&glUniform1uiv),
+		reinterpret_cast<void**>(&glUniform2f),
+		reinterpret_cast<void**>(&glUniform2fv),
+		reinterpret_cast<void**>(&glUniform2i),
+		reinterpret_cast<void**>(&glUniform2iv),
+		reinterpret_cast<void**>(&glUniform2ui),
+		reinterpret_cast<void**>(&glUniform2uiv),
+		reinterpret_cast<void**>(&glUniform3f),
+		reinterpret_cast<void**>(&glUniform3fv),
+		reinterpret_cast<void**>(&glUniform3i),
+		reinterpret_cast<void**>(&glUniform3iv),
+		reinterpret_cast<void**>(&glUniform3ui),
+		reinterpret_cast<void**>(&glUniform3uiv),
+		reinterpret_cast<void**>(&glUniform4f),
+		reinterpret_cast<void**>(&glUniform4fv),
+		reinterpret_cast<void**>(&glUniform4i),
+		reinterpret_cast<void**>(&glUniform4iv),
+		reinterpret_cast<void**>(&glUniform4ui),
+		reinterpret_cast<void**>(&glUniform4uiv),
+		reinterpret_cast<void**>(&glUniformBlockBinding),
+		reinterpret_cast<void**>(&glUniformMatrix2fv),
+		reinterpret_cast<void**>(&glUniformMatrix2x3fv),
+		reinterpret_cast<void**>(&glUniformMatrix2x4fv),
+		reinterpret_cast<void**>(&glUniformMatrix3fv),
+		reinterpret_cast<void**>(&glUniformMatrix3x2fv),
+		reinterpret_cast<void**>(&glUniformMatrix3x4fv),
+		reinterpret_cast<void**>(&glUniformMatrix4fv),
+		reinterpret_cast<void**>(&glUniformMatrix4x2fv),
+		reinterpret_cast<void**>(&glUniformMatrix4x3fv),
+		reinterpret_cast<void**>(&glUnmapBuffer),
+		reinterpret_cast<void**>(&glUseProgram),
+		reinterpret_cast<void**>(&glValidateProgram),
+		reinterpret_cast<void**>(&glVertexAttrib1d),
+		reinterpret_cast<void**>(&glVertexAttrib1dv),
+		reinterpret_cast<void**>(&glVertexAttrib1f),
+		reinterpret_cast<void**>(&glVertexAttrib1fv),
+		reinterpret_cast<void**>(&glVertexAttrib1s),
+		reinterpret_cast<void**>(&glVertexAttrib1sv),
+		reinterpret_cast<void**>(&glVertexAttrib2d),
+		reinterpret_cast<void**>(&glVertexAttrib2dv),
+		reinterpret_cast<void**>(&glVertexAttrib2f),
+		reinterpret_cast<void**>(&glVertexAttrib2fv),
+		reinterpret_cast<void**>(&glVertexAttrib2s),
+		reinterpret_cast<void**>(&glVertexAttrib2sv),
+		reinterpret_cast<void**>(&glVertexAttrib3d),
+		reinterpret_cast<void**>(&glVertexAttrib3dv),
+		reinterpret_cast<void**>(&glVertexAttrib3f),
+		reinterpret_cast<void**>(&glVertexAttrib3fv),
+		reinterpret_cast<void**>(&glVertexAttrib3s),
+		reinterpret_cast<void**>(&glVertexAttrib3sv),
+		reinterpret_cast<void**>(&glVertexAttrib4Nbv),
+		reinterpret_cast<void**>(&glVertexAttrib4Niv),
+		reinterpret_cast<void**>(&glVertexAttrib4Nsv),
+		reinterpret_cast<void**>(&glVertexAttrib4Nub),
+		reinterpret_cast<void**>(&glVertexAttrib4Nubv),
+		reinterpret_cast<void**>(&glVertexAttrib4Nuiv),
+		reinterpret_cast<void**>(&glVertexAttrib4Nusv),
+		reinterpret_cast<void**>(&glVertexAttrib4bv),
+		reinterpret_cast<void**>(&glVertexAttrib4d),
+		reinterpret_cast<void**>(&glVertexAttrib4dv),
+		reinterpret_cast<void**>(&glVertexAttrib4f),
+		reinterpret_cast<void**>(&glVertexAttrib4fv),
+		reinterpret_cast<void**>(&glVertexAttrib4iv),
+		reinterpret_cast<void**>(&glVertexAttrib4s),
+		reinterpret_cast<void**>(&glVertexAttrib4sv),
+		reinterpret_cast<void**>(&glVertexAttrib4ubv),
+		reinterpret_cast<void**>(&glVertexAttrib4uiv),
+		reinterpret_cast<void**>(&glVertexAttrib4usv),
+		reinterpret_cast<void**>(&glVertexAttribI1i),
+		reinterpret_cast<void**>(&glVertexAttribI1iv),
+		reinterpret_cast<void**>(&glVertexAttribI1ui),
+		reinterpret_cast<void**>(&glVertexAttribI1uiv),
+		reinterpret_cast<void**>(&glVertexAttribI2i),
+		reinterpret_cast<void**>(&glVertexAttribI2iv),
+		reinterpret_cast<void**>(&glVertexAttribI2ui),
+		reinterpret_cast<void**>(&glVertexAttribI2uiv),
+		reinterpret_cast<void**>(&glVertexAttribI3i),
+		reinterpret_cast<void**>(&glVertexAttribI3iv),
+		reinterpret_cast<void**>(&glVertexAttribI3ui),
+		reinterpret_cast<void**>(&glVertexAttribI3uiv),
+		reinterpret_cast<void**>(&glVertexAttribI4bv),
+		reinterpret_cast<void**>(&glVertexAttribI4i),
+		reinterpret_cast<void**>(&glVertexAttribI4iv),
+		reinterpret_cast<void**>(&glVertexAttribI4sv),
+		reinterpret_cast<void**>(&glVertexAttribI4ubv),
+		reinterpret_cast<void**>(&glVertexAttribI4ui),
+		reinterpret_cast<void**>(&glVertexAttribI4uiv),
+		reinterpret_cast<void**>(&glVertexAttribI4usv),
+		reinterpret_cast<void**>(&glVertexAttribIPointer),
+		reinterpret_cast<void**>(&glVertexAttribPointer),
+		reinterpret_cast<void**>(&glViewport),
+		reinterpret_cast<void**>(&glWaitSync),
+	};
+
+	return gl_symbols;
+}
+
+GlExtensionManagerImpl::GlSymbolPtrs& GlExtensionManagerImpl::gl_symbol_get_es_v2_0()
+{
+	static auto gl_symbols = GlSymbolPtrs
+	{
+		reinterpret_cast<void**>(&glActiveTexture),
+		reinterpret_cast<void**>(&glAttachShader),
+		reinterpret_cast<void**>(&glBindAttribLocation),
+		reinterpret_cast<void**>(&glBindBuffer),
+		reinterpret_cast<void**>(&glBindFramebuffer),
+		reinterpret_cast<void**>(&glBindRenderbuffer),
+		reinterpret_cast<void**>(&glBindTexture),
+		reinterpret_cast<void**>(&glBlendColor),
+		reinterpret_cast<void**>(&glBlendEquation),
+		reinterpret_cast<void**>(&glBlendEquationSeparate),
+		reinterpret_cast<void**>(&glBlendFunc),
+		reinterpret_cast<void**>(&glBlendFuncSeparate),
+		reinterpret_cast<void**>(&glBufferData),
+		reinterpret_cast<void**>(&glBufferSubData),
+		reinterpret_cast<void**>(&glCheckFramebufferStatus),
+		reinterpret_cast<void**>(&glClear),
+		reinterpret_cast<void**>(&glClearColor),
+		reinterpret_cast<void**>(&glClearDepthf),
+		reinterpret_cast<void**>(&glClearStencil),
+		reinterpret_cast<void**>(&glColorMask),
+		reinterpret_cast<void**>(&glCompileShader),
+		reinterpret_cast<void**>(&glCompressedTexImage2D),
+		reinterpret_cast<void**>(&glCompressedTexSubImage2D),
+		reinterpret_cast<void**>(&glCopyTexImage2D),
+		reinterpret_cast<void**>(&glCopyTexSubImage2D),
+		reinterpret_cast<void**>(&glCreateProgram),
+		reinterpret_cast<void**>(&glCreateShader),
+		reinterpret_cast<void**>(&glCullFace),
+		reinterpret_cast<void**>(&glDeleteBuffers),
+		reinterpret_cast<void**>(&glDeleteFramebuffers),
+		reinterpret_cast<void**>(&glDeleteProgram),
+		reinterpret_cast<void**>(&glDeleteRenderbuffers),
+		reinterpret_cast<void**>(&glDeleteShader),
+		reinterpret_cast<void**>(&glDeleteTextures),
+		reinterpret_cast<void**>(&glDepthFunc),
+		reinterpret_cast<void**>(&glDepthMask),
+		reinterpret_cast<void**>(&glDepthRangef),
+		reinterpret_cast<void**>(&glDetachShader),
+		reinterpret_cast<void**>(&glDisable),
+		reinterpret_cast<void**>(&glDisableVertexAttribArray),
+		reinterpret_cast<void**>(&glDrawArrays),
+		reinterpret_cast<void**>(&glDrawElements),
+		reinterpret_cast<void**>(&glEnable),
+		reinterpret_cast<void**>(&glEnableVertexAttribArray),
+		reinterpret_cast<void**>(&glFinish),
+		reinterpret_cast<void**>(&glFlush),
+		reinterpret_cast<void**>(&glFramebufferRenderbuffer),
+		reinterpret_cast<void**>(&glFramebufferTexture2D),
+		reinterpret_cast<void**>(&glFrontFace),
+		reinterpret_cast<void**>(&glGenBuffers),
+		reinterpret_cast<void**>(&glGenFramebuffers),
+		reinterpret_cast<void**>(&glGenRenderbuffers),
+		reinterpret_cast<void**>(&glGenTextures),
+		reinterpret_cast<void**>(&glGenerateMipmap),
+		reinterpret_cast<void**>(&glGetActiveAttrib),
+		reinterpret_cast<void**>(&glGetActiveUniform),
+		reinterpret_cast<void**>(&glGetAttachedShaders),
+		reinterpret_cast<void**>(&glGetAttribLocation),
+		reinterpret_cast<void**>(&glGetBooleanv),
+		reinterpret_cast<void**>(&glGetBufferParameteriv),
+		reinterpret_cast<void**>(&glGetError),
+		reinterpret_cast<void**>(&glGetFloatv),
+		reinterpret_cast<void**>(&glGetFramebufferAttachmentParameteriv),
+		reinterpret_cast<void**>(&glGetIntegerv),
+		reinterpret_cast<void**>(&glGetProgramInfoLog),
+		reinterpret_cast<void**>(&glGetProgramiv),
+		reinterpret_cast<void**>(&glGetRenderbufferParameteriv),
+		reinterpret_cast<void**>(&glGetShaderInfoLog),
+		reinterpret_cast<void**>(&glGetShaderPrecisionFormat),
+		reinterpret_cast<void**>(&glGetShaderSource),
+		reinterpret_cast<void**>(&glGetShaderiv),
+		reinterpret_cast<void**>(&glGetString),
+		reinterpret_cast<void**>(&glGetTexParameterfv),
+		reinterpret_cast<void**>(&glGetTexParameteriv),
+		reinterpret_cast<void**>(&glGetUniformLocation),
+		reinterpret_cast<void**>(&glGetUniformfv),
+		reinterpret_cast<void**>(&glGetUniformiv),
+		reinterpret_cast<void**>(&glGetVertexAttribPointerv),
+		reinterpret_cast<void**>(&glGetVertexAttribfv),
+		reinterpret_cast<void**>(&glGetVertexAttribiv),
+		reinterpret_cast<void**>(&glHint),
+		reinterpret_cast<void**>(&glIsBuffer),
+		reinterpret_cast<void**>(&glIsEnabled),
+		reinterpret_cast<void**>(&glIsFramebuffer),
+		reinterpret_cast<void**>(&glIsProgram),
+		reinterpret_cast<void**>(&glIsRenderbuffer),
+		reinterpret_cast<void**>(&glIsShader),
+		reinterpret_cast<void**>(&glIsTexture),
+		reinterpret_cast<void**>(&glLineWidth),
+		reinterpret_cast<void**>(&glLinkProgram),
+		reinterpret_cast<void**>(&glPixelStorei),
+		reinterpret_cast<void**>(&glPolygonOffset),
+		reinterpret_cast<void**>(&glReadPixels),
+		reinterpret_cast<void**>(&glReleaseShaderCompiler),
+		reinterpret_cast<void**>(&glRenderbufferStorage),
+		reinterpret_cast<void**>(&glSampleCoverage),
+		reinterpret_cast<void**>(&glScissor),
+		reinterpret_cast<void**>(&glShaderBinary),
+		reinterpret_cast<void**>(&glShaderSource),
+		reinterpret_cast<void**>(&glStencilFunc),
+		reinterpret_cast<void**>(&glStencilFuncSeparate),
+		reinterpret_cast<void**>(&glStencilMask),
+		reinterpret_cast<void**>(&glStencilMaskSeparate),
+		reinterpret_cast<void**>(&glStencilOp),
+		reinterpret_cast<void**>(&glStencilOpSeparate),
+		reinterpret_cast<void**>(&glTexImage2D),
+		reinterpret_cast<void**>(&glTexParameterf),
+		reinterpret_cast<void**>(&glTexParameterfv),
+		reinterpret_cast<void**>(&glTexParameteri),
+		reinterpret_cast<void**>(&glTexParameteriv),
+		reinterpret_cast<void**>(&glTexSubImage2D),
+		reinterpret_cast<void**>(&glUniform1f),
+		reinterpret_cast<void**>(&glUniform1fv),
+		reinterpret_cast<void**>(&glUniform1i),
+		reinterpret_cast<void**>(&glUniform1iv),
+		reinterpret_cast<void**>(&glUniform2f),
+		reinterpret_cast<void**>(&glUniform2fv),
+		reinterpret_cast<void**>(&glUniform2i),
+		reinterpret_cast<void**>(&glUniform2iv),
+		reinterpret_cast<void**>(&glUniform3f),
+		reinterpret_cast<void**>(&glUniform3fv),
+		reinterpret_cast<void**>(&glUniform3i),
+		reinterpret_cast<void**>(&glUniform3iv),
+		reinterpret_cast<void**>(&glUniform4f),
+		reinterpret_cast<void**>(&glUniform4fv),
+		reinterpret_cast<void**>(&glUniform4i),
+		reinterpret_cast<void**>(&glUniform4iv),
+		reinterpret_cast<void**>(&glUniformMatrix2fv),
+		reinterpret_cast<void**>(&glUniformMatrix3fv),
+		reinterpret_cast<void**>(&glUniformMatrix4fv),
+		reinterpret_cast<void**>(&glUseProgram),
+		reinterpret_cast<void**>(&glValidateProgram),
+		reinterpret_cast<void**>(&glVertexAttrib1f),
+		reinterpret_cast<void**>(&glVertexAttrib1fv),
+		reinterpret_cast<void**>(&glVertexAttrib2f),
+		reinterpret_cast<void**>(&glVertexAttrib2fv),
+		reinterpret_cast<void**>(&glVertexAttrib3f),
+		reinterpret_cast<void**>(&glVertexAttrib3fv),
+		reinterpret_cast<void**>(&glVertexAttrib4f),
+		reinterpret_cast<void**>(&glVertexAttrib4fv),
+		reinterpret_cast<void**>(&glVertexAttribPointer),
+		reinterpret_cast<void**>(&glViewport),
+	};
+
+	return gl_symbols;
+}
+
+GlExtensionManagerImpl::GlSymbolPtrs& GlExtensionManagerImpl::gl_symbol_get_arb_buffer_storage()
+{
+	static auto gl_symbols = GlSymbolPtrs
+	{
+		reinterpret_cast<void**>(&glBufferStorage),
+	};
+
+	return gl_symbols;
+}
+
+GlExtensionManagerImpl::GlSymbolPtrs& GlExtensionManagerImpl::gl_symbol_get_arb_direct_state_access()
+{
+	static auto gl_symbols = GlSymbolPtrs
+	{
+		reinterpret_cast<void**>(&glBindTextureUnit),
+		reinterpret_cast<void**>(&glBlitNamedFramebuffer),
+		reinterpret_cast<void**>(&glCheckNamedFramebufferStatus),
+		reinterpret_cast<void**>(&glClearNamedBufferData),
+		reinterpret_cast<void**>(&glClearNamedBufferSubData),
+		reinterpret_cast<void**>(&glClearNamedFramebufferfi),
+		reinterpret_cast<void**>(&glClearNamedFramebufferfv),
+		reinterpret_cast<void**>(&glClearNamedFramebufferiv),
+		reinterpret_cast<void**>(&glClearNamedFramebufferuiv),
+		reinterpret_cast<void**>(&glCompressedTextureSubImage1D),
+		reinterpret_cast<void**>(&glCompressedTextureSubImage2D),
+		reinterpret_cast<void**>(&glCompressedTextureSubImage3D),
+		reinterpret_cast<void**>(&glCopyNamedBufferSubData),
+		reinterpret_cast<void**>(&glCopyTextureSubImage1D),
+		reinterpret_cast<void**>(&glCopyTextureSubImage2D),
+		reinterpret_cast<void**>(&glCopyTextureSubImage3D),
+		reinterpret_cast<void**>(&glCreateBuffers),
+		reinterpret_cast<void**>(&glCreateFramebuffers),
+		reinterpret_cast<void**>(&glCreateProgramPipelines),
+		reinterpret_cast<void**>(&glCreateQueries),
+		reinterpret_cast<void**>(&glCreateRenderbuffers),
+		reinterpret_cast<void**>(&glCreateSamplers),
+		reinterpret_cast<void**>(&glCreateTextures),
+		reinterpret_cast<void**>(&glCreateTransformFeedbacks),
+		reinterpret_cast<void**>(&glCreateVertexArrays),
+		reinterpret_cast<void**>(&glDisableVertexArrayAttrib),
+		reinterpret_cast<void**>(&glEnableVertexArrayAttrib),
+		reinterpret_cast<void**>(&glFlushMappedNamedBufferRange),
+		reinterpret_cast<void**>(&glGenerateTextureMipmap),
+		reinterpret_cast<void**>(&glGetCompressedTextureImage),
+		reinterpret_cast<void**>(&glGetNamedBufferParameteri64v),
+		reinterpret_cast<void**>(&glGetNamedBufferParameteriv),
+		reinterpret_cast<void**>(&glGetNamedBufferPointerv),
+		reinterpret_cast<void**>(&glGetNamedBufferSubData),
+		reinterpret_cast<void**>(&glGetNamedFramebufferAttachmentParameteriv),
+		reinterpret_cast<void**>(&glGetNamedFramebufferParameteriv),
+		reinterpret_cast<void**>(&glGetNamedRenderbufferParameteriv),
+		reinterpret_cast<void**>(&glGetQueryBufferObjecti64v),
+		reinterpret_cast<void**>(&glGetQueryBufferObjectiv),
+		reinterpret_cast<void**>(&glGetQueryBufferObjectui64v),
+		reinterpret_cast<void**>(&glGetQueryBufferObjectuiv),
+		reinterpret_cast<void**>(&glGetTextureImage),
+		reinterpret_cast<void**>(&glGetTextureLevelParameterfv),
+		reinterpret_cast<void**>(&glGetTextureLevelParameteriv),
+		reinterpret_cast<void**>(&glGetTextureParameterIiv),
+		reinterpret_cast<void**>(&glGetTextureParameterIuiv),
+		reinterpret_cast<void**>(&glGetTextureParameterfv),
+		reinterpret_cast<void**>(&glGetTextureParameteriv),
+		reinterpret_cast<void**>(&glGetTransformFeedbacki64_v),
+		reinterpret_cast<void**>(&glGetTransformFeedbacki_v),
+		reinterpret_cast<void**>(&glGetTransformFeedbackiv),
+		reinterpret_cast<void**>(&glGetVertexArrayIndexed64iv),
+		reinterpret_cast<void**>(&glGetVertexArrayIndexediv),
+		reinterpret_cast<void**>(&glGetVertexArrayiv),
+		reinterpret_cast<void**>(&glInvalidateNamedFramebufferData),
+		reinterpret_cast<void**>(&glInvalidateNamedFramebufferSubData),
+		reinterpret_cast<void**>(&glMapNamedBuffer),
+		reinterpret_cast<void**>(&glMapNamedBufferRange),
+		reinterpret_cast<void**>(&glNamedBufferData),
+		reinterpret_cast<void**>(&glNamedBufferStorage),
+		reinterpret_cast<void**>(&glNamedBufferSubData),
+		reinterpret_cast<void**>(&glNamedFramebufferDrawBuffer),
+		reinterpret_cast<void**>(&glNamedFramebufferDrawBuffers),
+		reinterpret_cast<void**>(&glNamedFramebufferParameteri),
+		reinterpret_cast<void**>(&glNamedFramebufferReadBuffer),
+		reinterpret_cast<void**>(&glNamedFramebufferRenderbuffer),
+		reinterpret_cast<void**>(&glNamedFramebufferTexture),
+		reinterpret_cast<void**>(&glNamedFramebufferTextureLayer),
+		reinterpret_cast<void**>(&glNamedRenderbufferStorage),
+		reinterpret_cast<void**>(&glNamedRenderbufferStorageMultisample),
+		reinterpret_cast<void**>(&glTextureBuffer),
+		reinterpret_cast<void**>(&glTextureBufferRange),
+		reinterpret_cast<void**>(&glTextureParameterIiv),
+		reinterpret_cast<void**>(&glTextureParameterIuiv),
+		reinterpret_cast<void**>(&glTextureParameterf),
+		reinterpret_cast<void**>(&glTextureParameterfv),
+		reinterpret_cast<void**>(&glTextureParameteri),
+		reinterpret_cast<void**>(&glTextureParameteriv),
+		reinterpret_cast<void**>(&glTextureStorage1D),
+		reinterpret_cast<void**>(&glTextureStorage2D),
+		reinterpret_cast<void**>(&glTextureStorage2DMultisample),
+		reinterpret_cast<void**>(&glTextureStorage3D),
+		reinterpret_cast<void**>(&glTextureStorage3DMultisample),
+		reinterpret_cast<void**>(&glTextureSubImage1D),
+		reinterpret_cast<void**>(&glTextureSubImage2D),
+		reinterpret_cast<void**>(&glTextureSubImage3D),
+		reinterpret_cast<void**>(&glTransformFeedbackBufferBase),
+		reinterpret_cast<void**>(&glTransformFeedbackBufferRange),
+		reinterpret_cast<void**>(&glUnmapNamedBuffer),
+		reinterpret_cast<void**>(&glVertexArrayAttribBinding),
+		reinterpret_cast<void**>(&glVertexArrayAttribFormat),
+		reinterpret_cast<void**>(&glVertexArrayAttribIFormat),
+		reinterpret_cast<void**>(&glVertexArrayAttribLFormat),
+		reinterpret_cast<void**>(&glVertexArrayBindingDivisor),
+		reinterpret_cast<void**>(&glVertexArrayElementBuffer),
+		reinterpret_cast<void**>(&glVertexArrayVertexBuffer),
+		reinterpret_cast<void**>(&glVertexArrayVertexBuffers),
+	};
+
+	return gl_symbols;
+}
+
+GlExtensionManagerImpl::GlSymbolPtrs& GlExtensionManagerImpl::gl_symbol_get_arb_framebuffer_object()
+{
+	static auto gl_symbols = GlSymbolPtrs
+	{
+		reinterpret_cast<void**>(&glBindFramebuffer),
+		reinterpret_cast<void**>(&glBindRenderbuffer),
+		reinterpret_cast<void**>(&glBlitFramebuffer),
+		reinterpret_cast<void**>(&glCheckFramebufferStatus),
+		reinterpret_cast<void**>(&glDeleteFramebuffers),
+		reinterpret_cast<void**>(&glDeleteRenderbuffers),
+		reinterpret_cast<void**>(&glFramebufferRenderbuffer),
+		reinterpret_cast<void**>(&glFramebufferTexture1D),
+		reinterpret_cast<void**>(&glFramebufferTexture2D),
+		reinterpret_cast<void**>(&glFramebufferTexture3D),
+		reinterpret_cast<void**>(&glFramebufferTextureLayer),
+		reinterpret_cast<void**>(&glGenFramebuffers),
+		reinterpret_cast<void**>(&glGenRenderbuffers),
+		reinterpret_cast<void**>(&glGenerateMipmap),
+		reinterpret_cast<void**>(&glGetFramebufferAttachmentParameteriv),
+		reinterpret_cast<void**>(&glGetRenderbufferParameteriv),
+		reinterpret_cast<void**>(&glIsFramebuffer),
+		reinterpret_cast<void**>(&glIsRenderbuffer),
+		reinterpret_cast<void**>(&glRenderbufferStorage),
+		reinterpret_cast<void**>(&glRenderbufferStorageMultisample),
+	};
+
+	return gl_symbols;
+}
+
+GlExtensionManagerImpl::GlSymbolPtrs& GlExtensionManagerImpl::gl_symbol_get_arb_sampler_objects()
+{
+	static auto gl_symbols = GlSymbolPtrs
+	{
+		reinterpret_cast<void**>(&glBindSampler),
+		reinterpret_cast<void**>(&glDeleteSamplers),
+		reinterpret_cast<void**>(&glGenSamplers),
+		reinterpret_cast<void**>(&glGetSamplerParameterIiv),
+		reinterpret_cast<void**>(&glGetSamplerParameterIuiv),
+		reinterpret_cast<void**>(&glGetSamplerParameterfv),
+		reinterpret_cast<void**>(&glGetSamplerParameteriv),
+		reinterpret_cast<void**>(&glIsSampler),
+		reinterpret_cast<void**>(&glSamplerParameterIiv),
+		reinterpret_cast<void**>(&glSamplerParameterIuiv),
+		reinterpret_cast<void**>(&glSamplerParameterf),
+		reinterpret_cast<void**>(&glSamplerParameterfv),
+		reinterpret_cast<void**>(&glSamplerParameteri),
+		reinterpret_cast<void**>(&glSamplerParameteriv),
+	};
+
+	return gl_symbols;
+}
+
+GlExtensionManagerImpl::GlSymbolPtrs& GlExtensionManagerImpl::gl_symbol_get_arb_separate_shader_objects()
+{
+	static auto gl_symbols = GlSymbolPtrs
+	{
+		reinterpret_cast<void**>(&glActiveShaderProgram),
+		reinterpret_cast<void**>(&glBindProgramPipeline),
+		reinterpret_cast<void**>(&glCreateShaderProgramv),
+		reinterpret_cast<void**>(&glDeleteProgramPipelines),
+		reinterpret_cast<void**>(&glGenProgramPipelines),
+		reinterpret_cast<void**>(&glGetProgramPipelineInfoLog),
+		reinterpret_cast<void**>(&glGetProgramPipelineiv),
+		reinterpret_cast<void**>(&glIsProgramPipeline),
+		reinterpret_cast<void**>(&glProgramParameteri),
+		reinterpret_cast<void**>(&glProgramUniform1d),
+		reinterpret_cast<void**>(&glProgramUniform1dv),
+		reinterpret_cast<void**>(&glProgramUniform1f),
+		reinterpret_cast<void**>(&glProgramUniform1fv),
+		reinterpret_cast<void**>(&glProgramUniform1i),
+		reinterpret_cast<void**>(&glProgramUniform1iv),
+		reinterpret_cast<void**>(&glProgramUniform1ui),
+		reinterpret_cast<void**>(&glProgramUniform1uiv),
+		reinterpret_cast<void**>(&glProgramUniform2d),
+		reinterpret_cast<void**>(&glProgramUniform2dv),
+		reinterpret_cast<void**>(&glProgramUniform2f),
+		reinterpret_cast<void**>(&glProgramUniform2fv),
+		reinterpret_cast<void**>(&glProgramUniform2i),
+		reinterpret_cast<void**>(&glProgramUniform2iv),
+		reinterpret_cast<void**>(&glProgramUniform2ui),
+		reinterpret_cast<void**>(&glProgramUniform2uiv),
+		reinterpret_cast<void**>(&glProgramUniform3d),
+		reinterpret_cast<void**>(&glProgramUniform3dv),
+		reinterpret_cast<void**>(&glProgramUniform3f),
+		reinterpret_cast<void**>(&glProgramUniform3fv),
+		reinterpret_cast<void**>(&glProgramUniform3i),
+		reinterpret_cast<void**>(&glProgramUniform3iv),
+		reinterpret_cast<void**>(&glProgramUniform3ui),
+		reinterpret_cast<void**>(&glProgramUniform3uiv),
+		reinterpret_cast<void**>(&glProgramUniform4d),
+		reinterpret_cast<void**>(&glProgramUniform4dv),
+		reinterpret_cast<void**>(&glProgramUniform4f),
+		reinterpret_cast<void**>(&glProgramUniform4fv),
+		reinterpret_cast<void**>(&glProgramUniform4i),
+		reinterpret_cast<void**>(&glProgramUniform4iv),
+		reinterpret_cast<void**>(&glProgramUniform4ui),
+		reinterpret_cast<void**>(&glProgramUniform4uiv),
+		reinterpret_cast<void**>(&glProgramUniformMatrix2dv),
+		reinterpret_cast<void**>(&glProgramUniformMatrix2fv),
+		reinterpret_cast<void**>(&glProgramUniformMatrix2x3dv),
+		reinterpret_cast<void**>(&glProgramUniformMatrix2x3fv),
+		reinterpret_cast<void**>(&glProgramUniformMatrix2x4dv),
+		reinterpret_cast<void**>(&glProgramUniformMatrix2x4fv),
+		reinterpret_cast<void**>(&glProgramUniformMatrix3dv),
+		reinterpret_cast<void**>(&glProgramUniformMatrix3fv),
+		reinterpret_cast<void**>(&glProgramUniformMatrix3x2dv),
+		reinterpret_cast<void**>(&glProgramUniformMatrix3x2fv),
+		reinterpret_cast<void**>(&glProgramUniformMatrix3x4dv),
+		reinterpret_cast<void**>(&glProgramUniformMatrix3x4fv),
+		reinterpret_cast<void**>(&glProgramUniformMatrix4dv),
+		reinterpret_cast<void**>(&glProgramUniformMatrix4fv),
+		reinterpret_cast<void**>(&glProgramUniformMatrix4x2dv),
+		reinterpret_cast<void**>(&glProgramUniformMatrix4x2fv),
+		reinterpret_cast<void**>(&glProgramUniformMatrix4x3dv),
+		reinterpret_cast<void**>(&glProgramUniformMatrix4x3fv),
+		reinterpret_cast<void**>(&glUseProgramStages),
+		reinterpret_cast<void**>(&glValidateProgramPipeline),
+	};
+
+	return gl_symbols;
+}
+
+GlExtensionManagerImpl::GlSymbolPtrs& GlExtensionManagerImpl::gl_symbol_get_arb_vertex_array_object()
+{
+	static auto gl_symbols = GlSymbolPtrs
+	{
+		reinterpret_cast<void**>(&glBindVertexArray),
+		reinterpret_cast<void**>(&glDeleteVertexArrays),
+		reinterpret_cast<void**>(&glGenVertexArrays),
+		reinterpret_cast<void**>(&glIsVertexArray),
+	};
+
+	return gl_symbols;
+}
+
+GlExtensionManagerImpl::GlSymbolPtrs& GlExtensionManagerImpl::gl_symbol_get_ext_framebuffer_blit()
+{
+	static auto gl_symbols = GlSymbolPtrs
+	{
+		reinterpret_cast<void**>(&glBlitFramebufferEXT),
+	};
+
+	return gl_symbols;
+}
+
+GlExtensionManagerImpl::GlSymbolPtrs& GlExtensionManagerImpl::gl_symbol_get_ext_framebuffer_multisample()
+{
+	static auto gl_symbols = GlSymbolPtrs
+	{
+		reinterpret_cast<void**>(&glRenderbufferStorageMultisampleEXT),
+	};
+
+	return gl_symbols;
+}
+
+GlExtensionManagerImpl::GlSymbolPtrs& GlExtensionManagerImpl::gl_symbol_get_ext_framebuffer_object()
+{
+	static auto gl_symbols = GlSymbolPtrs
+	{
+		reinterpret_cast<void**>(&glBindFramebufferEXT),
+		reinterpret_cast<void**>(&glBindRenderbufferEXT),
+		reinterpret_cast<void**>(&glCheckFramebufferStatusEXT),
+		reinterpret_cast<void**>(&glDeleteFramebuffersEXT),
+		reinterpret_cast<void**>(&glDeleteRenderbuffersEXT),
+		reinterpret_cast<void**>(&glFramebufferRenderbufferEXT),
+		reinterpret_cast<void**>(&glFramebufferTexture1DEXT),
+		reinterpret_cast<void**>(&glFramebufferTexture2DEXT),
+		reinterpret_cast<void**>(&glFramebufferTexture3DEXT),
+		reinterpret_cast<void**>(&glGenFramebuffersEXT),
+		reinterpret_cast<void**>(&glGenRenderbuffersEXT),
+		reinterpret_cast<void**>(&glGenerateMipmapEXT),
+		reinterpret_cast<void**>(&glGetFramebufferAttachmentParameterivEXT),
+		reinterpret_cast<void**>(&glGetRenderbufferParameterivEXT),
+		reinterpret_cast<void**>(&glIsFramebufferEXT),
+		reinterpret_cast<void**>(&glIsRenderbufferEXT),
+		reinterpret_cast<void**>(&glRenderbufferStorageEXT),
+	};
+
+	return gl_symbols;
+}
+
 const std::string& GlExtensionManagerImpl::get_empty_extension_name() noexcept
 {
 	static const auto result = std::string{};
@@ -273,7 +2544,7 @@ void GlExtensionManagerImpl::initialize_registry()
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
 		registry_item.extension_name_ = "essentials";
-		registry_item.resolve_symbols_function_ = &GlExtensionManagerImpl::resolve_essentials;
+		registry_item.gl_symbol_ptrs_ = &gl_symbol_get_essentials();
 	}
 
 	{
@@ -282,7 +2553,7 @@ void GlExtensionManagerImpl::initialize_registry()
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
 		registry_item.extension_name_ = "v2.0";
-		registry_item.resolve_symbols_function_ = &GlExtensionManagerImpl::resolve_v2_0;
+		registry_item.gl_symbol_ptrs_ = &gl_symbol_get_v2_0();
 	}
 
 	{
@@ -291,7 +2562,7 @@ void GlExtensionManagerImpl::initialize_registry()
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
 		registry_item.extension_name_ = "v3.2 core";
-		registry_item.resolve_symbols_function_ = &GlExtensionManagerImpl::resolve_v3_2_core;
+		registry_item.gl_symbol_ptrs_ = &gl_symbol_get_v3_2_core();
 	}
 
 	{
@@ -300,7 +2571,7 @@ void GlExtensionManagerImpl::initialize_registry()
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
 		registry_item.extension_name_ = "ES v2.0";
-		registry_item.resolve_symbols_function_ = &GlExtensionManagerImpl::resolve_es_v2_0;
+		registry_item.gl_symbol_ptrs_ = &gl_symbol_get_es_v2_0();
 	}
 
 	{
@@ -309,7 +2580,7 @@ void GlExtensionManagerImpl::initialize_registry()
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
 		registry_item.extension_name_ = "GL_ARB_buffer_storage";
-		registry_item.resolve_symbols_function_ = &GlExtensionManagerImpl::resolve_arb_buffer_storage;
+		registry_item.gl_symbol_ptrs_ = &gl_symbol_get_arb_buffer_storage();
 	}
 
 	{
@@ -318,7 +2589,7 @@ void GlExtensionManagerImpl::initialize_registry()
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
 		registry_item.extension_name_ = "GL_ARB_direct_state_access";
-		registry_item.resolve_symbols_function_ = &GlExtensionManagerImpl::resolve_arb_direct_state_access;
+		registry_item.gl_symbol_ptrs_ = &gl_symbol_get_arb_direct_state_access();
 	}
 
 	{
@@ -327,7 +2598,7 @@ void GlExtensionManagerImpl::initialize_registry()
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
 		registry_item.extension_name_ = "GL_ARB_framebuffer_object";
-		registry_item.resolve_symbols_function_ = &GlExtensionManagerImpl::resolve_arb_framebuffer_object;
+		registry_item.gl_symbol_ptrs_ = &gl_symbol_get_arb_framebuffer_object();
 	}
 
 	{
@@ -336,7 +2607,7 @@ void GlExtensionManagerImpl::initialize_registry()
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
 		registry_item.extension_name_ = "GL_ARB_texture_filter_anisotropic";
-		registry_item.resolve_symbols_function_ = nullptr;
+		registry_item.gl_symbol_ptrs_ = nullptr;
 	}
 
 	{
@@ -345,7 +2616,7 @@ void GlExtensionManagerImpl::initialize_registry()
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
 		registry_item.extension_name_ = "GL_ARB_texture_non_power_of_two";
-		registry_item.resolve_symbols_function_ = nullptr;
+		registry_item.gl_symbol_ptrs_ = nullptr;
 	}
 
 	{
@@ -354,7 +2625,7 @@ void GlExtensionManagerImpl::initialize_registry()
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
 		registry_item.extension_name_ = "GL_ARB_sampler_objects";
-		registry_item.resolve_symbols_function_ = &GlExtensionManagerImpl::resolve_arb_sampler_objects;
+		registry_item.gl_symbol_ptrs_ = &gl_symbol_get_arb_sampler_objects();
 	}
 
 	{
@@ -363,7 +2634,7 @@ void GlExtensionManagerImpl::initialize_registry()
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
 		registry_item.extension_name_ = "GL_ARB_separate_shader_objects";
-		registry_item.resolve_symbols_function_ = &GlExtensionManagerImpl::resolve_arb_separate_shader_objects;
+		registry_item.gl_symbol_ptrs_ = &gl_symbol_get_arb_separate_shader_objects();
 	}
 
 	{
@@ -372,7 +2643,7 @@ void GlExtensionManagerImpl::initialize_registry()
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
 		registry_item.extension_name_ = "GL_ARB_vertex_array_object";
-		registry_item.resolve_symbols_function_ = &GlExtensionManagerImpl::resolve_arb_vertex_array_object;
+		registry_item.gl_symbol_ptrs_ = &gl_symbol_get_arb_vertex_array_object();
 	}
 
 	{
@@ -381,7 +2652,7 @@ void GlExtensionManagerImpl::initialize_registry()
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
 		registry_item.extension_name_ = "GL_EXT_framebuffer_blit";
-		registry_item.resolve_symbols_function_ = &GlExtensionManagerImpl::resolve_ext_framebuffer_blit;
+		registry_item.gl_symbol_ptrs_ = &gl_symbol_get_ext_framebuffer_blit();
 	}
 
 	{
@@ -390,7 +2661,7 @@ void GlExtensionManagerImpl::initialize_registry()
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
 		registry_item.extension_name_ = "GL_EXT_framebuffer_multisample";
-		registry_item.resolve_symbols_function_ = &GlExtensionManagerImpl::resolve_ext_framebuffer_multisample;
+		registry_item.gl_symbol_ptrs_ = &gl_symbol_get_ext_framebuffer_multisample();
 	}
 
 	{
@@ -399,7 +2670,7 @@ void GlExtensionManagerImpl::initialize_registry()
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
 		registry_item.extension_name_ = "GL_EXT_packed_depth_stencil";
-		registry_item.resolve_symbols_function_ = nullptr;
+		registry_item.gl_symbol_ptrs_ = nullptr;
 	}
 
 	{
@@ -408,7 +2679,7 @@ void GlExtensionManagerImpl::initialize_registry()
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
 		registry_item.extension_name_ = "GL_EXT_texture_filter_anisotropic";
-		registry_item.resolve_symbols_function_ = nullptr;
+		registry_item.gl_symbol_ptrs_ = nullptr;
 	}
 
 	{
@@ -417,7 +2688,7 @@ void GlExtensionManagerImpl::initialize_registry()
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
 		registry_item.extension_name_ = "GL_OES_texture_npot";
-		registry_item.resolve_symbols_function_ = nullptr;
+		registry_item.gl_symbol_ptrs_ = nullptr;
 	}
 }
 
@@ -433,24 +2704,22 @@ void GlExtensionManagerImpl::get_context_attributes()
 	GlRenderer3dUtils::context_get_version(context_major_version_, context_minor_version_);
 }
 
-void GlExtensionManagerImpl::get_core_extension_names()
+void GlExtensionManagerImpl::get_names_multiple_strings()
 {
-	auto gl_get_integer_v = PFNGLGETINTEGERVPROC{};
-	auto gl_get_string_i = PFNGLGETSTRINGIPROC{};
-
-	try
+	if (!glGetIntegerv)
 	{
-		resolve_symbol("glGetIntegerv", gl_get_integer_v);
-		resolve_symbol("glGetStringi", gl_get_string_i);
+		throw GlExtensionManagerImplMissingSymbolException{"glGetIntegerv"};
 	}
-	catch (const Exception&)
+
+	if (!glGetStringi)
 	{
-		std::throw_with_nested(Exception{"Failed to resolve essential symbols."});
+		throw GlExtensionManagerImplMissingSymbolException{"glGetStringi"};
 	}
 
 	auto gl_extension_count = GLint{};
 
-	gl_get_integer_v(GL_NUM_EXTENSIONS, &gl_extension_count);
+	glGetIntegerv(GL_NUM_EXTENSIONS, &gl_extension_count);
+	assert(!GlRenderer3dUtils::was_errors());
 
 	if (gl_extension_count == 0)
 	{
@@ -461,9 +2730,9 @@ void GlExtensionManagerImpl::get_core_extension_names()
 
 	for (auto i = GLint{}; i < gl_extension_count; ++i)
 	{
-		const auto extension_name = gl_get_string_i(GL_EXTENSIONS, static_cast<GLuint>(i));
+		const auto extension_name = glGetStringi(GL_EXTENSIONS, static_cast<GLuint>(i));
 
-		if (extension_name == nullptr)
+		if (!extension_name)
 		{
 			throw Exception{"Null extension name."};
 		}
@@ -472,27 +2741,22 @@ void GlExtensionManagerImpl::get_core_extension_names()
 	}
 }
 
-void GlExtensionManagerImpl::get_compatibility_extension_names()
+void GlExtensionManagerImpl::get_names_one_string()
 {
-	auto gl_get_string = PFNGLGETSTRINGPROC{};
-
-	try
+	if (!glGetString)
 	{
-		resolve_symbol("glGetString", gl_get_string);
-	}
-	catch (const Exception&)
-	{
-		throw Exception{"Failed to resolve essential symbols."};
+		throw GlExtensionManagerImplMissingSymbolException{"glGetString"};
 	}
 
-	const auto gl_extensions_c_string = gl_get_string(GL_EXTENSIONS);
+	const auto gl_extensions_c_string = glGetString(GL_EXTENSIONS);
+	assert(!GlRenderer3dUtils::was_errors());
 
 	if (gl_extensions_c_string == nullptr)
 	{
 		throw Exception{"Null extensions string."};
 	}
 
-	const auto& gl_extensions_std_string = std::string
+	const auto gl_extensions_std_string = std::string
 	{
 		reinterpret_cast<const char*>(gl_extensions_c_string)
 	};
@@ -515,27 +2779,13 @@ void GlExtensionManagerImpl::get_compatibility_extension_names()
 
 void GlExtensionManagerImpl::get_extension_names()
 {
-	auto is_core = false;
-
-	if (context_kind_ == GlContextKind::es)
+	if (context_major_version_ >= 3)
 	{
-		if (context_major_version_ >= 3)
-		{
-			is_core = true;
-		}
-	}
-	else if (context_kind_ == GlContextKind::core)
-	{
-		is_core = true;
-	}
-
-	if (is_core)
-	{
-		get_core_extension_names();
+		get_names_multiple_strings();
 	}
 	else
 	{
-		get_compatibility_extension_names();
+		get_names_one_string();
 	}
 
 	std::sort(extension_names_.begin(), extension_names_.end());
@@ -560,9 +2810,9 @@ void GlExtensionManagerImpl::probe_generic(
 
 	registry_item.is_probed_ = true;
 
-	if (registry_item.is_virtual_ && registry_item.resolve_symbols_function_ == nullptr)
+	if (registry_item.is_virtual_ && !registry_item.gl_symbol_ptrs_)
 	{
-		throw Exception{"Expected symbols loader for specific version."};
+		throw Exception{"Expected symbol pointer for virtual extension."};
 	}
 
 	if (!registry_item.is_virtual_)
@@ -582,1292 +2832,17 @@ void GlExtensionManagerImpl::probe_generic(
 		}
 	}
 
-	if (registry_item.resolve_symbols_function_ != nullptr)
+	if (registry_item.gl_symbol_ptrs_)
 	{
-		try
-		{
-			(this->*registry_item.resolve_symbols_function_)();
-		}
-		catch (const Exception&)
+		const auto has_symbols = gl_symbol_has(*registry_item.gl_symbol_ptrs_);
+
+		if (!has_symbols)
 		{
 			return;
 		}
 	}
 
 	registry_item.is_available_ = true;
-}
-
-void GlExtensionManagerImpl::resolve_essentials()
-{
-	resolve_symbol("glGetError", glGetError);
-	resolve_symbol("glGetIntegerv", glGetIntegerv);
-}
-
-void GlExtensionManagerImpl::resolve_v2_0()
-{
-	resolve_symbol("glAccum", glAccum);
-	resolve_symbol("glActiveTexture", glActiveTexture);
-	resolve_symbol("glAlphaFunc", glAlphaFunc);
-	resolve_symbol("glAreTexturesResident", glAreTexturesResident);
-	resolve_symbol("glArrayElement", glArrayElement);
-	resolve_symbol("glAttachShader", glAttachShader);
-	resolve_symbol("glBegin", glBegin);
-	resolve_symbol("glBeginQuery", glBeginQuery);
-	resolve_symbol("glBindAttribLocation", glBindAttribLocation);
-	resolve_symbol("glBindBuffer", glBindBuffer);
-	resolve_symbol("glBindTexture", glBindTexture);
-	resolve_symbol("glBitmap", glBitmap);
-	resolve_symbol("glBlendColor", glBlendColor);
-	resolve_symbol("glBlendEquation", glBlendEquation);
-	resolve_symbol("glBlendEquationSeparate", glBlendEquationSeparate);
-	resolve_symbol("glBlendFunc", glBlendFunc);
-	resolve_symbol("glBlendFuncSeparate", glBlendFuncSeparate);
-	resolve_symbol("glBufferData", glBufferData);
-	resolve_symbol("glBufferSubData", glBufferSubData);
-	resolve_symbol("glCallList", glCallList);
-	resolve_symbol("glCallLists", glCallLists);
-	resolve_symbol("glClear", glClear);
-	resolve_symbol("glClearAccum", glClearAccum);
-	resolve_symbol("glClearColor", glClearColor);
-	resolve_symbol("glClearDepth", glClearDepth);
-	resolve_symbol("glClearIndex", glClearIndex);
-	resolve_symbol("glClearStencil", glClearStencil);
-	resolve_symbol("glClientActiveTexture", glClientActiveTexture);
-	resolve_symbol("glClipPlane", glClipPlane);
-	resolve_symbol("glColor3b", glColor3b);
-	resolve_symbol("glColor3bv", glColor3bv);
-	resolve_symbol("glColor3d", glColor3d);
-	resolve_symbol("glColor3dv", glColor3dv);
-	resolve_symbol("glColor3f", glColor3f);
-	resolve_symbol("glColor3fv", glColor3fv);
-	resolve_symbol("glColor3i", glColor3i);
-	resolve_symbol("glColor3iv", glColor3iv);
-	resolve_symbol("glColor3s", glColor3s);
-	resolve_symbol("glColor3sv", glColor3sv);
-	resolve_symbol("glColor3ub", glColor3ub);
-	resolve_symbol("glColor3ubv", glColor3ubv);
-	resolve_symbol("glColor3ui", glColor3ui);
-	resolve_symbol("glColor3uiv", glColor3uiv);
-	resolve_symbol("glColor3us", glColor3us);
-	resolve_symbol("glColor3usv", glColor3usv);
-	resolve_symbol("glColor4b", glColor4b);
-	resolve_symbol("glColor4bv", glColor4bv);
-	resolve_symbol("glColor4d", glColor4d);
-	resolve_symbol("glColor4dv", glColor4dv);
-	resolve_symbol("glColor4f", glColor4f);
-	resolve_symbol("glColor4fv", glColor4fv);
-	resolve_symbol("glColor4i", glColor4i);
-	resolve_symbol("glColor4iv", glColor4iv);
-	resolve_symbol("glColor4s", glColor4s);
-	resolve_symbol("glColor4sv", glColor4sv);
-	resolve_symbol("glColor4ub", glColor4ub);
-	resolve_symbol("glColor4ubv", glColor4ubv);
-	resolve_symbol("glColor4ui", glColor4ui);
-	resolve_symbol("glColor4uiv", glColor4uiv);
-	resolve_symbol("glColor4us", glColor4us);
-	resolve_symbol("glColor4usv", glColor4usv);
-	resolve_symbol("glColorMask", glColorMask);
-	resolve_symbol("glColorMaterial", glColorMaterial);
-	resolve_symbol("glColorPointer", glColorPointer);
-	resolve_symbol("glCompileShader", glCompileShader);
-	resolve_symbol("glCompressedTexImage1D", glCompressedTexImage1D);
-	resolve_symbol("glCompressedTexImage2D", glCompressedTexImage2D);
-	resolve_symbol("glCompressedTexImage3D", glCompressedTexImage3D);
-	resolve_symbol("glCompressedTexSubImage1D", glCompressedTexSubImage1D);
-	resolve_symbol("glCompressedTexSubImage2D", glCompressedTexSubImage2D);
-	resolve_symbol("glCompressedTexSubImage3D", glCompressedTexSubImage3D);
-	resolve_symbol("glCopyPixels", glCopyPixels);
-	resolve_symbol("glCopyTexImage1D", glCopyTexImage1D);
-	resolve_symbol("glCopyTexImage2D", glCopyTexImage2D);
-	resolve_symbol("glCopyTexSubImage1D", glCopyTexSubImage1D);
-	resolve_symbol("glCopyTexSubImage2D", glCopyTexSubImage2D);
-	resolve_symbol("glCopyTexSubImage3D", glCopyTexSubImage3D);
-	resolve_symbol("glCreateProgram", glCreateProgram);
-	resolve_symbol("glCreateShader", glCreateShader);
-	resolve_symbol("glCullFace", glCullFace);
-	resolve_symbol("glDeleteBuffers", glDeleteBuffers);
-	resolve_symbol("glDeleteLists", glDeleteLists);
-	resolve_symbol("glDeleteProgram", glDeleteProgram);
-	resolve_symbol("glDeleteQueries", glDeleteQueries);
-	resolve_symbol("glDeleteShader", glDeleteShader);
-	resolve_symbol("glDeleteTextures", glDeleteTextures);
-	resolve_symbol("glDepthFunc", glDepthFunc);
-	resolve_symbol("glDepthMask", glDepthMask);
-	resolve_symbol("glDepthRange", glDepthRange);
-	resolve_symbol("glDetachShader", glDetachShader);
-	resolve_symbol("glDisable", glDisable);
-	resolve_symbol("glDisableClientState", glDisableClientState);
-	resolve_symbol("glDisableVertexAttribArray", glDisableVertexAttribArray);
-	resolve_symbol("glDrawArrays", glDrawArrays);
-	resolve_symbol("glDrawBuffer", glDrawBuffer);
-	resolve_symbol("glDrawBuffers", glDrawBuffers);
-	resolve_symbol("glDrawElements", glDrawElements);
-	resolve_symbol("glDrawPixels", glDrawPixels);
-	resolve_symbol("glDrawRangeElements", glDrawRangeElements);
-	resolve_symbol("glEdgeFlag", glEdgeFlag);
-	resolve_symbol("glEdgeFlagPointer", glEdgeFlagPointer);
-	resolve_symbol("glEdgeFlagv", glEdgeFlagv);
-	resolve_symbol("glEnable", glEnable);
-	resolve_symbol("glEnableClientState", glEnableClientState);
-	resolve_symbol("glEnableVertexAttribArray", glEnableVertexAttribArray);
-	resolve_symbol("glEnd", glEnd);
-	resolve_symbol("glEndList", glEndList);
-	resolve_symbol("glEndQuery", glEndQuery);
-	resolve_symbol("glEvalCoord1d", glEvalCoord1d);
-	resolve_symbol("glEvalCoord1dv", glEvalCoord1dv);
-	resolve_symbol("glEvalCoord1f", glEvalCoord1f);
-	resolve_symbol("glEvalCoord1fv", glEvalCoord1fv);
-	resolve_symbol("glEvalCoord2d", glEvalCoord2d);
-	resolve_symbol("glEvalCoord2dv", glEvalCoord2dv);
-	resolve_symbol("glEvalCoord2f", glEvalCoord2f);
-	resolve_symbol("glEvalCoord2fv", glEvalCoord2fv);
-	resolve_symbol("glEvalMesh1", glEvalMesh1);
-	resolve_symbol("glEvalMesh2", glEvalMesh2);
-	resolve_symbol("glEvalPoint1", glEvalPoint1);
-	resolve_symbol("glEvalPoint2", glEvalPoint2);
-	resolve_symbol("glFeedbackBuffer", glFeedbackBuffer);
-	resolve_symbol("glFinish", glFinish);
-	resolve_symbol("glFlush", glFlush);
-	resolve_symbol("glFogCoordPointer", glFogCoordPointer);
-	resolve_symbol("glFogCoordd", glFogCoordd);
-	resolve_symbol("glFogCoorddv", glFogCoorddv);
-	resolve_symbol("glFogCoordf", glFogCoordf);
-	resolve_symbol("glFogCoordfv", glFogCoordfv);
-	resolve_symbol("glFogf", glFogf);
-	resolve_symbol("glFogfv", glFogfv);
-	resolve_symbol("glFogi", glFogi);
-	resolve_symbol("glFogiv", glFogiv);
-	resolve_symbol("glFrontFace", glFrontFace);
-	resolve_symbol("glFrustum", glFrustum);
-	resolve_symbol("glGenBuffers", glGenBuffers);
-	resolve_symbol("glGenLists", glGenLists);
-	resolve_symbol("glGenQueries", glGenQueries);
-	resolve_symbol("glGenTextures", glGenTextures);
-	resolve_symbol("glGetActiveAttrib", glGetActiveAttrib);
-	resolve_symbol("glGetActiveUniform", glGetActiveUniform);
-	resolve_symbol("glGetAttachedShaders", glGetAttachedShaders);
-	resolve_symbol("glGetAttribLocation", glGetAttribLocation);
-	resolve_symbol("glGetBooleanv", glGetBooleanv);
-	resolve_symbol("glGetBufferParameteriv", glGetBufferParameteriv);
-	resolve_symbol("glGetBufferPointerv", glGetBufferPointerv);
-	resolve_symbol("glGetBufferSubData", glGetBufferSubData);
-	resolve_symbol("glGetClipPlane", glGetClipPlane);
-	resolve_symbol("glGetCompressedTexImage", glGetCompressedTexImage);
-	resolve_symbol("glGetDoublev", glGetDoublev);
-	resolve_symbol("glGetError", glGetError);
-	resolve_symbol("glGetFloatv", glGetFloatv);
-	resolve_symbol("glGetIntegerv", glGetIntegerv);
-	resolve_symbol("glGetLightfv", glGetLightfv);
-	resolve_symbol("glGetLightiv", glGetLightiv);
-	resolve_symbol("glGetMapdv", glGetMapdv);
-	resolve_symbol("glGetMapfv", glGetMapfv);
-	resolve_symbol("glGetMapiv", glGetMapiv);
-	resolve_symbol("glGetMaterialfv", glGetMaterialfv);
-	resolve_symbol("glGetMaterialiv", glGetMaterialiv);
-	resolve_symbol("glGetPixelMapfv", glGetPixelMapfv);
-	resolve_symbol("glGetPixelMapuiv", glGetPixelMapuiv);
-	resolve_symbol("glGetPixelMapusv", glGetPixelMapusv);
-	resolve_symbol("glGetPointerv", glGetPointerv);
-	resolve_symbol("glGetPolygonStipple", glGetPolygonStipple);
-	resolve_symbol("glGetProgramInfoLog", glGetProgramInfoLog);
-	resolve_symbol("glGetProgramiv", glGetProgramiv);
-	resolve_symbol("glGetQueryObjectiv", glGetQueryObjectiv);
-	resolve_symbol("glGetQueryObjectuiv", glGetQueryObjectuiv);
-	resolve_symbol("glGetQueryiv", glGetQueryiv);
-	resolve_symbol("glGetShaderInfoLog", glGetShaderInfoLog);
-	resolve_symbol("glGetShaderSource", glGetShaderSource);
-	resolve_symbol("glGetShaderiv", glGetShaderiv);
-	resolve_symbol("glGetString", glGetString);
-	resolve_symbol("glGetTexEnvfv", glGetTexEnvfv);
-	resolve_symbol("glGetTexEnviv", glGetTexEnviv);
-	resolve_symbol("glGetTexGendv", glGetTexGendv);
-	resolve_symbol("glGetTexGenfv", glGetTexGenfv);
-	resolve_symbol("glGetTexGeniv", glGetTexGeniv);
-	resolve_symbol("glGetTexImage", glGetTexImage);
-	resolve_symbol("glGetTexLevelParameterfv", glGetTexLevelParameterfv);
-	resolve_symbol("glGetTexLevelParameteriv", glGetTexLevelParameteriv);
-	resolve_symbol("glGetTexParameterfv", glGetTexParameterfv);
-	resolve_symbol("glGetTexParameteriv", glGetTexParameteriv);
-	resolve_symbol("glGetUniformLocation", glGetUniformLocation);
-	resolve_symbol("glGetUniformfv", glGetUniformfv);
-	resolve_symbol("glGetUniformiv", glGetUniformiv);
-	resolve_symbol("glGetVertexAttribPointerv", glGetVertexAttribPointerv);
-	resolve_symbol("glGetVertexAttribdv", glGetVertexAttribdv);
-	resolve_symbol("glGetVertexAttribfv", glGetVertexAttribfv);
-	resolve_symbol("glGetVertexAttribiv", glGetVertexAttribiv);
-	resolve_symbol("glHint", glHint);
-	resolve_symbol("glIndexMask", glIndexMask);
-	resolve_symbol("glIndexPointer", glIndexPointer);
-	resolve_symbol("glIndexd", glIndexd);
-	resolve_symbol("glIndexdv", glIndexdv);
-	resolve_symbol("glIndexf", glIndexf);
-	resolve_symbol("glIndexfv", glIndexfv);
-	resolve_symbol("glIndexi", glIndexi);
-	resolve_symbol("glIndexiv", glIndexiv);
-	resolve_symbol("glIndexs", glIndexs);
-	resolve_symbol("glIndexsv", glIndexsv);
-	resolve_symbol("glIndexub", glIndexub);
-	resolve_symbol("glIndexubv", glIndexubv);
-	resolve_symbol("glInitNames", glInitNames);
-	resolve_symbol("glInterleavedArrays", glInterleavedArrays);
-	resolve_symbol("glIsBuffer", glIsBuffer);
-	resolve_symbol("glIsEnabled", glIsEnabled);
-	resolve_symbol("glIsList", glIsList);
-	resolve_symbol("glIsProgram", glIsProgram);
-	resolve_symbol("glIsQuery", glIsQuery);
-	resolve_symbol("glIsShader", glIsShader);
-	resolve_symbol("glIsTexture", glIsTexture);
-	resolve_symbol("glLightModelf", glLightModelf);
-	resolve_symbol("glLightModelfv", glLightModelfv);
-	resolve_symbol("glLightModeli", glLightModeli);
-	resolve_symbol("glLightModeliv", glLightModeliv);
-	resolve_symbol("glLightf", glLightf);
-	resolve_symbol("glLightfv", glLightfv);
-	resolve_symbol("glLighti", glLighti);
-	resolve_symbol("glLightiv", glLightiv);
-	resolve_symbol("glLineStipple", glLineStipple);
-	resolve_symbol("glLineWidth", glLineWidth);
-	resolve_symbol("glLinkProgram", glLinkProgram);
-	resolve_symbol("glListBase", glListBase);
-	resolve_symbol("glLoadIdentity", glLoadIdentity);
-	resolve_symbol("glLoadMatrixd", glLoadMatrixd);
-	resolve_symbol("glLoadMatrixf", glLoadMatrixf);
-	resolve_symbol("glLoadName", glLoadName);
-	resolve_symbol("glLoadTransposeMatrixd", glLoadTransposeMatrixd);
-	resolve_symbol("glLoadTransposeMatrixf", glLoadTransposeMatrixf);
-	resolve_symbol("glLogicOp", glLogicOp);
-	resolve_symbol("glMap1d", glMap1d);
-	resolve_symbol("glMap1f", glMap1f);
-	resolve_symbol("glMap2d", glMap2d);
-	resolve_symbol("glMap2f", glMap2f);
-	resolve_symbol("glMapBuffer", glMapBuffer);
-	resolve_symbol("glMapGrid1d", glMapGrid1d);
-	resolve_symbol("glMapGrid1f", glMapGrid1f);
-	resolve_symbol("glMapGrid2d", glMapGrid2d);
-	resolve_symbol("glMapGrid2f", glMapGrid2f);
-	resolve_symbol("glMaterialf", glMaterialf);
-	resolve_symbol("glMaterialfv", glMaterialfv);
-	resolve_symbol("glMateriali", glMateriali);
-	resolve_symbol("glMaterialiv", glMaterialiv);
-	resolve_symbol("glMatrixMode", glMatrixMode);
-	resolve_symbol("glMultMatrixd", glMultMatrixd);
-	resolve_symbol("glMultMatrixf", glMultMatrixf);
-	resolve_symbol("glMultTransposeMatrixd", glMultTransposeMatrixd);
-	resolve_symbol("glMultTransposeMatrixf", glMultTransposeMatrixf);
-	resolve_symbol("glMultiDrawArrays", glMultiDrawArrays);
-	resolve_symbol("glMultiDrawElements", glMultiDrawElements);
-	resolve_symbol("glMultiTexCoord1d", glMultiTexCoord1d);
-	resolve_symbol("glMultiTexCoord1dv", glMultiTexCoord1dv);
-	resolve_symbol("glMultiTexCoord1f", glMultiTexCoord1f);
-	resolve_symbol("glMultiTexCoord1fv", glMultiTexCoord1fv);
-	resolve_symbol("glMultiTexCoord1i", glMultiTexCoord1i);
-	resolve_symbol("glMultiTexCoord1iv", glMultiTexCoord1iv);
-	resolve_symbol("glMultiTexCoord1s", glMultiTexCoord1s);
-	resolve_symbol("glMultiTexCoord1sv", glMultiTexCoord1sv);
-	resolve_symbol("glMultiTexCoord2d", glMultiTexCoord2d);
-	resolve_symbol("glMultiTexCoord2dv", glMultiTexCoord2dv);
-	resolve_symbol("glMultiTexCoord2f", glMultiTexCoord2f);
-	resolve_symbol("glMultiTexCoord2fv", glMultiTexCoord2fv);
-	resolve_symbol("glMultiTexCoord2i", glMultiTexCoord2i);
-	resolve_symbol("glMultiTexCoord2iv", glMultiTexCoord2iv);
-	resolve_symbol("glMultiTexCoord2s", glMultiTexCoord2s);
-	resolve_symbol("glMultiTexCoord2sv", glMultiTexCoord2sv);
-	resolve_symbol("glMultiTexCoord3d", glMultiTexCoord3d);
-	resolve_symbol("glMultiTexCoord3dv", glMultiTexCoord3dv);
-	resolve_symbol("glMultiTexCoord3f", glMultiTexCoord3f);
-	resolve_symbol("glMultiTexCoord3fv", glMultiTexCoord3fv);
-	resolve_symbol("glMultiTexCoord3i", glMultiTexCoord3i);
-	resolve_symbol("glMultiTexCoord3iv", glMultiTexCoord3iv);
-	resolve_symbol("glMultiTexCoord3s", glMultiTexCoord3s);
-	resolve_symbol("glMultiTexCoord3sv", glMultiTexCoord3sv);
-	resolve_symbol("glMultiTexCoord4d", glMultiTexCoord4d);
-	resolve_symbol("glMultiTexCoord4dv", glMultiTexCoord4dv);
-	resolve_symbol("glMultiTexCoord4f", glMultiTexCoord4f);
-	resolve_symbol("glMultiTexCoord4fv", glMultiTexCoord4fv);
-	resolve_symbol("glMultiTexCoord4i", glMultiTexCoord4i);
-	resolve_symbol("glMultiTexCoord4iv", glMultiTexCoord4iv);
-	resolve_symbol("glMultiTexCoord4s", glMultiTexCoord4s);
-	resolve_symbol("glMultiTexCoord4sv", glMultiTexCoord4sv);
-	resolve_symbol("glNewList", glNewList);
-	resolve_symbol("glNormal3b", glNormal3b);
-	resolve_symbol("glNormal3bv", glNormal3bv);
-	resolve_symbol("glNormal3d", glNormal3d);
-	resolve_symbol("glNormal3dv", glNormal3dv);
-	resolve_symbol("glNormal3f", glNormal3f);
-	resolve_symbol("glNormal3fv", glNormal3fv);
-	resolve_symbol("glNormal3i", glNormal3i);
-	resolve_symbol("glNormal3iv", glNormal3iv);
-	resolve_symbol("glNormal3s", glNormal3s);
-	resolve_symbol("glNormal3sv", glNormal3sv);
-	resolve_symbol("glNormalPointer", glNormalPointer);
-	resolve_symbol("glOrtho", glOrtho);
-	resolve_symbol("glPassThrough", glPassThrough);
-	resolve_symbol("glPixelMapfv", glPixelMapfv);
-	resolve_symbol("glPixelMapuiv", glPixelMapuiv);
-	resolve_symbol("glPixelMapusv", glPixelMapusv);
-	resolve_symbol("glPixelStoref", glPixelStoref);
-	resolve_symbol("glPixelStorei", glPixelStorei);
-	resolve_symbol("glPixelTransferf", glPixelTransferf);
-	resolve_symbol("glPixelTransferi", glPixelTransferi);
-	resolve_symbol("glPixelZoom", glPixelZoom);
-	resolve_symbol("glPointParameterf", glPointParameterf);
-	resolve_symbol("glPointParameterfv", glPointParameterfv);
-	resolve_symbol("glPointParameteri", glPointParameteri);
-	resolve_symbol("glPointParameteriv", glPointParameteriv);
-	resolve_symbol("glPointSize", glPointSize);
-	resolve_symbol("glPolygonMode", glPolygonMode);
-	resolve_symbol("glPolygonOffset", glPolygonOffset);
-	resolve_symbol("glPolygonStipple", glPolygonStipple);
-	resolve_symbol("glPopAttrib", glPopAttrib);
-	resolve_symbol("glPopClientAttrib", glPopClientAttrib);
-	resolve_symbol("glPopMatrix", glPopMatrix);
-	resolve_symbol("glPopName", glPopName);
-	resolve_symbol("glPrioritizeTextures", glPrioritizeTextures);
-	resolve_symbol("glPushAttrib", glPushAttrib);
-	resolve_symbol("glPushClientAttrib", glPushClientAttrib);
-	resolve_symbol("glPushMatrix", glPushMatrix);
-	resolve_symbol("glPushName", glPushName);
-	resolve_symbol("glRasterPos2d", glRasterPos2d);
-	resolve_symbol("glRasterPos2dv", glRasterPos2dv);
-	resolve_symbol("glRasterPos2f", glRasterPos2f);
-	resolve_symbol("glRasterPos2fv", glRasterPos2fv);
-	resolve_symbol("glRasterPos2i", glRasterPos2i);
-	resolve_symbol("glRasterPos2iv", glRasterPos2iv);
-	resolve_symbol("glRasterPos2s", glRasterPos2s);
-	resolve_symbol("glRasterPos2sv", glRasterPos2sv);
-	resolve_symbol("glRasterPos3d", glRasterPos3d);
-	resolve_symbol("glRasterPos3dv", glRasterPos3dv);
-	resolve_symbol("glRasterPos3f", glRasterPos3f);
-	resolve_symbol("glRasterPos3fv", glRasterPos3fv);
-	resolve_symbol("glRasterPos3i", glRasterPos3i);
-	resolve_symbol("glRasterPos3iv", glRasterPos3iv);
-	resolve_symbol("glRasterPos3s", glRasterPos3s);
-	resolve_symbol("glRasterPos3sv", glRasterPos3sv);
-	resolve_symbol("glRasterPos4d", glRasterPos4d);
-	resolve_symbol("glRasterPos4dv", glRasterPos4dv);
-	resolve_symbol("glRasterPos4f", glRasterPos4f);
-	resolve_symbol("glRasterPos4fv", glRasterPos4fv);
-	resolve_symbol("glRasterPos4i", glRasterPos4i);
-	resolve_symbol("glRasterPos4iv", glRasterPos4iv);
-	resolve_symbol("glRasterPos4s", glRasterPos4s);
-	resolve_symbol("glRasterPos4sv", glRasterPos4sv);
-	resolve_symbol("glReadBuffer", glReadBuffer);
-	resolve_symbol("glReadPixels", glReadPixels);
-	resolve_symbol("glRectd", glRectd);
-	resolve_symbol("glRectdv", glRectdv);
-	resolve_symbol("glRectf", glRectf);
-	resolve_symbol("glRectfv", glRectfv);
-	resolve_symbol("glRecti", glRecti);
-	resolve_symbol("glRectiv", glRectiv);
-	resolve_symbol("glRects", glRects);
-	resolve_symbol("glRectsv", glRectsv);
-	resolve_symbol("glRenderMode", glRenderMode);
-	resolve_symbol("glRotated", glRotated);
-	resolve_symbol("glRotatef", glRotatef);
-	resolve_symbol("glSampleCoverage", glSampleCoverage);
-	resolve_symbol("glScaled", glScaled);
-	resolve_symbol("glScalef", glScalef);
-	resolve_symbol("glScissor", glScissor);
-	resolve_symbol("glSecondaryColor3b", glSecondaryColor3b);
-	resolve_symbol("glSecondaryColor3bv", glSecondaryColor3bv);
-	resolve_symbol("glSecondaryColor3d", glSecondaryColor3d);
-	resolve_symbol("glSecondaryColor3dv", glSecondaryColor3dv);
-	resolve_symbol("glSecondaryColor3f", glSecondaryColor3f);
-	resolve_symbol("glSecondaryColor3fv", glSecondaryColor3fv);
-	resolve_symbol("glSecondaryColor3i", glSecondaryColor3i);
-	resolve_symbol("glSecondaryColor3iv", glSecondaryColor3iv);
-	resolve_symbol("glSecondaryColor3s", glSecondaryColor3s);
-	resolve_symbol("glSecondaryColor3sv", glSecondaryColor3sv);
-	resolve_symbol("glSecondaryColor3ub", glSecondaryColor3ub);
-	resolve_symbol("glSecondaryColor3ubv", glSecondaryColor3ubv);
-	resolve_symbol("glSecondaryColor3ui", glSecondaryColor3ui);
-	resolve_symbol("glSecondaryColor3uiv", glSecondaryColor3uiv);
-	resolve_symbol("glSecondaryColor3us", glSecondaryColor3us);
-	resolve_symbol("glSecondaryColor3usv", glSecondaryColor3usv);
-	resolve_symbol("glSecondaryColorPointer", glSecondaryColorPointer);
-	resolve_symbol("glSelectBuffer", glSelectBuffer);
-	resolve_symbol("glShadeModel", glShadeModel);
-	resolve_symbol("glShaderSource", glShaderSource);
-	resolve_symbol("glStencilFunc", glStencilFunc);
-	resolve_symbol("glStencilFuncSeparate", glStencilFuncSeparate);
-	resolve_symbol("glStencilMask", glStencilMask);
-	resolve_symbol("glStencilMaskSeparate", glStencilMaskSeparate);
-	resolve_symbol("glStencilOp", glStencilOp);
-	resolve_symbol("glStencilOpSeparate", glStencilOpSeparate);
-	resolve_symbol("glTexCoord1d", glTexCoord1d);
-	resolve_symbol("glTexCoord1dv", glTexCoord1dv);
-	resolve_symbol("glTexCoord1f", glTexCoord1f);
-	resolve_symbol("glTexCoord1fv", glTexCoord1fv);
-	resolve_symbol("glTexCoord1i", glTexCoord1i);
-	resolve_symbol("glTexCoord1iv", glTexCoord1iv);
-	resolve_symbol("glTexCoord1s", glTexCoord1s);
-	resolve_symbol("glTexCoord1sv", glTexCoord1sv);
-	resolve_symbol("glTexCoord2d", glTexCoord2d);
-	resolve_symbol("glTexCoord2dv", glTexCoord2dv);
-	resolve_symbol("glTexCoord2f", glTexCoord2f);
-	resolve_symbol("glTexCoord2fv", glTexCoord2fv);
-	resolve_symbol("glTexCoord2i", glTexCoord2i);
-	resolve_symbol("glTexCoord2iv", glTexCoord2iv);
-	resolve_symbol("glTexCoord2s", glTexCoord2s);
-	resolve_symbol("glTexCoord2sv", glTexCoord2sv);
-	resolve_symbol("glTexCoord3d", glTexCoord3d);
-	resolve_symbol("glTexCoord3dv", glTexCoord3dv);
-	resolve_symbol("glTexCoord3f", glTexCoord3f);
-	resolve_symbol("glTexCoord3fv", glTexCoord3fv);
-	resolve_symbol("glTexCoord3i", glTexCoord3i);
-	resolve_symbol("glTexCoord3iv", glTexCoord3iv);
-	resolve_symbol("glTexCoord3s", glTexCoord3s);
-	resolve_symbol("glTexCoord3sv", glTexCoord3sv);
-	resolve_symbol("glTexCoord4d", glTexCoord4d);
-	resolve_symbol("glTexCoord4dv", glTexCoord4dv);
-	resolve_symbol("glTexCoord4f", glTexCoord4f);
-	resolve_symbol("glTexCoord4fv", glTexCoord4fv);
-	resolve_symbol("glTexCoord4i", glTexCoord4i);
-	resolve_symbol("glTexCoord4iv", glTexCoord4iv);
-	resolve_symbol("glTexCoord4s", glTexCoord4s);
-	resolve_symbol("glTexCoord4sv", glTexCoord4sv);
-	resolve_symbol("glTexCoordPointer", glTexCoordPointer);
-	resolve_symbol("glTexEnvf", glTexEnvf);
-	resolve_symbol("glTexEnvfv", glTexEnvfv);
-	resolve_symbol("glTexEnvi", glTexEnvi);
-	resolve_symbol("glTexEnviv", glTexEnviv);
-	resolve_symbol("glTexGend", glTexGend);
-	resolve_symbol("glTexGendv", glTexGendv);
-	resolve_symbol("glTexGenf", glTexGenf);
-	resolve_symbol("glTexGenfv", glTexGenfv);
-	resolve_symbol("glTexGeni", glTexGeni);
-	resolve_symbol("glTexGeniv", glTexGeniv);
-	resolve_symbol("glTexImage1D", glTexImage1D);
-	resolve_symbol("glTexImage2D", glTexImage2D);
-	resolve_symbol("glTexImage3D", glTexImage3D);
-	resolve_symbol("glTexParameterf", glTexParameterf);
-	resolve_symbol("glTexParameterfv", glTexParameterfv);
-	resolve_symbol("glTexParameteri", glTexParameteri);
-	resolve_symbol("glTexParameteriv", glTexParameteriv);
-	resolve_symbol("glTexSubImage1D", glTexSubImage1D);
-	resolve_symbol("glTexSubImage2D", glTexSubImage2D);
-	resolve_symbol("glTexSubImage3D", glTexSubImage3D);
-	resolve_symbol("glTranslated", glTranslated);
-	resolve_symbol("glTranslatef", glTranslatef);
-	resolve_symbol("glUniform1f", glUniform1f);
-	resolve_symbol("glUniform1fv", glUniform1fv);
-	resolve_symbol("glUniform1i", glUniform1i);
-	resolve_symbol("glUniform1iv", glUniform1iv);
-	resolve_symbol("glUniform2f", glUniform2f);
-	resolve_symbol("glUniform2fv", glUniform2fv);
-	resolve_symbol("glUniform2i", glUniform2i);
-	resolve_symbol("glUniform2iv", glUniform2iv);
-	resolve_symbol("glUniform3f", glUniform3f);
-	resolve_symbol("glUniform3fv", glUniform3fv);
-	resolve_symbol("glUniform3i", glUniform3i);
-	resolve_symbol("glUniform3iv", glUniform3iv);
-	resolve_symbol("glUniform4f", glUniform4f);
-	resolve_symbol("glUniform4fv", glUniform4fv);
-	resolve_symbol("glUniform4i", glUniform4i);
-	resolve_symbol("glUniform4iv", glUniform4iv);
-	resolve_symbol("glUniformMatrix2fv", glUniformMatrix2fv);
-	resolve_symbol("glUniformMatrix3fv", glUniformMatrix3fv);
-	resolve_symbol("glUniformMatrix4fv", glUniformMatrix4fv);
-	resolve_symbol("glUnmapBuffer", glUnmapBuffer);
-	resolve_symbol("glUseProgram", glUseProgram);
-	resolve_symbol("glValidateProgram", glValidateProgram);
-	resolve_symbol("glVertex2d", glVertex2d);
-	resolve_symbol("glVertex2dv", glVertex2dv);
-	resolve_symbol("glVertex2f", glVertex2f);
-	resolve_symbol("glVertex2fv", glVertex2fv);
-	resolve_symbol("glVertex2i", glVertex2i);
-	resolve_symbol("glVertex2iv", glVertex2iv);
-	resolve_symbol("glVertex2s", glVertex2s);
-	resolve_symbol("glVertex2sv", glVertex2sv);
-	resolve_symbol("glVertex3d", glVertex3d);
-	resolve_symbol("glVertex3dv", glVertex3dv);
-	resolve_symbol("glVertex3f", glVertex3f);
-	resolve_symbol("glVertex3fv", glVertex3fv);
-	resolve_symbol("glVertex3i", glVertex3i);
-	resolve_symbol("glVertex3iv", glVertex3iv);
-	resolve_symbol("glVertex3s", glVertex3s);
-	resolve_symbol("glVertex3sv", glVertex3sv);
-	resolve_symbol("glVertex4d", glVertex4d);
-	resolve_symbol("glVertex4dv", glVertex4dv);
-	resolve_symbol("glVertex4f", glVertex4f);
-	resolve_symbol("glVertex4fv", glVertex4fv);
-	resolve_symbol("glVertex4i", glVertex4i);
-	resolve_symbol("glVertex4iv", glVertex4iv);
-	resolve_symbol("glVertex4s", glVertex4s);
-	resolve_symbol("glVertex4sv", glVertex4sv);
-	resolve_symbol("glVertexAttrib1d", glVertexAttrib1d);
-	resolve_symbol("glVertexAttrib1dv", glVertexAttrib1dv);
-	resolve_symbol("glVertexAttrib1f", glVertexAttrib1f);
-	resolve_symbol("glVertexAttrib1fv", glVertexAttrib1fv);
-	resolve_symbol("glVertexAttrib1s", glVertexAttrib1s);
-	resolve_symbol("glVertexAttrib1sv", glVertexAttrib1sv);
-	resolve_symbol("glVertexAttrib2d", glVertexAttrib2d);
-	resolve_symbol("glVertexAttrib2dv", glVertexAttrib2dv);
-	resolve_symbol("glVertexAttrib2f", glVertexAttrib2f);
-	resolve_symbol("glVertexAttrib2fv", glVertexAttrib2fv);
-	resolve_symbol("glVertexAttrib2s", glVertexAttrib2s);
-	resolve_symbol("glVertexAttrib2sv", glVertexAttrib2sv);
-	resolve_symbol("glVertexAttrib3d", glVertexAttrib3d);
-	resolve_symbol("glVertexAttrib3dv", glVertexAttrib3dv);
-	resolve_symbol("glVertexAttrib3f", glVertexAttrib3f);
-	resolve_symbol("glVertexAttrib3fv", glVertexAttrib3fv);
-	resolve_symbol("glVertexAttrib3s", glVertexAttrib3s);
-	resolve_symbol("glVertexAttrib3sv", glVertexAttrib3sv);
-	resolve_symbol("glVertexAttrib4Nbv", glVertexAttrib4Nbv);
-	resolve_symbol("glVertexAttrib4Niv", glVertexAttrib4Niv);
-	resolve_symbol("glVertexAttrib4Nsv", glVertexAttrib4Nsv);
-	resolve_symbol("glVertexAttrib4Nub", glVertexAttrib4Nub);
-	resolve_symbol("glVertexAttrib4Nubv", glVertexAttrib4Nubv);
-	resolve_symbol("glVertexAttrib4Nuiv", glVertexAttrib4Nuiv);
-	resolve_symbol("glVertexAttrib4Nusv", glVertexAttrib4Nusv);
-	resolve_symbol("glVertexAttrib4bv", glVertexAttrib4bv);
-	resolve_symbol("glVertexAttrib4d", glVertexAttrib4d);
-	resolve_symbol("glVertexAttrib4dv", glVertexAttrib4dv);
-	resolve_symbol("glVertexAttrib4f", glVertexAttrib4f);
-	resolve_symbol("glVertexAttrib4fv", glVertexAttrib4fv);
-	resolve_symbol("glVertexAttrib4iv", glVertexAttrib4iv);
-	resolve_symbol("glVertexAttrib4s", glVertexAttrib4s);
-	resolve_symbol("glVertexAttrib4sv", glVertexAttrib4sv);
-	resolve_symbol("glVertexAttrib4ubv", glVertexAttrib4ubv);
-	resolve_symbol("glVertexAttrib4uiv", glVertexAttrib4uiv);
-	resolve_symbol("glVertexAttrib4usv", glVertexAttrib4usv);
-	resolve_symbol("glVertexAttribPointer", glVertexAttribPointer);
-	resolve_symbol("glVertexPointer", glVertexPointer);
-	resolve_symbol("glViewport", glViewport);
-	resolve_symbol("glWindowPos2d", glWindowPos2d);
-	resolve_symbol("glWindowPos2dv", glWindowPos2dv);
-	resolve_symbol("glWindowPos2f", glWindowPos2f);
-	resolve_symbol("glWindowPos2fv", glWindowPos2fv);
-	resolve_symbol("glWindowPos2i", glWindowPos2i);
-	resolve_symbol("glWindowPos2iv", glWindowPos2iv);
-	resolve_symbol("glWindowPos2s", glWindowPos2s);
-	resolve_symbol("glWindowPos2sv", glWindowPos2sv);
-	resolve_symbol("glWindowPos3d", glWindowPos3d);
-	resolve_symbol("glWindowPos3dv", glWindowPos3dv);
-	resolve_symbol("glWindowPos3f", glWindowPos3f);
-	resolve_symbol("glWindowPos3fv", glWindowPos3fv);
-	resolve_symbol("glWindowPos3i", glWindowPos3i);
-	resolve_symbol("glWindowPos3iv", glWindowPos3iv);
-	resolve_symbol("glWindowPos3s", glWindowPos3s);
-	resolve_symbol("glWindowPos3sv", glWindowPos3sv);
-}
-
-void GlExtensionManagerImpl::resolve_v3_2_core()
-{
-	resolve_symbol("glActiveTexture", glActiveTexture);
-	resolve_symbol("glAttachShader", glAttachShader);
-	resolve_symbol("glBeginConditionalRender", glBeginConditionalRender);
-	resolve_symbol("glBeginQuery", glBeginQuery);
-	resolve_symbol("glBeginTransformFeedback", glBeginTransformFeedback);
-	resolve_symbol("glBindAttribLocation", glBindAttribLocation);
-	resolve_symbol("glBindBuffer", glBindBuffer);
-	resolve_symbol("glBindBufferBase", glBindBufferBase);
-	resolve_symbol("glBindBufferRange", glBindBufferRange);
-	resolve_symbol("glBindFragDataLocation", glBindFragDataLocation);
-	resolve_symbol("glBindFramebuffer", glBindFramebuffer);
-	resolve_symbol("glBindRenderbuffer", glBindRenderbuffer);
-	resolve_symbol("glBindTexture", glBindTexture);
-	resolve_symbol("glBindVertexArray", glBindVertexArray);
-	resolve_symbol("glBlendColor", glBlendColor);
-	resolve_symbol("glBlendEquation", glBlendEquation);
-	resolve_symbol("glBlendEquationSeparate", glBlendEquationSeparate);
-	resolve_symbol("glBlendFunc", glBlendFunc);
-	resolve_symbol("glBlendFuncSeparate", glBlendFuncSeparate);
-	resolve_symbol("glBlitFramebuffer", glBlitFramebuffer);
-	resolve_symbol("glBufferData", glBufferData);
-	resolve_symbol("glBufferSubData", glBufferSubData);
-	resolve_symbol("glCheckFramebufferStatus", glCheckFramebufferStatus);
-	resolve_symbol("glClampColor", glClampColor);
-	resolve_symbol("glClear", glClear);
-	resolve_symbol("glClearBufferfi", glClearBufferfi);
-	resolve_symbol("glClearBufferfv", glClearBufferfv);
-	resolve_symbol("glClearBufferiv", glClearBufferiv);
-	resolve_symbol("glClearBufferuiv", glClearBufferuiv);
-	resolve_symbol("glClearColor", glClearColor);
-	resolve_symbol("glClearDepth", glClearDepth);
-	resolve_symbol("glClearStencil", glClearStencil);
-	resolve_symbol("glClientWaitSync", glClientWaitSync);
-	resolve_symbol("glColorMask", glColorMask);
-	resolve_symbol("glColorMaski", glColorMaski);
-	resolve_symbol("glCompileShader", glCompileShader);
-	resolve_symbol("glCompressedTexImage1D", glCompressedTexImage1D);
-	resolve_symbol("glCompressedTexImage2D", glCompressedTexImage2D);
-	resolve_symbol("glCompressedTexImage3D", glCompressedTexImage3D);
-	resolve_symbol("glCompressedTexSubImage1D", glCompressedTexSubImage1D);
-	resolve_symbol("glCompressedTexSubImage2D", glCompressedTexSubImage2D);
-	resolve_symbol("glCompressedTexSubImage3D", glCompressedTexSubImage3D);
-	resolve_symbol("glCopyBufferSubData", glCopyBufferSubData);
-	resolve_symbol("glCopyTexImage1D", glCopyTexImage1D);
-	resolve_symbol("glCopyTexImage2D", glCopyTexImage2D);
-	resolve_symbol("glCopyTexSubImage1D", glCopyTexSubImage1D);
-	resolve_symbol("glCopyTexSubImage2D", glCopyTexSubImage2D);
-	resolve_symbol("glCopyTexSubImage3D", glCopyTexSubImage3D);
-	resolve_symbol("glCreateProgram", glCreateProgram);
-	resolve_symbol("glCreateShader", glCreateShader);
-	resolve_symbol("glCullFace", glCullFace);
-	resolve_symbol("glDeleteBuffers", glDeleteBuffers);
-	resolve_symbol("glDeleteFramebuffers", glDeleteFramebuffers);
-	resolve_symbol("glDeleteProgram", glDeleteProgram);
-	resolve_symbol("glDeleteQueries", glDeleteQueries);
-	resolve_symbol("glDeleteRenderbuffers", glDeleteRenderbuffers);
-	resolve_symbol("glDeleteShader", glDeleteShader);
-	resolve_symbol("glDeleteSync", glDeleteSync);
-	resolve_symbol("glDeleteTextures", glDeleteTextures);
-	resolve_symbol("glDeleteVertexArrays", glDeleteVertexArrays);
-	resolve_symbol("glDepthFunc", glDepthFunc);
-	resolve_symbol("glDepthMask", glDepthMask);
-	resolve_symbol("glDepthRange", glDepthRange);
-	resolve_symbol("glDetachShader", glDetachShader);
-	resolve_symbol("glDisable", glDisable);
-	resolve_symbol("glDisableVertexAttribArray", glDisableVertexAttribArray);
-	resolve_symbol("glDisablei", glDisablei);
-	resolve_symbol("glDrawArrays", glDrawArrays);
-	resolve_symbol("glDrawArraysInstanced", glDrawArraysInstanced);
-	resolve_symbol("glDrawBuffer", glDrawBuffer);
-	resolve_symbol("glDrawBuffers", glDrawBuffers);
-	resolve_symbol("glDrawElements", glDrawElements);
-	resolve_symbol("glDrawElementsBaseVertex", glDrawElementsBaseVertex);
-	resolve_symbol("glDrawElementsInstanced", glDrawElementsInstanced);
-	resolve_symbol("glDrawElementsInstancedBaseVertex", glDrawElementsInstancedBaseVertex);
-	resolve_symbol("glDrawRangeElements", glDrawRangeElements);
-	resolve_symbol("glDrawRangeElementsBaseVertex", glDrawRangeElementsBaseVertex);
-	resolve_symbol("glEnable", glEnable);
-	resolve_symbol("glEnableVertexAttribArray", glEnableVertexAttribArray);
-	resolve_symbol("glEnablei", glEnablei);
-	resolve_symbol("glEndConditionalRender", glEndConditionalRender);
-	resolve_symbol("glEndQuery", glEndQuery);
-	resolve_symbol("glEndTransformFeedback", glEndTransformFeedback);
-	resolve_symbol("glFenceSync", glFenceSync);
-	resolve_symbol("glFinish", glFinish);
-	resolve_symbol("glFlush", glFlush);
-	resolve_symbol("glFlushMappedBufferRange", glFlushMappedBufferRange);
-	resolve_symbol("glFramebufferRenderbuffer", glFramebufferRenderbuffer);
-	resolve_symbol("glFramebufferTexture", glFramebufferTexture);
-	resolve_symbol("glFramebufferTexture1D", glFramebufferTexture1D);
-	resolve_symbol("glFramebufferTexture2D", glFramebufferTexture2D);
-	resolve_symbol("glFramebufferTexture3D", glFramebufferTexture3D);
-	resolve_symbol("glFramebufferTextureLayer", glFramebufferTextureLayer);
-	resolve_symbol("glFrontFace", glFrontFace);
-	resolve_symbol("glGenBuffers", glGenBuffers);
-	resolve_symbol("glGenFramebuffers", glGenFramebuffers);
-	resolve_symbol("glGenQueries", glGenQueries);
-	resolve_symbol("glGenRenderbuffers", glGenRenderbuffers);
-	resolve_symbol("glGenTextures", glGenTextures);
-	resolve_symbol("glGenVertexArrays", glGenVertexArrays);
-	resolve_symbol("glGenerateMipmap", glGenerateMipmap);
-	resolve_symbol("glGetActiveAttrib", glGetActiveAttrib);
-	resolve_symbol("glGetActiveUniform", glGetActiveUniform);
-	resolve_symbol("glGetActiveUniformBlockName", glGetActiveUniformBlockName);
-	resolve_symbol("glGetActiveUniformBlockiv", glGetActiveUniformBlockiv);
-	resolve_symbol("glGetActiveUniformName", glGetActiveUniformName);
-	resolve_symbol("glGetActiveUniformsiv", glGetActiveUniformsiv);
-	resolve_symbol("glGetAttachedShaders", glGetAttachedShaders);
-	resolve_symbol("glGetAttribLocation", glGetAttribLocation);
-	resolve_symbol("glGetBooleani_v", glGetBooleani_v);
-	resolve_symbol("glGetBooleanv", glGetBooleanv);
-	resolve_symbol("glGetBufferParameteri64v", glGetBufferParameteri64v);
-	resolve_symbol("glGetBufferParameteriv", glGetBufferParameteriv);
-	resolve_symbol("glGetBufferPointerv", glGetBufferPointerv);
-	resolve_symbol("glGetBufferSubData", glGetBufferSubData);
-	resolve_symbol("glGetCompressedTexImage", glGetCompressedTexImage);
-	resolve_symbol("glGetDoublev", glGetDoublev);
-	resolve_symbol("glGetError", glGetError);
-	resolve_symbol("glGetFloatv", glGetFloatv);
-	resolve_symbol("glGetFragDataLocation", glGetFragDataLocation);
-	resolve_symbol("glGetFramebufferAttachmentParameteriv", glGetFramebufferAttachmentParameteriv);
-	resolve_symbol("glGetInteger64i_v", glGetInteger64i_v);
-	resolve_symbol("glGetInteger64v", glGetInteger64v);
-	resolve_symbol("glGetIntegeri_v", glGetIntegeri_v);
-	resolve_symbol("glGetIntegerv", glGetIntegerv);
-	resolve_symbol("glGetMultisamplefv", glGetMultisamplefv);
-	resolve_symbol("glGetProgramInfoLog", glGetProgramInfoLog);
-	resolve_symbol("glGetProgramiv", glGetProgramiv);
-	resolve_symbol("glGetQueryObjectiv", glGetQueryObjectiv);
-	resolve_symbol("glGetQueryObjectuiv", glGetQueryObjectuiv);
-	resolve_symbol("glGetQueryiv", glGetQueryiv);
-	resolve_symbol("glGetRenderbufferParameteriv", glGetRenderbufferParameteriv);
-	resolve_symbol("glGetShaderInfoLog", glGetShaderInfoLog);
-	resolve_symbol("glGetShaderSource", glGetShaderSource);
-	resolve_symbol("glGetShaderiv", glGetShaderiv);
-	resolve_symbol("glGetString", glGetString);
-	resolve_symbol("glGetStringi", glGetStringi);
-	resolve_symbol("glGetSynciv", glGetSynciv);
-	resolve_symbol("glGetTexImage", glGetTexImage);
-	resolve_symbol("glGetTexLevelParameterfv", glGetTexLevelParameterfv);
-	resolve_symbol("glGetTexLevelParameteriv", glGetTexLevelParameteriv);
-	resolve_symbol("glGetTexParameterIiv", glGetTexParameterIiv);
-	resolve_symbol("glGetTexParameterIuiv", glGetTexParameterIuiv);
-	resolve_symbol("glGetTexParameterfv", glGetTexParameterfv);
-	resolve_symbol("glGetTexParameteriv", glGetTexParameteriv);
-	resolve_symbol("glGetTransformFeedbackVarying", glGetTransformFeedbackVarying);
-	resolve_symbol("glGetUniformBlockIndex", glGetUniformBlockIndex);
-	resolve_symbol("glGetUniformIndices", glGetUniformIndices);
-	resolve_symbol("glGetUniformLocation", glGetUniformLocation);
-	resolve_symbol("glGetUniformfv", glGetUniformfv);
-	resolve_symbol("glGetUniformiv", glGetUniformiv);
-	resolve_symbol("glGetUniformuiv", glGetUniformuiv);
-	resolve_symbol("glGetVertexAttribIiv", glGetVertexAttribIiv);
-	resolve_symbol("glGetVertexAttribIuiv", glGetVertexAttribIuiv);
-	resolve_symbol("glGetVertexAttribPointerv", glGetVertexAttribPointerv);
-	resolve_symbol("glGetVertexAttribdv", glGetVertexAttribdv);
-	resolve_symbol("glGetVertexAttribfv", glGetVertexAttribfv);
-	resolve_symbol("glGetVertexAttribiv", glGetVertexAttribiv);
-	resolve_symbol("glHint", glHint);
-	resolve_symbol("glIsBuffer", glIsBuffer);
-	resolve_symbol("glIsEnabled", glIsEnabled);
-	resolve_symbol("glIsEnabledi", glIsEnabledi);
-	resolve_symbol("glIsFramebuffer", glIsFramebuffer);
-	resolve_symbol("glIsProgram", glIsProgram);
-	resolve_symbol("glIsQuery", glIsQuery);
-	resolve_symbol("glIsRenderbuffer", glIsRenderbuffer);
-	resolve_symbol("glIsShader", glIsShader);
-	resolve_symbol("glIsSync", glIsSync);
-	resolve_symbol("glIsTexture", glIsTexture);
-	resolve_symbol("glIsVertexArray", glIsVertexArray);
-	resolve_symbol("glLineWidth", glLineWidth);
-	resolve_symbol("glLinkProgram", glLinkProgram);
-	resolve_symbol("glLogicOp", glLogicOp);
-	resolve_symbol("glMapBuffer", glMapBuffer);
-	resolve_symbol("glMapBufferRange", glMapBufferRange);
-	resolve_symbol("glMultiDrawArrays", glMultiDrawArrays);
-	resolve_symbol("glMultiDrawElements", glMultiDrawElements);
-	resolve_symbol("glMultiDrawElementsBaseVertex", glMultiDrawElementsBaseVertex);
-	resolve_symbol("glPixelStoref", glPixelStoref);
-	resolve_symbol("glPixelStorei", glPixelStorei);
-	resolve_symbol("glPointParameterf", glPointParameterf);
-	resolve_symbol("glPointParameterfv", glPointParameterfv);
-	resolve_symbol("glPointParameteri", glPointParameteri);
-	resolve_symbol("glPointParameteriv", glPointParameteriv);
-	resolve_symbol("glPointSize", glPointSize);
-	resolve_symbol("glPolygonMode", glPolygonMode);
-	resolve_symbol("glPolygonOffset", glPolygonOffset);
-	resolve_symbol("glPrimitiveRestartIndex", glPrimitiveRestartIndex);
-	resolve_symbol("glProvokingVertex", glProvokingVertex);
-	resolve_symbol("glReadBuffer", glReadBuffer);
-	resolve_symbol("glReadPixels", glReadPixels);
-	resolve_symbol("glRenderbufferStorage", glRenderbufferStorage);
-	resolve_symbol("glRenderbufferStorageMultisample", glRenderbufferStorageMultisample);
-	resolve_symbol("glSampleCoverage", glSampleCoverage);
-	resolve_symbol("glSampleMaski", glSampleMaski);
-	resolve_symbol("glScissor", glScissor);
-	resolve_symbol("glShaderSource", glShaderSource);
-	resolve_symbol("glStencilFunc", glStencilFunc);
-	resolve_symbol("glStencilFuncSeparate", glStencilFuncSeparate);
-	resolve_symbol("glStencilMask", glStencilMask);
-	resolve_symbol("glStencilMaskSeparate", glStencilMaskSeparate);
-	resolve_symbol("glStencilOp", glStencilOp);
-	resolve_symbol("glStencilOpSeparate", glStencilOpSeparate);
-	resolve_symbol("glTexBuffer", glTexBuffer);
-	resolve_symbol("glTexImage1D", glTexImage1D);
-	resolve_symbol("glTexImage2D", glTexImage2D);
-	resolve_symbol("glTexImage2DMultisample", glTexImage2DMultisample);
-	resolve_symbol("glTexImage3D", glTexImage3D);
-	resolve_symbol("glTexImage3DMultisample", glTexImage3DMultisample);
-	resolve_symbol("glTexParameterIiv", glTexParameterIiv);
-	resolve_symbol("glTexParameterIuiv", glTexParameterIuiv);
-	resolve_symbol("glTexParameterf", glTexParameterf);
-	resolve_symbol("glTexParameterfv", glTexParameterfv);
-	resolve_symbol("glTexParameteri", glTexParameteri);
-	resolve_symbol("glTexParameteriv", glTexParameteriv);
-	resolve_symbol("glTexSubImage1D", glTexSubImage1D);
-	resolve_symbol("glTexSubImage2D", glTexSubImage2D);
-	resolve_symbol("glTexSubImage3D", glTexSubImage3D);
-	resolve_symbol("glTransformFeedbackVaryings", glTransformFeedbackVaryings);
-	resolve_symbol("glUniform1f", glUniform1f);
-	resolve_symbol("glUniform1fv", glUniform1fv);
-	resolve_symbol("glUniform1i", glUniform1i);
-	resolve_symbol("glUniform1iv", glUniform1iv);
-	resolve_symbol("glUniform1ui", glUniform1ui);
-	resolve_symbol("glUniform1uiv", glUniform1uiv);
-	resolve_symbol("glUniform2f", glUniform2f);
-	resolve_symbol("glUniform2fv", glUniform2fv);
-	resolve_symbol("glUniform2i", glUniform2i);
-	resolve_symbol("glUniform2iv", glUniform2iv);
-	resolve_symbol("glUniform2ui", glUniform2ui);
-	resolve_symbol("glUniform2uiv", glUniform2uiv);
-	resolve_symbol("glUniform3f", glUniform3f);
-	resolve_symbol("glUniform3fv", glUniform3fv);
-	resolve_symbol("glUniform3i", glUniform3i);
-	resolve_symbol("glUniform3iv", glUniform3iv);
-	resolve_symbol("glUniform3ui", glUniform3ui);
-	resolve_symbol("glUniform3uiv", glUniform3uiv);
-	resolve_symbol("glUniform4f", glUniform4f);
-	resolve_symbol("glUniform4fv", glUniform4fv);
-	resolve_symbol("glUniform4i", glUniform4i);
-	resolve_symbol("glUniform4iv", glUniform4iv);
-	resolve_symbol("glUniform4ui", glUniform4ui);
-	resolve_symbol("glUniform4uiv", glUniform4uiv);
-	resolve_symbol("glUniformBlockBinding", glUniformBlockBinding);
-	resolve_symbol("glUniformMatrix2fv", glUniformMatrix2fv);
-	resolve_symbol("glUniformMatrix2x3fv", glUniformMatrix2x3fv);
-	resolve_symbol("glUniformMatrix2x4fv", glUniformMatrix2x4fv);
-	resolve_symbol("glUniformMatrix3fv", glUniformMatrix3fv);
-	resolve_symbol("glUniformMatrix3x2fv", glUniformMatrix3x2fv);
-	resolve_symbol("glUniformMatrix3x4fv", glUniformMatrix3x4fv);
-	resolve_symbol("glUniformMatrix4fv", glUniformMatrix4fv);
-	resolve_symbol("glUniformMatrix4x2fv", glUniformMatrix4x2fv);
-	resolve_symbol("glUniformMatrix4x3fv", glUniformMatrix4x3fv);
-	resolve_symbol("glUnmapBuffer", glUnmapBuffer);
-	resolve_symbol("glUseProgram", glUseProgram);
-	resolve_symbol("glValidateProgram", glValidateProgram);
-	resolve_symbol("glVertexAttrib1d", glVertexAttrib1d);
-	resolve_symbol("glVertexAttrib1dv", glVertexAttrib1dv);
-	resolve_symbol("glVertexAttrib1f", glVertexAttrib1f);
-	resolve_symbol("glVertexAttrib1fv", glVertexAttrib1fv);
-	resolve_symbol("glVertexAttrib1s", glVertexAttrib1s);
-	resolve_symbol("glVertexAttrib1sv", glVertexAttrib1sv);
-	resolve_symbol("glVertexAttrib2d", glVertexAttrib2d);
-	resolve_symbol("glVertexAttrib2dv", glVertexAttrib2dv);
-	resolve_symbol("glVertexAttrib2f", glVertexAttrib2f);
-	resolve_symbol("glVertexAttrib2fv", glVertexAttrib2fv);
-	resolve_symbol("glVertexAttrib2s", glVertexAttrib2s);
-	resolve_symbol("glVertexAttrib2sv", glVertexAttrib2sv);
-	resolve_symbol("glVertexAttrib3d", glVertexAttrib3d);
-	resolve_symbol("glVertexAttrib3dv", glVertexAttrib3dv);
-	resolve_symbol("glVertexAttrib3f", glVertexAttrib3f);
-	resolve_symbol("glVertexAttrib3fv", glVertexAttrib3fv);
-	resolve_symbol("glVertexAttrib3s", glVertexAttrib3s);
-	resolve_symbol("glVertexAttrib3sv", glVertexAttrib3sv);
-	resolve_symbol("glVertexAttrib4Nbv", glVertexAttrib4Nbv);
-	resolve_symbol("glVertexAttrib4Niv", glVertexAttrib4Niv);
-	resolve_symbol("glVertexAttrib4Nsv", glVertexAttrib4Nsv);
-	resolve_symbol("glVertexAttrib4Nub", glVertexAttrib4Nub);
-	resolve_symbol("glVertexAttrib4Nubv", glVertexAttrib4Nubv);
-	resolve_symbol("glVertexAttrib4Nuiv", glVertexAttrib4Nuiv);
-	resolve_symbol("glVertexAttrib4Nusv", glVertexAttrib4Nusv);
-	resolve_symbol("glVertexAttrib4bv", glVertexAttrib4bv);
-	resolve_symbol("glVertexAttrib4d", glVertexAttrib4d);
-	resolve_symbol("glVertexAttrib4dv", glVertexAttrib4dv);
-	resolve_symbol("glVertexAttrib4f", glVertexAttrib4f);
-	resolve_symbol("glVertexAttrib4fv", glVertexAttrib4fv);
-	resolve_symbol("glVertexAttrib4iv", glVertexAttrib4iv);
-	resolve_symbol("glVertexAttrib4s", glVertexAttrib4s);
-	resolve_symbol("glVertexAttrib4sv", glVertexAttrib4sv);
-	resolve_symbol("glVertexAttrib4ubv", glVertexAttrib4ubv);
-	resolve_symbol("glVertexAttrib4uiv", glVertexAttrib4uiv);
-	resolve_symbol("glVertexAttrib4usv", glVertexAttrib4usv);
-	resolve_symbol("glVertexAttribI1i", glVertexAttribI1i);
-	resolve_symbol("glVertexAttribI1iv", glVertexAttribI1iv);
-	resolve_symbol("glVertexAttribI1ui", glVertexAttribI1ui);
-	resolve_symbol("glVertexAttribI1uiv", glVertexAttribI1uiv);
-	resolve_symbol("glVertexAttribI2i", glVertexAttribI2i);
-	resolve_symbol("glVertexAttribI2iv", glVertexAttribI2iv);
-	resolve_symbol("glVertexAttribI2ui", glVertexAttribI2ui);
-	resolve_symbol("glVertexAttribI2uiv", glVertexAttribI2uiv);
-	resolve_symbol("glVertexAttribI3i", glVertexAttribI3i);
-	resolve_symbol("glVertexAttribI3iv", glVertexAttribI3iv);
-	resolve_symbol("glVertexAttribI3ui", glVertexAttribI3ui);
-	resolve_symbol("glVertexAttribI3uiv", glVertexAttribI3uiv);
-	resolve_symbol("glVertexAttribI4bv", glVertexAttribI4bv);
-	resolve_symbol("glVertexAttribI4i", glVertexAttribI4i);
-	resolve_symbol("glVertexAttribI4iv", glVertexAttribI4iv);
-	resolve_symbol("glVertexAttribI4sv", glVertexAttribI4sv);
-	resolve_symbol("glVertexAttribI4ubv", glVertexAttribI4ubv);
-	resolve_symbol("glVertexAttribI4ui", glVertexAttribI4ui);
-	resolve_symbol("glVertexAttribI4uiv", glVertexAttribI4uiv);
-	resolve_symbol("glVertexAttribI4usv", glVertexAttribI4usv);
-	resolve_symbol("glVertexAttribIPointer", glVertexAttribIPointer);
-	resolve_symbol("glVertexAttribPointer", glVertexAttribPointer);
-	resolve_symbol("glViewport", glViewport);
-	resolve_symbol("glWaitSync", glWaitSync);
-}
-
-void GlExtensionManagerImpl::resolve_es_v2_0()
-{
-	resolve_symbol("glActiveTexture", glActiveTexture);
-	resolve_symbol("glAttachShader", glAttachShader);
-	resolve_symbol("glBindAttribLocation", glBindAttribLocation);
-	resolve_symbol("glBindBuffer", glBindBuffer);
-	resolve_symbol("glBindFramebuffer", glBindFramebuffer);
-	resolve_symbol("glBindRenderbuffer", glBindRenderbuffer);
-	resolve_symbol("glBindTexture", glBindTexture);
-	resolve_symbol("glBlendColor", glBlendColor);
-	resolve_symbol("glBlendEquation", glBlendEquation);
-	resolve_symbol("glBlendEquationSeparate", glBlendEquationSeparate);
-	resolve_symbol("glBlendFunc", glBlendFunc);
-	resolve_symbol("glBlendFuncSeparate", glBlendFuncSeparate);
-	resolve_symbol("glBufferData", glBufferData);
-	resolve_symbol("glBufferSubData", glBufferSubData);
-	resolve_symbol("glCheckFramebufferStatus", glCheckFramebufferStatus);
-	resolve_symbol("glClear", glClear);
-	resolve_symbol("glClearColor", glClearColor);
-	resolve_symbol("glClearDepthf", glClearDepthf);
-	resolve_symbol("glClearStencil", glClearStencil);
-	resolve_symbol("glColorMask", glColorMask);
-	resolve_symbol("glCompileShader", glCompileShader);
-	resolve_symbol("glCompressedTexImage2D", glCompressedTexImage2D);
-	resolve_symbol("glCompressedTexSubImage2D", glCompressedTexSubImage2D);
-	resolve_symbol("glCopyTexImage2D", glCopyTexImage2D);
-	resolve_symbol("glCopyTexSubImage2D", glCopyTexSubImage2D);
-	resolve_symbol("glCreateProgram", glCreateProgram);
-	resolve_symbol("glCreateShader", glCreateShader);
-	resolve_symbol("glCullFace", glCullFace);
-	resolve_symbol("glDeleteBuffers", glDeleteBuffers);
-	resolve_symbol("glDeleteFramebuffers", glDeleteFramebuffers);
-	resolve_symbol("glDeleteProgram", glDeleteProgram);
-	resolve_symbol("glDeleteRenderbuffers", glDeleteRenderbuffers);
-	resolve_symbol("glDeleteShader", glDeleteShader);
-	resolve_symbol("glDeleteTextures", glDeleteTextures);
-	resolve_symbol("glDepthFunc", glDepthFunc);
-	resolve_symbol("glDepthMask", glDepthMask);
-	resolve_symbol("glDepthRangef", glDepthRangef);
-	resolve_symbol("glDetachShader", glDetachShader);
-	resolve_symbol("glDisable", glDisable);
-	resolve_symbol("glDisableVertexAttribArray", glDisableVertexAttribArray);
-	resolve_symbol("glDrawArrays", glDrawArrays);
-	resolve_symbol("glDrawElements", glDrawElements);
-	resolve_symbol("glEnable", glEnable);
-	resolve_symbol("glEnableVertexAttribArray", glEnableVertexAttribArray);
-	resolve_symbol("glFinish", glFinish);
-	resolve_symbol("glFlush", glFlush);
-	resolve_symbol("glFramebufferRenderbuffer", glFramebufferRenderbuffer);
-	resolve_symbol("glFramebufferTexture2D", glFramebufferTexture2D);
-	resolve_symbol("glFrontFace", glFrontFace);
-	resolve_symbol("glGenBuffers", glGenBuffers);
-	resolve_symbol("glGenFramebuffers", glGenFramebuffers);
-	resolve_symbol("glGenRenderbuffers", glGenRenderbuffers);
-	resolve_symbol("glGenTextures", glGenTextures);
-	resolve_symbol("glGenerateMipmap", glGenerateMipmap);
-	resolve_symbol("glGetActiveAttrib", glGetActiveAttrib);
-	resolve_symbol("glGetActiveUniform", glGetActiveUniform);
-	resolve_symbol("glGetAttachedShaders", glGetAttachedShaders);
-	resolve_symbol("glGetAttribLocation", glGetAttribLocation);
-	resolve_symbol("glGetBooleanv", glGetBooleanv);
-	resolve_symbol("glGetBufferParameteriv", glGetBufferParameteriv);
-	resolve_symbol("glGetError", glGetError);
-	resolve_symbol("glGetFloatv", glGetFloatv);
-	resolve_symbol("glGetFramebufferAttachmentParameteriv", glGetFramebufferAttachmentParameteriv);
-	resolve_symbol("glGetIntegerv", glGetIntegerv);
-	resolve_symbol("glGetProgramInfoLog", glGetProgramInfoLog);
-	resolve_symbol("glGetProgramiv", glGetProgramiv);
-	resolve_symbol("glGetRenderbufferParameteriv", glGetRenderbufferParameteriv);
-	resolve_symbol("glGetShaderInfoLog", glGetShaderInfoLog);
-	resolve_symbol("glGetShaderPrecisionFormat", glGetShaderPrecisionFormat);
-	resolve_symbol("glGetShaderSource", glGetShaderSource);
-	resolve_symbol("glGetShaderiv", glGetShaderiv);
-	resolve_symbol("glGetString", glGetString);
-	resolve_symbol("glGetTexParameterfv", glGetTexParameterfv);
-	resolve_symbol("glGetTexParameteriv", glGetTexParameteriv);
-	resolve_symbol("glGetUniformLocation", glGetUniformLocation);
-	resolve_symbol("glGetUniformfv", glGetUniformfv);
-	resolve_symbol("glGetUniformiv", glGetUniformiv);
-	resolve_symbol("glGetVertexAttribPointerv", glGetVertexAttribPointerv);
-	resolve_symbol("glGetVertexAttribfv", glGetVertexAttribfv);
-	resolve_symbol("glGetVertexAttribiv", glGetVertexAttribiv);
-	resolve_symbol("glHint", glHint);
-	resolve_symbol("glIsBuffer", glIsBuffer);
-	resolve_symbol("glIsEnabled", glIsEnabled);
-	resolve_symbol("glIsFramebuffer", glIsFramebuffer);
-	resolve_symbol("glIsProgram", glIsProgram);
-	resolve_symbol("glIsRenderbuffer", glIsRenderbuffer);
-	resolve_symbol("glIsShader", glIsShader);
-	resolve_symbol("glIsTexture", glIsTexture);
-	resolve_symbol("glLineWidth", glLineWidth);
-	resolve_symbol("glLinkProgram", glLinkProgram);
-	resolve_symbol("glPixelStorei", glPixelStorei);
-	resolve_symbol("glPolygonOffset", glPolygonOffset);
-	resolve_symbol("glReadPixels", glReadPixels);
-	resolve_symbol("glReleaseShaderCompiler", glReleaseShaderCompiler);
-	resolve_symbol("glRenderbufferStorage", glRenderbufferStorage);
-	resolve_symbol("glSampleCoverage", glSampleCoverage);
-	resolve_symbol("glScissor", glScissor);
-	resolve_symbol("glShaderBinary", glShaderBinary);
-	resolve_symbol("glShaderSource", glShaderSource);
-	resolve_symbol("glStencilFunc", glStencilFunc);
-	resolve_symbol("glStencilFuncSeparate", glStencilFuncSeparate);
-	resolve_symbol("glStencilMask", glStencilMask);
-	resolve_symbol("glStencilMaskSeparate", glStencilMaskSeparate);
-	resolve_symbol("glStencilOp", glStencilOp);
-	resolve_symbol("glStencilOpSeparate", glStencilOpSeparate);
-	resolve_symbol("glTexImage2D", glTexImage2D);
-	resolve_symbol("glTexParameterf", glTexParameterf);
-	resolve_symbol("glTexParameterfv", glTexParameterfv);
-	resolve_symbol("glTexParameteri", glTexParameteri);
-	resolve_symbol("glTexParameteriv", glTexParameteriv);
-	resolve_symbol("glTexSubImage2D", glTexSubImage2D);
-	resolve_symbol("glUniform1f", glUniform1f);
-	resolve_symbol("glUniform1fv", glUniform1fv);
-	resolve_symbol("glUniform1i", glUniform1i);
-	resolve_symbol("glUniform1iv", glUniform1iv);
-	resolve_symbol("glUniform2f", glUniform2f);
-	resolve_symbol("glUniform2fv", glUniform2fv);
-	resolve_symbol("glUniform2i", glUniform2i);
-	resolve_symbol("glUniform2iv", glUniform2iv);
-	resolve_symbol("glUniform3f", glUniform3f);
-	resolve_symbol("glUniform3fv", glUniform3fv);
-	resolve_symbol("glUniform3i", glUniform3i);
-	resolve_symbol("glUniform3iv", glUniform3iv);
-	resolve_symbol("glUniform4f", glUniform4f);
-	resolve_symbol("glUniform4fv", glUniform4fv);
-	resolve_symbol("glUniform4i", glUniform4i);
-	resolve_symbol("glUniform4iv", glUniform4iv);
-	resolve_symbol("glUniformMatrix2fv", glUniformMatrix2fv);
-	resolve_symbol("glUniformMatrix3fv", glUniformMatrix3fv);
-	resolve_symbol("glUniformMatrix4fv", glUniformMatrix4fv);
-	resolve_symbol("glUseProgram", glUseProgram);
-	resolve_symbol("glValidateProgram", glValidateProgram);
-	resolve_symbol("glVertexAttrib1f", glVertexAttrib1f);
-	resolve_symbol("glVertexAttrib1fv", glVertexAttrib1fv);
-	resolve_symbol("glVertexAttrib2f", glVertexAttrib2f);
-	resolve_symbol("glVertexAttrib2fv", glVertexAttrib2fv);
-	resolve_symbol("glVertexAttrib3f", glVertexAttrib3f);
-	resolve_symbol("glVertexAttrib3fv", glVertexAttrib3fv);
-	resolve_symbol("glVertexAttrib4f", glVertexAttrib4f);
-	resolve_symbol("glVertexAttrib4fv", glVertexAttrib4fv);
-	resolve_symbol("glVertexAttribPointer", glVertexAttribPointer);
-	resolve_symbol("glViewport", glViewport);
-}
-
-void GlExtensionManagerImpl::resolve_arb_buffer_storage()
-{
-	resolve_symbol("glBufferStorage", glBufferStorage);
-}
-
-void GlExtensionManagerImpl::resolve_arb_direct_state_access()
-{
-	resolve_symbol("glBindTextureUnit", glBindTextureUnit);
-	resolve_symbol("glBlitNamedFramebuffer", glBlitNamedFramebuffer);
-	resolve_symbol("glCheckNamedFramebufferStatus", glCheckNamedFramebufferStatus);
-	resolve_symbol("glClearNamedBufferData", glClearNamedBufferData);
-	resolve_symbol("glClearNamedBufferSubData", glClearNamedBufferSubData);
-	resolve_symbol("glClearNamedFramebufferfi", glClearNamedFramebufferfi);
-	resolve_symbol("glClearNamedFramebufferfv", glClearNamedFramebufferfv);
-	resolve_symbol("glClearNamedFramebufferiv", glClearNamedFramebufferiv);
-	resolve_symbol("glClearNamedFramebufferuiv", glClearNamedFramebufferuiv);
-	resolve_symbol("glCompressedTextureSubImage1D", glCompressedTextureSubImage1D);
-	resolve_symbol("glCompressedTextureSubImage2D", glCompressedTextureSubImage2D);
-	resolve_symbol("glCompressedTextureSubImage3D", glCompressedTextureSubImage3D);
-	resolve_symbol("glCopyNamedBufferSubData", glCopyNamedBufferSubData);
-	resolve_symbol("glCopyTextureSubImage1D", glCopyTextureSubImage1D);
-	resolve_symbol("glCopyTextureSubImage2D", glCopyTextureSubImage2D);
-	resolve_symbol("glCopyTextureSubImage3D", glCopyTextureSubImage3D);
-	resolve_symbol("glCreateBuffers", glCreateBuffers);
-	resolve_symbol("glCreateFramebuffers", glCreateFramebuffers);
-	resolve_symbol("glCreateProgramPipelines", glCreateProgramPipelines);
-	resolve_symbol("glCreateQueries", glCreateQueries);
-	resolve_symbol("glCreateRenderbuffers", glCreateRenderbuffers);
-	resolve_symbol("glCreateSamplers", glCreateSamplers);
-	resolve_symbol("glCreateTextures", glCreateTextures);
-	resolve_symbol("glCreateTransformFeedbacks", glCreateTransformFeedbacks);
-	resolve_symbol("glCreateVertexArrays", glCreateVertexArrays);
-	resolve_symbol("glDisableVertexArrayAttrib", glDisableVertexArrayAttrib);
-	resolve_symbol("glEnableVertexArrayAttrib", glEnableVertexArrayAttrib);
-	resolve_symbol("glFlushMappedNamedBufferRange", glFlushMappedNamedBufferRange);
-	resolve_symbol("glGenerateTextureMipmap", glGenerateTextureMipmap);
-	resolve_symbol("glGetCompressedTextureImage", glGetCompressedTextureImage);
-	resolve_symbol("glGetNamedBufferParameteri64v", glGetNamedBufferParameteri64v);
-	resolve_symbol("glGetNamedBufferParameteriv", glGetNamedBufferParameteriv);
-	resolve_symbol("glGetNamedBufferPointerv", glGetNamedBufferPointerv);
-	resolve_symbol("glGetNamedBufferSubData", glGetNamedBufferSubData);
-	resolve_symbol("glGetNamedFramebufferAttachmentParameteriv", glGetNamedFramebufferAttachmentParameteriv);
-	resolve_symbol("glGetNamedFramebufferParameteriv", glGetNamedFramebufferParameteriv);
-	resolve_symbol("glGetNamedRenderbufferParameteriv", glGetNamedRenderbufferParameteriv);
-	resolve_symbol("glGetQueryBufferObjecti64v", glGetQueryBufferObjecti64v);
-	resolve_symbol("glGetQueryBufferObjectiv", glGetQueryBufferObjectiv);
-	resolve_symbol("glGetQueryBufferObjectui64v", glGetQueryBufferObjectui64v);
-	resolve_symbol("glGetQueryBufferObjectuiv", glGetQueryBufferObjectuiv);
-	resolve_symbol("glGetTextureImage", glGetTextureImage);
-	resolve_symbol("glGetTextureLevelParameterfv", glGetTextureLevelParameterfv);
-	resolve_symbol("glGetTextureLevelParameteriv", glGetTextureLevelParameteriv);
-	resolve_symbol("glGetTextureParameterIiv", glGetTextureParameterIiv);
-	resolve_symbol("glGetTextureParameterIuiv", glGetTextureParameterIuiv);
-	resolve_symbol("glGetTextureParameterfv", glGetTextureParameterfv);
-	resolve_symbol("glGetTextureParameteriv", glGetTextureParameteriv);
-	resolve_symbol("glGetTransformFeedbacki64_v", glGetTransformFeedbacki64_v);
-	resolve_symbol("glGetTransformFeedbacki_v", glGetTransformFeedbacki_v);
-	resolve_symbol("glGetTransformFeedbackiv", glGetTransformFeedbackiv);
-	resolve_symbol("glGetVertexArrayIndexed64iv", glGetVertexArrayIndexed64iv);
-	resolve_symbol("glGetVertexArrayIndexediv", glGetVertexArrayIndexediv);
-	resolve_symbol("glGetVertexArrayiv", glGetVertexArrayiv);
-	resolve_symbol("glInvalidateNamedFramebufferData", glInvalidateNamedFramebufferData);
-	resolve_symbol("glInvalidateNamedFramebufferSubData", glInvalidateNamedFramebufferSubData);
-	resolve_symbol("glMapNamedBuffer", glMapNamedBuffer);
-	resolve_symbol("glMapNamedBufferRange", glMapNamedBufferRange);
-	resolve_symbol("glNamedBufferData", glNamedBufferData);
-	resolve_symbol("glNamedBufferStorage", glNamedBufferStorage);
-	resolve_symbol("glNamedBufferSubData", glNamedBufferSubData);
-	resolve_symbol("glNamedFramebufferDrawBuffer", glNamedFramebufferDrawBuffer);
-	resolve_symbol("glNamedFramebufferDrawBuffers", glNamedFramebufferDrawBuffers);
-	resolve_symbol("glNamedFramebufferParameteri", glNamedFramebufferParameteri);
-	resolve_symbol("glNamedFramebufferReadBuffer", glNamedFramebufferReadBuffer);
-	resolve_symbol("glNamedFramebufferRenderbuffer", glNamedFramebufferRenderbuffer);
-	resolve_symbol("glNamedFramebufferTexture", glNamedFramebufferTexture);
-	resolve_symbol("glNamedFramebufferTextureLayer", glNamedFramebufferTextureLayer);
-	resolve_symbol("glNamedRenderbufferStorage", glNamedRenderbufferStorage);
-	resolve_symbol("glNamedRenderbufferStorageMultisample", glNamedRenderbufferStorageMultisample);
-	resolve_symbol("glTextureBuffer", glTextureBuffer);
-	resolve_symbol("glTextureBufferRange", glTextureBufferRange);
-	resolve_symbol("glTextureParameterIiv", glTextureParameterIiv);
-	resolve_symbol("glTextureParameterIuiv", glTextureParameterIuiv);
-	resolve_symbol("glTextureParameterf", glTextureParameterf);
-	resolve_symbol("glTextureParameterfv", glTextureParameterfv);
-	resolve_symbol("glTextureParameteri", glTextureParameteri);
-	resolve_symbol("glTextureParameteriv", glTextureParameteriv);
-	resolve_symbol("glTextureStorage1D", glTextureStorage1D);
-	resolve_symbol("glTextureStorage2D", glTextureStorage2D);
-	resolve_symbol("glTextureStorage2DMultisample", glTextureStorage2DMultisample);
-	resolve_symbol("glTextureStorage3D", glTextureStorage3D);
-	resolve_symbol("glTextureStorage3DMultisample", glTextureStorage3DMultisample);
-	resolve_symbol("glTextureSubImage1D", glTextureSubImage1D);
-	resolve_symbol("glTextureSubImage2D", glTextureSubImage2D);
-	resolve_symbol("glTextureSubImage3D", glTextureSubImage3D);
-	resolve_symbol("glTransformFeedbackBufferBase", glTransformFeedbackBufferBase);
-	resolve_symbol("glTransformFeedbackBufferRange", glTransformFeedbackBufferRange);
-	resolve_symbol("glUnmapNamedBuffer", glUnmapNamedBuffer);
-	resolve_symbol("glVertexArrayAttribBinding", glVertexArrayAttribBinding);
-	resolve_symbol("glVertexArrayAttribFormat", glVertexArrayAttribFormat);
-	resolve_symbol("glVertexArrayAttribIFormat", glVertexArrayAttribIFormat);
-	resolve_symbol("glVertexArrayAttribLFormat", glVertexArrayAttribLFormat);
-	resolve_symbol("glVertexArrayBindingDivisor", glVertexArrayBindingDivisor);
-	resolve_symbol("glVertexArrayElementBuffer", glVertexArrayElementBuffer);
-	resolve_symbol("glVertexArrayVertexBuffer", glVertexArrayVertexBuffer);
-	resolve_symbol("glVertexArrayVertexBuffers", glVertexArrayVertexBuffers);
-}
-
-void GlExtensionManagerImpl::resolve_arb_framebuffer_object()
-{
-	resolve_symbol("glBindFramebuffer", glBindFramebuffer);
-	resolve_symbol("glBindRenderbuffer", glBindRenderbuffer);
-	resolve_symbol("glBlitFramebuffer", glBlitFramebuffer);
-	resolve_symbol("glCheckFramebufferStatus", glCheckFramebufferStatus);
-	resolve_symbol("glDeleteFramebuffers", glDeleteFramebuffers);
-	resolve_symbol("glDeleteRenderbuffers", glDeleteRenderbuffers);
-	resolve_symbol("glFramebufferRenderbuffer", glFramebufferRenderbuffer);
-	resolve_symbol("glFramebufferTexture1D", glFramebufferTexture1D);
-	resolve_symbol("glFramebufferTexture2D", glFramebufferTexture2D);
-	resolve_symbol("glFramebufferTexture3D", glFramebufferTexture3D);
-	resolve_symbol("glFramebufferTextureLayer", glFramebufferTextureLayer);
-	resolve_symbol("glGenFramebuffers", glGenFramebuffers);
-	resolve_symbol("glGenRenderbuffers", glGenRenderbuffers);
-	resolve_symbol("glGenerateMipmap", glGenerateMipmap);
-	resolve_symbol("glGetFramebufferAttachmentParameteriv", glGetFramebufferAttachmentParameteriv);
-	resolve_symbol("glGetRenderbufferParameteriv", glGetRenderbufferParameteriv);
-	resolve_symbol("glIsFramebuffer", glIsFramebuffer);
-	resolve_symbol("glIsRenderbuffer", glIsRenderbuffer);
-	resolve_symbol("glRenderbufferStorage", glRenderbufferStorage);
-	resolve_symbol("glRenderbufferStorageMultisample", glRenderbufferStorageMultisample);
-}
-
-void GlExtensionManagerImpl::resolve_arb_sampler_objects()
-{
-	resolve_symbol("glBindSampler", glBindSampler);
-	resolve_symbol("glDeleteSamplers", glDeleteSamplers);
-	resolve_symbol("glGenSamplers", glGenSamplers);
-	resolve_symbol("glGetSamplerParameterIiv", glGetSamplerParameterIiv);
-	resolve_symbol("glGetSamplerParameterIuiv", glGetSamplerParameterIuiv);
-	resolve_symbol("glGetSamplerParameterfv", glGetSamplerParameterfv);
-	resolve_symbol("glGetSamplerParameteriv", glGetSamplerParameteriv);
-	resolve_symbol("glIsSampler", glIsSampler);
-	resolve_symbol("glSamplerParameterIiv", glSamplerParameterIiv);
-	resolve_symbol("glSamplerParameterIuiv", glSamplerParameterIuiv);
-	resolve_symbol("glSamplerParameterf", glSamplerParameterf);
-	resolve_symbol("glSamplerParameterfv", glSamplerParameterfv);
-	resolve_symbol("glSamplerParameteri", glSamplerParameteri);
-	resolve_symbol("glSamplerParameteriv", glSamplerParameteriv);
-}
-
-void GlExtensionManagerImpl::resolve_arb_separate_shader_objects()
-{
-	resolve_symbol("glActiveShaderProgram", glActiveShaderProgram);
-	resolve_symbol("glBindProgramPipeline", glBindProgramPipeline);
-	resolve_symbol("glCreateShaderProgramv", glCreateShaderProgramv);
-	resolve_symbol("glDeleteProgramPipelines", glDeleteProgramPipelines);
-	resolve_symbol("glGenProgramPipelines", glGenProgramPipelines);
-	resolve_symbol("glGetProgramPipelineInfoLog", glGetProgramPipelineInfoLog);
-	resolve_symbol("glGetProgramPipelineiv", glGetProgramPipelineiv);
-	resolve_symbol("glIsProgramPipeline", glIsProgramPipeline);
-	resolve_symbol("glProgramParameteri", glProgramParameteri);
-	resolve_symbol("glProgramUniform1d", glProgramUniform1d);
-	resolve_symbol("glProgramUniform1dv", glProgramUniform1dv);
-	resolve_symbol("glProgramUniform1f", glProgramUniform1f);
-	resolve_symbol("glProgramUniform1fv", glProgramUniform1fv);
-	resolve_symbol("glProgramUniform1i", glProgramUniform1i);
-	resolve_symbol("glProgramUniform1iv", glProgramUniform1iv);
-	resolve_symbol("glProgramUniform1ui", glProgramUniform1ui);
-	resolve_symbol("glProgramUniform1uiv", glProgramUniform1uiv);
-	resolve_symbol("glProgramUniform2d", glProgramUniform2d);
-	resolve_symbol("glProgramUniform2dv", glProgramUniform2dv);
-	resolve_symbol("glProgramUniform2f", glProgramUniform2f);
-	resolve_symbol("glProgramUniform2fv", glProgramUniform2fv);
-	resolve_symbol("glProgramUniform2i", glProgramUniform2i);
-	resolve_symbol("glProgramUniform2iv", glProgramUniform2iv);
-	resolve_symbol("glProgramUniform2ui", glProgramUniform2ui);
-	resolve_symbol("glProgramUniform2uiv", glProgramUniform2uiv);
-	resolve_symbol("glProgramUniform3d", glProgramUniform3d);
-	resolve_symbol("glProgramUniform3dv", glProgramUniform3dv);
-	resolve_symbol("glProgramUniform3f", glProgramUniform3f);
-	resolve_symbol("glProgramUniform3fv", glProgramUniform3fv);
-	resolve_symbol("glProgramUniform3i", glProgramUniform3i);
-	resolve_symbol("glProgramUniform3iv", glProgramUniform3iv);
-	resolve_symbol("glProgramUniform3ui", glProgramUniform3ui);
-	resolve_symbol("glProgramUniform3uiv", glProgramUniform3uiv);
-	resolve_symbol("glProgramUniform4d", glProgramUniform4d);
-	resolve_symbol("glProgramUniform4dv", glProgramUniform4dv);
-	resolve_symbol("glProgramUniform4f", glProgramUniform4f);
-	resolve_symbol("glProgramUniform4fv", glProgramUniform4fv);
-	resolve_symbol("glProgramUniform4i", glProgramUniform4i);
-	resolve_symbol("glProgramUniform4iv", glProgramUniform4iv);
-	resolve_symbol("glProgramUniform4ui", glProgramUniform4ui);
-	resolve_symbol("glProgramUniform4uiv", glProgramUniform4uiv);
-	resolve_symbol("glProgramUniformMatrix2dv", glProgramUniformMatrix2dv);
-	resolve_symbol("glProgramUniformMatrix2fv", glProgramUniformMatrix2fv);
-	resolve_symbol("glProgramUniformMatrix2x3dv", glProgramUniformMatrix2x3dv);
-	resolve_symbol("glProgramUniformMatrix2x3fv", glProgramUniformMatrix2x3fv);
-	resolve_symbol("glProgramUniformMatrix2x4dv", glProgramUniformMatrix2x4dv);
-	resolve_symbol("glProgramUniformMatrix2x4fv", glProgramUniformMatrix2x4fv);
-	resolve_symbol("glProgramUniformMatrix3dv", glProgramUniformMatrix3dv);
-	resolve_symbol("glProgramUniformMatrix3fv", glProgramUniformMatrix3fv);
-	resolve_symbol("glProgramUniformMatrix3x2dv", glProgramUniformMatrix3x2dv);
-	resolve_symbol("glProgramUniformMatrix3x2fv", glProgramUniformMatrix3x2fv);
-	resolve_symbol("glProgramUniformMatrix3x4dv", glProgramUniformMatrix3x4dv);
-	resolve_symbol("glProgramUniformMatrix3x4fv", glProgramUniformMatrix3x4fv);
-	resolve_symbol("glProgramUniformMatrix4dv", glProgramUniformMatrix4dv);
-	resolve_symbol("glProgramUniformMatrix4fv", glProgramUniformMatrix4fv);
-	resolve_symbol("glProgramUniformMatrix4x2dv", glProgramUniformMatrix4x2dv);
-	resolve_symbol("glProgramUniformMatrix4x2fv", glProgramUniformMatrix4x2fv);
-	resolve_symbol("glProgramUniformMatrix4x3dv", glProgramUniformMatrix4x3dv);
-	resolve_symbol("glProgramUniformMatrix4x3fv", glProgramUniformMatrix4x3fv);
-	resolve_symbol("glUseProgramStages", glUseProgramStages);
-	resolve_symbol("glValidateProgramPipeline", glValidateProgramPipeline);
-}
-
-void GlExtensionManagerImpl::resolve_arb_vertex_array_object()
-{
-	resolve_symbol("glBindVertexArray", glBindVertexArray);
-	resolve_symbol("glDeleteVertexArrays", glDeleteVertexArrays);
-	resolve_symbol("glGenVertexArrays", glGenVertexArrays);
-	resolve_symbol("glIsVertexArray", glIsVertexArray);
-}
-
-void GlExtensionManagerImpl::resolve_ext_framebuffer_blit()
-{
-	resolve_symbol("glBlitFramebufferEXT", glBlitFramebufferEXT);
-}
-
-void GlExtensionManagerImpl::resolve_ext_framebuffer_multisample()
-{
-	resolve_symbol("glRenderbufferStorageMultisampleEXT", glRenderbufferStorageMultisampleEXT);
-}
-
-void GlExtensionManagerImpl::resolve_ext_framebuffer_object()
-{
-	resolve_symbol("glBindFramebufferEXT", glBindFramebufferEXT);
-	resolve_symbol("glBindRenderbufferEXT", glBindRenderbufferEXT);
-	resolve_symbol("glCheckFramebufferStatusEXT", glCheckFramebufferStatusEXT);
-	resolve_symbol("glDeleteFramebuffersEXT", glDeleteFramebuffersEXT);
-	resolve_symbol("glDeleteRenderbuffersEXT", glDeleteRenderbuffersEXT);
-	resolve_symbol("glFramebufferRenderbufferEXT", glFramebufferRenderbufferEXT);
-	resolve_symbol("glFramebufferTexture1DEXT", glFramebufferTexture1DEXT);
-	resolve_symbol("glFramebufferTexture2DEXT", glFramebufferTexture2DEXT);
-	resolve_symbol("glFramebufferTexture3DEXT", glFramebufferTexture3DEXT);
-	resolve_symbol("glGenFramebuffersEXT", glGenFramebuffersEXT);
-	resolve_symbol("glGenRenderbuffersEXT", glGenRenderbuffersEXT);
-	resolve_symbol("glGenerateMipmapEXT", glGenerateMipmapEXT);
-	resolve_symbol("glGetFramebufferAttachmentParameterivEXT", glGetFramebufferAttachmentParameterivEXT);
-	resolve_symbol("glGetRenderbufferParameterivEXT", glGetRenderbufferParameterivEXT);
-	resolve_symbol("glIsFramebufferEXT", glIsFramebufferEXT);
-	resolve_symbol("glIsRenderbufferEXT", glIsRenderbufferEXT);
-	resolve_symbol("glRenderbufferStorageEXT", glRenderbufferStorageEXT);
 }
 
 //
