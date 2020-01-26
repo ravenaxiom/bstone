@@ -40,6 +40,7 @@ Free Software Foundation, Inc.,
 #include <unordered_map>
 
 #include "bstone_exception.h"
+#include "bstone_renderer_3d_tests.h"
 #include "bstone_sdl_types.h"
 
 #include "bstone_detail_gl_renderer_3d_utils.h"

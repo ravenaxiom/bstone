@@ -34,6 +34,7 @@ Free Software Foundation, Inc.,
 #include <vector>
 
 #include "bstone_exception.h"
+#include "bstone_renderer_3d_tests.h"
 
 #include "bstone_detail_gl_buffer.h"
 #include "bstone_detail_gl_buffer_manager.h"

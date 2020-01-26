@@ -37,6 +37,7 @@ Free Software Foundation, Inc.,
 
 #include "bstone_exception.h"
 #include "bstone_renderer_3d_limits.h"
+#include "bstone_renderer_3d_tests.h"
 
 #include "bstone_detail_gl_buffer_manager.h"
 #include "bstone_detail_gl_renderer_3d_utils.h"

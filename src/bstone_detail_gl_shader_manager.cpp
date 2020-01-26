@@ -31,6 +31,7 @@ Free Software Foundation, Inc.,
 #include "bstone_detail_gl_shader_manager.h"
 
 #include "bstone_exception.h"
+#include "bstone_renderer_3d_tests.h"
 
 #include "bstone_detail_gl_shader.h"
 #include "bstone_detail_gl_context.h"
