@@ -58,6 +58,46 @@ GlBufferManager::~GlBufferManager() = default;
 
 
 // ==========================================================================
+// GlBufferManagerImplException
+//
+
+struct GlBufferManagerImplException :
+	public Exception
+{
+	explicit GlBufferManagerImplException(
+		const char* const message)
+		:
+		Exception{std::string{"[GL_BUF_MGR] "} + message}
+	{
+	}
+}; // GlBufferManagerImplException
+
+//
+// GlBufferManagerImplException
+// ==========================================================================
+
+
+// ==========================================================================
+// GlBufferManagerImplCreateException
+//
+
+struct GlBufferManagerImplCreateException :
+	public Exception
+{
+	explicit GlBufferManagerImplCreateException(
+		const char* const message)
+		:
+		Exception{std::string{"[GL_BUF_MGR_INIT] "} + message}
+	{
+	}
+}; // GlBufferManagerImplCreateException
+
+//
+// GlBufferManagerImplCreateException
+// ==========================================================================
+
+
+// ==========================================================================
 // GlBufferManagerImpl
 //
 
@@ -92,9 +132,6 @@ private:
 	const GlVaoManagerPtr gl_vao_manager_;
 
 	Renderer3dBufferPtr vertex_buffer_current_;
-
-
-	void initialize();
 }; // GlBufferManagerImpl
 
 using GlBufferManagerImplPtr = GlBufferManagerImpl*;
@@ -117,7 +154,15 @@ GlBufferManagerImpl::GlBufferManagerImpl(
 	gl_vao_manager_{gl_vao_manager},
 	vertex_buffer_current_{}
 {
-	initialize();
+	if (!gl_context_)
+	{
+		throw GlBufferManagerImplCreateException{"Null context."};
+	}
+
+	if (!gl_vao_manager_)
+	{
+		throw GlBufferManagerImplCreateException{"Null VAO manager."};
+	}
 }
 
 GlBufferManagerImpl::~GlBufferManagerImpl() = default;
@@ -159,12 +204,12 @@ bool GlBufferManagerImpl::buffer_set_current(
 			break;
 
 		default:
-			throw Exception{"Unsupported buffer kind."};
+			throw GlBufferManagerImplException{"Unsupported buffer kind."};
 	}
 
 	if (!buffer_current_ptr)
 	{
-		throw Exception{"Null current buffer."};
+		throw GlBufferManagerImplException{"Null current buffer."};
 	}
 
 	if (*buffer_current_ptr == buffer)
@@ -175,14 +220,6 @@ bool GlBufferManagerImpl::buffer_set_current(
 	*buffer_current_ptr = buffer;
 
 	return true;
-}
-
-void GlBufferManagerImpl::initialize()
-{
-	if (!gl_context_)
-	{
-		throw Exception{"Null OpenGL state."};
-	}
 }
 
 //
