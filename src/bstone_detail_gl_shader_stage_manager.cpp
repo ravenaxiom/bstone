@@ -79,19 +79,16 @@ public:
 	void notify_destroy(
 		const Renderer3dShaderStagePtr shader_stage) noexcept override;
 
-	bool set_current(
+	Renderer3dShaderStagePtr get_current() const noexcept override;
+
+	void set_current(
 		const Renderer3dShaderStagePtr shader_stage) override;
 
 
 private:
 	const GlContextPtr gl_context_;
 
-	GlShaderStagePtr shader_stage_current_;
-
-
-	void initialize();
-
-	void shader_stage_set();
+	Renderer3dShaderStagePtr shader_stage_current_;
 }; // GlShaderStageManagerImpl
 
 using GlShaderStageManagerImplPtr = GlShaderStageManagerImpl*;
@@ -112,7 +109,6 @@ GlShaderStageManagerImpl::GlShaderStageManagerImpl(
 	gl_context_{gl_context},
 	shader_stage_current_{}
 {
-	initialize();
 }
 
 GlShaderStageManagerImpl::~GlShaderStageManagerImpl() = default;
@@ -137,25 +133,15 @@ void GlShaderStageManagerImpl::notify_destroy(
 	}
 }
 
-bool GlShaderStageManagerImpl::set_current(
+Renderer3dShaderStagePtr GlShaderStageManagerImpl::get_current() const noexcept
+{
+	return shader_stage_current_;
+}
+
+void GlShaderStageManagerImpl::set_current(
 	const Renderer3dShaderStagePtr shader_stage)
 {
-	if (shader_stage_current_ == shader_stage)
-	{
-		return false;
-	}
-
-	shader_stage_current_ = static_cast<GlShaderStagePtr>(shader_stage);
-
-	return true;
-}
-
-void GlShaderStageManagerImpl::initialize()
-{
-}
-
-void GlShaderStageManagerImpl::shader_stage_set()
-{
+	shader_stage_current_ = shader_stage;
 }
 
 //

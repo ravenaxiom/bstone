@@ -649,6 +649,15 @@ void GlRenderer3d::draw_indexed(
 		throw Exception{"Null index buffer."};
 	}
 
+	const auto shader_stage = gl_context_->shader_stage_get_manager()->get_current();
+
+	if (!shader_stage)
+	{
+		throw Exception{"Null current shader stage."};
+	}
+
+	shader_stage->set();
+
 	const auto index_buffer_offset = param.index_buffer_offset_ + (param.index_offset_ * param.index_byte_depth_);
 	const auto index_buffer_indices = reinterpret_cast<const void*>(static_cast<std::intptr_t>(index_buffer_offset));
 

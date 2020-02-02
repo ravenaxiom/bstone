@@ -641,6 +641,9 @@ public:
 	virtual ~Renderer3dShaderStage();
 
 
+	virtual void set() = 0;
+
+
 	virtual Renderer3dShaderVarPtr find_var(
 		const std::string& name) = 0;
 

@@ -80,6 +80,9 @@ public:
 	GlShaderStageManagerPtr get_manager() const noexcept override;
 
 
+	void set() override;
+
+
 	Renderer3dShaderVarPtr find_var(
 		const std::string& name) override;
 
@@ -101,8 +104,6 @@ public:
 	Renderer3dShaderVarSampler2dPtr find_var_sampler_2d(
 		const std::string& name) override;
 
-
-	void set() override;
 
 	void detach_fragment_shader() override;
 
@@ -251,6 +252,12 @@ GlShaderStageManagerPtr GlShaderStageImpl::get_manager() const noexcept
 	return gl_shader_stage_manager_;
 }
 
+void GlShaderStageImpl::set()
+{
+	glUseProgram(gl_resource_);
+	assert(!GlRenderer3dUtils::was_errors());
+}
+
 Renderer3dShaderVarPtr GlShaderStageImpl::find_var(
 	const std::string& name)
 {
@@ -373,17 +380,6 @@ void GlShaderStageImpl::initialize(
 
 	fragment_shader_ = static_cast<GlShaderPtr>(param.fragment_shader_);
 	vertex_shader_ = static_cast<GlShaderPtr>(param.vertex_shader_);
-}
-
-void GlShaderStageImpl::set()
-{
-	if (!gl_shader_stage_manager_->set_current(this))
-	{
-		return;
-	}
-
-	glUseProgram(gl_resource_);
-	assert(!GlRenderer3dUtils::was_errors());
 }
 
 void GlShaderStageImpl::detach_fragment_shader()

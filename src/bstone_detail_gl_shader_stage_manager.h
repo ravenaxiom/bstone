@@ -69,7 +69,9 @@ public:
 	virtual void notify_destroy(
 		const Renderer3dShaderStagePtr shader_stage) noexcept = 0;
 
-	virtual bool set_current(
+	virtual Renderer3dShaderStagePtr get_current() const noexcept = 0;
+
+	virtual void set_current(
 		const Renderer3dShaderStagePtr shader_stage) = 0;
 }; // GlShaderStageManager
 

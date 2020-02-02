@@ -65,8 +65,6 @@ public:
 	virtual GlShaderStageManagerPtr get_manager() const noexcept = 0;
 
 
-	virtual void set() = 0;
-
 	virtual void detach_fragment_shader() = 0;
 
 	virtual void detach_vertex_shader() = 0;
