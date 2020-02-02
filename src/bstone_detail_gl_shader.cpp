@@ -36,6 +36,7 @@ Free Software Foundation, Inc.,
 #include "bstone_renderer_3d_tests.h"
 #include "bstone_unique_resource.h"
 
+#include "bstone_detail_gl_error.h"
 #include "bstone_detail_gl_shader_manager.h"
 #include "bstone_detail_gl_shader_stage.h"
 #include "bstone_detail_gl_renderer_3d_utils.h"
@@ -164,7 +165,7 @@ void GlShaderImpl::shader_resource_deleter(
 	const GLuint& gl_name) noexcept
 {
 	glDeleteShader(gl_name);
-	assert(!detail::GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 }
 
 void GlShaderImpl::initialize(
@@ -192,15 +193,15 @@ void GlShaderImpl::initialize(
 	};
 
 	glShaderSource(gl_resource_.get(), 1, strings, lengths);
-	assert(!detail::GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 
 	glCompileShader(gl_resource_.get());
-	assert(!detail::GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 
 	auto compile_status = GLint{};
 
 	glGetShaderiv(gl_resource_.get(), GL_COMPILE_STATUS, &compile_status);
-	assert(!detail::GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 
 	if (compile_status != GL_TRUE)
 	{

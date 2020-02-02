@@ -177,10 +177,6 @@ public:
 	static void swap_window(
 		SdlWindowPtr sdl_window);
 
-	static bool was_errors();
-
-	static void clear_errors();
-
 
 	static void viewport_set_rect(
 		const Renderer3dViewport& viewport);

@@ -38,6 +38,7 @@ Free Software Foundation, Inc.,
 #include "bstone_renderer_3d_tests.h"
 #include "bstone_unique_resource.h"
 
+#include "bstone_detail_gl_error.h"
 #include "bstone_detail_gl_shader_stage_manager.h"
 #include "bstone_detail_gl_shader.h"
 #include "bstone_detail_gl_renderer_3d_utils.h"
@@ -255,7 +256,7 @@ GlShaderStageManagerPtr GlShaderStageImpl::get_manager() const noexcept
 void GlShaderStageImpl::set()
 {
 	glUseProgram(gl_resource_);
-	assert(!GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 }
 
 Renderer3dShaderVarPtr GlShaderStageImpl::find_var(
@@ -337,21 +338,21 @@ void GlShaderStageImpl::initialize(
 
 	const auto fragment_shader = static_cast<GlShaderPtr>(param.fragment_shader_);
 	glAttachShader(gl_resource_.get(), fragment_shader->get_gl_name());
-	assert(!detail::GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 
 	const auto vertex_shader = static_cast<GlShaderPtr>(param.vertex_shader_);
 	glAttachShader(gl_resource_.get(), vertex_shader->get_gl_name());
-	assert(!detail::GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 
 	set_input_bindings(gl_resource_.get(), param.input_bindings_);
 
 	glLinkProgram(gl_resource_.get());
-	assert(!detail::GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 
 	auto link_status = GLint{};
 
 	glGetProgramiv(gl_resource_.get(), GL_LINK_STATUS, &link_status);
-	assert(!detail::GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 
 	if (link_status != GL_TRUE)
 	{
@@ -401,7 +402,7 @@ void GlShaderStageImpl::shader_stage_resource_deleter(
 	const GLuint& gl_name) noexcept
 {
 	glDeleteProgram(gl_name);
-	assert(!detail::GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 }
 
 void GlShaderStageImpl::validate_shader(
@@ -504,7 +505,7 @@ void GlShaderStageImpl::set_input_bindings(
 	for (const auto& input_binding : input_bindings)
 	{
 		glBindAttribLocation(gl_name, input_binding.index_, input_binding.name_.c_str());
-		assert(!detail::GlRenderer3dUtils::was_errors());
+		GlError::ensure_debug();
 	}
 }
 
@@ -513,11 +514,11 @@ int GlShaderStageImpl::get_var_count(
 {
 	auto gl_vertex_attribute_count = GLint{};
 	glGetProgramiv(gl_name, GL_ACTIVE_ATTRIBUTES, &gl_vertex_attribute_count);
-	assert(!detail::GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 
 	auto gl_uniform_count = GLint{};
 	glGetProgramiv(gl_name, GL_ACTIVE_UNIFORMS, &gl_uniform_count);
-	assert(!detail::GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 
 	const auto result = static_cast<int>(gl_vertex_attribute_count + gl_uniform_count);
 
@@ -566,7 +567,7 @@ void GlShaderStageImpl::get_vars(
 
 	auto gl_count = GLint{};
 	glGetProgramiv(gl_name, gl_count_enum, &gl_count);
-	assert(!detail::GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 
 	if (gl_count <= 0)
 	{
@@ -575,7 +576,7 @@ void GlShaderStageImpl::get_vars(
 
 	auto gl_max_length = GLint{};
 	glGetProgramiv(gl_name, gl_max_length_enum, &gl_max_length);
-	assert(!detail::GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 
 	if (gl_max_length <= 0)
 	{
@@ -602,7 +603,7 @@ void GlShaderStageImpl::get_vars(
 			name_buffer.data()
 		);
 
-		assert(!detail::GlRenderer3dUtils::was_errors());
+		GlError::ensure_debug();
 
 		if (gl_length <= 0)
 		{
@@ -664,7 +665,7 @@ void GlShaderStageImpl::get_vars(
 		if (is_attribute)
 		{
 			input_index = glGetAttribLocation(gl_name, name_buffer.data());
-			assert(!detail::GlRenderer3dUtils::was_errors());
+			GlError::ensure_debug();
 
 			if (input_index < 0)
 			{

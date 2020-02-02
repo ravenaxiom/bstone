@@ -36,6 +36,7 @@ Free Software Foundation, Inc.,
 
 #include "bstone_detail_gl_api.h"
 #include "bstone_detail_gl_buffer.h"
+#include "bstone_detail_gl_error.h"
 #include "bstone_detail_gl_renderer_3d_utils.h"
 #include "bstone_detail_gl_context.h"
 #include "bstone_detail_gl_vao_manager.h"
@@ -146,7 +147,7 @@ void GlVaoImpl::bind()
 	}
 
 	glBindVertexArray(gl_vao_resource_);
-	assert(!GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 }
 
 bool GlVaoImpl::set_current_index_buffer(
@@ -179,7 +180,7 @@ void GlVaoImpl::gl_deleter(
 	const GLuint& gl_name) noexcept
 {
 	glDeleteVertexArrays(1, &gl_name);
-	assert(!GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 }
 
 void GlVaoImpl::enable_location(
@@ -192,7 +193,7 @@ void GlVaoImpl::enable_location(
 	);
 
 	gl_function(location);
-	assert(!GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 }
 
 void GlVaoImpl::initialize_resource()
@@ -205,7 +206,7 @@ void GlVaoImpl::initialize_resource()
 	auto gl_name = GLuint{};
 
 	glGenVertexArrays(1, &gl_name);
-	assert(!GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 
 	if (gl_name == 0)
 	{

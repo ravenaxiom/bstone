@@ -36,8 +36,9 @@ Free Software Foundation, Inc.,
 #include "bstone_renderer_3d_tests.h"
 #include "bstone_unique_resource.h"
 
-#include "bstone_detail_gl_context.h"
 #include "bstone_detail_gl_buffer_manager.h"
+#include "bstone_detail_gl_context.h"
+#include "bstone_detail_gl_error.h"
 #include "bstone_detail_gl_renderer_3d_utils.h"
 #include "bstone_detail_gl_context.h"
 #include "bstone_detail_gl_vao_manager.h"
@@ -191,12 +192,12 @@ GlBufferImpl::GlBufferImpl(
 	if (gl_device_features.dsa_is_available_)
 	{
 		glCreateBuffers(1, &gl_name);
-		assert(!detail::GlRenderer3dUtils::was_errors());
+		GlError::ensure_debug();
 	}
 	else
 	{
 		glGenBuffers(1, &gl_name);
-		assert(!detail::GlRenderer3dUtils::was_errors());
+		GlError::ensure_debug();
 	}
 
 	if (gl_name == 0)
@@ -216,7 +217,7 @@ GlBufferImpl::GlBufferImpl(
 		gl_device_features.buffer_storage_is_available_)
 	{
 		glNamedBufferStorage(gl_resource_.get(), param.size_, nullptr, GL_DYNAMIC_STORAGE_BIT);
-		assert(!detail::GlRenderer3dUtils::was_errors());
+		GlError::ensure_debug();
 	}
 	else
 	{
@@ -233,7 +234,7 @@ GlBufferImpl::GlBufferImpl(
 		set(true);
 
 		glBufferData(gl_target_, param.size_, nullptr, gl_usage);
-		assert(!detail::GlRenderer3dUtils::was_errors());
+		GlError::ensure_debug();
 
 		if (is_index)
 		{
@@ -271,7 +272,7 @@ void GlBufferImpl::set(
 	if (gl_buffer_manager_->buffer_set_current(kind_, gl_buffer))
 	{
 		glBindBuffer(gl_target_, gl_resource);
-		assert(!detail::GlRenderer3dUtils::was_errors());
+		GlError::ensure_debug();
 	}
 }
 
@@ -297,7 +298,7 @@ void GlBufferImpl::update(
 			param.data_
 		);
 
-		assert(!detail::GlRenderer3dUtils::was_errors());
+		GlError::ensure_debug();
 	}
 	else
 	{
@@ -320,7 +321,7 @@ void GlBufferImpl::update(
 			param.data_
 		);
 
-		assert(!detail::GlRenderer3dUtils::was_errors());
+		GlError::ensure_debug();
 
 		if (is_index)
 		{
@@ -333,7 +334,7 @@ void GlBufferImpl::resource_deleter(
 	const GLuint& gl_name) noexcept
 {
 	glDeleteBuffers(1, &gl_name);
-	assert(!detail::GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 }
 
 void GlBufferImpl::validate_param(

@@ -38,6 +38,7 @@ Free Software Foundation, Inc.,
 #include "bstone_detail_gl_buffer.h"
 #include "bstone_detail_gl_context.h"
 #include "bstone_detail_gl_device_features.h"
+#include "bstone_detail_gl_error.h"
 #include "bstone_detail_gl_renderer_3d_utils.h"
 #include "bstone_detail_gl_vao.h"
 #include "bstone_detail_gl_vao_manager.h"
@@ -234,7 +235,7 @@ void GlVertexInputImpl::assign_default_attribute(
 		attribute_description.default_value_.data()
 	);
 
-	assert(!GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 }
 
 void GlVertexInputImpl::assign_regular_attribute(
@@ -287,7 +288,7 @@ void GlVertexInputImpl::assign_regular_attribute(
 		vertex_buffer_data
 	);
 
-	assert(!GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 }
 
 void GlVertexInputImpl::assign_attribute(

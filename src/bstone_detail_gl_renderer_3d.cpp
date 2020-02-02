@@ -40,6 +40,7 @@ Free Software Foundation, Inc.,
 #include "bstone_renderer_3d_tests.h"
 
 #include "bstone_detail_gl_buffer_manager.h"
+#include "bstone_detail_gl_error.h"
 #include "bstone_detail_gl_renderer_3d_utils.h"
 #include "bstone_detail_gl_sampler_manager.h"
 #include "bstone_detail_gl_texture_manager.h"
@@ -107,7 +108,7 @@ void GlRenderer3d::fbo_resource_deleter(
 {
 	const auto gl_function = (glDeleteFramebuffers ? glDeleteFramebuffers : glDeleteFramebuffersEXT);
 	gl_function(1, &gl_name);
-	assert(!GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 }
 
 void GlRenderer3d::rbo_resource_deleter(
@@ -115,7 +116,7 @@ void GlRenderer3d::rbo_resource_deleter(
 {
 	const auto gl_function = (glDeleteRenderbuffers ? glDeleteRenderbuffers : glDeleteRenderbuffersEXT);
 	gl_function(1, &gl_name);
-	assert(!GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 }
 
 void GlRenderer3d::set_name_and_description()
@@ -473,6 +474,8 @@ void GlRenderer3d::present()
 {
 	framebuffers_blit();
 
+	GlError::ensure();
+
 	GlRenderer3dUtils::swap_window(sdl_window_.get());
 
 	framebuffers_bind();
@@ -673,7 +676,7 @@ void GlRenderer3d::draw_indexed(
 		index_buffer_indices // indices
 	);
 
-	assert(!GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 }
 
 Renderer3dTexture2dUPtr GlRenderer3d::texture_2d_create(
@@ -722,7 +725,7 @@ GlRenderer3d::RboResource GlRenderer3d::renderbuffer_create()
 
 	auto gl_name = GLuint{};
 	gl_function(1, &gl_name);
-	assert(!GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 
 	if (gl_name == 0)
 	{
@@ -738,7 +741,7 @@ void GlRenderer3d::renderbuffer_bind(
 	const auto gl_func = (gl_device_features_.framebuffer_is_ext_ ? glBindRenderbufferEXT : glBindRenderbuffer);
 
 	gl_func(GL_RENDERBUFFER, gl_renderbuffer_name);
-	assert(!GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 }
 
 GlRenderer3d::FboResource GlRenderer3d::framebuffer_create()
@@ -752,7 +755,7 @@ GlRenderer3d::FboResource GlRenderer3d::framebuffer_create()
 
 	auto gl_name = GLuint{};
 	gl_func(1, &gl_name);
-	assert(!GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 
 	if (gl_name == 0)
 	{
@@ -771,7 +774,7 @@ void GlRenderer3d::framebuffer_bind(
 	const auto gl_func = (gl_device_features_.framebuffer_is_ext_ ? glBindFramebufferEXT : glBindFramebuffer);
 
 	gl_func(gl_target, gl_name);
-	assert(!GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 }
 
 void GlRenderer3d::framebuffer_blit(
@@ -809,7 +812,7 @@ void GlRenderer3d::framebuffer_blit(
 		gl_filter
 	);
 
-	assert(!GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 }
 
 GlRenderer3d::RboResource GlRenderer3d::renderbuffer_create(
@@ -835,7 +838,7 @@ GlRenderer3d::RboResource GlRenderer3d::renderbuffer_create(
 	);
 
 	gl_func(GL_RENDERBUFFER, sample_count, gl_internal_format, width, height);
-	assert(!GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 
 	renderbuffer_bind(0);
 

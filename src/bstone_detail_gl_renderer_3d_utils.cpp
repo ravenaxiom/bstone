@@ -44,6 +44,8 @@ Free Software Foundation, Inc.,
 #include "bstone_renderer_3d_limits.h"
 #include "bstone_renderer_3d_tests.h"
 
+#include "bstone_detail_gl_error.h"
+
 
 namespace bstone
 {
@@ -379,7 +381,7 @@ int GlRenderer3dUtils::msaa_fbo_get_max(
 		auto gl_value = GLint{};
 
 		glGetIntegerv(gl_enum, &gl_value);
-		assert(!GlRenderer3dUtils::was_errors());
+		GlError::ensure_debug();
 
 		return gl_value;
 	}
@@ -480,7 +482,7 @@ int GlRenderer3dUtils::anisotropy_get_max_value()
 
 	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &gl_max_value);
 
-	assert(!GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 
 	if (gl_max_value <= static_cast<GLfloat>(Renderer3dLimits::anisotropy_min_off))
 	{
@@ -505,7 +507,7 @@ void GlRenderer3dUtils::anisotropy_set_value(
 	const auto gl_value = static_cast<GLfloat>(clamped_value);
 
 	glTexParameterf(gl_target, GL_TEXTURE_MAX_ANISOTROPY, gl_value);
-	assert(!GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 }
 
 void GlRenderer3dUtils::anisotropy_probe(
@@ -627,7 +629,7 @@ void GlRenderer3dUtils::mipmap_generate(
 	const auto gl_function = (gl_device_features.mipmap_is_ext_ ? glGenerateMipmapEXT : glGenerateMipmap);
 
 	gl_function(gl_target);
-	assert(!GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 }
 
 void GlRenderer3dUtils::framebuffer_probe(
@@ -699,7 +701,7 @@ void GlRenderer3dUtils::sampler_set_anisotropy(
 	const auto gl_value = static_cast<GLfloat>(clamped_value);
 
 	glSamplerParameterf(gl_sampler, GL_TEXTURE_MAX_ANISOTROPY, gl_value);
-	assert(!GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 }
 
 void GlRenderer3dUtils::vertex_input_vao_probe(
@@ -724,7 +726,7 @@ void GlRenderer3dUtils::vertex_input_probe_max_locations(
 	auto gl_count = GLint{};
 
 	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &gl_count);
-	assert(!GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 
 	device_features.vertex_input_max_locations_ = 0;
 
@@ -840,46 +842,18 @@ void GlRenderer3dUtils::swap_window(
 	::SDL_GL_SwapWindow(sdl_window);
 }
 
-bool GlRenderer3dUtils::was_errors()
-{
-	assert(glGetError != nullptr);
-
-	const auto max_error_count = 32;
-
-	auto was_error = false;
-
-	for (int i = 0; i < max_error_count; ++i)
-	{
-		const auto last_error = glGetError();
-
-		if (last_error == GL_NO_ERROR)
-		{
-			break;
-		}
-
-		was_error = true;
-	}
-
-	return was_error;
-}
-
-void GlRenderer3dUtils::clear_errors()
-{
-	static_cast<void>(was_errors());
-}
-
 void GlRenderer3dUtils::scissor_enable(
 	const bool is_enabled)
 {
 	if (is_enabled)
 	{
 		glEnable(GL_SCISSOR_TEST);
-		assert(!GlRenderer3dUtils::was_errors());
+		GlError::ensure_debug();
 	}
 	else
 	{
 		glDisable(GL_SCISSOR_TEST);
-		assert(!GlRenderer3dUtils::was_errors());
+		GlError::ensure_debug();
 	}
 }
 
@@ -913,7 +887,7 @@ void GlRenderer3dUtils::scissor_set_box(
 		scissor_box.height_
 	);
 
-	assert(!GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 }
 
 void GlRenderer3dUtils::viewport_set_rect(
@@ -946,7 +920,7 @@ void GlRenderer3dUtils::viewport_set_rect(
 		viewport.height_
 	);
 
-	assert(!GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 }
 
 void GlRenderer3dUtils::viewport_set_depth_range(
@@ -968,12 +942,12 @@ void GlRenderer3dUtils::viewport_set_depth_range(
 	if (is_es)
 	{
 		glDepthRangef(viewport.min_depth_, viewport.max_depth_);
-		assert(!GlRenderer3dUtils::was_errors());
+		GlError::ensure_debug();
 	}
 	else
 	{
 		glDepthRange(viewport.min_depth_, viewport.max_depth_);
-		assert(!GlRenderer3dUtils::was_errors());
+		GlError::ensure_debug();
 	}
 }
 
@@ -983,7 +957,7 @@ void GlRenderer3dUtils::culling_enable(
 	const auto gl_function = (is_enable ? glEnable : glDisable);
 
 	gl_function(GL_CULL_FACE);
-	assert(!GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 }
 
 void GlRenderer3dUtils::culling_set_face(
@@ -1006,7 +980,7 @@ void GlRenderer3dUtils::culling_set_face(
 	}
 
 	glFrontFace(gl_culling_face);
-	assert(!GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 }
 
 void GlRenderer3dUtils::culling_set_mode(
@@ -1033,7 +1007,7 @@ void GlRenderer3dUtils::culling_set_mode(
 	}
 
 	glCullFace(gl_culling_mode);
-	assert(!GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 }
 
 void GlRenderer3dUtils::depth_test_enable(
@@ -1042,27 +1016,27 @@ void GlRenderer3dUtils::depth_test_enable(
 	const auto gl_function = (is_enable ? glEnable : glDisable);
 
 	gl_function(GL_DEPTH_TEST);
-	assert(!GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 }
 
 void GlRenderer3dUtils::depth_write_enable(
 	const bool is_enable)
 {
 	glDepthMask(is_enable);
-	assert(!GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 }
 
 void GlRenderer3dUtils::texture_2d_bind(
 	const GLuint gl_texture_name)
 {
 	glBindTexture(GL_TEXTURE_2D, gl_texture_name);
-	assert(!GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 }
 
 void GlRenderer3dUtils::texture_2d_unbind()
 {
 	glBindTexture(GL_TEXTURE_2D, 0);
-	assert(!GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 }
 
 void GlRenderer3dUtils::blending_enable(
@@ -1071,7 +1045,7 @@ void GlRenderer3dUtils::blending_enable(
 	const auto gl_function = (is_enable ? glEnable : glDisable);
 
 	gl_function(GL_BLEND);
-	assert(!GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 }
 
 void GlRenderer3dUtils::blending_set_func(
@@ -1081,7 +1055,7 @@ void GlRenderer3dUtils::blending_set_func(
 	auto gl_dst_factor = blending_get_factor(blending_func.dst_factor_);
 
 	glBlendFunc(gl_src_factor, gl_dst_factor);
-	assert(!GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 }
 
 GLenum GlRenderer3dUtils::index_buffer_get_element_type_by_byte_depth(
@@ -1114,7 +1088,7 @@ void GlRenderer3dUtils::renderer_features_set(
 
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &gl_texture_dimension);
 
-	if (GlRenderer3dUtils::was_errors() || gl_texture_dimension == 0)
+	if (gl_texture_dimension == 0)
 	{
 		throw Exception{"Failed to get maximum texture dimension."};
 	}
@@ -1127,8 +1101,7 @@ void GlRenderer3dUtils::renderer_features_set(
 
 	glGetIntegerv(GL_MAX_VIEWPORT_DIMS, gl_viewport_dimensions.data());
 
-	if (GlRenderer3dUtils::was_errors() ||
-		gl_viewport_dimensions[0] == 0 || gl_viewport_dimensions[1] == 0)
+	if (gl_viewport_dimensions[0] == 0 || gl_viewport_dimensions[1] == 0)
 	{
 		throw Exception{"Failed to get viewport dimensions."};
 	}
@@ -1151,7 +1124,7 @@ Renderer3dDeviceInfo GlRenderer3dUtils::device_info_get()
 	//
 	const auto gl_name = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
 
-	assert(!GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 
 	if (gl_name != nullptr)
 	{
@@ -1163,7 +1136,7 @@ Renderer3dDeviceInfo GlRenderer3dUtils::device_info_get()
 	//
 	const auto gl_vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
 
-	assert(!GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 
 	if (gl_vendor != nullptr)
 	{
@@ -1175,7 +1148,7 @@ Renderer3dDeviceInfo GlRenderer3dUtils::device_info_get()
 	//
 	const auto gl_version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
 
-	assert(!GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 
 	if (gl_version != nullptr)
 	{
@@ -1198,7 +1171,7 @@ std::string GlRenderer3dUtils::get_log(
 	auto size = GLint{};
 
 	gl_size_function(gl_name, GL_INFO_LOG_LENGTH, &size);
-	assert(!GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 
 	auto result = std::string{};
 
@@ -1209,7 +1182,7 @@ std::string GlRenderer3dUtils::get_log(
 		auto info_size = GLsizei{};
 
 		gl_info_function(gl_name, size, &info_size, &result[0]);
-		assert(!GlRenderer3dUtils::was_errors());
+		GlError::ensure_debug();
 
 		if (info_size <= 0)
 		{

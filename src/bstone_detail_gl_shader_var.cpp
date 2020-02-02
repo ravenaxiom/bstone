@@ -37,6 +37,7 @@ Free Software Foundation, Inc.,
 
 #include "bstone_detail_gl_api.h"
 #include "bstone_detail_gl_context.h"
+#include "bstone_detail_gl_error.h"
 #include "bstone_detail_gl_renderer_3d_utils.h"
 #include "bstone_detail_gl_shader_stage.h"
 #include "bstone_detail_gl_shader_stage_manager.h"
@@ -331,7 +332,7 @@ void GlShaderVarImpl::set_value(
 					static_cast<const GLint*>(value_data)
 				);
 
-				assert(!GlRenderer3dUtils::was_errors());
+				GlError::ensure_debug();
 			}
 			else
 			{
@@ -341,7 +342,7 @@ void GlShaderVarImpl::set_value(
 					static_cast<const GLint*>(value_data)
 				);
 
-				assert(!GlRenderer3dUtils::was_errors());
+				GlError::ensure_debug();
 			}
 
 			break;
@@ -356,7 +357,7 @@ void GlShaderVarImpl::set_value(
 					static_cast<const GLfloat*>(value_data)
 				);
 
-				assert(!GlRenderer3dUtils::was_errors());
+				GlError::ensure_debug();
 			}
 			else
 			{
@@ -366,7 +367,7 @@ void GlShaderVarImpl::set_value(
 					static_cast<const GLfloat*>(value_data)
 				);
 
-				assert(!GlRenderer3dUtils::was_errors());
+				GlError::ensure_debug();
 			}
 
 			break;
@@ -381,7 +382,7 @@ void GlShaderVarImpl::set_value(
 					static_cast<const GLfloat*>(value_data)
 				);
 
-				assert(!GlRenderer3dUtils::was_errors());
+				GlError::ensure_debug();
 			}
 			else
 			{
@@ -391,7 +392,7 @@ void GlShaderVarImpl::set_value(
 					static_cast<const GLfloat*>(value_data)
 				);
 
-				assert(!GlRenderer3dUtils::was_errors());
+				GlError::ensure_debug();
 			}
 
 			break;
@@ -406,7 +407,7 @@ void GlShaderVarImpl::set_value(
 					static_cast<const GLfloat*>(value_data)
 				);
 
-				assert(!GlRenderer3dUtils::was_errors());
+				GlError::ensure_debug();
 			}
 			else
 			{
@@ -416,7 +417,7 @@ void GlShaderVarImpl::set_value(
 					static_cast<const GLfloat*>(value_data)
 				);
 
-				assert(!GlRenderer3dUtils::was_errors());
+				GlError::ensure_debug();
 			}
 
 			break;
@@ -431,7 +432,7 @@ void GlShaderVarImpl::set_value(
 					static_cast<const GLfloat*>(value_data)
 				);
 
-				assert(!GlRenderer3dUtils::was_errors());
+				GlError::ensure_debug();
 			}
 			else
 			{
@@ -441,7 +442,7 @@ void GlShaderVarImpl::set_value(
 					static_cast<const GLfloat*>(value_data)
 				);
 
-				assert(!GlRenderer3dUtils::was_errors());
+				GlError::ensure_debug();
 			}
 
 			break;
@@ -457,7 +458,7 @@ void GlShaderVarImpl::set_value(
 					static_cast<const GLfloat*>(value_data)
 				);
 
-				assert(!GlRenderer3dUtils::was_errors());
+				GlError::ensure_debug();
 			}
 			else
 			{
@@ -468,7 +469,7 @@ void GlShaderVarImpl::set_value(
 					static_cast<const GLfloat*>(value_data)
 				);
 
-				assert(!GlRenderer3dUtils::was_errors());
+				GlError::ensure_debug();
 			}
 
 			break;

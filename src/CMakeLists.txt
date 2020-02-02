@@ -253,6 +253,7 @@ target_sources(
 		bstone_detail_gl_context.h
 		bstone_detail_gl_context_kind.h
 		bstone_detail_gl_device_features.h
+		bstone_detail_gl_error.h
 		bstone_detail_gl_extension_manager.h
 		bstone_detail_gl_renderer_3d.h
 		bstone_detail_gl_renderer_3d_utils.h
@@ -359,6 +360,7 @@ target_sources(
 		bstone_detail_gl_buffer.cpp
 		bstone_detail_gl_buffer_manager.cpp
 		bstone_detail_gl_context.cpp
+		bstone_detail_gl_error.cpp
 		bstone_detail_gl_extension_manager.cpp
 		bstone_detail_gl_renderer_3d.cpp
 		bstone_detail_gl_renderer_3d_utils.cpp

@@ -37,8 +37,9 @@ Free Software Foundation, Inc.,
 #include "bstone_renderer_3d_tests.h"
 #include "bstone_unique_resource.h"
 
-#include "bstone_detail_gl_renderer_3d_utils.h"
 #include "bstone_detail_gl_context.h"
+#include "bstone_detail_gl_error.h"
+#include "bstone_detail_gl_renderer_3d_utils.h"
 #include "bstone_detail_gl_texture_manager.h"
 #include "bstone_detail_renderer_3d_utils.h"
 
@@ -234,7 +235,7 @@ void GlTexture2dImpl::generate_mipmaps()
 	if (gl_device_features.dsa_is_available_)
 	{
 		glGenerateTextureMipmap(gl_resource_.get());
-		assert(!GlRenderer3dUtils::was_errors());
+		GlError::ensure_debug();
 	}
 	else
 	{
@@ -249,7 +250,7 @@ void GlTexture2dImpl::texture_resource_deleter(
 	const GLuint& gl_name) noexcept
 {
 	glDeleteTextures(1, &gl_name);
-	assert(!GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 }
 
 void GlTexture2dImpl::initialize(
@@ -291,12 +292,12 @@ void GlTexture2dImpl::initialize(
 	if (gl_device_features.dsa_is_available_)
 	{
 		glCreateTextures(GL_TEXTURE_2D, 1, &gl_name);
-		assert(!GlRenderer3dUtils::was_errors());
+		GlError::ensure_debug();
 	}
 	else
 	{
 		glGenTextures(1, &gl_name);
-		assert(!GlRenderer3dUtils::was_errors());
+		GlError::ensure_debug();
 	}
 
 	if (gl_name == 0)
@@ -309,20 +310,20 @@ void GlTexture2dImpl::initialize(
 	if (gl_device_features.dsa_is_available_)
 	{
 		glTextureParameteri(gl_resource_.get(), GL_TEXTURE_BASE_LEVEL, 0);
-		assert(!GlRenderer3dUtils::was_errors());
+		GlError::ensure_debug();
 
 		glTextureParameteri(gl_resource_.get(), GL_TEXTURE_MAX_LEVEL, mipmap_count_ - 1);
-		assert(!GlRenderer3dUtils::was_errors());
+		GlError::ensure_debug();
 	}
 	else
 	{
 		gl_texture_manager_->set(this);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-		assert(!GlRenderer3dUtils::was_errors());
+		GlError::ensure_debug();
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mipmap_count_ - 1);
-		assert(!GlRenderer3dUtils::was_errors());
+		GlError::ensure_debug();
 	}
 
 	set_sampler_state_defaults();
@@ -337,7 +338,7 @@ void GlTexture2dImpl::initialize(
 			height_
 		);
 
-		assert(!GlRenderer3dUtils::was_errors());
+		GlError::ensure_debug();
 	}
 	else
 	{
@@ -358,7 +359,7 @@ void GlTexture2dImpl::initialize(
 				nullptr // pixels
 			);
 
-			assert(!GlRenderer3dUtils::was_errors());
+			GlError::ensure_debug();
 
 			if (mipmap_width > 1)
 			{
@@ -396,7 +397,7 @@ void GlTexture2dImpl::upload_mipmap(
 			src_data // pixels
 		);
 
-		assert(!GlRenderer3dUtils::was_errors());
+		GlError::ensure_debug();
 	}
 	else
 	{
@@ -412,7 +413,7 @@ void GlTexture2dImpl::upload_mipmap(
 			src_data // pixels
 		);
 
-		assert(!GlRenderer3dUtils::was_errors());
+		GlError::ensure_debug();
 	}
 }
 
@@ -431,12 +432,12 @@ void GlTexture2dImpl::set_mag_filter()
 	if (gl_device_features.dsa_is_available_)
 	{
 		glTextureParameteri(gl_resource_.get(), GL_TEXTURE_MAG_FILTER, gl_mag_filter);
-		assert(!GlRenderer3dUtils::was_errors());
+		GlError::ensure_debug();
 	}
 	else
 	{
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_mag_filter);
-		assert(!GlRenderer3dUtils::was_errors());
+		GlError::ensure_debug();
 	}
 }
 
@@ -453,12 +454,12 @@ void GlTexture2dImpl::set_min_filter()
 	if (gl_device_features.dsa_is_available_)
 	{
 		glTextureParameteri(gl_resource_.get(), GL_TEXTURE_MIN_FILTER, gl_min_filter);
-		assert(!GlRenderer3dUtils::was_errors());
+		GlError::ensure_debug();
 	}
 	else
 	{
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_min_filter);
-		assert(!GlRenderer3dUtils::was_errors());
+		GlError::ensure_debug();
 	}
 }
 
@@ -475,12 +476,12 @@ void GlTexture2dImpl::set_address_mode(
 	if (gl_device_features.dsa_is_available_)
 	{
 		glTextureParameteri(gl_resource_.get(), gl_wrap_axis, gl_address_mode);
-		assert(!GlRenderer3dUtils::was_errors());
+		GlError::ensure_debug();
 	}
 	else
 	{
 		glTexParameteri(GL_TEXTURE_2D, gl_wrap_axis, gl_address_mode);
-		assert(!GlRenderer3dUtils::was_errors());
+		GlError::ensure_debug();
 	}
 }
 
@@ -522,12 +523,12 @@ void GlTexture2dImpl::set_anisotropy()
 	if (gl_device_features.dsa_is_available_)
 	{
 		glTextureParameterf(gl_resource_.get(), GL_TEXTURE_MAX_ANISOTROPY, gl_anisotropy);
-		assert(!GlRenderer3dUtils::was_errors());
+		GlError::ensure_debug();
 	}
 	else
 	{
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, gl_anisotropy);
-		assert(!GlRenderer3dUtils::was_errors());
+		GlError::ensure_debug();
 	}
 }
 

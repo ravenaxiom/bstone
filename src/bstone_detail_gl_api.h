@@ -88,9 +88,9 @@ using GLsizeiptr = std::ptrdiff_t;
 using GLsizeiptrARB = std::ptrdiff_t;
 using GLsync = struct __GLsync*;
 
-// FIXME
-// OpenGL 1.4 or higher (except core)?
-#define GL_GENERATE_MIPMAP_HINT 0x8192
+
+// FIXME Add GL_ARB_robustness?
+#define GL_CONTEXT_LOST 0x0507
 
 
 // ==========================================================================

@@ -43,6 +43,7 @@ Free Software Foundation, Inc.,
 #include "bstone_renderer_3d_tests.h"
 #include "bstone_sdl_types.h"
 
+#include "bstone_detail_gl_error.h"
 #include "bstone_detail_gl_renderer_3d_utils.h"
 
 
@@ -2720,7 +2721,7 @@ void GlExtensionManagerImpl::get_names_multiple_strings()
 	auto gl_extension_count = GLint{};
 
 	glGetIntegerv(GL_NUM_EXTENSIONS, &gl_extension_count);
-	assert(!GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 
 	if (gl_extension_count == 0)
 	{
@@ -2750,7 +2751,7 @@ void GlExtensionManagerImpl::get_names_one_string()
 	}
 
 	const auto gl_extensions_c_string = glGetString(GL_EXTENSIONS);
-	assert(!GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 
 	if (gl_extensions_c_string == nullptr)
 	{

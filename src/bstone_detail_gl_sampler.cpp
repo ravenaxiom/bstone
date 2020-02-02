@@ -36,8 +36,9 @@ Free Software Foundation, Inc.,
 #include "bstone_renderer_3d_tests.h"
 #include "bstone_unique_resource.h"
 
-#include "bstone_detail_gl_renderer_3d_utils.h"
 #include "bstone_detail_gl_context.h"
+#include "bstone_detail_gl_error.h"
+#include "bstone_detail_gl_renderer_3d_utils.h"
 #include "bstone_detail_gl_texture_manager.h"
 
 
@@ -156,7 +157,7 @@ void GlSamplerImpl::bind()
 	}
 
 	glBindSampler(0, gl_resource_);
-	assert(!GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 }
 
 void GlSamplerImpl::update(
@@ -276,7 +277,7 @@ void GlSamplerImpl::sampler_deleter(
 	const GLuint& resource) noexcept
 {
 	glDeleteSamplers(1, &resource);
-	assert(!GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 }
 
 void GlSamplerImpl::initialize(
@@ -294,12 +295,12 @@ void GlSamplerImpl::initialize(
 		if (gl_device_features.dsa_is_available_)
 		{
 			glCreateSamplers(1, &gl_name);
-			assert(!GlRenderer3dUtils::was_errors());
+			GlError::ensure_debug();
 		}
 		else
 		{
 			glGenSamplers(1, &gl_name);
-			assert(!GlRenderer3dUtils::was_errors());
+			GlError::ensure_debug();
 		}
 
 		if (gl_name == 0)
@@ -318,7 +319,7 @@ void GlSamplerImpl::set_mag_filter()
 	const auto gl_mag_filter = GlRenderer3dUtils::filter_get_mag(state_.mag_filter_);
 
 	glSamplerParameteri(gl_resource_, GL_TEXTURE_MAG_FILTER, gl_mag_filter);
-	assert(!GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 }
 
 void GlSamplerImpl::set_min_filter()
@@ -326,7 +327,7 @@ void GlSamplerImpl::set_min_filter()
 	const auto gl_min_filter = GlRenderer3dUtils::filter_get_min(state_.min_filter_, state_.mipmap_mode_);
 
 	glSamplerParameteri(gl_resource_, GL_TEXTURE_MIN_FILTER, gl_min_filter);
-	assert(!GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 }
 
 void GlSamplerImpl::set_address_mode(
@@ -337,7 +338,7 @@ void GlSamplerImpl::set_address_mode(
 	const auto gl_address_mode = GlRenderer3dUtils::address_mode_get(address_mode);
 
 	glSamplerParameteri(gl_resource_, gl_wrap_axis, gl_address_mode);
-	assert(!GlRenderer3dUtils::was_errors());
+	GlError::ensure_debug();
 }
 
 void GlSamplerImpl::set_address_mode_u()
