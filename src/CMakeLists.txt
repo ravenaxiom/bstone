@@ -244,6 +244,7 @@ target_sources(
 		bstone_renderer_3d_tests.h
 
 		bstone_detail_renderer_3d_command_buffer.h
+		bstone_detail_renderer_3d_command_buffers.h
 		bstone_detail_renderer_3d_command_queue.h
 		bstone_detail_renderer_3d_utils.h
 
@@ -353,6 +354,7 @@ target_sources(
 		bstone_renderer_3d_shader_registry.cpp
 
 		bstone_detail_renderer_3d_command_buffer.cpp
+		bstone_detail_renderer_3d_command_buffers.cpp
 		bstone_detail_renderer_3d_command_queue.cpp
 		bstone_detail_renderer_3d_utils.cpp
 

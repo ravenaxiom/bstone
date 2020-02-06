@@ -32,6 +32,7 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_detail_renderer_3d_command_buffer.h"
+#include "bstone_detail_renderer_3d_command_buffers.h"
 
 
 namespace bstone
@@ -57,7 +58,7 @@ public:
 	int buffer_get_count() const noexcept override;
 
 	bstone::Renderer3dCommandBufferPtr buffer_add(
-		const Renderer3dCommandQueueBufferAddParam& param) override;
+		const Renderer3dCommandQueueAddBufferParam& param) override;
 
 	void buffer_remove(
 		bstone::Renderer3dCommandBufferPtr buffer) override;
@@ -69,19 +70,13 @@ public:
 
 
 private:
-	static constexpr auto reserved_buffer_count = 8;
-
-
-	using Buffers = std::vector<detail::RendererCommandBufferUPtr>;
-
-
 	const Renderer3dPtr renderer_3d_;
 
-	Buffers buffers_;
+	Renderer3dCommandBuffersUPtr buffers_;
 
 
 	static void validate_param(
-		const Renderer3dCommandQueueBufferAddParam& param);
+		const Renderer3dCommandQueueAddBufferParam& param);
 
 
 	void command_execute_clear(
@@ -145,8 +140,8 @@ private:
 		const Renderer3dCommandDrawIndexed& command);
 }; // Renderer3dCommandQueueImpl
 
-using RendererCommandQueueImplPtr = Renderer3dCommandQueueImpl*;
-using RendererCommandQueueImplUPtr = std::unique_ptr<Renderer3dCommandQueueImpl>;
+using Renderer3dCommandQueueImplPtr = Renderer3dCommandQueueImpl*;
+using Renderer3dCommandQueueImplUPtr = std::unique_ptr<Renderer3dCommandQueueImpl>;
 
 //
 // Renderer3dCommandQueueImpl

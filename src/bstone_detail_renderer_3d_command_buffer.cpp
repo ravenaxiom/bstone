@@ -42,10 +42,32 @@ namespace detail
 
 
 // ==========================================================================
+// Renderer3dCommandBufferImplInitException
+//
+
+class Renderer3dCommandBufferImplInitException :
+	public Exception
+{
+public:
+	explicit Renderer3dCommandBufferImplInitException(
+		const char* const message)
+		:
+		Exception{std::string{"[R3D_CMD_BUF_INIT] "} + message}
+	{
+	}
+}; // Renderer3dCommandBufferImplInitException
+
+//
+// Renderer3dCommandBufferImplInitException
+// ==========================================================================
+
+
+// ==========================================================================
 // Renderer3dCommandBufferImpl
 //
 
-Renderer3dCommandBufferImpl::Renderer3dCommandBufferImpl()
+Renderer3dCommandBufferImpl::Renderer3dCommandBufferImpl(
+	const Renderer3dCommandQueueAddBufferParam& param)
 	:
 	is_enabled_{},
 	is_reading_{},
@@ -57,6 +79,12 @@ Renderer3dCommandBufferImpl::Renderer3dCommandBufferImpl()
 	command_count_{},
 	data_{}
 {
+	validate_param(param);
+
+	size_ = std::max(param.initial_size_, get_min_initial_size());
+	resize_delta_size_ = std::max(param.resize_delta_size_, get_min_resize_delta_size());
+
+	data_.resize(size_);
 }
 
 Renderer3dCommandBufferImpl::~Renderer3dCommandBufferImpl() = default;
@@ -357,18 +385,18 @@ const Renderer3dCommandDrawIndexed* Renderer3dCommandBufferImpl::read_draw_index
 	return read<Renderer3dCommandDrawIndexed>();
 }
 
-void Renderer3dCommandBufferImpl::initialize(
-	const Renderer3dCommandQueueBufferAddParam& param)
+void Renderer3dCommandBufferImpl::validate_param(
+	const Renderer3dCommandQueueAddBufferParam& param)
 {
-	is_reading_ = false;
-	is_writing_ = false;
+	if (param.initial_size_ < 0)
+	{
+		throw Renderer3dCommandBufferImplInitException{"Initial size out of range."};
+	}
 
-	size_ = std::max(param.initial_size_, get_min_initial_size());
-	write_offset_ = 0;
-	read_offset_ = 0;
-	resize_delta_size_ = std::max(param.resize_delta_size_, get_min_resize_delta_size());
-
-	data_.resize(size_);
+	if (param.resize_delta_size_ < 0)
+	{
+		throw Renderer3dCommandBufferImplInitException{"Resize delta out of range."};
+	}
 }
 
 void Renderer3dCommandBufferImpl::resize_if_necessary(

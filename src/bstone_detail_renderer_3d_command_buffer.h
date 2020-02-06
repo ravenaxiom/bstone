@@ -48,7 +48,8 @@ class Renderer3dCommandBufferImpl final :
 	public Renderer3dCommandBuffer
 {
 public:
-	Renderer3dCommandBufferImpl();
+	Renderer3dCommandBufferImpl(
+		const Renderer3dCommandQueueAddBufferParam& param);
 
 	~Renderer3dCommandBufferImpl() override;
 
@@ -136,10 +137,6 @@ public:
 	const Renderer3dCommandDrawIndexed* read_draw_indexed() override;
 
 
-	void initialize(
-		const Renderer3dCommandQueueBufferAddParam& param);
-
-
 private:
 	static constexpr int get_min_initial_size()
 	{
@@ -171,6 +168,9 @@ private:
 
 	Data data_;
 
+
+	void validate_param(
+		const Renderer3dCommandQueueAddBufferParam& param);
 
 	void resize_if_necessary(
 		const int dst_delta_size);
@@ -234,7 +234,7 @@ private:
 }; // Renderer3dCommandBufferImpl
 
 using Renderer3dCommandBufferPtr = Renderer3dCommandBufferImpl*;
-using RendererCommandBufferUPtr = std::unique_ptr<Renderer3dCommandBufferImpl>;
+using Renderer3dCommandBufferUPtr = std::unique_ptr<Renderer3dCommandBufferImpl>;
 
 //
 // Renderer3dCommandBufferImpl

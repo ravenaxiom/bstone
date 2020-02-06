@@ -5522,7 +5522,7 @@ void hw_command_buffer_common_create()
 {
 	::vid_log("Creating common command buffer.");
 
-	auto param = bstone::Renderer3dCommandQueueBufferAddParam{};
+	auto param = bstone::Renderer3dCommandQueueAddBufferParam{};
 	param.initial_size_ = ::hw_common_command_buffer_initial_size;
 	param.resize_delta_size_ = ::hw_common_command_buffer_resize_delta_size;
 
@@ -5544,7 +5544,7 @@ void hw_command_buffer_2d_create()
 {
 	::vid_log("Creating 2D command buffer.");
 
-	auto param = bstone::Renderer3dCommandQueueBufferAddParam{};
+	auto param = bstone::Renderer3dCommandQueueAddBufferParam{};
 	param.initial_size_ = ::hw_2d_command_buffer_initial_size;
 	param.resize_delta_size_ = ::hw_2d_command_buffer_resize_delta_size;
 
@@ -5566,7 +5566,7 @@ void hw_command_buffer_3d_create()
 {
 	::vid_log("Creating 3D command buffer.");
 
-	auto param = bstone::Renderer3dCommandQueueBufferAddParam{};
+	auto param = bstone::Renderer3dCommandQueueAddBufferParam{};
 	param.initial_size_ = ::hw_3d_command_buffer_initial_size;
 	param.resize_delta_size_ = ::hw_3d_command_buffer_resize_delta_size;
 

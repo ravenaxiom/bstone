@@ -49,65 +49,37 @@ Renderer3dCommandQueueImpl::Renderer3dCommandQueueImpl(
 	const Renderer3dPtr renderer_3d)
 	:
 	renderer_3d_{renderer_3d},
-	buffers_{}
+	buffers_{Renderer3dCommandBuffersFactory::create()}
 {
-	buffers_.reserve(reserved_buffer_count);
 }
 
 Renderer3dCommandQueueImpl::~Renderer3dCommandQueueImpl() = default;
 
 int Renderer3dCommandQueueImpl::buffer_get_count() const noexcept
 {
-	return static_cast<int>(buffers_.size());
+	return buffers_->buffer_get_count();
 }
 
 bstone::Renderer3dCommandBufferPtr Renderer3dCommandQueueImpl::buffer_add(
-	const Renderer3dCommandQueueBufferAddParam& param)
+	const Renderer3dCommandQueueAddBufferParam& param)
 {
-	validate_param(param);
-
-	auto buffer = RendererCommandBufferUPtr{new Renderer3dCommandBufferImpl{}};
-
-	buffer->initialize(param);
-
-	buffers_.push_back(std::move(buffer));
-
-	return buffers_.back().get();
+	return buffers_->buffer_add(param);
 }
 
 void Renderer3dCommandQueueImpl::buffer_remove(
 	bstone::Renderer3dCommandBufferPtr buffer)
 {
-	if (!buffer)
-	{
-		assert(!"Null buffer.");
-
-		return;
-	}
-
-	static_cast<void>(std::remove_if(
-		buffers_.begin(),
-		buffers_.end(),
-		[&](const auto& item)
-		{
-			return item.get() == buffer;
-		}
-	));
+	buffers_->buffer_remove(buffer);
 }
 
 bstone::Renderer3dCommandBufferPtr Renderer3dCommandQueueImpl::buffer_get(
 	const int index)
 {
-	if (index < 0 || index >= buffer_get_count())
-	{
-		throw Exception{"Index out of range."};
-	}
-
-	return buffers_[index].get();
+	return buffers_->buffer_get(index);
 }
 
 void Renderer3dCommandQueueImpl::validate_param(
-	const Renderer3dCommandQueueBufferAddParam& param)
+	const Renderer3dCommandQueueAddBufferParam& param)
 {
 	if (param.initial_size_ < 0)
 	{
@@ -274,7 +246,7 @@ void Renderer3dCommandQueueImpl::command_execute()
 {
 	const auto buffer_count = buffer_get_count();
 
-	for (auto& command_buffer : buffers_)
+	for (auto& command_buffer : *buffers_)
 	{
 		if (!command_buffer->is_enabled())
 		{

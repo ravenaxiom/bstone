@@ -291,11 +291,11 @@ using Renderer3dCommandBufferPtr = Renderer3dCommandBuffer*;
 // Renderer3dCommandQueue
 //
 
-struct Renderer3dCommandQueueBufferAddParam
+struct Renderer3dCommandQueueAddBufferParam
 {
 	int initial_size_;
 	int resize_delta_size_;
-}; // Renderer3dCommandQueueBufferAddParam
+}; // Renderer3dCommandQueueAddBufferParam
 
 class Renderer3dCommandQueue
 {
@@ -310,7 +310,7 @@ public:
 	virtual int buffer_get_count() const noexcept = 0;
 
 	virtual Renderer3dCommandBufferPtr buffer_add(
-		const Renderer3dCommandQueueBufferAddParam& param) = 0;
+		const Renderer3dCommandQueueAddBufferParam& param) = 0;
 
 	virtual void buffer_remove(
 		Renderer3dCommandBufferPtr set) = 0;
