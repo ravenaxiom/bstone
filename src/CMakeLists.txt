@@ -237,14 +237,14 @@ target_sources(
 		bstone_missing_wall_64x64_image.h
 		bstone_renderer.h
 		bstone_renderer_3d.h
-		bstone_renderer_3d_command_manager.h
+		bstone_renderer_3d_command_queue.h
 		bstone_renderer_3d_limits.h
 		bstone_renderer_3d_manager.h
 		bstone_renderer_3d_shader_registry.h
 		bstone_renderer_3d_tests.h
 
 		bstone_detail_renderer_3d_command_buffer.h
-		bstone_detail_renderer_3d_command_manager.h
+		bstone_detail_renderer_3d_command_queue.h
 		bstone_detail_renderer_3d_utils.h
 
 		bstone_detail_gl_api.h
@@ -353,7 +353,7 @@ target_sources(
 		bstone_renderer_3d_shader_registry.cpp
 
 		bstone_detail_renderer_3d_command_buffer.cpp
-		bstone_detail_renderer_3d_command_manager.cpp
+		bstone_detail_renderer_3d_command_queue.cpp
 		bstone_detail_renderer_3d_utils.cpp
 
 		bstone_detail_gl_api.cpp

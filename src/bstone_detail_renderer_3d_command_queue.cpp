@@ -28,7 +28,7 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_precompiled.h"
-#include "bstone_detail_renderer_3d_command_manager.h"
+#include "bstone_detail_renderer_3d_command_queue.h"
 
 #include <algorithm>
 
@@ -42,10 +42,10 @@ namespace detail
 
 
 // ==========================================================================
-// Renderer3dCommandManagerImpl
+// Renderer3dCommandQueueImpl
 //
 
-Renderer3dCommandManagerImpl::Renderer3dCommandManagerImpl(
+Renderer3dCommandQueueImpl::Renderer3dCommandQueueImpl(
 	const Renderer3dPtr renderer_3d)
 	:
 	renderer_3d_{renderer_3d},
@@ -54,15 +54,15 @@ Renderer3dCommandManagerImpl::Renderer3dCommandManagerImpl(
 	buffers_.reserve(reserved_buffer_count);
 }
 
-Renderer3dCommandManagerImpl::~Renderer3dCommandManagerImpl() = default;
+Renderer3dCommandQueueImpl::~Renderer3dCommandQueueImpl() = default;
 
-int Renderer3dCommandManagerImpl::buffer_get_count() const noexcept
+int Renderer3dCommandQueueImpl::buffer_get_count() const noexcept
 {
 	return static_cast<int>(buffers_.size());
 }
 
-bstone::Renderer3dCommandBufferPtr Renderer3dCommandManagerImpl::buffer_add(
-	const Renderer3dCommandManagerBufferAddParam& param)
+bstone::Renderer3dCommandBufferPtr Renderer3dCommandQueueImpl::buffer_add(
+	const Renderer3dCommandQueueBufferAddParam& param)
 {
 	validate_param(param);
 
@@ -75,7 +75,7 @@ bstone::Renderer3dCommandBufferPtr Renderer3dCommandManagerImpl::buffer_add(
 	return buffers_.back().get();
 }
 
-void Renderer3dCommandManagerImpl::buffer_remove(
+void Renderer3dCommandQueueImpl::buffer_remove(
 	bstone::Renderer3dCommandBufferPtr buffer)
 {
 	if (!buffer)
@@ -95,7 +95,7 @@ void Renderer3dCommandManagerImpl::buffer_remove(
 	));
 }
 
-bstone::Renderer3dCommandBufferPtr Renderer3dCommandManagerImpl::buffer_get(
+bstone::Renderer3dCommandBufferPtr Renderer3dCommandQueueImpl::buffer_get(
 	const int index)
 {
 	if (index < 0 || index >= buffer_get_count())
@@ -106,8 +106,8 @@ bstone::Renderer3dCommandBufferPtr Renderer3dCommandManagerImpl::buffer_get(
 	return buffers_[index].get();
 }
 
-void Renderer3dCommandManagerImpl::validate_param(
-	const Renderer3dCommandManagerBufferAddParam& param)
+void Renderer3dCommandQueueImpl::validate_param(
+	const Renderer3dCommandQueueBufferAddParam& param)
 {
 	if (param.initial_size_ < 0)
 	{
@@ -120,85 +120,85 @@ void Renderer3dCommandManagerImpl::validate_param(
 	}
 }
 
-void Renderer3dCommandManagerImpl::command_execute_clear(
+void Renderer3dCommandQueueImpl::command_execute_clear(
 	const Renderer3dCommandClear& command)
 {
 	renderer_3d_->clear(command.param_);
 }
 
-void Renderer3dCommandManagerImpl::command_execute_culling(
+void Renderer3dCommandQueueImpl::command_execute_culling(
 	const Renderer3dCommandCulling& command)
 {
 	renderer_3d_->culling_enable(command.is_enable_);
 }
 
-void Renderer3dCommandManagerImpl::command_execute_depth_test(
+void Renderer3dCommandQueueImpl::command_execute_depth_test(
 	const Renderer3dCommandDepthTest& command)
 {
 	renderer_3d_->depth_test_enable(command.is_enable_);
 }
 
-void Renderer3dCommandManagerImpl::command_execute_depth_write(
+void Renderer3dCommandQueueImpl::command_execute_depth_write(
 	const Renderer3dCommandDepthWrite& command)
 {
 	renderer_3d_->depth_write_enable(command.is_enable_);
 }
 
-void Renderer3dCommandManagerImpl::command_execute_viewport(
+void Renderer3dCommandQueueImpl::command_execute_viewport(
 	const Renderer3dCommandViewport& command)
 {
 	renderer_3d_->viewport_set(command.viewport_);
 }
 
-void Renderer3dCommandManagerImpl::command_execute_blending(
+void Renderer3dCommandQueueImpl::command_execute_blending(
 	const Renderer3dCommandBlending& command)
 {
 	renderer_3d_->blending_enable(command.is_enable_);
 }
 
-void Renderer3dCommandManagerImpl::command_execute_blending_func(
+void Renderer3dCommandQueueImpl::command_execute_blending_func(
 	const Renderer3dCommandBlendingFunc& command)
 {
 	renderer_3d_->blending_function_set(command.blending_func_);
 }
 
-void Renderer3dCommandManagerImpl::command_execute_scissor(
+void Renderer3dCommandQueueImpl::command_execute_scissor(
 	const Renderer3dCommandScissor& command)
 {
 	renderer_3d_->scissor_enable(command.is_enable_);
 }
 
-void Renderer3dCommandManagerImpl::command_execute_scissor_box(
+void Renderer3dCommandQueueImpl::command_execute_scissor_box(
 	const Renderer3dCommandScissorBox& command)
 {
 	renderer_3d_->scissor_box_set(command.scissor_box_);
 }
 
-void Renderer3dCommandManagerImpl::command_execute_texture(
+void Renderer3dCommandQueueImpl::command_execute_texture(
 	const Renderer3dCommandTexture& command)
 {
 	renderer_3d_->texture_2d_set(command.texture_2d_);
 }
 
-void Renderer3dCommandManagerImpl::command_execute_sampler(
+void Renderer3dCommandQueueImpl::command_execute_sampler(
 	const Renderer3dCommandSampler& command)
 {
 	renderer_3d_->sampler_set(command.sampler_);
 }
 
-void Renderer3dCommandManagerImpl::command_execute_vertex_input(
+void Renderer3dCommandQueueImpl::command_execute_vertex_input(
 	const Renderer3dCommandVertexInput& command)
 {
 	renderer_3d_->vertex_input_set(command.vertex_input_);
 }
 
-void Renderer3dCommandManagerImpl::command_execute_shader_stage(
+void Renderer3dCommandQueueImpl::command_execute_shader_stage(
 	const Renderer3dCommandShaderStage& command)
 {
 	renderer_3d_->shader_stage_set(command.shader_stage_);
 }
 
-void Renderer3dCommandManagerImpl::command_execute_shader_var_int32(
+void Renderer3dCommandQueueImpl::command_execute_shader_var_int32(
 	const Renderer3dCommandShaderVarInt32& command)
 {
 	if (!command.var_)
@@ -209,7 +209,7 @@ void Renderer3dCommandManagerImpl::command_execute_shader_var_int32(
 	command.var_->set_int(command.value_);
 }
 
-void Renderer3dCommandManagerImpl::command_execute_shader_var_float32(
+void Renderer3dCommandQueueImpl::command_execute_shader_var_float32(
 	const Renderer3dCommandShaderVarFloat32& command)
 {
 	if (!command.var_)
@@ -220,7 +220,7 @@ void Renderer3dCommandManagerImpl::command_execute_shader_var_float32(
 	command.var_->set_float(command.value_);
 }
 
-void Renderer3dCommandManagerImpl::command_execute_shader_var_vec2(
+void Renderer3dCommandQueueImpl::command_execute_shader_var_vec2(
 	const Renderer3dCommandShaderVarVec2& command)
 {
 	if (!command.var_)
@@ -231,7 +231,7 @@ void Renderer3dCommandManagerImpl::command_execute_shader_var_vec2(
 	command.var_->set_vec2(command.value_.data());
 }
 
-void Renderer3dCommandManagerImpl::command_execute_shader_var_vec4(
+void Renderer3dCommandQueueImpl::command_execute_shader_var_vec4(
 	const Renderer3dCommandShaderVarVec4& command)
 {
 	if (!command.var_)
@@ -242,7 +242,7 @@ void Renderer3dCommandManagerImpl::command_execute_shader_var_vec4(
 	command.var_->set_vec4(command.value_.data());
 }
 
-void Renderer3dCommandManagerImpl::command_execute_shader_var_mat4(
+void Renderer3dCommandQueueImpl::command_execute_shader_var_mat4(
 	const Renderer3dCommandShaderVarMat4& command)
 {
 	if (!command.var_)
@@ -253,7 +253,7 @@ void Renderer3dCommandManagerImpl::command_execute_shader_var_mat4(
 	command.var_->set_mat4(command.value_.data());
 }
 
-void Renderer3dCommandManagerImpl::command_execute_shader_var_sampler_2d(
+void Renderer3dCommandQueueImpl::command_execute_shader_var_sampler_2d(
 	const Renderer3dCommandShaderVarSampler2d& command)
 {
 	if (!command.var_)
@@ -264,13 +264,13 @@ void Renderer3dCommandManagerImpl::command_execute_shader_var_sampler_2d(
 	command.var_->set_sampler_2d(command.value_);
 }
 
-void Renderer3dCommandManagerImpl::command_execute_draw_indexed(
+void Renderer3dCommandQueueImpl::command_execute_draw_indexed(
 	const Renderer3dCommandDrawIndexed& command)
 {
 	renderer_3d_->draw_indexed(command.param_);
 }
 
-void Renderer3dCommandManagerImpl::command_execute()
+void Renderer3dCommandQueueImpl::command_execute()
 {
 	const auto buffer_count = buffer_get_count();
 
@@ -381,7 +381,7 @@ void Renderer3dCommandManagerImpl::command_execute()
 }
 
 //
-// Renderer3dCommandManagerImpl
+// Renderer3dCommandQueueImpl
 // ==========================================================================
 
 
@@ -389,17 +389,17 @@ void Renderer3dCommandManagerImpl::command_execute()
 
 
 // ==========================================================================
-// Renderer3dCommandManagerFactory
+// Renderer3dCommandQueueFactory
 //
 
-Renderer3dCommandManagerUPtr Renderer3dCommandManagerFactory::create(
+Renderer3dCommandQueueUPtr Renderer3dCommandQueueFactory::create(
 	const Renderer3dPtr renderer_3d)
 {
-	return std::make_unique<detail::Renderer3dCommandManagerImpl>(renderer_3d);
+	return std::make_unique<detail::Renderer3dCommandQueueImpl>(renderer_3d);
 }
 
 //
-// Renderer3dCommandManagerFactory
+// Renderer3dCommandQueueFactory
 // ==========================================================================
 
 

@@ -23,12 +23,12 @@ Free Software Foundation, Inc.,
 
 
 //
-// 3D renderer's command manager (implementaion).
+// 3D renderer's command queue (implementaion).
 //
 
 
-#ifndef BSTONE_DETAIL_RENDERER_3D_COMMAND_MANAGER_INCLUDED
-#define BSTONE_DETAIL_RENDERER_3D_COMMAND_MANAGER_INCLUDED
+#ifndef BSTONE_DETAIL_RENDERER_3D_COMMAND_QUEUE_INCLUDED
+#define BSTONE_DETAIL_RENDERER_3D_COMMAND_QUEUE_INCLUDED
 
 
 #include "bstone_detail_renderer_3d_command_buffer.h"
@@ -41,23 +41,23 @@ namespace detail
 
 
 // ==========================================================================
-// Renderer3dCommandManagerImpl
+// Renderer3dCommandQueueImpl
 //
 
-class Renderer3dCommandManagerImpl final :
-	public Renderer3dCommandManager
+class Renderer3dCommandQueueImpl final :
+	public Renderer3dCommandQueue
 {
 public:
-	Renderer3dCommandManagerImpl(
+	Renderer3dCommandQueueImpl(
 		const Renderer3dPtr renderer_3d);
 
-	~Renderer3dCommandManagerImpl() override;
+	~Renderer3dCommandQueueImpl() override;
 
 
 	int buffer_get_count() const noexcept override;
 
 	bstone::Renderer3dCommandBufferPtr buffer_add(
-		const Renderer3dCommandManagerBufferAddParam& param) override;
+		const Renderer3dCommandQueueBufferAddParam& param) override;
 
 	void buffer_remove(
 		bstone::Renderer3dCommandBufferPtr buffer) override;
@@ -81,7 +81,7 @@ private:
 
 
 	static void validate_param(
-		const Renderer3dCommandManagerBufferAddParam& param);
+		const Renderer3dCommandQueueBufferAddParam& param);
 
 
 	void command_execute_clear(
@@ -143,13 +143,13 @@ private:
 
 	void command_execute_draw_indexed(
 		const Renderer3dCommandDrawIndexed& command);
-}; // Renderer3dCommandManagerImpl
+}; // Renderer3dCommandQueueImpl
 
-using RendererCommandManagerImplPtr = Renderer3dCommandManagerImpl*;
-using RendererCommandManagerImplUPtr = std::unique_ptr<Renderer3dCommandManagerImpl>;
+using RendererCommandQueueImplPtr = Renderer3dCommandQueueImpl*;
+using RendererCommandQueueImplUPtr = std::unique_ptr<Renderer3dCommandQueueImpl>;
 
 //
-// Renderer3dCommandManagerImpl
+// Renderer3dCommandQueueImpl
 // ==========================================================================
 
 
@@ -157,4 +157,4 @@ using RendererCommandManagerImplUPtr = std::unique_ptr<Renderer3dCommandManagerI
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_RENDERER_3D_COMMAND_MANAGER_INCLUDED
+#endif // !BSTONE_DETAIL_RENDERER_3D_COMMAND_QUEUE_INCLUDED

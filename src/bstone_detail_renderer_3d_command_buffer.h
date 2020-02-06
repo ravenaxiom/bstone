@@ -31,7 +31,7 @@ Free Software Foundation, Inc.,
 #define BSTONE_DETAIL_RENDERER_3D_COMMAND_BUFFER_INCLUDED
 
 
-#include "bstone_renderer_3d_command_manager.h"
+#include "bstone_renderer_3d_command_queue.h"
 
 
 namespace bstone
@@ -137,7 +137,7 @@ public:
 
 
 	void initialize(
-		const Renderer3dCommandManagerBufferAddParam& param);
+		const Renderer3dCommandQueueBufferAddParam& param);
 
 
 private:

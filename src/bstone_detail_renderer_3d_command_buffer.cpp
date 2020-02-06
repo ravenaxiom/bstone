@@ -358,7 +358,7 @@ const Renderer3dCommandDrawIndexed* Renderer3dCommandBufferImpl::read_draw_index
 }
 
 void Renderer3dCommandBufferImpl::initialize(
-	const Renderer3dCommandManagerBufferAddParam& param)
+	const Renderer3dCommandQueueBufferAddParam& param)
 {
 	is_reading_ = false;
 	is_writing_ = false;

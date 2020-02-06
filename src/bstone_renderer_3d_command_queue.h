@@ -288,29 +288,29 @@ using Renderer3dCommandBufferPtr = Renderer3dCommandBuffer*;
 
 
 // ==========================================================================
-// Renderer3dCommandManager
+// Renderer3dCommandQueue
 //
 
-struct Renderer3dCommandManagerBufferAddParam
+struct Renderer3dCommandQueueBufferAddParam
 {
 	int initial_size_;
 	int resize_delta_size_;
-}; // Renderer3dCommandManagerBufferAddParam
+}; // Renderer3dCommandQueueBufferAddParam
 
-class Renderer3dCommandManager
+class Renderer3dCommandQueue
 {
 protected:
-	Renderer3dCommandManager() = default;
+	Renderer3dCommandQueue() = default;
 
 
 public:
-	virtual ~Renderer3dCommandManager() = default;
+	virtual ~Renderer3dCommandQueue() = default;
 
 
 	virtual int buffer_get_count() const noexcept = 0;
 
 	virtual Renderer3dCommandBufferPtr buffer_add(
-		const Renderer3dCommandManagerBufferAddParam& param) = 0;
+		const Renderer3dCommandQueueBufferAddParam& param) = 0;
 
 	virtual void buffer_remove(
 		Renderer3dCommandBufferPtr set) = 0;
@@ -320,28 +320,28 @@ public:
 
 
 	virtual void command_execute() = 0;
-}; // Renderer3dCommandManager
+}; // Renderer3dCommandQueue
 
-using Renderer3dCommandManagerPtr = Renderer3dCommandManager*;
-using Renderer3dCommandManagerUPtr = std::unique_ptr<Renderer3dCommandManager>;
+using Renderer3dCommandQueuePtr = Renderer3dCommandQueue*;
+using Renderer3dCommandQueueUPtr = std::unique_ptr<Renderer3dCommandQueue>;
 
 //
-// Renderer3dCommandManager
+// Renderer3dCommandQueue
 // ==========================================================================
 
 
 // ==========================================================================
-// Renderer3dCommandManagerFactory
+// Renderer3dCommandQueueFactory
 //
 
-struct Renderer3dCommandManagerFactory
+struct Renderer3dCommandQueueFactory
 {
-	static Renderer3dCommandManagerUPtr create(
+	static Renderer3dCommandQueueUPtr create(
 		const Renderer3dPtr renderer_3d);
-}; // Renderer3dCommandManagerFactory
+}; // Renderer3dCommandQueueFactory
 
 //
-// Renderer3dCommandManagerFactory
+// Renderer3dCommandQueueFactory
 // ==========================================================================
 
 

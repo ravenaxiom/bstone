@@ -38,12 +38,13 @@ Free Software Foundation, Inc.,
 #include "id_in.h"
 #include "id_vh.h"
 #include "id_vl.h"
+
 #include "bstone_fixed_point.h"
 #include "bstone_hw_texture_manager.h"
 #include "bstone_logger.h"
 #include "bstone_mod_value.h"
 #include "bstone_mt_task_manager.h"
-#include "bstone_renderer_3d_command_manager.h"
+#include "bstone_renderer_3d_command_queue.h"
 #include "bstone_renderer_3d_limits.h"
 #include "bstone_renderer_3d_manager.h"
 #include "bstone_renderer_3d_shader_registry.h"
@@ -2533,7 +2534,7 @@ bstone::HwTextureManagerUPtr hw_texture_manager_;
 bstone::Rgba8Palette hw_palette_;
 bstone::Rgba8Palette hw_default_palette_;
 
-bstone::Renderer3dCommandManagerUPtr hw_command_manager_;
+bstone::Renderer3dCommandQueueUPtr hw_command_manager_;
 bstone::Renderer3dCommandBufferPtr hw_common_command_buffer_;
 bstone::Renderer3dCommandBufferPtr hw_2d_command_buffer_;
 bstone::Renderer3dCommandBufferPtr hw_3d_command_buffer_;
@@ -5503,7 +5504,7 @@ void hw_command_manager_create()
 {
 	::vid_log("Creating command manager.");
 
-	::hw_command_manager_ = bstone::Renderer3dCommandManagerFactory::create(hw_renderer_);
+	::hw_command_manager_ = bstone::Renderer3dCommandQueueFactory::create(hw_renderer_);
 }
 
 void hw_command_buffer_common_destroy()
@@ -5521,7 +5522,7 @@ void hw_command_buffer_common_create()
 {
 	::vid_log("Creating common command buffer.");
 
-	auto param = bstone::Renderer3dCommandManagerBufferAddParam{};
+	auto param = bstone::Renderer3dCommandQueueBufferAddParam{};
 	param.initial_size_ = ::hw_common_command_buffer_initial_size;
 	param.resize_delta_size_ = ::hw_common_command_buffer_resize_delta_size;
 
@@ -5543,7 +5544,7 @@ void hw_command_buffer_2d_create()
 {
 	::vid_log("Creating 2D command buffer.");
 
-	auto param = bstone::Renderer3dCommandManagerBufferAddParam{};
+	auto param = bstone::Renderer3dCommandQueueBufferAddParam{};
 	param.initial_size_ = ::hw_2d_command_buffer_initial_size;
 	param.resize_delta_size_ = ::hw_2d_command_buffer_resize_delta_size;
 
@@ -5565,7 +5566,7 @@ void hw_command_buffer_3d_create()
 {
 	::vid_log("Creating 3D command buffer.");
 
-	auto param = bstone::Renderer3dCommandManagerBufferAddParam{};
+	auto param = bstone::Renderer3dCommandQueueBufferAddParam{};
 	param.initial_size_ = ::hw_3d_command_buffer_initial_size;
 	param.resize_delta_size_ = ::hw_3d_command_buffer_resize_delta_size;
 

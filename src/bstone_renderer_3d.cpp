@@ -29,7 +29,7 @@ Free Software Foundation, Inc.,
 
 #include "bstone_precompiled.h"
 #include "bstone_renderer_3d.h"
-#include "bstone_detail_renderer_3d_command_manager.h"
+#include "bstone_detail_renderer_3d_command_queue.h"
 
 
 namespace bstone
