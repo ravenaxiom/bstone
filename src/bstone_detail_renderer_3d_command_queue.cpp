@@ -23,7 +23,7 @@ Free Software Foundation, Inc.,
 
 
 //
-// 3D renderer's command manager (implementaion).
+// 3D renderer's command queue (implementaion).
 //
 
 

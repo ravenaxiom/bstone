@@ -237,6 +237,7 @@ target_sources(
 		bstone_missing_wall_64x64_image.h
 		bstone_renderer.h
 		bstone_renderer_3d.h
+		bstone_renderer_3d_command_buffer.h
 		bstone_renderer_3d_command_queue.h
 		bstone_renderer_3d_limits.h
 		bstone_renderer_3d_manager.h
