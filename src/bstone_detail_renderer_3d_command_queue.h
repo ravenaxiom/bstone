@@ -49,95 +49,29 @@ class Renderer3dCommandQueueImpl final :
 	public Renderer3dCommandQueue
 {
 public:
-	Renderer3dCommandQueueImpl(
-		const Renderer3dPtr renderer_3d);
+	Renderer3dCommandQueueImpl();
 
 	~Renderer3dCommandQueueImpl() override;
 
 
-	int buffer_get_count() const noexcept override;
+	int get_count() const noexcept override;
 
-	bstone::Renderer3dCommandBufferPtr buffer_add(
-		const Renderer3dCommandQueueAddBufferParam& param) override;
+	bstone::Renderer3dCommandBufferPtr enqueue(
+		const Renderer3dCommandQueueEnqueueParam& param) override;
 
-	void buffer_remove(
+	void dequeue(
 		bstone::Renderer3dCommandBufferPtr buffer) override;
 
-	bstone::Renderer3dCommandBufferPtr buffer_get(
+	bstone::Renderer3dCommandBufferPtr get(
 		const int index) override;
-
-	void command_execute() override;
 
 
 private:
-	const Renderer3dPtr renderer_3d_;
-
 	Renderer3dCommandBuffersUPtr buffers_;
 
 
 	static void validate_param(
-		const Renderer3dCommandQueueAddBufferParam& param);
-
-
-	void command_execute_clear(
-		const Renderer3dCommandClear& command);
-
-	void command_execute_culling(
-		const Renderer3dCommandCulling& command);
-
-	void command_execute_depth_test(
-		const Renderer3dCommandDepthTest& command);
-
-	void command_execute_depth_write(
-		const Renderer3dCommandDepthWrite& command);
-
-	void command_execute_blending(
-		const Renderer3dCommandBlending& command);
-
-	void command_execute_blending_func(
-		const Renderer3dCommandBlendingFunc& command);
-
-	void command_execute_viewport(
-		const Renderer3dCommandViewport& command);
-
-	void command_execute_scissor(
-		const Renderer3dCommandScissor& command);
-
-	void command_execute_scissor_box(
-		const Renderer3dCommandScissorBox& command);
-
-	void command_execute_texture(
-		const Renderer3dCommandTexture& command);
-
-	void command_execute_sampler(
-		const Renderer3dCommandSampler& command);
-
-	void command_execute_vertex_input(
-		const Renderer3dCommandVertexInput& command);
-
-	void command_execute_shader_stage(
-		const Renderer3dCommandShaderStage& command);
-
-	void command_execute_shader_var_int32(
-		const Renderer3dCommandShaderVarInt32& command);
-
-	void command_execute_shader_var_float32(
-		const Renderer3dCommandShaderVarFloat32& command);
-
-	void command_execute_shader_var_vec2(
-		const Renderer3dCommandShaderVarVec2& command);
-
-	void command_execute_shader_var_vec4(
-		const Renderer3dCommandShaderVarVec4& command);
-
-	void command_execute_shader_var_mat4(
-		const Renderer3dCommandShaderVarMat4& command);
-
-	void command_execute_shader_var_sampler_2d(
-		const Renderer3dCommandShaderVarSampler2d& command);
-
-	void command_execute_draw_indexed(
-		const Renderer3dCommandDrawIndexed& command);
+		const Renderer3dCommandQueueEnqueueParam& param);
 }; // Renderer3dCommandQueueImpl
 
 using Renderer3dCommandQueueImplPtr = Renderer3dCommandQueueImpl*;

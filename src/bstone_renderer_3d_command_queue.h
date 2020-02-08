@@ -31,7 +31,6 @@ Free Software Foundation, Inc.,
 #define BSTONE_RENDERER_3D_COMMAND_QUEUE_INCLUDED
 
 
-#include "bstone_renderer_3d.h"
 #include "bstone_renderer_3d_command_buffer.h"
 
 
@@ -43,11 +42,11 @@ namespace bstone
 // Renderer3dCommandQueue
 //
 
-struct Renderer3dCommandQueueAddBufferParam
+struct Renderer3dCommandQueueEnqueueParam
 {
 	int initial_size_;
 	int resize_delta_size_;
-}; // Renderer3dCommandQueueAddBufferParam
+}; // Renderer3dCommandQueueEnqueueParam
 
 class Renderer3dCommandQueue
 {
@@ -59,19 +58,16 @@ public:
 	virtual ~Renderer3dCommandQueue() = default;
 
 
-	virtual int buffer_get_count() const noexcept = 0;
+	virtual int get_count() const noexcept = 0;
 
-	virtual Renderer3dCommandBufferPtr buffer_add(
-		const Renderer3dCommandQueueAddBufferParam& param) = 0;
+	virtual Renderer3dCommandBufferPtr enqueue(
+		const Renderer3dCommandQueueEnqueueParam& param) = 0;
 
-	virtual void buffer_remove(
+	virtual void dequeue(
 		Renderer3dCommandBufferPtr set) = 0;
 
-	virtual Renderer3dCommandBufferPtr buffer_get(
+	virtual Renderer3dCommandBufferPtr get(
 		const int index) = 0;
-
-
-	virtual void command_execute() = 0;
 }; // Renderer3dCommandQueue
 
 using Renderer3dCommandQueuePtr = Renderer3dCommandQueue*;
@@ -88,8 +84,7 @@ using Renderer3dCommandQueueUPtr = std::unique_ptr<Renderer3dCommandQueue>;
 
 struct Renderer3dCommandQueueFactory
 {
-	static Renderer3dCommandQueueUPtr create(
-		const Renderer3dPtr renderer_3d);
+	static Renderer3dCommandQueueUPtr create();
 }; // Renderer3dCommandQueueFactory
 
 //

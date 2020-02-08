@@ -5504,7 +5504,7 @@ void hw_command_queue_create()
 {
 	::vid_log("Creating command queue.");
 
-	::hw_command_queue_ = bstone::Renderer3dCommandQueueFactory::create(hw_renderer_);
+	::hw_command_queue_ = bstone::Renderer3dCommandQueueFactory::create();
 }
 
 void hw_command_buffer_common_destroy()
@@ -5514,7 +5514,7 @@ void hw_command_buffer_common_destroy()
 		return;
 	}
 
-	::hw_command_queue_->buffer_remove(::hw_common_command_buffer_);
+	::hw_command_queue_->dequeue(::hw_common_command_buffer_);
 	::hw_common_command_buffer_ = nullptr;
 }
 
@@ -5522,11 +5522,11 @@ void hw_command_buffer_common_create()
 {
 	::vid_log("Creating common command buffer.");
 
-	auto param = bstone::Renderer3dCommandQueueAddBufferParam{};
+	auto param = bstone::Renderer3dCommandQueueEnqueueParam{};
 	param.initial_size_ = ::hw_common_command_buffer_initial_size;
 	param.resize_delta_size_ = ::hw_common_command_buffer_resize_delta_size;
 
-	::hw_common_command_buffer_ = ::hw_command_queue_->buffer_add(param);
+	::hw_common_command_buffer_ = ::hw_command_queue_->enqueue(param);
 }
 
 void hw_command_buffer_2d_destroy()
@@ -5536,7 +5536,7 @@ void hw_command_buffer_2d_destroy()
 		return;
 	}
 
-	::hw_command_queue_->buffer_remove(::hw_2d_command_buffer_);
+	::hw_command_queue_->dequeue(::hw_2d_command_buffer_);
 	::hw_2d_command_buffer_ = nullptr;
 }
 
@@ -5544,11 +5544,11 @@ void hw_command_buffer_2d_create()
 {
 	::vid_log("Creating 2D command buffer.");
 
-	auto param = bstone::Renderer3dCommandQueueAddBufferParam{};
+	auto param = bstone::Renderer3dCommandQueueEnqueueParam{};
 	param.initial_size_ = ::hw_2d_command_buffer_initial_size;
 	param.resize_delta_size_ = ::hw_2d_command_buffer_resize_delta_size;
 
-	::hw_2d_command_buffer_ = ::hw_command_queue_->buffer_add(param);
+	::hw_2d_command_buffer_ = ::hw_command_queue_->enqueue(param);
 }
 
 void hw_command_buffer_3d_destroy()
@@ -5558,7 +5558,7 @@ void hw_command_buffer_3d_destroy()
 		return;
 	}
 
-	::hw_command_queue_->buffer_remove(::hw_3d_command_buffer_);
+	::hw_command_queue_->dequeue(::hw_3d_command_buffer_);
 	::hw_3d_command_buffer_ = nullptr;
 }
 
@@ -5566,11 +5566,11 @@ void hw_command_buffer_3d_create()
 {
 	::vid_log("Creating 3D command buffer.");
 
-	auto param = bstone::Renderer3dCommandQueueAddBufferParam{};
+	auto param = bstone::Renderer3dCommandQueueEnqueueParam{};
 	param.initial_size_ = ::hw_3d_command_buffer_initial_size;
 	param.resize_delta_size_ = ::hw_3d_command_buffer_resize_delta_size;
 
-	::hw_3d_command_buffer_ = ::hw_command_queue_->buffer_add(param);
+	::hw_3d_command_buffer_ = ::hw_command_queue_->enqueue(param);
 }
 
 void hw_command_queue_uninitialize()
@@ -7767,7 +7767,7 @@ void hw_screen_refresh()
 	::hw_screen_3d_refresh();
 	::hw_screen_2d_refresh();
 
-	hw_command_queue_->command_execute();
+	hw_renderer_->submit_commands(hw_command_queue_.get());
 	::hw_renderer_->present();
 
 	::vid_hw_is_draw_3d_ = false;

@@ -49,7 +49,7 @@ class Renderer3dCommandBufferImpl final :
 {
 public:
 	Renderer3dCommandBufferImpl(
-		const Renderer3dCommandQueueAddBufferParam& param);
+		const Renderer3dCommandQueueEnqueueParam& param);
 
 	~Renderer3dCommandBufferImpl() override;
 
@@ -170,7 +170,7 @@ private:
 
 
 	void validate_param(
-		const Renderer3dCommandQueueAddBufferParam& param);
+		const Renderer3dCommandQueueEnqueueParam& param);
 
 	void resize_if_necessary(
 		const int dst_delta_size);

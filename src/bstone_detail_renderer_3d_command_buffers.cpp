@@ -76,15 +76,15 @@ public:
 	~Renderer3dCommandBuffersImpl() override = default;
 
 
-	int buffer_get_count() const noexcept override;
+	int get_count() const noexcept override;
 
-	bstone::Renderer3dCommandBufferPtr buffer_add(
-		const Renderer3dCommandQueueAddBufferParam& param) override;
+	bstone::Renderer3dCommandBufferPtr enqueue(
+		const Renderer3dCommandQueueEnqueueParam& param) override;
 
-	void buffer_remove(
+	void dequeue(
 		const bstone::Renderer3dCommandBufferPtr buffer) override;
 
-	bstone::Renderer3dCommandBufferPtr buffer_get(
+	bstone::Renderer3dCommandBufferPtr get(
 		const int index) override;
 
 
@@ -124,13 +124,13 @@ Renderer3dCommandBuffersImpl::Renderer3dCommandBuffersImpl()
 	buffers_.reserve(reserve_count);
 }
 
-int Renderer3dCommandBuffersImpl::buffer_get_count() const noexcept
+int Renderer3dCommandBuffersImpl::get_count() const noexcept
 {
 	return static_cast<int>(buffers_.size());
 }
 
-bstone::Renderer3dCommandBufferPtr Renderer3dCommandBuffersImpl::buffer_add(
-	const Renderer3dCommandQueueAddBufferParam& param)
+bstone::Renderer3dCommandBufferPtr Renderer3dCommandBuffersImpl::enqueue(
+	const Renderer3dCommandQueueEnqueueParam& param)
 {
 	auto buffer = std::make_unique<Renderer3dCommandBufferImpl>(param);
 
@@ -139,7 +139,7 @@ bstone::Renderer3dCommandBufferPtr Renderer3dCommandBuffersImpl::buffer_add(
 	return buffers_.back().get();
 }
 
-void Renderer3dCommandBuffersImpl::buffer_remove(
+void Renderer3dCommandBuffersImpl::dequeue(
 	const bstone::Renderer3dCommandBufferPtr buffer)
 {
 	if (!buffer)
@@ -157,10 +157,10 @@ void Renderer3dCommandBuffersImpl::buffer_remove(
 	));
 }
 
-bstone::Renderer3dCommandBufferPtr Renderer3dCommandBuffersImpl::buffer_get(
+bstone::Renderer3dCommandBufferPtr Renderer3dCommandBuffersImpl::get(
 	const int index)
 {
-	if (index < 0 || index >= buffer_get_count())
+	if (index < 0 || index >= get_count())
 	{
 		throw Renderer3dCommandBuffersImplException{"Index out of range."};
 	}

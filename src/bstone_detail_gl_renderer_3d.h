@@ -38,6 +38,7 @@ Free Software Foundation, Inc.,
 #include <vector>
 
 #include "bstone_renderer_3d.h"
+#include "bstone_renderer_3d_command_buffer.h"
 #include "bstone_unique_resource.h"
 
 #include "bstone_detail_gl_buffer.h"
@@ -119,47 +120,8 @@ public:
 		const Renderer3dShaderStageCreateParam& param) override;
 
 
-	void clear(
-		const Renderer3dClearParam& param) override;
-
-	void viewport_set(
-		const Renderer3dViewport& viewport) override;
-
-	void scissor_enable(
-		const bool is_enable) override;
-
-	void scissor_box_set(
-		const Renderer3dScissorBox& scissor_box) override;
-
-	void culling_enable(
-		const bool is_enable) override;
-
-	void depth_test_enable(
-		const bool is_enable) override;
-
-	void depth_write_enable(
-		const bool is_enable) override;
-
-	void blending_enable(
-		const bool is_enable) override;
-
-	void blending_function_set(
-		const Renderer3dBlendingFunc& blending_function) override;
-
-	void texture_2d_set(
-		const Renderer3dTexture2dPtr texture_2d) override;
-
-	void sampler_set(
-		const Renderer3dSamplerPtr sampler) override;
-
-	void vertex_input_set(
-		const Renderer3dVertexInputPtr vertex_input) override;
-
-	void shader_stage_set(
-		const Renderer3dShaderStagePtr shader_stage) override;
-
-	void draw_indexed(
-		const Renderer3dDrawIndexedParam& param) override;
+	void submit_commands(
+		const Renderer3dCommandQueuePtr command_queue) override;
 
 
 private:
@@ -275,6 +237,67 @@ private:
 
 	void msaa_set(
 		const int aa_value);
+
+
+	void command_execute_clear(
+		const Renderer3dCommandClear& command);
+
+	void command_execute_culling(
+		const Renderer3dCommandCulling& command);
+
+	void command_execute_depth_test(
+		const Renderer3dCommandDepthTest& command);
+
+	void command_execute_depth_write(
+		const Renderer3dCommandDepthWrite& command);
+
+	void command_execute_blending(
+		const Renderer3dCommandBlending& command);
+
+	void command_execute_blending_func(
+		const Renderer3dCommandBlendingFunc& command);
+
+	void command_execute_viewport(
+		const Renderer3dCommandViewport& command);
+
+	void command_execute_scissor(
+		const Renderer3dCommandScissor& command);
+
+	void command_execute_scissor_box(
+		const Renderer3dCommandScissorBox& command);
+
+	void command_execute_texture(
+		const Renderer3dCommandTexture& command);
+
+	void command_execute_sampler(
+		const Renderer3dCommandSampler& command);
+
+	void command_execute_vertex_input(
+		const Renderer3dCommandVertexInput& command);
+
+	void command_execute_shader_stage(
+		const Renderer3dCommandShaderStage& command);
+
+	void command_execute_shader_var_int32(
+		const Renderer3dCommandShaderVarInt32& command);
+
+	void command_execute_shader_var_float32(
+		const Renderer3dCommandShaderVarFloat32& command);
+
+	void command_execute_shader_var_vec2(
+		const Renderer3dCommandShaderVarVec2& command);
+
+	void command_execute_shader_var_vec4(
+		const Renderer3dCommandShaderVarVec4& command);
+
+	void command_execute_shader_var_mat4(
+		const Renderer3dCommandShaderVarMat4& command);
+
+	void command_execute_shader_var_sampler_2d(
+		const Renderer3dCommandShaderVarSampler2d& command);
+
+	void command_execute_draw_indexed(
+		const Renderer3dCommandDrawIndexed& command);
 }; // GlRenderer3d
 
 

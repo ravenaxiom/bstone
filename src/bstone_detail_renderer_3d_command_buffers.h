@@ -60,15 +60,15 @@ public:
 	virtual ~Renderer3dCommandBuffers() = default;
 
 
-	virtual int buffer_get_count() const noexcept = 0;
+	virtual int get_count() const noexcept = 0;
 
-	virtual bstone::Renderer3dCommandBufferPtr buffer_add(
-		const Renderer3dCommandQueueAddBufferParam& param) = 0;
+	virtual bstone::Renderer3dCommandBufferPtr enqueue(
+		const Renderer3dCommandQueueEnqueueParam& param) = 0;
 
-	virtual void buffer_remove(
+	virtual void dequeue(
 		bstone::Renderer3dCommandBufferPtr buffer) = 0;
 
-	virtual bstone::Renderer3dCommandBufferPtr buffer_get(
+	virtual bstone::Renderer3dCommandBufferPtr get(
 		const int index) = 0;
 
 

@@ -67,7 +67,7 @@ public:
 //
 
 Renderer3dCommandBufferImpl::Renderer3dCommandBufferImpl(
-	const Renderer3dCommandQueueAddBufferParam& param)
+	const Renderer3dCommandQueueEnqueueParam& param)
 	:
 	is_enabled_{},
 	is_reading_{},
@@ -386,9 +386,9 @@ const Renderer3dCommandDrawIndexed* Renderer3dCommandBufferImpl::read_draw_index
 }
 
 void Renderer3dCommandBufferImpl::validate_param(
-	const Renderer3dCommandQueueAddBufferParam& param)
+	const Renderer3dCommandQueueEnqueueParam& param)
 {
-	if (param.initial_size_ < 0)
+	if (param.initial_size_ <= 0)
 	{
 		throw Renderer3dCommandBufferImplInitException{"Initial size out of range."};
 	}
