@@ -33,7 +33,6 @@ Free Software Foundation, Inc.,
 #define BSTONE_DETAIL_GL_DEVICE_FEATURES_INCLUDED
 
 
-#include "bstone_detail_gl_api.h"
 #include "bstone_detail_gl_context_kind.h"
 
 

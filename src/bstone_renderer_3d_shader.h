@@ -23,75 +23,66 @@ Free Software Foundation, Inc.,
 
 
 //
-// OpenGL shader object manager (implementation interface).
+// 3D renderer's shader.
 //
 
 
-#ifndef BSTONE_DETAIL_GL_SHADER_MANAGER_INCLUDED
-#define BSTONE_DETAIL_GL_SHADER_MANAGER_INCLUDED
+#ifndef BSTONE_RENDERER_3D_SHADER_INCLUDED
+#define BSTONE_RENDERER_3D_SHADER_INCLUDED
 
 
 #include <memory>
 
-#include "bstone_renderer_3d_shader.h"
-
 
 namespace bstone
 {
-namespace detail
-{
-
-
-class GlContext;
-using GlContextPtr = GlContext*;
 
 
 // ==========================================================================
-// GlShaderManager
+// Shader
 //
 
-class GlShaderManager
+enum class Renderer3dShaderKind
+{
+	none,
+	fragment,
+	vertex,
+}; // Renderer3dShaderKind
+
+struct Renderer3dShaderSource
+{
+	const void* data_;
+	int size_;
+}; // Source
+
+struct Renderer3dShaderCreateParam
+{
+	Renderer3dShaderKind kind_;
+	Renderer3dShaderSource source_;
+}; // CreateParam
+
+class Renderer3dShader
 {
 protected:
-	GlShaderManager();
+	Renderer3dShader();
 
 
 public:
-	virtual ~GlShaderManager();
+	virtual ~Renderer3dShader();
 
 
-	virtual Renderer3dShaderUPtr create(
-		const Renderer3dShaderCreateParam& param) = 0;
+	virtual Renderer3dShaderKind get_kind() const noexcept = 0;
+}; // Renderer3dShader
 
-	virtual void notify_destroy(
-		const Renderer3dShaderPtr shader) noexcept = 0;
-}; // GlShaderManager
-
-using GlShaderManagerPtr = GlShaderManager*;
-using GlShaderManagerUPtr = std::unique_ptr<GlShaderManager>;
+using Renderer3dShaderPtr = Renderer3dShader*;
+using Renderer3dShaderUPtr = std::unique_ptr<Renderer3dShader>;
 
 //
-// GlShaderManager
+// Shader
 // ==========================================================================
 
 
-// ==========================================================================
-// GlShaderManagerFactory
-//
-
-struct GlShaderManagerFactory
-{
-	static GlShaderManagerUPtr create(
-		const GlContextPtr gl_context);
-}; // GlShaderManagerFactory
-
-//
-// GlShaderManagerFactory
-// ==========================================================================
-
-
-} // detail
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_GL_SHADER_MANAGER_INCLUDED
+#endif // !BSTONE_RENDERER_3D_SHADER_INCLUDED

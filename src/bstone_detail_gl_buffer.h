@@ -33,7 +33,7 @@ Free Software Foundation, Inc.,
 #define BSTONE_DETAIL_GL_BUFFER_INCLUDED
 
 
-#include "bstone_renderer_3d.h"
+#include "bstone_renderer_3d_buffer.h"
 
 
 namespace bstone

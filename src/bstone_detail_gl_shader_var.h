@@ -33,7 +33,7 @@ Free Software Foundation, Inc.,
 #define BSTONE_DETAIL_GL_SHADER_VAR_INCLUDED
 
 
-#include "bstone_renderer_3d.h"
+#include "bstone_renderer_3d_shader_var.h"
 
 
 namespace bstone

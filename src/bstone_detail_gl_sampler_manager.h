@@ -33,7 +33,7 @@ Free Software Foundation, Inc.,
 
 #include <memory>
 
-#include "bstone_renderer_3d.h"
+#include "bstone_renderer_3d_sampler.h"
 
 
 namespace bstone

@@ -33,7 +33,8 @@ Free Software Foundation, Inc.,
 #define BSTONE_DETAIL_GL_TEXTURE_2D_INCLUDED
 
 
-#include "bstone_renderer_3d.h"
+#include "bstone_renderer_3d_sampler.h"
+#include "bstone_renderer_3d_texture_2d.h"
 
 
 namespace bstone

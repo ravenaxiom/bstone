@@ -41,6 +41,7 @@ Free Software Foundation, Inc.,
 #include "bstone_detail_gl_error.h"
 #include "bstone_detail_gl_shader_stage_manager.h"
 #include "bstone_detail_gl_shader.h"
+#include "bstone_detail_gl_shader_var.h"
 #include "bstone_detail_gl_renderer_3d_utils.h"
 
 

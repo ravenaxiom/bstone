@@ -31,7 +31,7 @@ Free Software Foundation, Inc.,
 #define BSTONE_DETAIL_GL_VERTEX_INPUT_INCLUDED
 
 
-#include "bstone_renderer_3d.h"
+#include "bstone_renderer_3d_vertex_input.h"
 
 #include "bstone_detail_gl_device_features.h"
 

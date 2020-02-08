@@ -37,6 +37,7 @@ Free Software Foundation, Inc.,
 
 #include "bstone_sdl_types.h"
 
+#include "bstone_detail_gl_api.h"
 #include "bstone_detail_gl_device_features.h"
 #include "bstone_detail_gl_extension_manager.h"
 #include "bstone_detail_renderer_3d_utils.h"

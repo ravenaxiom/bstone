@@ -33,8 +33,9 @@ Free Software Foundation, Inc.,
 #define BSTONE_DETAIL_GL_SHADER_STAGE_INCLUDED
 
 
-#include "bstone_detail_gl_shader.h"
-#include "bstone_detail_gl_shader_var.h"
+#include "bstone_renderer_3d_shader_stage.h"
+
+#include "bstone_detail_gl_api.h"
 
 
 namespace bstone

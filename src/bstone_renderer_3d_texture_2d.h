@@ -23,75 +23,70 @@ Free Software Foundation, Inc.,
 
 
 //
-// OpenGL shader object manager (implementation interface).
+// 3D renderer's 2D texture.
 //
 
 
-#ifndef BSTONE_DETAIL_GL_SHADER_MANAGER_INCLUDED
-#define BSTONE_DETAIL_GL_SHADER_MANAGER_INCLUDED
+#ifndef BSTONE_RENDERER_3D_TEXTURE_2D_INCLUDED
+#define BSTONE_RENDERER_3D_TEXTURE_2D_INCLUDED
 
 
 #include <memory>
 
-#include "bstone_renderer_3d_shader.h"
+#include "bstone_renderer_3d_types.h"
 
 
 namespace bstone
 {
-namespace detail
-{
-
-
-class GlContext;
-using GlContextPtr = GlContext*;
 
 
 // ==========================================================================
-// GlShaderManager
+// Renderer3dTexture2d
 //
 
-class GlShaderManager
+struct Renderer3dTexture2dCreateParam
+{
+	Renderer3dPixelFormat pixel_format_;
+
+	int width_;
+	int height_;
+
+	int mipmap_count_;
+}; // Renderer3dTexture2dCreateParam
+
+struct Renderer3dTexture2dUpdateParam
+{
+	int mipmap_level_;
+
+	const void* image_;
+}; // Renderer3dTexture2dUpdateParam
+
+
+class Renderer3dTexture2d
 {
 protected:
-	GlShaderManager();
+	Renderer3dTexture2d() = default;
 
 
 public:
-	virtual ~GlShaderManager();
+	virtual ~Renderer3dTexture2d() = default;
 
 
-	virtual Renderer3dShaderUPtr create(
-		const Renderer3dShaderCreateParam& param) = 0;
+	virtual void update(
+		const Renderer3dTexture2dUpdateParam& param) = 0;
 
-	virtual void notify_destroy(
-		const Renderer3dShaderPtr shader) noexcept = 0;
-}; // GlShaderManager
+	virtual void generate_mipmaps() = 0;
+}; // Renderer3dTexture2d
 
-using GlShaderManagerPtr = GlShaderManager*;
-using GlShaderManagerUPtr = std::unique_ptr<GlShaderManager>;
+using Renderer3dTexture2dPtr = Renderer3dTexture2d*;
+using Renderer3dTexture2dUPtr = std::unique_ptr<Renderer3dTexture2d>;
 
 //
-// GlShaderManager
+// Renderer3dTexture2d
 // ==========================================================================
 
 
-// ==========================================================================
-// GlShaderManagerFactory
-//
-
-struct GlShaderManagerFactory
-{
-	static GlShaderManagerUPtr create(
-		const GlContextPtr gl_context);
-}; // GlShaderManagerFactory
-
-//
-// GlShaderManagerFactory
-// ==========================================================================
-
-
-} // detail
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_GL_SHADER_MANAGER_INCLUDED
+#endif // !BSTONE_RENDERER_3D_TEXTURE_2D_INCLUDED

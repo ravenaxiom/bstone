@@ -33,7 +33,7 @@ Free Software Foundation, Inc.,
 
 #include <memory>
 
-#include "bstone_renderer_3d.h"
+#include "bstone_renderer_3d_types.h"
 
 #include "bstone_detail_gl_device_features.h"
 

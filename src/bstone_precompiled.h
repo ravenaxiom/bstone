@@ -80,8 +80,6 @@ Free Software Foundation, Inc.,
 #include "bstone_renderer_3d.h"
 #include "bstone_renderer_3d_command_buffer.h"
 #include "bstone_renderer_3d_command_queue.h"
-#include "bstone_renderer_3d_command_limits.h"
-#include "bstone_renderer_3d_command_manager.h"
 #include "bstone_renderer_3d_command_tests.h"
 #include "bstone_renderer_limits.h"
 #include "bstone_sdl_types.h"

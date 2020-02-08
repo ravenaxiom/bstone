@@ -23,75 +23,76 @@ Free Software Foundation, Inc.,
 
 
 //
-// OpenGL shader object manager (implementation interface).
+// 3D renderer's sampler.
 //
 
 
-#ifndef BSTONE_DETAIL_GL_SHADER_MANAGER_INCLUDED
-#define BSTONE_DETAIL_GL_SHADER_MANAGER_INCLUDED
+#ifndef BSTONE_RENDERER_3D_SAMPLER_INCLUDED
+#define BSTONE_RENDERER_3D_SAMPLER_INCLUDED
 
 
 #include <memory>
 
-#include "bstone_renderer_3d_shader.h"
+#include "bstone_renderer_3d_types.h"
 
 
 namespace bstone
 {
-namespace detail
-{
-
-
-class GlContext;
-using GlContextPtr = GlContext*;
 
 
 // ==========================================================================
-// GlShaderManager
+// Renderer3dSampler
 //
 
-class GlShaderManager
+struct Renderer3dSamplerState
+{
+	Renderer3dFilterKind mag_filter_;
+	Renderer3dFilterKind min_filter_;
+
+	Renderer3dMipmapMode mipmap_mode_;
+
+	Renderer3dAddressMode address_mode_u_;
+	Renderer3dAddressMode address_mode_v_;
+
+	int anisotropy_;
+}; // Renderer3dSamplerState
+
+struct Renderer3dSamplerCreateParam
+{
+	Renderer3dSamplerState state_;
+}; // Renderer3dSamplerCreateParam
+
+struct Renderer3dSamplerUpdateParam
+{
+	Renderer3dSamplerState state_;
+}; // Renderer3dSamplerUpdateParam
+
+
+class Renderer3dSampler
 {
 protected:
-	GlShaderManager();
+	Renderer3dSampler() = default;
 
 
 public:
-	virtual ~GlShaderManager();
+	virtual ~Renderer3dSampler() = default;
 
 
-	virtual Renderer3dShaderUPtr create(
-		const Renderer3dShaderCreateParam& param) = 0;
+	virtual void update(
+		const Renderer3dSamplerUpdateParam& param) = 0;
 
-	virtual void notify_destroy(
-		const Renderer3dShaderPtr shader) noexcept = 0;
-}; // GlShaderManager
+	virtual const Renderer3dSamplerState& get_state() const noexcept = 0;
+}; // Renderer3dSampler
 
-using GlShaderManagerPtr = GlShaderManager*;
-using GlShaderManagerUPtr = std::unique_ptr<GlShaderManager>;
+using Renderer3dSamplerPtr = Renderer3dSampler*;
+using Renderer3dSamplerUPtr = std::unique_ptr<Renderer3dSampler>;
 
 //
-// GlShaderManager
+// Renderer3dSampler
 // ==========================================================================
 
 
-// ==========================================================================
-// GlShaderManagerFactory
-//
-
-struct GlShaderManagerFactory
-{
-	static GlShaderManagerUPtr create(
-		const GlContextPtr gl_context);
-}; // GlShaderManagerFactory
-
-//
-// GlShaderManagerFactory
-// ==========================================================================
-
-
-} // detail
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_GL_SHADER_MANAGER_INCLUDED
+#endif // !BSTONE_RENDERER_3D_SAMPLER_INCLUDED
