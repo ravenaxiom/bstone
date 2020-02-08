@@ -53,11 +53,11 @@ using GlContextPtr = GlContext*;
 class GlShaderStageManager
 {
 protected:
-	GlShaderStageManager();
+	GlShaderStageManager() = default;
 
 
 public:
-	virtual ~GlShaderStageManager();
+	virtual ~GlShaderStageManager() = default;
 
 
 	virtual GlContextPtr get_gl_context() const noexcept = 0;
@@ -66,13 +66,28 @@ public:
 	virtual Renderer3dShaderStageUPtr create(
 		const Renderer3dShaderStageCreateParam& param) = 0;
 
+
 	virtual void notify_destroy(
 		const Renderer3dShaderStagePtr shader_stage) noexcept = 0;
+
+
+	virtual void set(
+		const Renderer3dShaderStagePtr shader_stage) = 0;
+
+
+	virtual Renderer3dShaderStagePtr get_active() const noexcept = 0;
+
+	virtual void set_active(
+		const Renderer3dShaderStagePtr shader_stage) = 0;
+
 
 	virtual Renderer3dShaderStagePtr get_current() const noexcept = 0;
 
 	virtual void set_current(
 		const Renderer3dShaderStagePtr shader_stage) = 0;
+
+
+	virtual void synchronize() = 0;
 }; // GlShaderStageManager
 
 using GlShaderStageManagerPtr = GlShaderStageManager*;

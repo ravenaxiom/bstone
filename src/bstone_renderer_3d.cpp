@@ -91,11 +91,6 @@ Renderer3dShader::Renderer3dShader() = default;
 
 Renderer3dShader::~Renderer3dShader() = default;
 
-
-Renderer3dShaderStage::Renderer3dShaderStage() = default;
-
-Renderer3dShaderStage::~Renderer3dShaderStage() = default;
-
 //
 // Shader
 // ==========================================================================

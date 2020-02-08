@@ -68,14 +68,11 @@ struct Renderer3dShaderStageCreateParam
 class Renderer3dShaderStage
 {
 protected:
-	Renderer3dShaderStage();
+	Renderer3dShaderStage() = default;
 
 
 public:
-	virtual ~Renderer3dShaderStage();
-
-
-	virtual void set() = 0;
+	virtual ~Renderer3dShaderStage() = default;
 
 
 	virtual Renderer3dShaderVarPtr find_var(

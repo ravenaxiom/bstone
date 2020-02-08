@@ -34,6 +34,7 @@ Free Software Foundation, Inc.,
 #include "bstone_renderer_3d_tests.h"
 
 #include "bstone_detail_gl_context.h"
+#include "bstone_detail_gl_error.h"
 #include "bstone_detail_gl_shader_stage.h"
 
 
@@ -41,19 +42,6 @@ namespace bstone
 {
 namespace detail
 {
-
-
-// ==========================================================================
-// GlShaderStageManager
-//
-
-GlShaderStageManager::GlShaderStageManager() = default;
-
-GlShaderStageManager::~GlShaderStageManager() = default;
-
-//
-// GlShaderStageManager
-// ==========================================================================
 
 
 // ==========================================================================
@@ -79,15 +67,30 @@ public:
 	void notify_destroy(
 		const Renderer3dShaderStagePtr shader_stage) noexcept override;
 
+
+	void set(
+		const Renderer3dShaderStagePtr shader_stage) override;
+
+
+	Renderer3dShaderStagePtr get_active() const noexcept override;
+
+	void set_active(
+		const Renderer3dShaderStagePtr shader_stage) override;
+
+
 	Renderer3dShaderStagePtr get_current() const noexcept override;
 
 	void set_current(
 		const Renderer3dShaderStagePtr shader_stage) override;
 
 
+	void synchronize() override;
+
+
 private:
 	const GlContextPtr gl_context_;
 
+	Renderer3dShaderStagePtr shader_stage_active_;
 	Renderer3dShaderStagePtr shader_stage_current_;
 }; // GlShaderStageManagerImpl
 
@@ -107,6 +110,7 @@ GlShaderStageManagerImpl::GlShaderStageManagerImpl(
 	const GlContextPtr gl_context)
 	:
 	gl_context_{gl_context},
+	shader_stage_active_{},
 	shader_stage_current_{}
 {
 }
@@ -127,10 +131,42 @@ Renderer3dShaderStageUPtr GlShaderStageManagerImpl::create(
 void GlShaderStageManagerImpl::notify_destroy(
 	const Renderer3dShaderStagePtr shader_stage) noexcept
 {
+	if (shader_stage == shader_stage_active_)
+	{
+		shader_stage_active_ = nullptr;
+	}
+
 	if (shader_stage_current_ == shader_stage)
 	{
 		shader_stage_current_ = nullptr;
 	}
+}
+
+void GlShaderStageManagerImpl::set(
+	const Renderer3dShaderStagePtr shader_stage)
+{
+	if (shader_stage)
+	{
+		static_cast<GlShaderStagePtr>(shader_stage)->set();
+	}
+	else
+	{
+		glUseProgram(0);
+		GlError::ensure_debug();
+
+		shader_stage_active_ = nullptr;
+	}
+}
+
+Renderer3dShaderStagePtr GlShaderStageManagerImpl::get_active() const noexcept
+{
+	return shader_stage_active_;
+}
+
+void GlShaderStageManagerImpl::set_active(
+	const Renderer3dShaderStagePtr shader_stage)
+{
+	shader_stage_active_ = shader_stage;
 }
 
 Renderer3dShaderStagePtr GlShaderStageManagerImpl::get_current() const noexcept
@@ -142,6 +178,16 @@ void GlShaderStageManagerImpl::set_current(
 	const Renderer3dShaderStagePtr shader_stage)
 {
 	shader_stage_current_ = shader_stage;
+}
+
+void GlShaderStageManagerImpl::synchronize()
+{
+	if (shader_stage_active_ == shader_stage_current_)
+	{
+		return;
+	}
+
+	set(shader_stage_current_);
 }
 
 //

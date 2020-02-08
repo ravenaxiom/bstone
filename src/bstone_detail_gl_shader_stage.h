@@ -56,15 +56,17 @@ class GlShaderStage :
 	public Renderer3dShaderStage
 {
 protected:
-	GlShaderStage();
+	GlShaderStage() = default;
 
 
 public:
-	~GlShaderStage() override;
+	~GlShaderStage() override = default;
 
 
 	virtual GlShaderStageManagerPtr get_manager() const noexcept = 0;
 
+
+	virtual void set() = 0;
 
 	virtual void detach_fragment_shader() = 0;
 

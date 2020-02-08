@@ -52,19 +52,6 @@ namespace detail
 
 
 // ==========================================================================
-// GlShaderStage
-//
-
-GlShaderStage::GlShaderStage() = default;
-
-GlShaderStage::~GlShaderStage() = default;
-
-//
-// GlShaderStage
-// ==========================================================================
-
-
-// ==========================================================================
 // GlShaderStageImpl
 //
 
@@ -158,10 +145,6 @@ private:
 	void check_input_bindings(
 		const Renderer3dShaderStageInputBindings& input_bindings);
 
-	void initialize(
-		const Renderer3dShaderStageCreateParam& param);
-
-
 	Renderer3dShaderVarPtr find_var_internal(
 		const std::string& name)
 	{
@@ -231,7 +214,65 @@ GlShaderStageImpl::GlShaderStageImpl(
 	gl_resource_{},
 	shader_vars_{}
 {
-	initialize(param);
+	if (!gl_shader_stage_manager_)
+	{
+		throw Exception{"Null shader stage manager."};
+	}
+
+	validate_param(param);
+
+	gl_resource_.reset(glCreateProgram());
+
+	if (!gl_resource_)
+	{
+		throw Exception{"Failed to create OpenGL program object."};
+	}
+
+	const auto fragment_shader = static_cast<GlShaderPtr>(param.fragment_shader_);
+	glAttachShader(gl_resource_.get(), fragment_shader->get_gl_name());
+	GlError::ensure_debug();
+
+	const auto vertex_shader = static_cast<GlShaderPtr>(param.vertex_shader_);
+	glAttachShader(gl_resource_.get(), vertex_shader->get_gl_name());
+	GlError::ensure_debug();
+
+	set_input_bindings(gl_resource_.get(), param.input_bindings_);
+
+	glLinkProgram(gl_resource_.get());
+	GlError::ensure_debug();
+
+	auto link_status = GLint{};
+
+	glGetProgramiv(gl_resource_.get(), GL_LINK_STATUS, &link_status);
+	GlError::ensure_debug();
+
+	if (link_status != GL_TRUE)
+	{
+		auto error_message = std::string{"Failed to link a program."};
+
+		const auto gl_log = GlRenderer3dUtils::get_log(false, gl_resource_.get());
+
+		if (!gl_log.empty())
+		{
+			error_message += '\n';
+			error_message += gl_log;
+		}
+
+		throw Exception{error_message};
+	}
+
+	const auto var_count = get_var_count(gl_resource_.get());
+	shader_vars_.reserve(var_count);
+
+	get_vars(Renderer3dShaderVarKind::attribute, gl_resource_.get(), shader_vars_);
+
+	// Note that "samplers" are included in uniforms.
+	get_vars(Renderer3dShaderVarKind::uniform, gl_resource_.get(), shader_vars_);
+
+	check_input_bindings(param.input_bindings_);
+
+	fragment_shader_ = static_cast<GlShaderPtr>(param.fragment_shader_);
+	vertex_shader_ = static_cast<GlShaderPtr>(param.vertex_shader_);
 }
 
 GlShaderStageImpl::~GlShaderStageImpl()
@@ -258,6 +299,8 @@ void GlShaderStageImpl::set()
 {
 	glUseProgram(gl_resource_);
 	GlError::ensure_debug();
+
+	gl_shader_stage_manager_->set_active(this);
 }
 
 Renderer3dShaderVarPtr GlShaderStageImpl::find_var(
@@ -320,70 +363,6 @@ Renderer3dShaderVarSampler2dPtr GlShaderStageImpl::find_var_sampler_2d(
 	);
 }
 
-void GlShaderStageImpl::initialize(
-	const Renderer3dShaderStageCreateParam& param)
-{
-	if (!gl_shader_stage_manager_)
-	{
-		throw Exception{"Null shader stage manager."};
-	}
-
-	validate_param(param);
-
-	gl_resource_.reset(glCreateProgram());
-
-	if (!gl_resource_)
-	{
-		throw Exception{"Failed to create OpenGL program object."};
-	}
-
-	const auto fragment_shader = static_cast<GlShaderPtr>(param.fragment_shader_);
-	glAttachShader(gl_resource_.get(), fragment_shader->get_gl_name());
-	GlError::ensure_debug();
-
-	const auto vertex_shader = static_cast<GlShaderPtr>(param.vertex_shader_);
-	glAttachShader(gl_resource_.get(), vertex_shader->get_gl_name());
-	GlError::ensure_debug();
-
-	set_input_bindings(gl_resource_.get(), param.input_bindings_);
-
-	glLinkProgram(gl_resource_.get());
-	GlError::ensure_debug();
-
-	auto link_status = GLint{};
-
-	glGetProgramiv(gl_resource_.get(), GL_LINK_STATUS, &link_status);
-	GlError::ensure_debug();
-
-	if (link_status != GL_TRUE)
-	{
-		auto error_message = std::string{"Failed to link a program."};
-
-		const auto gl_log = GlRenderer3dUtils::get_log(false, gl_resource_.get());
-
-		if (!gl_log.empty())
-		{
-			error_message += '\n';
-			error_message += gl_log;
-		}
-
-		throw Exception{error_message};
-	}
-
-	const auto var_count = get_var_count(gl_resource_.get());
-	shader_vars_.reserve(var_count);
-
-	get_vars(Renderer3dShaderVarKind::attribute, gl_resource_.get(), shader_vars_);
-
-	// Note that "samplers" are included in uniforms.
-	get_vars(Renderer3dShaderVarKind::uniform, gl_resource_.get(), shader_vars_);
-
-	check_input_bindings(param.input_bindings_);
-
-	fragment_shader_ = static_cast<GlShaderPtr>(param.fragment_shader_);
-	vertex_shader_ = static_cast<GlShaderPtr>(param.vertex_shader_);
-}
-
 void GlShaderStageImpl::detach_fragment_shader()
 {
 	fragment_shader_ = nullptr;
@@ -410,7 +389,7 @@ void GlShaderStageImpl::validate_shader(
 	const Renderer3dShaderKind shader_kind,
 	const Renderer3dShaderPtr shader)
 {
-	if (shader == nullptr)
+	if (!shader)
 	{
 		throw Exception{"Null shader."};
 	}
