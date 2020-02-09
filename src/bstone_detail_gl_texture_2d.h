@@ -55,12 +55,14 @@ class GlTexture2d :
 	public Renderer3dTexture2d
 {
 protected:
-	GlTexture2d();
+	GlTexture2d() = default;
 
 
 public:
-	~GlTexture2d() override;
+	~GlTexture2d() override = default;
 
+
+	virtual void set() = 0;
 
 	virtual void bind() = 0;
 

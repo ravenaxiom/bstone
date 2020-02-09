@@ -56,6 +56,7 @@ public:
 
 	static void unload_library() noexcept;
 
+
 	static void* resolve_symbol(
 		const char* const symbol);
 
@@ -218,11 +219,6 @@ public:
 		const Renderer3dBlendingFunc& blending_func);
 
 
-	static void texture_2d_bind(
-		const GLuint gl_texture_name);
-
-	static void texture_2d_unbind();
-
 	static GLenum index_buffer_get_element_type_by_byte_depth(
 		const int byte_depth);
 
@@ -251,12 +247,6 @@ public:
 
 
 private:
-	static constexpr int dummy_window_min_dimension = 256;
-
-
-	GlRenderer3dUtils();
-
-
 	static GLenum blending_get_factor(
 		const Renderer3dBlendingFactor factor);
 

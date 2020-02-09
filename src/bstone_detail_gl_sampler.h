@@ -54,14 +54,14 @@ class GlSampler :
 	public Renderer3dSampler
 {
 protected:
-	GlSampler();
+	GlSampler() = default;
 
 
 public:
-	~GlSampler() override;
+	~GlSampler() override = default;
 
 
-	virtual void bind() = 0;
+	virtual void set() = 0;
 }; // GlSampler
 
 using GlSamplerPtr = GlSampler*;

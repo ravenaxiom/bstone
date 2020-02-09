@@ -44,6 +44,9 @@ struct Renderer3dLimits
 	static constexpr auto aa_min_off = 1;
 	static constexpr auto aa_min_on = 2;
 	static constexpr auto aa_max = 32;
+
+
+	static constexpr auto max_mipmap_count = 31;
 }; // Renderer3dLimits
 
 

@@ -53,11 +53,11 @@ using GlContextPtr = GlContext*;
 class GlSamplerManager
 {
 protected:
-	GlSamplerManager();
+	GlSamplerManager() = default;
 
 
 public:
-	virtual ~GlSamplerManager();
+	virtual ~GlSamplerManager() = default;
 
 
 	virtual Renderer3dSamplerUPtr create(

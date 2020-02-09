@@ -45,6 +45,7 @@ Free Software Foundation, Inc.,
 #include "bstone_mt_task_manager.h"
 #include "bstone_ref_values.h"
 #include "bstone_renderer_3d.h"
+#include "bstone_renderer_3d_limits.h"
 #include "bstone_rgb_palette.h"
 #include "bstone_sprite_cache.h"
 
@@ -1036,7 +1037,7 @@ void GenericHwTextureManager::validate_mipmap_texture_2d_properties(
 	const Texture2dProperties& properties)
 {
 	if (properties.mipmap_count_ <= 0 ||
-		properties.mipmap_count_ > detail::Renderer3dUtils::get_max_mipmap_count())
+		properties.mipmap_count_ > Renderer3dLimits::max_mipmap_count)
 	{
 		throw Exception{"Mipmap count out of range."};
 	}

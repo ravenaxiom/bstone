@@ -290,8 +290,9 @@ int GlRenderer3dUtils::msaa_window_get_max(
 	{
 		auto window_param = Renderer3dUtilsCreateWindowParam{};
 		window_param.renderer_kind_ = renderer_kind;
-		window_param.window_.width_ = dummy_window_min_dimension;
-		window_param.window_.height_ = dummy_window_min_dimension;
+		window_param.window_.is_borderless_ = true;
+		window_param.window_.width_ = 1;
+		window_param.window_.height_ = 1;
 		window_param.aa_kind_ = Renderer3dAaKind::ms;
 
 		auto max_msaa = Renderer3dLimits::aa_min_off;
@@ -348,8 +349,9 @@ int GlRenderer3dUtils::msaa_fbo_get_max(
 	{
 		auto window_param = Renderer3dUtilsCreateWindowParam{};
 		window_param.renderer_kind_ = renderer_kind;
-		window_param.window_.width_ = dummy_window_min_dimension;
-		window_param.window_.height_ = dummy_window_min_dimension;
+		window_param.window_.is_borderless_ = true;
+		window_param.window_.width_ = 1;
+		window_param.window_.height_ = 1;
 
 		auto sdl_window = SdlWindowUPtr{};
 		auto sdl_gl_context = SdlGlContextUPtr{};
@@ -1023,19 +1025,6 @@ void GlRenderer3dUtils::depth_write_enable(
 	const bool is_enable)
 {
 	glDepthMask(is_enable);
-	GlError::ensure_debug();
-}
-
-void GlRenderer3dUtils::texture_2d_bind(
-	const GLuint gl_texture_name)
-{
-	glBindTexture(GL_TEXTURE_2D, gl_texture_name);
-	GlError::ensure_debug();
-}
-
-void GlRenderer3dUtils::texture_2d_unbind()
-{
-	glBindTexture(GL_TEXTURE_2D, 0);
 	GlError::ensure_debug();
 }
 

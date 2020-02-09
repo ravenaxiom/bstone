@@ -31,12 +31,12 @@ Free Software Foundation, Inc.,
 #include "bstone_detail_gl_texture_manager.h"
 
 #include "bstone_exception.h"
-#include "bstone_renderer_3d.h"
 #include "bstone_renderer_3d_tests.h"
+#include "bstone_renderer_3d_texture_2d.h"
 
-#include "bstone_detail_gl_renderer_3d_utils.h"
-#include "bstone_detail_gl_sampler_manager.h"
 #include "bstone_detail_gl_context.h"
+#include "bstone_detail_gl_error.h"
+#include "bstone_detail_gl_renderer_3d_utils.h"
 #include "bstone_detail_gl_texture_2d.h"
 
 
@@ -44,19 +44,6 @@ namespace bstone
 {
 namespace detail
 {
-
-
-// ==========================================================================
-// GlTextureManager
-//
-
-GlTextureManager::GlTextureManager() = default;
-
-GlTextureManager::~GlTextureManager() = default;
-
-//
-// GlTextureManager
-// ==========================================================================
 
 
 // ==========================================================================
@@ -79,14 +66,29 @@ public:
 	Renderer3dTexture2dUPtr create(
 		const Renderer3dTexture2dCreateParam& param) override;
 
+
 	void notify_destroy(
 		const Renderer3dTexture2dPtr texture_2d) noexcept override;
+
 
 	void set(
 		const Renderer3dTexture2dPtr texture_2d) override;
 
-	bool set_current(
+
+	Renderer3dTexture2dPtr get_active() const noexcept override;
+
+	void set_active(
 		const Renderer3dTexture2dPtr texture_2d) override;
+
+
+	Renderer3dTexture2dPtr get_current() const noexcept override;
+
+	void set_current(
+		const Renderer3dTexture2dPtr texture_2d) override;
+
+
+	void set_to_current() override;
+
 
 	void update_current_sampler_state(
 		const Renderer3dSamplerState& sampler_state) override;
@@ -95,12 +97,11 @@ public:
 private:
 	const GlContextPtr gl_context_;
 
+	GlTexture2dPtr texture_2d_active_;
 	GlTexture2dPtr texture_2d_current_;
 
 
-	void initialize();
-
-	void set();
+	void unbind();
 }; // GlTextureManagerImpl
 
 using GlTextureManagerImplPtr = GlTextureManagerImpl*;
@@ -119,9 +120,15 @@ GlTextureManagerImpl::GlTextureManagerImpl(
 	const GlContextPtr gl_context)
 	:
 	gl_context_{gl_context},
+	texture_2d_active_{},
 	texture_2d_current_{}
 {
-	initialize();
+	if (!gl_context_)
+	{
+		throw Exception{"Null OpenGL state."};
+	}
+
+	unbind();
 }
 
 GlTextureManagerImpl::~GlTextureManagerImpl() = default;
@@ -140,7 +147,12 @@ Renderer3dTexture2dUPtr GlTextureManagerImpl::create(
 void GlTextureManagerImpl::notify_destroy(
 	const Renderer3dTexture2dPtr texture_2d) noexcept
 {
-	if (texture_2d_current_ == texture_2d)
+	if (texture_2d == texture_2d_active_)
+	{
+		texture_2d_active_ = nullptr;
+	}
+
+	if (texture_2d == texture_2d_current_)
 	{
 		texture_2d_current_ = nullptr;
 	}
@@ -149,73 +161,65 @@ void GlTextureManagerImpl::notify_destroy(
 void GlTextureManagerImpl::set(
 	const Renderer3dTexture2dPtr texture_2d)
 {
-	if (!set_current(texture_2d))
+	if (texture_2d == texture_2d_active_)
 	{
 		return;
 	}
 
-	if (!texture_2d_current_)
+	if (texture_2d)
 	{
-		return;
+		static_cast<GlTexture2dPtr>(texture_2d)->set();
 	}
-
-	texture_2d_current_->bind();
-
-	const auto& device_features = gl_context_->get_device_features();
-
-	if (!device_features.sampler_is_available_)
+	else
 	{
-		const auto sampler_manager = gl_context_->sampler_get_manager();
-		const auto& sampler_state = sampler_manager->get_current_state();
+		unbind();
 
-		texture_2d_current_->update_sampler_state(sampler_state);
+		texture_2d_active_ = nullptr;
 	}
 }
 
-bool GlTextureManagerImpl::set_current(
+Renderer3dTexture2dPtr GlTextureManagerImpl::get_active() const noexcept
+{
+	return texture_2d_active_;
+}
+
+void GlTextureManagerImpl::set_active(
 	const Renderer3dTexture2dPtr texture_2d)
 {
-	if (texture_2d_current_ == texture_2d)
-	{
-		return false;
-	}
+	texture_2d_active_ = static_cast<GlTexture2dPtr>(texture_2d);
+}
 
+Renderer3dTexture2dPtr GlTextureManagerImpl::get_current() const noexcept
+{
+	return texture_2d_current_;
+}
+
+void GlTextureManagerImpl::set_current(
+	const Renderer3dTexture2dPtr texture_2d)
+{
 	texture_2d_current_ = static_cast<GlTexture2dPtr>(texture_2d);
+}
 
-	return true;
+void GlTextureManagerImpl::set_to_current()
+{
+	set(texture_2d_current_);
 }
 
 void GlTextureManagerImpl::update_current_sampler_state(
 	const Renderer3dSamplerState& sampler_state)
 {
-	if (!texture_2d_current_)
+	if (!texture_2d_active_)
 	{
 		return;
 	}
 
-	texture_2d_current_->update_sampler_state(sampler_state);
+	texture_2d_active_->update_sampler_state(sampler_state);
 }
 
-void GlTextureManagerImpl::initialize()
+void GlTextureManagerImpl::unbind()
 {
-	if (!gl_context_)
-	{
-		throw Exception{"Null OpenGL state."};
-	}
-
-	GlRenderer3dUtils::texture_2d_unbind();
-}
-
-void GlTextureManagerImpl::set()
-{
-	if (texture_2d_current_)
-	{
-		texture_2d_current_->bind();
-	}
-	else
-	{
-		GlRenderer3dUtils::texture_2d_unbind();
-	}
+	glBindTexture(GL_TEXTURE_2D, 0);
+	GlError::ensure_debug();
 }
 
 //

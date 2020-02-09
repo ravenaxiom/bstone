@@ -87,7 +87,7 @@ public:
 		const Renderer3dShaderStagePtr shader_stage) = 0;
 
 
-	virtual void synchronize() = 0;
+	virtual void set_to_current() = 0;
 }; // GlShaderStageManager
 
 using GlShaderStageManagerPtr = GlShaderStageManager*;

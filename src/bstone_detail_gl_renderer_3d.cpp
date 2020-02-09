@@ -915,6 +915,7 @@ void GlRenderer3d::command_execute_scissor_box(
 void GlRenderer3d::command_execute_texture(
 	const Renderer3dCommandTexture& command)
 {
+	gl_context_->texture_get_manager()->set_current(command.texture_2d_);
 	gl_context_->texture_get_manager()->set(command.texture_2d_);
 }
 
@@ -1074,7 +1075,8 @@ void GlRenderer3d::command_execute_draw_indexed(
 		throw Exception{"Null index buffer."};
 	}
 
-	gl_context_->shader_stage_get_manager()->synchronize();
+	gl_context_->shader_stage_get_manager()->set_to_current();
+	gl_context_->texture_get_manager()->set_to_current();
 
 	const auto index_buffer_offset = param.index_buffer_offset_ + (param.index_offset_ * param.index_byte_depth_);
 	const auto index_buffer_indices = reinterpret_cast<const void*>(static_cast<std::intptr_t>(index_buffer_offset));

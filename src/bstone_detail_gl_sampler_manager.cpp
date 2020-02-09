@@ -45,19 +45,6 @@ namespace detail
 
 
 // ==========================================================================
-// GlSamplerManager
-//
-
-GlSamplerManager::GlSamplerManager() = default;
-
-GlSamplerManager::~GlSamplerManager() = default;
-
-//
-// GlSamplerManager
-// ==========================================================================
-
-
-// ==========================================================================
 // GlSamplerManagerImpl
 //
 
@@ -85,14 +72,13 @@ public:
 
 private:
 	const GlContextPtr gl_context_;
+	const Renderer3dDeviceFeatures& device_features_;
 
 	GlSamplerUPtr sampler_default_;
 	GlSamplerPtr sampler_current_;
 
 
 	void initialize_default_sampler();
-
-	void initialize();
 
 	void set();
 }; // GlSamplerManagerImpl
@@ -113,10 +99,18 @@ GlSamplerManagerImpl::GlSamplerManagerImpl(
 	const GlContextPtr gl_context)
 	:
 	gl_context_{gl_context},
+	device_features_{gl_context_->get_device_features()},
 	sampler_default_{},
 	sampler_current_{}
 {
-	initialize();
+	if (!gl_context_)
+	{
+		throw Exception{"Null OpenGL state."};
+	}
+
+	initialize_default_sampler();
+
+	sampler_current_ = sampler_default_.get();
 }
 
 GlSamplerManagerImpl::~GlSamplerManagerImpl() = default;
@@ -132,9 +126,7 @@ void GlSamplerManagerImpl::notify_destroy(
 {
 	if (sampler_current_ == sampler)
 	{
-		const auto& device_features = gl_context_->get_device_features();
-
-		if (device_features.sampler_is_available_)
+		if (device_features_.sampler_is_available_)
 		{
 			sampler_current_ = nullptr;
 		}
@@ -174,25 +166,11 @@ void GlSamplerManagerImpl::initialize_default_sampler()
 	sampler_default_ = GlSamplerFactory::create(gl_context_, param);
 }
 
-void GlSamplerManagerImpl::initialize()
-{
-	if (!gl_context_)
-	{
-		throw Exception{"Null OpenGL state."};
-	}
-
-	initialize_default_sampler();
-
-	sampler_current_ = sampler_default_.get();
-}
-
 void GlSamplerManagerImpl::set()
 {
-	const auto& device_features = gl_context_->get_device_features();
-
-	if (device_features.sampler_is_available_)
+	if (device_features_.sampler_is_available_)
 	{
-		sampler_current_->bind();
+		sampler_current_->set();
 	}
 	else
 	{

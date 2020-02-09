@@ -50,11 +50,6 @@ namespace detail
 // Renderer3dUtils
 //
 
-int Renderer3dUtils::get_max_mipmap_count()
-{
-	return 31;
-}
-
 float Renderer3dUtils::deg_to_rad(
 	const float angle_deg)
 {
@@ -335,49 +330,6 @@ void Renderer3dUtils::validate_buffer_update_param(
 	if (!param.data_)
 	{
 		throw Exception{"Null indices."};
-	}
-}
-
-void Renderer3dUtils::validate_texture_2d_create_param(
-	const Renderer3dTexture2dCreateParam& param)
-{
-	switch (param.pixel_format_)
-	{
-		case Renderer3dPixelFormat::rgba_8_unorm:
-			break;
-
-		default:
-			throw Exception{"Invalid pixel format."};
-	}
-
-	if (param.width_ <= 0)
-	{
-		throw Exception{"Invalid width."};
-	}
-
-	if (param.height_ <= 0)
-	{
-		throw Exception{"Invalid height."};
-	}
-
-	if (param.mipmap_count_ <= 0)
-	{
-		throw Exception{"Invalid mipmap count."};
-	}
-}
-
-void Renderer3dUtils::validate_texture_2d_update_param(
-	const Renderer3dTexture2dUpdateParam& param)
-{
-	if (param.mipmap_level_ < 0 ||
-		param.mipmap_level_ >= get_max_mipmap_count())
-	{
-		throw Exception{"Invalid mipmap level."};
-	}
-
-	if (!param.image_)
-	{
-		throw Exception{"Null image data."};
 	}
 }
 

@@ -41,6 +41,7 @@ Free Software Foundation, Inc.,
 #include "bstone_detail_gl_context.h"
 #include "bstone_detail_gl_error.h"
 #include "bstone_detail_gl_renderer_3d_utils.h"
+#include "bstone_detail_gl_sampler_manager.h"
 #include "bstone_detail_gl_texture_manager.h"
 #include "bstone_detail_renderer_3d_utils.h"
 
@@ -49,19 +50,6 @@ namespace bstone
 {
 namespace detail
 {
-
-
-// =========================================================================
-// GlTexture2d
-//
-
-GlTexture2d::GlTexture2d() = default;
-
-GlTexture2d::~GlTexture2d() = default;
-
-//
-// GlTexture2d
-// =========================================================================
 
 
 // =========================================================================
@@ -76,9 +64,6 @@ public:
 		const GlTextureManagerPtr gl_texture_manager,
 		const Renderer3dTexture2dCreateParam& param);
 
-	GlTexture2dImpl(
-		const GlTexture2d& rhs) = delete;
-
 	~GlTexture2dImpl() override;
 
 
@@ -88,13 +73,39 @@ public:
 	void generate_mipmaps() override;
 
 
-	void bind() override;
+	void set() override;
 
 	void update_sampler_state(
 		const Renderer3dSamplerState& new_sampler_state) override;
 
 
 private:
+	const GlTextureManagerPtr gl_texture_manager_;
+	const Renderer3dDeviceFeatures& device_features_;
+	const GlDeviceFeatures& gl_device_features_;
+
+	Renderer3dPixelFormat pixel_format_;
+	GLenum gl_internal_format_;
+	GLenum gl_format_;
+	GLenum gl_type_;
+
+	int width_;
+	int height_;
+
+	int mipmap_count_;
+
+	Renderer3dSamplerState sampler_state_;
+
+
+	void validate(
+		const Renderer3dTexture2dCreateParam& param);
+
+	void validate(
+		const Renderer3dTexture2dUpdateParam& param);
+
+
+	void bind();
+
 	void upload_mipmap(
 		const int mipmap_level,
 		const int width,
@@ -118,30 +129,11 @@ private:
 	void set_sampler_state_defaults();
 
 
-	const GlTextureManagerPtr gl_texture_manager_;
-
-	Renderer3dPixelFormat pixel_format_;
-	GLenum gl_internal_format_;
-	GLenum gl_format_;
-	GLenum gl_type_;
-
-	int width_;
-	int height_;
-
-	int mipmap_count_;
-
-	Renderer3dSamplerState sampler_state_;
-
-
 	static void texture_resource_deleter(
 		const GLuint& gl_name) noexcept;
 
 	using GlTextureResource = UniqueResource<GLuint, texture_resource_deleter>;
 	GlTextureResource gl_resource_;
-
-
-	void initialize(
-		const Renderer3dTexture2dCreateParam& param);
 }; // GlTexture2d
 
 using GlTexture2dImplPtr = GlTexture2dImpl*;
@@ -161,6 +153,8 @@ GlTexture2dImpl::GlTexture2dImpl(
 	const Renderer3dTexture2dCreateParam& param)
 	:
 	gl_texture_manager_{gl_texture_manager},
+	device_features_{gl_texture_manager_->get_gl_context()->get_device_features()},
+	gl_device_features_{gl_texture_manager_->get_gl_context()->get_gl_device_features()},
 	pixel_format_{},
 	gl_internal_format_{},
 	gl_format_{},
@@ -171,99 +165,11 @@ GlTexture2dImpl::GlTexture2dImpl(
 	sampler_state_{},
 	gl_resource_{}
 {
-	initialize(param);
-}
-
-GlTexture2dImpl::~GlTexture2dImpl()
-{
-	gl_texture_manager_->notify_destroy(this);
-}
-
-void GlTexture2dImpl::update(
-	const Renderer3dTexture2dUpdateParam& param)
-{
-	Renderer3dUtils::validate_texture_2d_update_param(param);
-
-	if (param.mipmap_level_ >= mipmap_count_)
-	{
-		throw Exception{"Mipmap level out of range."};
-	}
-
-	const auto gl_context = gl_texture_manager_->get_gl_context();
-	const auto& gl_device_features = gl_context->get_gl_device_features();
-
-	if (!gl_device_features.dsa_is_available_)
-	{
-		gl_texture_manager_->set(this);
-	}
-
-	auto mipmap_width = width_;
-	auto mipmap_height = height_;
-
-	for (auto i = 0; i < param.mipmap_level_; ++i)
-	{
-		if (mipmap_width > 1)
-		{
-			mipmap_width /= 2;
-		}
-
-		if (mipmap_height > 1)
-		{
-			mipmap_height /= 2;
-		}
-	}
-
-	upload_mipmap(param.mipmap_level_, mipmap_width, mipmap_height, param.image_);
-}
-
-void GlTexture2dImpl::generate_mipmaps()
-{
-	if (mipmap_count_ <= 1)
-	{
-		throw Exception{"Base mipmap."};
-	}
-
-	const auto gl_context = gl_texture_manager_->get_gl_context();
-	const auto& device_features = gl_context->get_device_features();
-
-	if (!device_features.mipmap_is_available_)
-	{
-		throw Exception{"Mipmap generation not available."};
-	}
-
-	const auto& gl_device_features = gl_context->get_gl_device_features();
-
-	if (gl_device_features.dsa_is_available_)
-	{
-		glGenerateTextureMipmap(gl_resource_.get());
-		GlError::ensure_debug();
-	}
-	else
-	{
-		GlRenderer3dUtils::mipmap_generate(
-			GL_TEXTURE_2D,
-			device_features,
-			gl_device_features);
-	}
-}
-
-void GlTexture2dImpl::texture_resource_deleter(
-	const GLuint& gl_name) noexcept
-{
-	glDeleteTextures(1, &gl_name);
-	GlError::ensure_debug();
-}
-
-void GlTexture2dImpl::initialize(
-	const Renderer3dTexture2dCreateParam& param)
-{
-	Renderer3dUtils::validate_texture_2d_create_param(param);
+	validate(param);
 
 	pixel_format_ = param.pixel_format_;
 
-	const auto gl_context = gl_texture_manager_->get_gl_context();
-	const auto& gl_device_features = gl_context->get_gl_device_features();
-	const auto is_es = (gl_device_features.context_kind_ == GlContextKind::es);
+	const auto is_es = (gl_device_features_.context_kind_ == GlContextKind::es);
 
 	switch (pixel_format_)
 	{
@@ -274,7 +180,7 @@ void GlTexture2dImpl::initialize(
 			break;
 
 		default:
-			throw Exception{"Unsupported pixel format."};
+			throw Exception{"Unsupported image format."};
 	}
 
 	width_ = param.width_;
@@ -290,7 +196,7 @@ void GlTexture2dImpl::initialize(
 
 	auto gl_name = GLuint{};
 
-	if (gl_device_features.dsa_is_available_)
+	if (gl_device_features_.dsa_is_available_)
 	{
 		glCreateTextures(GL_TEXTURE_2D, 1, &gl_name);
 		GlError::ensure_debug();
@@ -301,14 +207,14 @@ void GlTexture2dImpl::initialize(
 		GlError::ensure_debug();
 	}
 
-	if (gl_name == 0)
+	gl_resource_.reset(gl_name);
+
+	if (!gl_resource_)
 	{
 		throw Exception{"Failed to create OpenGL 2D-texture object."};
 	}
 
-	gl_resource_.reset(gl_name);
-
-	if (gl_device_features.dsa_is_available_)
+	if (gl_device_features_.dsa_is_available_)
 	{
 		glTextureParameteri(gl_resource_.get(), GL_TEXTURE_BASE_LEVEL, 0);
 		GlError::ensure_debug();
@@ -318,7 +224,9 @@ void GlTexture2dImpl::initialize(
 	}
 	else
 	{
-		gl_texture_manager_->set(this);
+		bind();
+
+		gl_texture_manager_->set_active(this);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
 		GlError::ensure_debug();
@@ -329,7 +237,7 @@ void GlTexture2dImpl::initialize(
 
 	set_sampler_state_defaults();
 
-	if (gl_device_features.dsa_is_available_)
+	if (gl_device_features_.dsa_is_available_)
 	{
 		glTextureStorage2D(
 			gl_resource_.get(),
@@ -375,16 +283,136 @@ void GlTexture2dImpl::initialize(
 	}
 }
 
+GlTexture2dImpl::~GlTexture2dImpl()
+{
+	gl_texture_manager_->notify_destroy(this);
+}
+
+void GlTexture2dImpl::update(
+	const Renderer3dTexture2dUpdateParam& param)
+{
+	validate(param);
+
+	if (param.mipmap_level_ >= mipmap_count_)
+	{
+		throw Exception{"Mipmap level out of range."};
+	}
+
+	if (!gl_device_features_.dsa_is_available_)
+	{
+		gl_texture_manager_->set(this);
+	}
+
+	auto mipmap_width = width_;
+	auto mipmap_height = height_;
+
+	for (auto i = 0; i < param.mipmap_level_; ++i)
+	{
+		if (mipmap_width > 1)
+		{
+			mipmap_width /= 2;
+		}
+
+		if (mipmap_height > 1)
+		{
+			mipmap_height /= 2;
+		}
+	}
+
+	upload_mipmap(param.mipmap_level_, mipmap_width, mipmap_height, param.image_);
+}
+
+void GlTexture2dImpl::generate_mipmaps()
+{
+	if (mipmap_count_ <= 1)
+	{
+		throw Exception{"Base mipmap."};
+	}
+
+	if (!device_features_.mipmap_is_available_)
+	{
+		throw Exception{"Mipmap generation not available."};
+	}
+
+	if (gl_device_features_.dsa_is_available_)
+	{
+		glGenerateTextureMipmap(gl_resource_.get());
+		GlError::ensure_debug();
+	}
+	else
+	{
+		gl_texture_manager_->set(this);
+
+		GlRenderer3dUtils::mipmap_generate(
+			GL_TEXTURE_2D,
+			device_features_,
+			gl_device_features_);
+	}
+}
+
+void GlTexture2dImpl::texture_resource_deleter(
+	const GLuint& gl_name) noexcept
+{
+	glDeleteTextures(1, &gl_name);
+	GlError::ensure_debug();
+}
+
+void GlTexture2dImpl::validate(
+	const Renderer3dTexture2dCreateParam& param)
+{
+	switch (param.pixel_format_)
+	{
+		case Renderer3dPixelFormat::rgba_8_unorm:
+			break;
+
+		default:
+			throw Exception{"Invalid pixel format."};
+	}
+
+	if (param.width_ <= 0)
+	{
+		throw Exception{"Invalid width."};
+	}
+
+	if (param.height_ <= 0)
+	{
+		throw Exception{"Invalid height."};
+	}
+
+	if (param.mipmap_count_ <= 0)
+	{
+		throw Exception{"Invalid mipmap count."};
+	}
+}
+
+void GlTexture2dImpl::validate(
+	const Renderer3dTexture2dUpdateParam& param)
+{
+	if (param.mipmap_level_ < 0 ||
+		param.mipmap_level_ >= Renderer3dLimits::max_mipmap_count)
+	{
+		throw Exception{"Mipmap level out of range."};
+	}
+
+	if (!param.image_)
+	{
+		throw Exception{"Null image data."};
+	}
+}
+
+void GlTexture2dImpl::bind()
+{
+	glBindTexture(GL_TEXTURE_2D, gl_resource_.get());
+	GlError::ensure_debug();
+}
+
 void GlTexture2dImpl::upload_mipmap(
 	const int mipmap_level,
 	const int width,
 	const int height,
 	const void* const src_data)
 {
-	const auto gl_context = gl_texture_manager_->get_gl_context();
-	const auto& gl_device_features = gl_context->get_gl_device_features();
-
-	if (gl_device_features.dsa_is_available_)
+	if (gl_device_features_.dsa_is_available_)
 	{
 		glTextureSubImage2D(
 			gl_resource_.get(), // target
@@ -418,19 +446,25 @@ void GlTexture2dImpl::upload_mipmap(
 	}
 }
 
-void GlTexture2dImpl::bind()
+void GlTexture2dImpl::set()
 {
-	GlRenderer3dUtils::texture_2d_bind(gl_resource_);
+	bind();
+
+	gl_texture_manager_->set_active(this);
+
+	if (!gl_device_features_.dsa_is_available_)
+	{
+		const auto sampler_manger = gl_texture_manager_->get_gl_context()->sampler_get_manager();
+		const auto& sampler_state = sampler_manger->get_current_state();
+		update_sampler_state(sampler_state);
+	}
 }
 
 void GlTexture2dImpl::set_mag_filter()
 {
 	const auto gl_mag_filter = GlRenderer3dUtils::filter_get_mag(sampler_state_.mag_filter_);
 
-	const auto gl_context = gl_texture_manager_->get_gl_context();
-	const auto& gl_device_features = gl_context->get_gl_device_features();
-
-	if (gl_device_features.dsa_is_available_)
+	if (gl_device_features_.dsa_is_available_)
 	{
 		glTextureParameteri(gl_resource_.get(), GL_TEXTURE_MAG_FILTER, gl_mag_filter);
 		GlError::ensure_debug();
@@ -449,10 +483,7 @@ void GlTexture2dImpl::set_min_filter()
 		sampler_state_.mipmap_mode_
 	);
 
-	const auto gl_context = gl_texture_manager_->get_gl_context();
-	const auto& gl_device_features = gl_context->get_gl_device_features();
-
-	if (gl_device_features.dsa_is_available_)
+	if (gl_device_features_.dsa_is_available_)
 	{
 		glTextureParameteri(gl_resource_.get(), GL_TEXTURE_MIN_FILTER, gl_min_filter);
 		GlError::ensure_debug();
@@ -471,10 +502,7 @@ void GlTexture2dImpl::set_address_mode(
 	const auto gl_wrap_axis = GlRenderer3dUtils::texture_wrap_get_axis(texture_axis);
 	const auto gl_address_mode = GlRenderer3dUtils::address_mode_get(address_mode);
 
-	const auto gl_context = gl_texture_manager_->get_gl_context();
-	const auto& gl_device_features = gl_context->get_gl_device_features();
-
-	if (gl_device_features.dsa_is_available_)
+	if (gl_device_features_.dsa_is_available_)
 	{
 		glTextureParameteri(gl_resource_.get(), gl_wrap_axis, gl_address_mode);
 		GlError::ensure_debug();
@@ -498,10 +526,7 @@ void GlTexture2dImpl::set_address_mode_v()
 
 void GlTexture2dImpl::set_anisotropy()
 {
-	const auto gl_context = gl_texture_manager_->get_gl_context();
-	const auto& device_features = gl_context->get_device_features();
-
-	if (!device_features.anisotropy_is_available_)
+	if (!device_features_.anisotropy_is_available_)
 	{
 		return;
 	}
@@ -512,16 +537,14 @@ void GlTexture2dImpl::set_anisotropy()
 	{
 		anisotropy = Renderer3dLimits::anisotropy_min_off;
 	}
-	else if (anisotropy > device_features.anisotropy_max_degree_)
+	else if (anisotropy > device_features_.anisotropy_max_degree_)
 	{
-		anisotropy = device_features.anisotropy_max_degree_;
+		anisotropy = device_features_.anisotropy_max_degree_;
 	}
 
 	const auto gl_anisotropy = static_cast<GLfloat>(anisotropy);
 
-	const auto& gl_device_features = gl_context->get_gl_device_features();
-
-	if (gl_device_features.dsa_is_available_)
+	if (gl_device_features_.dsa_is_available_)
 	{
 		glTextureParameterf(gl_resource_.get(), GL_TEXTURE_MAX_ANISOTROPY, gl_anisotropy);
 		GlError::ensure_debug();

@@ -50,19 +50,6 @@ namespace detail
 
 
 // =========================================================================
-// GlSampler
-//
-
-GlSampler::GlSampler() = default;
-
-GlSampler::~GlSampler() = default;
-
-//
-// GlSampler
-// =========================================================================
-
-
-// =========================================================================
 // GlSamplerImpl
 //
 
@@ -80,7 +67,7 @@ public:
 	~GlSamplerImpl() override;
 
 
-	void bind() override;
+	void set() override;
 
 	void update(
 		const Renderer3dSamplerUpdateParam& param) override;
@@ -100,9 +87,6 @@ private:
 	Renderer3dSamplerState state_;
 	SamplerResource gl_resource_;
 
-
-	void initialize(
-		const Renderer3dSamplerCreateParam& param);
 
 	void set_mag_filter();
 
@@ -145,12 +129,40 @@ GlSamplerImpl::GlSamplerImpl(
 		throw Exception{"Null OpenGL state."};
 	}
 
-	initialize(param);
+	const auto& device_features = gl_context_->get_device_features();
+	const auto& gl_device_features = gl_context_->get_gl_device_features();
+
+	state_ = param.state_;
+
+	if (device_features.sampler_is_available_)
+	{
+		auto gl_name = GLuint{};
+
+		if (gl_device_features.dsa_is_available_)
+		{
+			glCreateSamplers(1, &gl_name);
+			GlError::ensure_debug();
+		}
+		else
+		{
+			glGenSamplers(1, &gl_name);
+			GlError::ensure_debug();
+		}
+
+		if (gl_name == 0)
+		{
+			throw Exception{"Failed to create OpenGL sampler object."};
+		}
+
+		gl_resource_.reset(gl_name);
+	}
+
+	set_initial_state();
 }
 
 GlSamplerImpl::~GlSamplerImpl() = default;
 
-void GlSamplerImpl::bind()
+void GlSamplerImpl::set()
 {
 	if (!gl_resource_)
 	{
@@ -279,40 +291,6 @@ void GlSamplerImpl::sampler_deleter(
 {
 	glDeleteSamplers(1, &resource);
 	GlError::ensure_debug();
-}
-
-void GlSamplerImpl::initialize(
-	const Renderer3dSamplerCreateParam& param)
-{
-	const auto& device_features = gl_context_->get_device_features();
-	const auto& gl_device_features = gl_context_->get_gl_device_features();
-
-	state_ = param.state_;
-
-	if (device_features.sampler_is_available_)
-	{
-		auto gl_name = GLuint{};
-
-		if (gl_device_features.dsa_is_available_)
-		{
-			glCreateSamplers(1, &gl_name);
-			GlError::ensure_debug();
-		}
-		else
-		{
-			glGenSamplers(1, &gl_name);
-			GlError::ensure_debug();
-		}
-
-		if (gl_name == 0)
-		{
-			throw Exception{"Failed to create OpenGL sampler object."};
-		}
-
-		gl_resource_.reset(gl_name);
-	}
-
-	set_initial_state();
 }
 
 void GlSamplerImpl::set_mag_filter()

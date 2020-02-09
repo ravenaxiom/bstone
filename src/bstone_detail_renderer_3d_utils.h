@@ -89,8 +89,6 @@ public:
 	}; // IndexedToRgba8Param
 
 
-	static int get_max_mipmap_count();
-
 	static float deg_to_rad(
 		const float angle_deg);
 
@@ -131,13 +129,6 @@ public:
 
 	static void validate_buffer_create_param(
 		const Renderer3dBufferCreateParam& param);
-
-
-	static void validate_texture_2d_create_param(
-		const Renderer3dTexture2dCreateParam& param);
-
-	static void validate_texture_2d_update_param(
-		const Renderer3dTexture2dUpdateParam& param);
 
 
 	static void vertex_input_validate_format(

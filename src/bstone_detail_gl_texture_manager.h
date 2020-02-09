@@ -54,11 +54,11 @@ using GlContextPtr = GlContext*;
 class GlTextureManager
 {
 protected:
-	GlTextureManager();
+	GlTextureManager() = default;
 
 
 public:
-	virtual ~GlTextureManager();
+	virtual ~GlTextureManager() = default;
 
 
 	virtual GlContextPtr get_gl_context() const noexcept = 0;
@@ -70,11 +70,25 @@ public:
 	virtual void notify_destroy(
 		const Renderer3dTexture2dPtr texture_2d) noexcept = 0;
 
+
 	virtual void set(
 		const Renderer3dTexture2dPtr texture_2d) = 0;
 
-	virtual bool set_current(
+
+	virtual Renderer3dTexture2dPtr get_active() const noexcept = 0;
+
+	virtual void set_active(
 		const Renderer3dTexture2dPtr texture_2d) = 0;
+
+
+	virtual Renderer3dTexture2dPtr get_current() const noexcept = 0;
+
+	virtual void set_current(
+		const Renderer3dTexture2dPtr texture_2d) = 0;
+
+
+	virtual void set_to_current() = 0;
+
 
 	virtual void update_current_sampler_state(
 		const Renderer3dSamplerState& sampler_state) = 0;

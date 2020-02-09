@@ -84,7 +84,7 @@ public:
 		const Renderer3dShaderStagePtr shader_stage) override;
 
 
-	void synchronize() override;
+	void set_to_current() override;
 
 
 private:
@@ -145,6 +145,11 @@ void GlShaderStageManagerImpl::notify_destroy(
 void GlShaderStageManagerImpl::set(
 	const Renderer3dShaderStagePtr shader_stage)
 {
+	if (shader_stage == shader_stage_active_)
+	{
+		return;
+	}
+
 	if (shader_stage)
 	{
 		static_cast<GlShaderStagePtr>(shader_stage)->set();
@@ -180,13 +185,8 @@ void GlShaderStageManagerImpl::set_current(
 	shader_stage_current_ = shader_stage;
 }
 
-void GlShaderStageManagerImpl::synchronize()
+void GlShaderStageManagerImpl::set_to_current()
 {
-	if (shader_stage_active_ == shader_stage_current_)
-	{
-		return;
-	}
-
 	set(shader_stage_current_);
 }
 
