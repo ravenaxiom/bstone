@@ -104,7 +104,7 @@ private:
 		const Renderer3dTexture2dUpdateParam& param);
 
 
-	void bind();
+	void bind() override;
 
 	void upload_mipmap(
 		const int mipmap_level,

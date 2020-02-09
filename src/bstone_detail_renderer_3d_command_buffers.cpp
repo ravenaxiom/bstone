@@ -31,6 +31,7 @@ Free Software Foundation, Inc.,
 
 #include "bstone_detail_renderer_3d_command_buffers.h"
 
+#include <algorithm>
 #include <vector>
 
 #include "bstone_exception.h"
