@@ -76,12 +76,9 @@ using GlShaderStageManagerPtr = GlShaderStageManager*;
 class GlContext
 {
 public:
-	GlContext();
+	GlContext() = default;
 
-	GlContext(
-		const GlContext& rhs) = delete;
-
-	virtual ~GlContext() = 0;
+	virtual ~GlContext() = default;
 
 
 	virtual const Renderer3dDeviceFeatures& get_device_features() const noexcept = 0;

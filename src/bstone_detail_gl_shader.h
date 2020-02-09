@@ -59,11 +59,11 @@ class GlShader :
 	public Renderer3dShader
 {
 protected:
-	GlShader();
+	GlShader() = default;
 
 
 public:
-	~GlShader() override;
+	~GlShader() override = default;
 
 
 	virtual GLuint get_gl_name() const noexcept = 0;

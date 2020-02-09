@@ -54,11 +54,11 @@ class GlBuffer :
 	public Renderer3dBuffer
 {
 protected:
-	GlBuffer();
+	GlBuffer() = default;
 
 
 public:
-	~GlBuffer() override;
+	~GlBuffer() override = default;
 
 
 	virtual void set(

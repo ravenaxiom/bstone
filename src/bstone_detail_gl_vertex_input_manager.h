@@ -53,11 +53,11 @@ using GlContextPtr = GlContext*;
 class GlVertexInputManager
 {
 protected:
-	GlVertexInputManager();
+	GlVertexInputManager() = default;
 
 
 public:
-	virtual ~GlVertexInputManager();
+	virtual ~GlVertexInputManager() = default;
 
 
 	virtual GlContextPtr get_gl_context() const noexcept = 0;

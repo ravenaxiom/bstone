@@ -57,11 +57,11 @@ using GlVaoManagerPtr = GlVaoManager*;
 class GlVao
 {
 protected:
-	GlVao();
+	GlVao() = default;
 
 
 public:
-	virtual ~GlVao();
+	virtual ~GlVao() = default;
 
 
 	virtual void bind() = 0;

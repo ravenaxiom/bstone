@@ -66,10 +66,6 @@ GlRenderer3d::GlRenderer3d(
 	kind_{},
 	name_{},
 	description_{},
-	sdl_window_{},
-	sdl_gl_context_{},
-	extension_manager_{},
-	gl_context_{},
 	device_info_{},
 	device_features_{},
 	gl_device_features_{},
@@ -77,75 +73,13 @@ GlRenderer3d::GlRenderer3d(
 	screen_height_{},
 	aa_kind_{},
 	aa_value_{},
+	sdl_window_{},
+	sdl_gl_context_{},
+	extension_manager_{},
+	gl_context_{},
 	gl_msaa_fbo_{},
 	gl_msaa_color_rb_{},
 	gl_msaa_depth_rb_{}
-{
-	initialize(param);
-}
-
-GlRenderer3d::~GlRenderer3d()
-{
-	uninitialize_internal();
-}
-
-Renderer3dKind GlRenderer3d::get_kind() const noexcept
-{
-	return kind_;
-}
-
-const std::string& GlRenderer3d::get_name() const noexcept
-{
-	return name_;
-}
-
-const std::string& GlRenderer3d::get_description() const noexcept
-{
-	return description_;
-}
-
-void GlRenderer3d::fbo_resource_deleter(
-	const GLuint& gl_name) noexcept
-{
-	const auto gl_function = (glDeleteFramebuffers ? glDeleteFramebuffers : glDeleteFramebuffersEXT);
-	gl_function(1, &gl_name);
-	GlError::ensure_debug();
-}
-
-void GlRenderer3d::rbo_resource_deleter(
-	const GLuint& gl_name) noexcept
-{
-	const auto gl_function = (glDeleteRenderbuffers ? glDeleteRenderbuffers : glDeleteRenderbuffersEXT);
-	gl_function(1, &gl_name);
-	GlError::ensure_debug();
-}
-
-void GlRenderer3d::set_name_and_description()
-{
-	switch (kind_)
-	{
-		case Renderer3dKind::gl_2_0:
-			name_ = "GL2";
-			description_ = "OpenGL 2.0+";
-			break;
-
-		case Renderer3dKind::gl_3_2_core:
-			name_ = "GL3.2C";
-			description_ = "OpenGL 3.2 core";
-			break;
-
-		case Renderer3dKind::gles_2_0:
-			name_ = "GLES2.0";
-			description_ = "OpenGL ES 2.0";
-			break;
-
-		default:
-			throw Exception{"Unsupported renderer kind."};
-	}
-}
-
-void GlRenderer3d::initialize(
-	const Renderer3dCreateParam& param)
 {
 	switch (param.renderer_kind_)
 	{
@@ -357,9 +291,61 @@ void GlRenderer3d::initialize(
 	present();
 }
 
-void GlRenderer3d::uninitialize()
+GlRenderer3d::~GlRenderer3d() = default;
+
+Renderer3dKind GlRenderer3d::get_kind() const noexcept
 {
-	uninitialize_internal();
+	return kind_;
+}
+
+const std::string& GlRenderer3d::get_name() const noexcept
+{
+	return name_;
+}
+
+const std::string& GlRenderer3d::get_description() const noexcept
+{
+	return description_;
+}
+
+void GlRenderer3d::fbo_resource_deleter(
+	const GLuint& gl_name) noexcept
+{
+	const auto gl_function = (glDeleteFramebuffers ? glDeleteFramebuffers : glDeleteFramebuffersEXT);
+	gl_function(1, &gl_name);
+	GlError::ensure_debug();
+}
+
+void GlRenderer3d::rbo_resource_deleter(
+	const GLuint& gl_name) noexcept
+{
+	const auto gl_function = (glDeleteRenderbuffers ? glDeleteRenderbuffers : glDeleteRenderbuffersEXT);
+	gl_function(1, &gl_name);
+	GlError::ensure_debug();
+}
+
+void GlRenderer3d::set_name_and_description()
+{
+	switch (kind_)
+	{
+		case Renderer3dKind::gl_2_0:
+			name_ = "GL2";
+			description_ = "OpenGL 2.0+";
+			break;
+
+		case Renderer3dKind::gl_3_2_core:
+			name_ = "GL3.2C";
+			description_ = "OpenGL 3.2 core";
+			break;
+
+		case Renderer3dKind::gles_2_0:
+			name_ = "GLES2.0";
+			description_ = "OpenGL ES 2.0";
+			break;
+
+		default:
+			throw Exception{"Unsupported renderer kind."};
+	}
 }
 
 const Renderer3dDeviceFeatures& GlRenderer3d::device_get_features() const noexcept
@@ -518,29 +504,6 @@ Renderer3dSamplerUPtr GlRenderer3d::sampler_create(
 	return gl_context_->sampler_get_manager()->create(param);
 }
 
-void GlRenderer3d::uninitialize_internal()
-{
-	kind_ = {};
-	gl_context_ = {};
-	extension_manager_ = {};
-
-	framebuffers_destroy();
-
-	if (sdl_gl_context_)
-	{
-		GlRenderer3dUtils::make_context_current(sdl_window_.get(), nullptr);
-	}
-
-	sdl_gl_context_ = {};
-	sdl_window_ = {};
-
-	device_info_ = {};
-	device_features_ = {};
-	gl_device_features_ = {};
-	screen_width_ = {};
-	screen_height_ = {};
-}
-
 GlRenderer3d::RboResource GlRenderer3d::renderbuffer_create()
 {
 	if (!gl_device_features_.framebuffer_is_available_)
@@ -554,12 +517,14 @@ GlRenderer3d::RboResource GlRenderer3d::renderbuffer_create()
 	gl_function(1, &gl_name);
 	GlError::ensure_debug();
 
-	if (gl_name == 0)
+	auto rbo_resource = RboResource{gl_name};
+
+	if (!rbo_resource)
 	{
 		throw Exception{"Failed to create OpenGL renderbuffer object."};
 	}
 
-	return RboResource{gl_name};
+	return rbo_resource;
 }
 
 void GlRenderer3d::renderbuffer_bind(
@@ -584,12 +549,14 @@ GlRenderer3d::FboResource GlRenderer3d::framebuffer_create()
 	gl_func(1, &gl_name);
 	GlError::ensure_debug();
 
-	if (gl_name == 0)
+	auto fbo_resource = FboResource{gl_name};
+
+	if (!fbo_resource)
 	{
 		throw Exception{"Failed to create OpenGL framebuffer object."};
 	}
 
-	return FboResource{gl_name};
+	return fbo_resource;
 }
 
 void GlRenderer3d::framebuffer_bind(

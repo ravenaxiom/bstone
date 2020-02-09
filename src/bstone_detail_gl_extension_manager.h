@@ -90,11 +90,11 @@ enum class GlExtensionId
 class GlExtensionManager
 {
 protected:
-	GlExtensionManager();
+	GlExtensionManager() = default;
 
 
 public:
-	virtual ~GlExtensionManager();
+	virtual ~GlExtensionManager() = default;
 
 
 	virtual int get_count() const noexcept = 0;

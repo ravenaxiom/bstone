@@ -64,17 +64,14 @@ using GlVaoPtr = GlVao*;
 class GlVaoManager
 {
 protected:
-	GlVaoManager();
+	GlVaoManager() = default;
 
 
 public:
-	virtual ~GlVaoManager();
+	virtual ~GlVaoManager() = default;
 
 
-	virtual const Renderer3dDeviceFeatures& get_device_features() const noexcept = 0;
-
-	virtual const GlDeviceFeatures& get_gl_device_features() const noexcept = 0;
-
+	virtual GlContextPtr get_context() const noexcept = 0;
 
 	virtual GlVaoPtr create() = 0;
 

@@ -49,19 +49,6 @@ namespace detail
 
 
 // ==========================================================================
-// GlVao
-//
-
-GlVao::GlVao() = default;
-
-GlVao::~GlVao() = default;
-
-//
-// GlVao
-// ==========================================================================
-
-
-// ==========================================================================
 // GlVaoImpl
 //
 
@@ -89,6 +76,8 @@ public:
 
 private:
 	const GlVaoManagerPtr manager_;
+	const Renderer3dDeviceFeatures& device_features_;
+	const GlDeviceFeatures& gl_device_features_;
 
 
 	static void gl_deleter(
@@ -130,6 +119,8 @@ GlVaoImpl::GlVaoImpl(
 	const GlVaoManagerPtr manager)
 	:
 	manager_{manager},
+	device_features_{manager->get_context()->get_device_features()},
+	gl_device_features_{manager->get_context()->get_gl_device_features()},
 	gl_vao_resource_{},
 	index_buffer_{},
 	enabled_locations_{}
@@ -198,7 +189,7 @@ void GlVaoImpl::enable_location(
 
 void GlVaoImpl::initialize_resource()
 {
-	if (!manager_->get_gl_device_features().vao_is_available_)
+	if (!gl_device_features_.vao_is_available_)
 	{
 		return;
 	}
@@ -218,9 +209,7 @@ void GlVaoImpl::initialize_resource()
 
 void GlVaoImpl::initialize_locations()
 {
-	const auto& device_features = manager_->get_device_features();
-
-	enabled_locations_.resize(device_features.vertex_input_max_locations_);
+	enabled_locations_.resize(device_features_.vertex_input_max_locations_);
 }
 
 void GlVaoImpl::initialize()

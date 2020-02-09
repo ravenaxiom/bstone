@@ -81,11 +81,11 @@ struct Renderer3dBufferUpdateParam
 class Renderer3dBuffer
 {
 protected:
-	Renderer3dBuffer();
+	Renderer3dBuffer() = default;
 
 
 public:
-	virtual ~Renderer3dBuffer();
+	virtual ~Renderer3dBuffer() = default;
 
 
 	virtual Renderer3dBufferKind get_kind() const noexcept = 0;

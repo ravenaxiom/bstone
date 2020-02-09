@@ -49,19 +49,6 @@ namespace detail
 
 
 // ==========================================================================
-// GlVaoManager
-//
-
-GlVaoManager::GlVaoManager() = default;
-
-GlVaoManager::~GlVaoManager() = default;
-
-//
-// GlVaoManager
-// ==========================================================================
-
-
-// ==========================================================================
 // GlVaoManagerImpl
 //
 
@@ -77,9 +64,7 @@ public:
 	~GlVaoManagerImpl() override;
 
 
-	const Renderer3dDeviceFeatures& get_device_features() const noexcept override;
-
-	const GlDeviceFeatures& get_gl_device_features() const noexcept override;
+	GlContextPtr get_context() const noexcept override;
 
 
 	GlVaoPtr create() override;
@@ -157,14 +142,9 @@ GlVaoManagerImpl::GlVaoManagerImpl(
 
 GlVaoManagerImpl::~GlVaoManagerImpl() = default;
 
-const Renderer3dDeviceFeatures& GlVaoManagerImpl::get_device_features() const noexcept
+GlContextPtr GlVaoManagerImpl::get_context() const noexcept
 {
-	return device_features_;
-}
-
-const GlDeviceFeatures& GlVaoManagerImpl::get_gl_device_features() const noexcept
-{
-	return gl_device_features_;
+	return gl_context_;
 }
 
 GlVaoPtr GlVaoManagerImpl::create()

@@ -67,9 +67,9 @@ enum class Renderer3dShaderVarTypeId
 class Renderer3dShaderVar
 {
 protected:
-	Renderer3dShaderVar();
+	Renderer3dShaderVar() = default;
 
-	virtual ~Renderer3dShaderVar();
+	virtual ~Renderer3dShaderVar() = default;
 
 
 public:
@@ -100,9 +100,9 @@ class Renderer3dShaderVarInt32 :
 	public virtual Renderer3dShaderVar
 {
 protected:
-	Renderer3dShaderVarInt32();
+	Renderer3dShaderVarInt32() = default;
 
-	virtual ~Renderer3dShaderVarInt32();
+	virtual ~Renderer3dShaderVarInt32() = default;
 
 
 public:
@@ -126,9 +126,9 @@ class Renderer3dShaderVarFloat32 :
 	public virtual Renderer3dShaderVar
 {
 protected:
-	Renderer3dShaderVarFloat32();
+	Renderer3dShaderVarFloat32() = default;
 
-	virtual ~Renderer3dShaderVarFloat32();
+	virtual ~Renderer3dShaderVarFloat32() = default;
 
 
 public:
@@ -152,9 +152,9 @@ class Renderer3dShaderVarVec2 :
 	public virtual Renderer3dShaderVar
 {
 protected:
-	Renderer3dShaderVarVec2();
+	Renderer3dShaderVarVec2() = default;
 
-	virtual ~Renderer3dShaderVarVec2();
+	virtual ~Renderer3dShaderVarVec2() = default;
 
 
 public:
@@ -178,9 +178,9 @@ class Renderer3dShaderVarVec4 :
 	public virtual Renderer3dShaderVar
 {
 protected:
-	Renderer3dShaderVarVec4();
+	Renderer3dShaderVarVec4() = default;
 
-	virtual ~Renderer3dShaderVarVec4();
+	virtual ~Renderer3dShaderVarVec4() = default;
 
 
 public:
@@ -204,9 +204,9 @@ class Renderer3dShaderVarMat4 :
 	public virtual Renderer3dShaderVar
 {
 protected:
-	Renderer3dShaderVarMat4();
+	Renderer3dShaderVarMat4() = default;
 
-	virtual ~Renderer3dShaderVarMat4();
+	virtual ~Renderer3dShaderVarMat4() = default;
 
 
 public:
@@ -230,9 +230,9 @@ class Renderer3dShaderVarSampler2d :
 	public virtual Renderer3dShaderVar
 {
 protected:
-	Renderer3dShaderVarSampler2d();
+	Renderer3dShaderVarSampler2d() = default;
 
-	virtual ~Renderer3dShaderVarSampler2d();
+	virtual ~Renderer3dShaderVarSampler2d() = default;
 
 
 public:

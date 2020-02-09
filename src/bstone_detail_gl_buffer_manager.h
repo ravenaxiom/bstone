@@ -56,11 +56,11 @@ using GlVaoManagerPtr = GlVaoManager*;
 class GlBufferManager
 {
 protected:
-	GlBufferManager();
+	GlBufferManager() = default;
 
 
 public:
-	virtual ~GlBufferManager();
+	virtual ~GlBufferManager() = default;
 
 
 	virtual GlContextPtr get_context() const noexcept = 0;

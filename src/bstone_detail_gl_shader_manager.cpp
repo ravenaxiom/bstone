@@ -44,19 +44,6 @@ namespace detail
 
 
 // ==========================================================================
-// GlShaderManager
-//
-
-GlShaderManager::GlShaderManager() = default;
-
-GlShaderManager::~GlShaderManager() = default;
-
-//
-// GlShaderManager
-// ==========================================================================
-
-
-// ==========================================================================
 // GlShaderManagerImpl
 //
 

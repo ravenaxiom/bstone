@@ -64,11 +64,11 @@ struct Renderer3dShaderCreateParam
 class Renderer3dShader
 {
 protected:
-	Renderer3dShader();
+	Renderer3dShader() = default;
 
 
 public:
-	virtual ~Renderer3dShader();
+	virtual ~Renderer3dShader() = default;
 
 
 	virtual Renderer3dShaderKind get_kind() const noexcept = 0;

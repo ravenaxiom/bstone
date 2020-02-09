@@ -59,11 +59,11 @@ class GlShaderVar :
 	public virtual Renderer3dShaderVarSampler2d
 {
 protected:
-	GlShaderVar();
+	GlShaderVar() = default;
 
 
 public:
-	~GlShaderVar() override;
+	~GlShaderVar() override = default;
 
 
 	static int get_unit_size(

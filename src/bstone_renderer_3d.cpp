@@ -28,72 +28,10 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_precompiled.h"
-#include "bstone_renderer_3d.h"
-#include "bstone_detail_renderer_3d_command_queue.h"
 
 
 namespace bstone
 {
-
-
-// ==========================================================================
-// Renderer3dBuffer
-//
-
-Renderer3dBuffer::Renderer3dBuffer() = default;
-
-Renderer3dBuffer::~Renderer3dBuffer() = default;
-
-//
-// Renderer3dBuffer
-// ==========================================================================
-
-
-// ==========================================================================
-// Shader
-//
-
-Renderer3dShaderVar::Renderer3dShaderVar() = default;
-
-Renderer3dShaderVar::~Renderer3dShaderVar() = default;
-
-
-Renderer3dShaderVarInt32::Renderer3dShaderVarInt32() = default;
-
-Renderer3dShaderVarInt32::~Renderer3dShaderVarInt32() = default;
-
-
-Renderer3dShaderVarFloat32::Renderer3dShaderVarFloat32() = default;
-
-Renderer3dShaderVarFloat32::~Renderer3dShaderVarFloat32() = default;
-
-
-Renderer3dShaderVarVec2::Renderer3dShaderVarVec2() = default;
-
-Renderer3dShaderVarVec2::~Renderer3dShaderVarVec2() = default;
-
-
-Renderer3dShaderVarVec4::Renderer3dShaderVarVec4() = default;
-
-Renderer3dShaderVarVec4::~Renderer3dShaderVarVec4() = default;
-
-
-Renderer3dShaderVarMat4::Renderer3dShaderVarMat4() = default;
-
-Renderer3dShaderVarMat4::~Renderer3dShaderVarMat4() = default;
-
-Renderer3dShaderVarSampler2d::Renderer3dShaderVarSampler2d() = default;
-
-Renderer3dShaderVarSampler2d::~Renderer3dShaderVarSampler2d() = default;
-
-
-Renderer3dShader::Renderer3dShader() = default;
-
-Renderer3dShader::~Renderer3dShader() = default;
-
-//
-// Shader
-// ==========================================================================
 
 
 } // bstone

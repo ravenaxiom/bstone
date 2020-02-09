@@ -45,19 +45,6 @@ namespace detail
 
 
 // ==========================================================================
-// GlBufferManager
-//
-
-GlBufferManager::GlBufferManager() = default;
-
-GlBufferManager::~GlBufferManager() = default;
-
-//
-// GlBufferManager
-// ==========================================================================
-
-
-// ==========================================================================
 // GlBufferManagerImplException
 //
 

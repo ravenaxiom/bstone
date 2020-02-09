@@ -54,11 +54,11 @@ class GlVertexInput :
 	public Renderer3dVertexInput
 {
 protected:
-	GlVertexInput();
+	GlVertexInput() = default;
 
 
 public:
-	~GlVertexInput() override;
+	~GlVertexInput() override = default;
 
 
 	virtual void bind() = 0;

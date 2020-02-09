@@ -145,12 +145,6 @@ private:
 	std::string name_;
 	std::string description_;
 
-	SdlWindowUPtr sdl_window_;
-	SdlGlContextUPtr sdl_gl_context_;
-
-	GlExtensionManagerUPtr extension_manager_;
-	GlContextUPtr gl_context_;
-
 	Renderer3dDeviceInfo device_info_;
 	Renderer3dDeviceFeatures device_features_;
 	detail::GlDeviceFeatures gl_device_features_;
@@ -161,20 +155,18 @@ private:
 	Renderer3dAaKind aa_kind_;
 	int aa_value_;
 
+	SdlWindowUPtr sdl_window_;
+	SdlGlContextUPtr sdl_gl_context_;
+
+	GlExtensionManagerUPtr extension_manager_;
+	GlContextUPtr gl_context_;
+
 	FboResource gl_msaa_fbo_;
 	RboResource gl_msaa_color_rb_;
 	RboResource gl_msaa_depth_rb_;
 
 
 	void set_name_and_description();
-
-	void initialize(
-		const Renderer3dCreateParam& param);
-
-	void uninitialize();
-
-
-	void uninitialize_internal();
 
 
 	RboResource renderbuffer_create();

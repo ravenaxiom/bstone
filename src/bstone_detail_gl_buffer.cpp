@@ -40,7 +40,6 @@ Free Software Foundation, Inc.,
 #include "bstone_detail_gl_context.h"
 #include "bstone_detail_gl_error.h"
 #include "bstone_detail_gl_renderer_3d_utils.h"
-#include "bstone_detail_gl_context.h"
 #include "bstone_detail_gl_vao_manager.h"
 
 
@@ -48,19 +47,6 @@ namespace bstone
 {
 namespace detail
 {
-
-
-// =========================================================================
-// GlBuffer
-//
-
-GlBuffer::GlBuffer() = default;
-
-GlBuffer::~GlBuffer() = default;
-
-//
-// GlBuffer
-// =========================================================================
 
 
 // =========================================================================
@@ -133,6 +119,8 @@ private:
 	using BufferResource = UniqueResource<GLuint, resource_deleter>;
 
 	const GlBufferManagerPtr gl_buffer_manager_;
+	const GlDeviceFeatures& gl_device_features_;
+	const GlVaoManagerPtr vao_manager_;
 
 	Renderer3dBufferKind kind_;
 	Renderer3dBufferUsageKind usage_kind_;
@@ -171,6 +159,8 @@ GlBufferImpl::GlBufferImpl(
 	const Renderer3dBufferCreateParam& param)
 	:
 	gl_buffer_manager_{gl_buffer_manager},
+	gl_device_features_{gl_buffer_manager_->get_context()->get_gl_device_features()},
+	vao_manager_{gl_buffer_manager_->get_context()->vao_get_manager()},
 	kind_{},
 	usage_kind_{},
 	size_{},
@@ -184,12 +174,9 @@ GlBufferImpl::GlBufferImpl(
 
 	validate_param(param);
 
-	const auto gl_context = gl_buffer_manager_->get_context();
-	const auto& gl_device_features = gl_context->get_gl_device_features();
-
 	auto gl_name = GLuint{};
 
-	if (gl_device_features.dsa_is_available_)
+	if (gl_device_features_.dsa_is_available_)
 	{
 		glCreateBuffers(1, &gl_name);
 		GlError::ensure_debug();
@@ -213,22 +200,19 @@ GlBufferImpl::GlBufferImpl(
 
 	const auto gl_usage = gl_get_usage(param.usage_kind_);
 
-	if (gl_device_features.dsa_is_available_ &&
-		gl_device_features.buffer_storage_is_available_)
+	if (gl_device_features_.dsa_is_available_ &&
+		gl_device_features_.buffer_storage_is_available_)
 	{
 		glNamedBufferStorage(gl_resource_.get(), param.size_, nullptr, GL_DYNAMIC_STORAGE_BIT);
 		GlError::ensure_debug();
 	}
 	else
 	{
-		const auto gl_context = gl_buffer_manager_->get_context();
-		const auto gl_vao_manager = gl_context->vao_get_manager();
-
 		const auto is_index = (kind_ == Renderer3dBufferKind::index);
 
 		if (is_index)
 		{
-			gl_vao_manager->push_current_set_default();
+			vao_manager_->push_current_set_default();
 		}
 
 		set(true);
@@ -238,7 +222,7 @@ GlBufferImpl::GlBufferImpl(
 
 		if (is_index)
 		{
-			gl_vao_manager->pop();
+			vao_manager_->pop();
 		}
 	}
 }
@@ -286,10 +270,7 @@ void GlBufferImpl::update(
 		return;
 	}
 
-	const auto gl_context = gl_buffer_manager_->get_context();
-	const auto& gl_device_features = gl_context->get_gl_device_features();
-
-	if (gl_device_features.dsa_is_available_)
+	if (gl_device_features_.dsa_is_available_)
 	{
 		glNamedBufferSubData(
 			gl_resource_.get(),
@@ -302,14 +283,11 @@ void GlBufferImpl::update(
 	}
 	else
 	{
-		const auto gl_context = gl_buffer_manager_->get_context();
-		const auto gl_vao_manager = gl_context->vao_get_manager();
-
 		const auto is_index = (kind_ == Renderer3dBufferKind::index);
 
 		if (is_index)
 		{
-			gl_vao_manager->push_current_set_default();
+			vao_manager_->push_current_set_default();
 		}
 
 		set(true);
@@ -325,7 +303,7 @@ void GlBufferImpl::update(
 
 		if (is_index)
 		{
-			gl_vao_manager->pop();
+			vao_manager_->pop();
 		}
 	}
 }

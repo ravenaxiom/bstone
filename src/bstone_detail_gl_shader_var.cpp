@@ -53,10 +53,6 @@ namespace detail
 // GlShaderVar
 //
 
-GlShaderVar::GlShaderVar() = default;
-
-GlShaderVar::~GlShaderVar() = default;
-
 int GlShaderVar::get_unit_size(
 	const Renderer3dShaderVarTypeId type_id)
 {
@@ -136,6 +132,7 @@ public:
 
 private:
 	const GlShaderStagePtr shader_stage_;
+	const GlDeviceFeatures& gl_device_features_;
 
 	Renderer3dShaderVarKind kind_;
 	Renderer3dShaderVarTypeId type_id_;
@@ -174,6 +171,7 @@ GlShaderVarImpl::GlShaderVarImpl(
 	const GlShaderVarFactory::CreateParam& param)
 	:
 	shader_stage_{shader_stage},
+	gl_device_features_{shader_stage->get_manager()->get_gl_context()->get_gl_device_features()},
 	kind_{},
 	type_id_{},
 	value_size_{},
@@ -297,9 +295,7 @@ void GlShaderVarImpl::set_value(
 	}
 
 
-	const auto& gl_device_features = shader_stage_->get_manager()->get_gl_context()->get_gl_device_features();
-
-	if (!gl_device_features.sso_is_available_)
+	if (!gl_device_features_.sso_is_available_)
 	{
 		shader_stage_->set();
 	}
@@ -310,11 +306,9 @@ void GlShaderVarImpl::set_value(
 void GlShaderVarImpl::set_value(
 	const void* const value_data)
 {
-	const auto& gl_device_features = shader_stage_->get_manager()->get_gl_context()->get_gl_device_features();
-
 	auto shader_stage_gl_name = GLuint{};
 
-	if (gl_device_features.sso_is_available_)
+	if (gl_device_features_.sso_is_available_)
 	{
 		shader_stage_gl_name = shader_stage_->get_gl_name();
 	}
@@ -323,7 +317,7 @@ void GlShaderVarImpl::set_value(
 	{
 		case Renderer3dShaderVarTypeId::int32:
 		case Renderer3dShaderVarTypeId::sampler2d:
-			if (gl_device_features.sso_is_available_)
+			if (gl_device_features_.sso_is_available_)
 			{
 				glProgramUniform1iv(
 					shader_stage_gl_name,
@@ -348,7 +342,7 @@ void GlShaderVarImpl::set_value(
 			break;
 
 		case Renderer3dShaderVarTypeId::float32:
-			if (gl_device_features.sso_is_available_)
+			if (gl_device_features_.sso_is_available_)
 			{
 				glProgramUniform1fv(
 					shader_stage_gl_name,
@@ -373,7 +367,7 @@ void GlShaderVarImpl::set_value(
 			break;
 
 		case Renderer3dShaderVarTypeId::vec2:
-			if (gl_device_features.sso_is_available_)
+			if (gl_device_features_.sso_is_available_)
 			{
 				glProgramUniform2fv(
 					shader_stage_gl_name,
@@ -398,7 +392,7 @@ void GlShaderVarImpl::set_value(
 			break;
 
 		case Renderer3dShaderVarTypeId::vec3:
-			if (gl_device_features.sso_is_available_)
+			if (gl_device_features_.sso_is_available_)
 			{
 				glProgramUniform3fv(
 					shader_stage_gl_name,
@@ -423,7 +417,7 @@ void GlShaderVarImpl::set_value(
 			break;
 
 		case Renderer3dShaderVarTypeId::vec4:
-			if (gl_device_features.sso_is_available_)
+			if (gl_device_features_.sso_is_available_)
 			{
 				glProgramUniform4fv(
 					shader_stage_gl_name,
@@ -448,7 +442,7 @@ void GlShaderVarImpl::set_value(
 			break;
 
 		case Renderer3dShaderVarTypeId::mat4:
-			if (gl_device_features.sso_is_available_)
+			if (gl_device_features_.sso_is_available_)
 			{
 				glProgramUniformMatrix4fv(
 					shader_stage_gl_name,

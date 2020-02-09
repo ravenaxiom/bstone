@@ -53,11 +53,11 @@ using GlContextPtr = GlContext*;
 class GlShaderManager
 {
 protected:
-	GlShaderManager();
+	GlShaderManager() = default;
 
 
 public:
-	virtual ~GlShaderManager();
+	virtual ~GlShaderManager() = default;
 
 
 	virtual Renderer3dShaderUPtr create(

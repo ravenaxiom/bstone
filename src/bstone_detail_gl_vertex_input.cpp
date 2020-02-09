@@ -53,19 +53,6 @@ namespace detail
 
 
 // =========================================================================
-// GlVertexInput
-//
-
-GlVertexInput::GlVertexInput() = default;
-
-GlVertexInput::~GlVertexInput() = default;
-
-//
-// GlVertexInput
-// =========================================================================
-
-
-// =========================================================================
 // GlVertexInputImpl
 //
 
@@ -87,6 +74,9 @@ public:
 
 private:
 	const GlVertexInputManagerPtr vertex_input_manager_;
+	const GlVaoManagerPtr vao_manager_;
+	const Renderer3dDeviceFeatures& device_features_;
+	const GlDeviceFeatures& gl_device_features_;
 
 	GlBufferPtr index_buffer_;
 	Renderer3dVertexAttributeDescriptions attribute_descriptions_;
@@ -129,6 +119,9 @@ GlVertexInputImpl::GlVertexInputImpl(
 	const Renderer3dVertexInputCreateParam& param)
 	:
 	vertex_input_manager_{vertex_input_manager},
+	vao_manager_{vertex_input_manager->get_gl_context()->vao_get_manager()},
+	device_features_{vertex_input_manager->get_gl_context()->get_device_features()},
+	gl_device_features_{vertex_input_manager->get_gl_context()->get_gl_device_features()},
 	index_buffer_{},
 	attribute_descriptions_{},
 	gl_resource_{nullptr, GlVaoDeleter{vertex_input_manager->get_gl_context()->vao_get_manager()}}
@@ -150,9 +143,7 @@ void GlVertexInputImpl::bind()
 {
 	const auto gl_context = vertex_input_manager_->get_gl_context();
 
-	const auto& gl_device_features = gl_context->get_gl_device_features();
-
-	if (gl_device_features.vao_is_available_)
+	if (gl_device_features_.vao_is_available_)
 	{
 		for (const auto& attribute_description : attribute_descriptions_)
 		{
@@ -162,9 +153,7 @@ void GlVertexInputImpl::bind()
 			}
 		}
 
-		const auto gl_vao_manager = gl_context->vao_get_manager();
-
-		gl_vao_manager->bind(gl_resource_.get());
+		vao_manager_->bind(gl_resource_.get());
 	}
 	else
 	{
@@ -174,18 +163,13 @@ void GlVertexInputImpl::bind()
 
 void GlVertexInputImpl::initialize_vao()
 {
-	const auto gl_context = vertex_input_manager_->get_gl_context();
-	const auto gl_vao_manager = gl_context->vao_get_manager();
+	gl_resource_.reset(vao_manager_->create());
 
-	gl_resource_.reset(gl_vao_manager->create());
-
-	gl_vao_manager->bind(gl_resource_.get());
+	vao_manager_->bind(gl_resource_.get());
 
 	index_buffer_->set(true);
 
-	const auto& gl_device_features = gl_context->get_gl_device_features();
-
-	if (gl_device_features.vao_is_available_)
+	if (gl_device_features_.vao_is_available_)
 	{
 		for (const auto& attribute_description : attribute_descriptions_)
 		{
@@ -200,10 +184,7 @@ void GlVertexInputImpl::initialize_vao()
 void GlVertexInputImpl::initialize(
 	const Renderer3dVertexInputCreateParam& param)
 {
-	const auto gl_context = vertex_input_manager_->get_gl_context();
-	const auto& device_features = gl_context->get_device_features();
-
-	const auto max_locations = device_features.vertex_input_max_locations_;
+	const auto max_locations = device_features_.vertex_input_max_locations_;
 
 	Renderer3dUtils::vertex_input_validate_param(max_locations, param);
 

@@ -45,19 +45,6 @@ namespace detail
 
 
 // ==========================================================================
-// GlVertexInputManager
-//
-
-GlVertexInputManager::GlVertexInputManager() = default;
-
-GlVertexInputManager::~GlVertexInputManager() = default;
-
-//
-// GlVertexInputManager
-// ==========================================================================
-
-
-// ==========================================================================
 // GlVertexInputManagerImpl
 //
 

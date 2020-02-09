@@ -2853,25 +2853,12 @@ void GlExtensionManagerImpl::probe_generic(
 
 
 // ==========================================================================
-// GlExtensionManager
-//
-
-GlExtensionManager::GlExtensionManager() = default;
-
-GlExtensionManager::~GlExtensionManager() = default;
-
-//
-// GlExtensionManager
-// ==========================================================================
-
-
-// ==========================================================================
 // GlExtensionManagerFactory
 //
 
 GlExtensionManagerUPtr GlExtensionManagerFactory::create()
 {
-	return GlExtensionManagerImplUPtr{new GlExtensionManagerImpl{}};
+	return std::make_unique<GlExtensionManagerImpl>();
 }
 
 //
