@@ -29,8 +29,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_DETAIL_GL_SAMPLER_INCLUDED
-#define BSTONE_DETAIL_GL_SAMPLER_INCLUDED
+#ifndef BSTONE_DETAIL_R3D_GL_SAMPLER_INCLUDED
+#define BSTONE_DETAIL_R3D_GL_SAMPLER_INCLUDED
 
 
 #include "bstone_r3d_sampler.h"
@@ -92,4 +92,4 @@ struct GlSamplerFactory
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_GL_SAMPLER_INCLUDED
+#endif // !BSTONE_DETAIL_R3D_GL_SAMPLER_INCLUDED

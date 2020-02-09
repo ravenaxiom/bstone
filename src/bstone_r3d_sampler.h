@@ -27,8 +27,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_RENDERER_3D_SAMPLER_INCLUDED
-#define BSTONE_RENDERER_3D_SAMPLER_INCLUDED
+#ifndef BSTONE_R3D_SAMPLER_INCLUDED
+#define BSTONE_R3D_SAMPLER_INCLUDED
 
 
 #include <memory>
@@ -95,4 +95,4 @@ using Renderer3dSamplerUPtr = std::unique_ptr<Renderer3dSampler>;
 } // bstone
 
 
-#endif // !BSTONE_RENDERER_3D_SAMPLER_INCLUDED
+#endif // !BSTONE_R3D_SAMPLER_INCLUDED

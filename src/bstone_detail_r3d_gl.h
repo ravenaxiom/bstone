@@ -29,8 +29,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_DETAIL_GL_RENDERER_3D_INCLUDED
-#define BSTONE_DETAIL_GL_RENDERER_3D_INCLUDED
+#ifndef BSTONE_DETAIL_R3D_GL_INCLUDED
+#define BSTONE_DETAIL_R3D_GL_INCLUDED
 
 
 #include <array>
@@ -301,4 +301,4 @@ using GlRenderer3dUPtr = std::unique_ptr<GlRenderer3d>;
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_GL_RENDERER_3D_INCLUDED
+#endif // !BSTONE_DETAIL_R3D_GL_INCLUDED

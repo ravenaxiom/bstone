@@ -27,8 +27,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_DETAIL_GL_VERTEX_INPUT_INCLUDED
-#define BSTONE_DETAIL_GL_VERTEX_INPUT_INCLUDED
+#ifndef BSTONE_DETAIL_R3D_GL_VERTEX_INPUT_INCLUDED
+#define BSTONE_DETAIL_R3D_GL_VERTEX_INPUT_INCLUDED
 
 
 #include "bstone_r3d_vertex_input.h"
@@ -94,4 +94,4 @@ struct GlVertexInputFactory
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_GL_VERTEX_INPUT_INCLUDED
+#endif // !BSTONE_DETAIL_R3D_GL_VERTEX_INPUT_INCLUDED

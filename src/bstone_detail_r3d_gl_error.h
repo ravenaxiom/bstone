@@ -29,6 +29,10 @@ Free Software Foundation, Inc.,
 //
 
 
+#ifndef BSTONE_DETAIL_R3D_GL_ERROR_INCLUDED
+#define BSTONE_DETAIL_R3D_GL_ERROR_INCLUDED
+
+
 namespace bstone
 {
 namespace detail
@@ -57,5 +61,8 @@ struct GlError
 // ==========================================================================
 
 
-}
+} // detail
 } // bstone
+
+
+#endif // !BSTONE_DETAIL_R3D_GL_ERROR_INCLUDED

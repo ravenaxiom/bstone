@@ -27,8 +27,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_RENDERER_3D_MANAGER_INCLUDED
-#define BSTONE_RENDERER_3D_MANAGER_INCLUDED
+#ifndef BSTONE_R3D_MGR_INCLUDED
+#define BSTONE_R3D_MGR_INCLUDED
 
 
 #include "bstone_r3d.h"
@@ -65,4 +65,4 @@ public:
 } // bstone
 
 
-#endif // !BSTONE_RENDERER_3D_MANAGER_INCLUDED
+#endif // !BSTONE_R3D_MGR_INCLUDED

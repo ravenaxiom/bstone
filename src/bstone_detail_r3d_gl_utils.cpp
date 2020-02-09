@@ -519,7 +519,7 @@ void GlRenderer3dUtils::anisotropy_probe(
 	device_features.anisotropy_is_available_ = false;
 	device_features.anisotropy_max_degree_ = Renderer3dLimits::anisotropy_min_off;
 
-#ifndef BSTONE_RENDERER_3D_TEST_NO_ANISOTROPY
+#ifndef BSTONE_R3D_TEST_NO_ANISOTROPY
 	if (!device_features.anisotropy_is_available_)
 	{
 		extension_manager->probe(GlExtensionId::arb_texture_filter_anisotropic);
@@ -540,7 +540,7 @@ void GlRenderer3dUtils::anisotropy_probe(
 	{
 		device_features.anisotropy_max_degree_ = anisotropy_get_max_value();
 	}
-#endif // !BSTONE_RENDERER_3D_TEST_NO_ANISOTROPY
+#endif // !BSTONE_R3D_TEST_NO_ANISOTROPY
 }
 
 void GlRenderer3dUtils::npot_probe(
@@ -549,7 +549,7 @@ void GlRenderer3dUtils::npot_probe(
 {
 	device_features.npot_is_available_ = false;
 
-#ifndef BSTONE_RENDERER_3D_TEST_POT_ONLY
+#ifndef BSTONE_R3D_TEST_POT_ONLY
 	if (!device_features.npot_is_available_)
 	{
 		extension_manager->probe(GlExtensionId::arb_texture_non_power_of_two);
@@ -569,7 +569,7 @@ void GlRenderer3dUtils::npot_probe(
 			device_features.npot_is_available_ = true;
 		}
 	}
-#endif //!BSTONE_RENDERER_3D_TEST_POT_ONLY
+#endif //!BSTONE_R3D_TEST_POT_ONLY
 }
 
 void GlRenderer3dUtils::mipmap_probe(
@@ -580,7 +580,7 @@ void GlRenderer3dUtils::mipmap_probe(
 	device_features.mipmap_is_available_ = false;
 	gl_device_features.mipmap_is_ext_ = false;
 
-#ifndef BSTONE_RENDERER_3D_TEST_SW_MIPMAP
+#ifndef BSTONE_R3D_TEST_SW_MIPMAP
 	if (gl_device_features.context_kind_ == GlContextKind::es)
 	{
 		device_features.mipmap_is_available_ = true;
@@ -606,7 +606,7 @@ void GlRenderer3dUtils::mipmap_probe(
 			gl_device_features.mipmap_is_ext_ = true;
 		}
 	}
-#endif // !BSTONE_RENDERER_3D_TEST_SW_MIPMAP
+#endif // !BSTONE_R3D_TEST_SW_MIPMAP
 }
 
 void GlRenderer3dUtils::mipmap_generate(
@@ -677,14 +677,14 @@ void GlRenderer3dUtils::sampler_probe(
 {
 	device_features.sampler_is_available_ = false;
 
-#ifndef BSTONE_RENDERER_3D_TEST_SW_SAMPLER
+#ifndef BSTONE_R3D_TEST_SW_SAMPLER
 	extension_manager->probe(GlExtensionId::arb_sampler_objects);
 
 	if (extension_manager->has(GlExtensionId::arb_sampler_objects))
 	{
 		device_features.sampler_is_available_ = true;
 	}
-#endif // !BSTONE_RENDERER_3D_TEST_SW_SAMPLER
+#endif // !BSTONE_R3D_TEST_SW_SAMPLER
 }
 
 void GlRenderer3dUtils::sampler_set_anisotropy(
@@ -712,14 +712,14 @@ void GlRenderer3dUtils::vertex_input_vao_probe(
 {
 	gl_device_features.vao_is_available_ = false;
 
-#ifndef BSTONE_RENDERER_3D_TEST_GL_NO_VAO
+#ifndef BSTONE_R3D_TEST_GL_NO_VAO
 	extension_manager->probe(GlExtensionId::arb_vertex_array_object);
 
 	if (extension_manager->has(GlExtensionId::arb_vertex_array_object))
 	{
 		gl_device_features.vao_is_available_ = true;
 	}
-#endif // !BSTONE_RENDERER_3D_TEST_GL_NO_VAO
+#endif // !BSTONE_R3D_TEST_GL_NO_VAO
 }
 
 void GlRenderer3dUtils::vertex_input_probe_max_locations(
@@ -751,7 +751,7 @@ void GlRenderer3dUtils::vsync_probe(
 	device_features.vsync_is_available_ = false;
 	device_features.vsync_is_requires_restart_ = false;
 
-#ifndef BSTONE_RENDERER_3D_TEST_NO_SWAP_INTERVAL
+#ifndef BSTONE_R3D_TEST_NO_SWAP_INTERVAL
 	const auto off_result = vsync_set(false);
 	const auto on_result = vsync_set(true);
 
@@ -759,7 +759,7 @@ void GlRenderer3dUtils::vsync_probe(
 	{
 		device_features.vsync_is_available_ = true;
 	}
-#endif // !BSTONE_RENDERER_3D_TEST_NO_SWAP_INTERVAL
+#endif // !BSTONE_R3D_TEST_NO_SWAP_INTERVAL
 }
 
 bool GlRenderer3dUtils::vsync_get()
@@ -794,14 +794,14 @@ void GlRenderer3dUtils::buffer_storage_probe(
 {
 	gl_device_features.buffer_storage_is_available_ = false;
 
-#ifndef BSTONE_RENDERER_3D_TEST_GL_NO_BUFFER_STORAGE
+#ifndef BSTONE_R3D_TEST_GL_NO_BUFFER_STORAGE
 	extension_manager->probe(GlExtensionId::arb_buffer_storage);
 
 	if (extension_manager->has(GlExtensionId::arb_buffer_storage))
 	{
 		gl_device_features.buffer_storage_is_available_ = true;
 	}
-#endif // !BSTONE_RENDERER_3D_TEST_GL_NO_BUFFER_STORAGE
+#endif // !BSTONE_R3D_TEST_GL_NO_BUFFER_STORAGE
 }
 
 void GlRenderer3dUtils::dsa_probe(
@@ -810,14 +810,14 @@ void GlRenderer3dUtils::dsa_probe(
 {
 	gl_device_features.dsa_is_available_ = false;
 
-#ifndef BSTONE_RENDERER_3D_TEST_GL_NO_DSA
+#ifndef BSTONE_R3D_TEST_GL_NO_DSA
 	extension_manager->probe(GlExtensionId::arb_direct_state_access);
 
 	if (extension_manager->has(GlExtensionId::arb_direct_state_access))
 	{
 		gl_device_features.dsa_is_available_ = true;
 	}
-#endif // !BSTONE_RENDERER_3D_TEST_GL_NO_DSA
+#endif // !BSTONE_R3D_TEST_GL_NO_DSA
 }
 
 void GlRenderer3dUtils::sso_probe(
@@ -826,14 +826,14 @@ void GlRenderer3dUtils::sso_probe(
 {
 	gl_device_features.sso_is_available_ = false;
 
-#ifndef BSTONE_RENDERER_3D_TEST_GL_NO_SSO
+#ifndef BSTONE_R3D_TEST_GL_NO_SSO
 	extension_manager->probe(GlExtensionId::arb_separate_shader_objects);
 
 	if (extension_manager->has(GlExtensionId::arb_separate_shader_objects))
 	{
 		gl_device_features.sso_is_available_ = true;
 	}
-#endif // !BSTONE_RENDERER_3D_TEST_GL_NO_SSO
+#endif // !BSTONE_R3D_TEST_GL_NO_SSO
 }
 
 void GlRenderer3dUtils::swap_window(

@@ -27,8 +27,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_RENDERER_3D_BUFFER_INCLUDED
-#define BSTONE_RENDERER_3D_BUFFER_INCLUDED
+#ifndef BSTONE_R3D_BUFFER_INCLUDED
+#define BSTONE_R3D_BUFFER_INCLUDED
 
 
 #include <memory>
@@ -109,4 +109,4 @@ using Renderer3dBufferUPtr = std::unique_ptr<Renderer3dBuffer>;
 } // bstone
 
 
-#endif // !BSTONE_RENDERER_3D_BUFFER_INCLUDED
+#endif // !BSTONE_R3D_BUFFER_INCLUDED

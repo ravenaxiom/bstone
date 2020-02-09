@@ -27,11 +27,14 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_RENDERER_3D_SHADER_REGISTRY_INCLUDED
-#define BSTONE_RENDERER_3D_SHADER_REGISTRY_INCLUDED
+#ifndef BSTONE_HW_SHADER_REGISTRY_INCLUDED
+#define BSTONE_HW_SHADER_REGISTRY_INCLUDED
 
 
-#include "bstone_r3d.h"
+#include <string>
+
+#include "bstone_r3d_shader.h"
+#include "bstone_r3d_types.h"
 
 
 namespace bstone
@@ -107,4 +110,4 @@ private:
 } // bstone
 
 
-#endif // !BSTONE_RENDERER_3D_SHADER_REGISTRY_INCLUDED
+#endif // !BSTONE_HW_SHADER_REGISTRY_INCLUDED

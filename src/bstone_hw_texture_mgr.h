@@ -27,8 +27,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_HW_TEXTURE_MANAGER_INCLUDED
-#define BSTONE_HW_TEXTURE_MANAGER_INCLUDED
+#ifndef BSTONE_HW_TEXTURE_MGR_INCLUDED
+#define BSTONE_HW_TEXTURE_MGR_INCLUDED
 
 
 #include <memory>
@@ -157,4 +157,4 @@ public:
 } // bstone
 
 
-#endif // !BSTONE_HW_TEXTURE_MANAGER_INCLUDED
+#endif // !BSTONE_HW_TEXTURE_MGR_INCLUDED

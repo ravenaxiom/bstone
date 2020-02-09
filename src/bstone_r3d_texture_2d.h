@@ -27,8 +27,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_RENDERER_3D_TEXTURE_2D_INCLUDED
-#define BSTONE_RENDERER_3D_TEXTURE_2D_INCLUDED
+#ifndef BSTONE_R3D_TEXTURE_2D_INCLUDED
+#define BSTONE_R3D_TEXTURE_2D_INCLUDED
 
 
 #include <memory>
@@ -89,4 +89,4 @@ using Renderer3dTexture2dUPtr = std::unique_ptr<Renderer3dTexture2d>;
 } // bstone
 
 
-#endif // !BSTONE_RENDERER_3D_TEXTURE_2D_INCLUDED
+#endif // !BSTONE_R3D_TEXTURE_2D_INCLUDED

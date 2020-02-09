@@ -28,55 +28,55 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_RENDERER_3D_TESTS_INCLUDED
-#define BSTONE_RENDERER_3D_TESTS_INCLUDED
+#ifndef BSTONE_R3D_TESTS_INCLUDED
+#define BSTONE_R3D_TESTS_INCLUDED
 
 
 #ifdef _DEBUG
 
 // Use textures with power-of-two dimensions.
-//#define BSTONE_RENDERER_3D_TEST_POT_ONLY
+//#define BSTONE_R3D_TEST_POT_ONLY
 
 // Use software mipmap generation.
-//#define BSTONE_RENDERER_3D_TEST_SW_MIPMAP
+//#define BSTONE_R3D_TEST_SW_MIPMAP
 
 // Use software samplers.
-//#define BSTONE_RENDERER_3D_TEST_SW_SAMPLER
+//#define BSTONE_R3D_TEST_SW_SAMPLER
 
 // Don't use anisotropy filter.
-//#define BSTONE_RENDERER_3D_TEST_NO_ANISOTROPY
+//#define BSTONE_R3D_TEST_NO_ANISOTROPY
 
 // Use default framebuffer.
 //#define BSTONE_RENDERER_TEST_3D_DEFAULT_FRAMEBUFFER
 
 // Don't use VAO (except if required).
-//#define BSTONE_RENDERER_3D_TEST_GL_NO_VAO
+//#define BSTONE_R3D_TEST_GL_NO_VAO
 
 // No swap interval control.
-//#define BSTONE_RENDERER_3D_TEST_NO_SWAP_INTERVAL
+//#define BSTONE_R3D_TEST_NO_SWAP_INTERVAL
 
 // No buffer storage.
-//#define BSTONE_RENDERER_3D_TEST_GL_NO_BUFFER_STORAGE
+//#define BSTONE_R3D_TEST_GL_NO_BUFFER_STORAGE
 
 // No direct state access.
-//#define BSTONE_RENDERER_3D_TEST_GL_NO_DSA
+//#define BSTONE_R3D_TEST_GL_NO_DSA
 
 // No separate shader objects.
-//#define BSTONE_RENDERER_3D_TEST_GL_NO_SSO
+//#define BSTONE_R3D_TEST_GL_NO_SSO
 
 // No OpenGL renderer.
-//#define BSTONE_RENDERER_3D_TEST_NO_GL
+//#define BSTONE_R3D_TEST_NO_GL
 
 // No OpenGL 2.0.
-//#define BSTONE_RENDERER_3D_TEST_NO_GL_2_0
+//#define BSTONE_R3D_TEST_NO_GL_2_0
 
 // No OpenGL 3.2 core.
-//#define BSTONE_RENDERER_3D_TEST_NO_GL_3_2_C
+//#define BSTONE_R3D_TEST_NO_GL_3_2_C
 
 // No OpenGL ES 2.0.
-//#define BSTONE_RENDERER_3D_TEST_NO_GLES_2_0
+//#define BSTONE_R3D_TEST_NO_GLES_2_0
 
 #endif // _DEBUG
 
 
-#endif // !BSTONE_RENDERER_3D_TESTS_INCLUDED
+#endif // !BSTONE_R3D_TESTS_INCLUDED

@@ -27,8 +27,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_RENDERER_3D_VERTEX_INPUT_INCLUDED
-#define BSTONE_RENDERER_3D_VERTEX_INPUT_INCLUDED
+#ifndef BSTONE_R3D_VERTEX_INPUT_INCLUDED
+#define BSTONE_R3D_VERTEX_INPUT_INCLUDED
 
 
 #include <memory>
@@ -95,4 +95,4 @@ using Renderer3dVertexInputUPtr = std::unique_ptr<Renderer3dVertexInput>;
 } // bstone
 
 
-#endif // !BSTONE_RENDERER_3D_VERTEX_INPUT_INCLUDED
+#endif // !BSTONE_R3D_VERTEX_INPUT_INCLUDED

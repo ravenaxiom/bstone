@@ -27,8 +27,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_RENDERER_3D_LIMITS_INCLUDED
-#define BSTONE_RENDERER_3D_LIMITS_INCLUDED
+#ifndef BSTONE_R3D_LIMITS_INCLUDED
+#define BSTONE_R3D_LIMITS_INCLUDED
 
 
 namespace bstone
@@ -53,4 +53,4 @@ struct Renderer3dLimits
 } // bstone
 
 
-#endif // !BSTONE_RENDERER_3D_LIMITS_INCLUDED
+#endif // !BSTONE_R3D_LIMITS_INCLUDED

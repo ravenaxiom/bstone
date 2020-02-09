@@ -29,8 +29,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_DETAIL_GL_BUFFER_INCLUDED
-#define BSTONE_DETAIL_GL_BUFFER_INCLUDED
+#ifndef BSTONE_DETAIL_R3D_GL_BUFFER_INCLUDED
+#define BSTONE_DETAIL_R3D_GL_BUFFER_INCLUDED
 
 
 #include "bstone_r3d_buffer.h"
@@ -94,4 +94,4 @@ struct GlBufferFactory
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_GL_BUFFER_INCLUDED
+#endif // !BSTONE_DETAIL_R3D_GL_BUFFER_INCLUDED

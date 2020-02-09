@@ -29,8 +29,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_DETAIL_GL_TEXTURE_2D_INCLUDED
-#define BSTONE_DETAIL_GL_TEXTURE_2D_INCLUDED
+#ifndef BSTONE_DETAIL_R3D_GL_TEXTURE_2D_INCLUDED
+#define BSTONE_DETAIL_R3D_GL_TEXTURE_2D_INCLUDED
 
 
 #include "bstone_r3d_sampler.h"
@@ -98,4 +98,4 @@ struct GlTexture2dFactory
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_GL_TEXTURE_2D_INCLUDED
+#endif // !BSTONE_DETAIL_R3D_GL_TEXTURE_2D_INCLUDED

@@ -128,24 +128,24 @@ Renderer3dPtr Renderer3dManagerImpl::renderer_initialize(
 
 	switch (param.renderer_kind_)
 	{
-#ifndef BSTONE_RENDERER_3D_TEST_NO_GL
+#ifndef BSTONE_R3D_TEST_NO_GL
 
-#ifndef BSTONE_RENDERER_3D_TEST_NO_GL_2_0
+#ifndef BSTONE_R3D_TEST_NO_GL_2_0
 		case Renderer3dKind::gl_2_0:
-#endif // !BSTONE_RENDERER_3D_TEST_NO_GL_2_0
+#endif // !BSTONE_R3D_TEST_NO_GL_2_0
 
-#ifndef BSTONE_RENDERER_3D_TEST_NO_GL_3_2_C
+#ifndef BSTONE_R3D_TEST_NO_GL_3_2_C
 		case Renderer3dKind::gl_3_2_core:
-#endif // !BSTONE_RENDERER_3D_TEST_NO_GL_3_2_C
+#endif // !BSTONE_R3D_TEST_NO_GL_3_2_C
 
-#ifndef BSTONE_RENDERER_3D_TEST_NO_GLES_2_0
+#ifndef BSTONE_R3D_TEST_NO_GLES_2_0
 		case Renderer3dKind::gles_2_0:
-#endif // !BSTONE_RENDERER_3D_TEST_NO_GLES_2_0
+#endif // !BSTONE_R3D_TEST_NO_GLES_2_0
 
 			gl_renderer_ = std::make_unique<detail::GlRenderer3d>(param);
 
 			return gl_renderer_.get();
-#endif // BSTONE_RENDERER_3D_TEST_NO_GL
+#endif // BSTONE_R3D_TEST_NO_GL
 
 		default:
 			throw Exception{"Unsupported renderer kind."};

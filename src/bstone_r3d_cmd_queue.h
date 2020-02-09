@@ -27,8 +27,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_RENDERER_3D_COMMAND_QUEUE_INCLUDED
-#define BSTONE_RENDERER_3D_COMMAND_QUEUE_INCLUDED
+#ifndef BSTONE_R3D_COMMAND_QUEUE_INCLUDED
+#define BSTONE_R3D_COMMAND_QUEUE_INCLUDED
 
 
 #include "bstone_r3d_cmd_buffer.h"
@@ -95,4 +95,4 @@ struct Renderer3dCommandQueueFactory
 } // bstone
 
 
-#endif // !BSTONE_RENDERER_3D_COMMAND_QUEUE_INCLUDED
+#endif // !BSTONE_R3D_COMMAND_QUEUE_INCLUDED

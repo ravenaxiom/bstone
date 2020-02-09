@@ -29,8 +29,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_DETAIL_GL_DEVICE_FEATURES_INCLUDED
-#define BSTONE_DETAIL_GL_DEVICE_FEATURES_INCLUDED
+#ifndef BSTONE_DETAIL_R3D_GL_DEVICE_FEATURES_INCLUDED
+#define BSTONE_DETAIL_R3D_GL_DEVICE_FEATURES_INCLUDED
 
 
 #include "bstone_detail_r3d_gl_context_kind.h"
@@ -60,4 +60,4 @@ struct GlDeviceFeatures
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_GL_DEVICE_FEATURES_INCLUDED
+#endif // !BSTONE_DETAIL_R3D_GL_DEVICE_FEATURES_INCLUDED

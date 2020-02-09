@@ -27,8 +27,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_MT_TASK_MANAGER_INCLUDED
-#define BSTONE_MT_TASK_MANAGER_INCLUDED
+#ifndef BSTONE_MT_TASK_MGR_INCLUDED
+#define BSTONE_MT_TASK_MGR_INCLUDED
 
 
 #include <memory>
@@ -126,4 +126,4 @@ struct MtTaskManagerFactory final
 } // bstone
 
 
-#endif // !BSTONE_MT_TASK_MANAGER_INCLUDED
+#endif // !BSTONE_MT_TASK_MGR_INCLUDED

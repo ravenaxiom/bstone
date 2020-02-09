@@ -27,8 +27,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_RENDERER_3D_TYPES_INCLUDED
-#define BSTONE_RENDERER_3D_TYPES_INCLUDED
+#ifndef BSTONE_R3D_TYPES_INCLUDED
+#define BSTONE_R3D_TYPES_INCLUDED
 
 
 #include <array>
@@ -214,4 +214,4 @@ struct Renderer3dDeviceInfo
 } // bstone
 
 
-#endif // !BSTONE_RENDERER_3D_TYPES_INCLUDED
+#endif // !BSTONE_R3D_TYPES_INCLUDED

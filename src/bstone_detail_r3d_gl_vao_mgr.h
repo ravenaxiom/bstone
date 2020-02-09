@@ -27,8 +27,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_DETAIL_GL_VAO_MANAGER_INCLUDED
-#define BSTONE_DETAIL_GL_VAO_MANAGER_INCLUDED
+#ifndef BSTONE_DETAIL_R3D_GL_VAO_MGR_INCLUDED
+#define BSTONE_DETAIL_R3D_GL_VAO_MGR_INCLUDED
 
 
 #include <memory>
@@ -123,4 +123,4 @@ struct GlVaoManagerFactory
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_GL_VAO_MANAGER_INCLUDED
+#endif // !BSTONE_DETAIL_R3D_GL_VAO_MGR_INCLUDED

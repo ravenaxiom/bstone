@@ -27,8 +27,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_DETAIL_RENDERER_3D_COMMAND_BUFFER_INCLUDED
-#define BSTONE_DETAIL_RENDERER_3D_COMMAND_BUFFER_INCLUDED
+#ifndef BSTONE_DETAIL_R3D_COMMAND_BUFFER_INCLUDED
+#define BSTONE_DETAIL_R3D_COMMAND_BUFFER_INCLUDED
 
 
 #include "bstone_r3d_cmd_queue.h"
@@ -245,4 +245,4 @@ using Renderer3dCommandBufferUPtr = std::unique_ptr<Renderer3dCommandBufferImpl>
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_RENDERER_3D_COMMAND_BUFFER_INCLUDED
+#endif // !BSTONE_DETAIL_R3D_COMMAND_BUFFER_INCLUDED

@@ -27,8 +27,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_DETAIL_GL_CONTEXT_INCLUDED
-#define BSTONE_DETAIL_GL_CONTEXT_INCLUDED
+#ifndef BSTONE_DETAIL_R3D_GL_CONTEXT_INCLUDED
+#define BSTONE_DETAIL_R3D_GL_CONTEXT_INCLUDED
 
 
 #include <memory>
@@ -166,4 +166,4 @@ struct GlContextFactory
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_GL_CONTEXT_INCLUDED
+#endif // !BSTONE_DETAIL_R3D_GL_CONTEXT_INCLUDED

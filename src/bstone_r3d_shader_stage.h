@@ -27,8 +27,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_RENDERER_3D_SHADER_STAGE_INCLUDED
-#define BSTONE_RENDERER_3D_SHADER_STAGE_INCLUDED
+#ifndef BSTONE_R3D_SHADER_STAGE_INCLUDED
+#define BSTONE_R3D_SHADER_STAGE_INCLUDED
 
 
 #include <memory>
@@ -108,4 +108,4 @@ using Renderer3dShaderStageUPtr = std::unique_ptr<Renderer3dShaderStage>;
 } // bstone
 
 
-#endif // !BSTONE_RENDERER_3D_SHADER_STAGE_INCLUDED
+#endif // !BSTONE_R3D_SHADER_STAGE_INCLUDED

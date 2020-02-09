@@ -29,8 +29,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_DETAIL_GL_SHADER_STAGE_INCLUDED
-#define BSTONE_DETAIL_GL_SHADER_STAGE_INCLUDED
+#ifndef BSTONE_DETAIL_R3D_GL_SHADER_STAGE_INCLUDED
+#define BSTONE_DETAIL_R3D_GL_SHADER_STAGE_INCLUDED
 
 
 #include "bstone_r3d_shader_stage.h"
@@ -103,4 +103,4 @@ struct GlShaderStageFactory
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_GL_SHADER_STAGE_INCLUDED
+#endif // !BSTONE_DETAIL_R3D_GL_SHADER_STAGE_INCLUDED
