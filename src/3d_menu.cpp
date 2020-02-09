@@ -39,7 +39,7 @@ Free Software Foundation, Inc.,
 #include "jm_lzh.h"
 #include "jm_tp.h"
 #include "bstone_scope_guard.h"
-#include "bstone_renderer_3d_limits.h"
+#include "bstone_r3d_limits.h"
 
 
 #define GAME_DESCRIPTION_LEN (31)

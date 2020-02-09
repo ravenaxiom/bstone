@@ -40,14 +40,14 @@ Free Software Foundation, Inc.,
 #include "id_vl.h"
 
 #include "bstone_fixed_point.h"
-#include "bstone_hw_texture_manager.h"
+#include "bstone_hw_texture_mgr.h"
 #include "bstone_logger.h"
 #include "bstone_mod_value.h"
-#include "bstone_mt_task_manager.h"
-#include "bstone_renderer_3d_command_queue.h"
-#include "bstone_renderer_3d_limits.h"
-#include "bstone_renderer_3d_manager.h"
-#include "bstone_renderer_3d_shader_registry.h"
+#include "bstone_mt_task_mgr.h"
+#include "bstone_r3d_cmd_queue.h"
+#include "bstone_r3d_limits.h"
+#include "bstone_r3d_mgr.h"
+#include "bstone_hw_shader_registry.h"
 #include "bstone_sdl_types.h"
 #include "bstone_sprite.h"
 #include "bstone_sprite_cache.h"
@@ -55,7 +55,7 @@ Free Software Foundation, Inc.,
 #include "bstone_text_writer.h"
 #include "bstone_version.h"
 
-#include "bstone_detail_renderer_3d_utils.h"
+#include "bstone_detail_r3d_utils.h"
 
 
 extern bool is_full_menu_active;

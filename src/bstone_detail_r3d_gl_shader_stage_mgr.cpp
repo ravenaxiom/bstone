@@ -1,0 +1,214 @@
+/*
+BStone: A Source port of
+Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
+
+Copyright (c) 1992-2013 Apogee Entertainment, LLC
+Copyright (c) 2013-2020 Boris I. Bendovsky (bibendovsky@hotmail.com)
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the
+Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+*/
+
+
+//
+// OpenGL shader stage manager (implementation).
+//
+
+
+#include "bstone_precompiled.h"
+#include "bstone_detail_r3d_gl_shader_stage_mgr.h"
+
+#include "bstone_exception.h"
+#include "bstone_r3d_tests.h"
+
+#include "bstone_detail_r3d_gl_context.h"
+#include "bstone_detail_r3d_gl_error.h"
+#include "bstone_detail_r3d_gl_shader_stage.h"
+
+
+namespace bstone
+{
+namespace detail
+{
+
+
+// ==========================================================================
+// GlShaderStageManagerImpl
+//
+
+class GlShaderStageManagerImpl final :
+	public GlShaderStageManager
+{
+public:
+	GlShaderStageManagerImpl(
+		const GlContextPtr gl_context);
+
+	~GlShaderStageManagerImpl() override;
+
+
+	GlContextPtr get_gl_context() const noexcept override;
+
+
+	Renderer3dShaderStageUPtr create(
+		const Renderer3dShaderStageCreateParam& param) override;
+
+	void notify_destroy(
+		const Renderer3dShaderStagePtr shader_stage) noexcept override;
+
+
+	void set(
+		const Renderer3dShaderStagePtr shader_stage) override;
+
+
+	Renderer3dShaderStagePtr get_active() const noexcept override;
+
+	void set_active(
+		const Renderer3dShaderStagePtr shader_stage) override;
+
+
+	Renderer3dShaderStagePtr get_current() const noexcept override;
+
+	void set_current(
+		const Renderer3dShaderStagePtr shader_stage) override;
+
+
+	void set_to_current() override;
+
+
+private:
+	const GlContextPtr gl_context_;
+
+	Renderer3dShaderStagePtr shader_stage_active_;
+	Renderer3dShaderStagePtr shader_stage_current_;
+}; // GlShaderStageManagerImpl
+
+using GlShaderStageManagerImplPtr = GlShaderStageManagerImpl*;
+using GlShaderStageManagerImplUPtr = std::unique_ptr<GlShaderStageManagerImpl>;
+
+//
+// GlShaderStageManagerImpl
+// ==========================================================================
+
+
+// ==========================================================================
+// GlShaderStageManagerImpl
+//
+
+GlShaderStageManagerImpl::GlShaderStageManagerImpl(
+	const GlContextPtr gl_context)
+	:
+	gl_context_{gl_context},
+	shader_stage_active_{},
+	shader_stage_current_{}
+{
+}
+
+GlShaderStageManagerImpl::~GlShaderStageManagerImpl() = default;
+
+GlContextPtr GlShaderStageManagerImpl::get_gl_context() const noexcept
+{
+	return gl_context_;
+}
+
+Renderer3dShaderStageUPtr GlShaderStageManagerImpl::create(
+	const Renderer3dShaderStageCreateParam& param)
+{
+	return GlShaderStageFactory::create(this, param);
+}
+
+void GlShaderStageManagerImpl::notify_destroy(
+	const Renderer3dShaderStagePtr shader_stage) noexcept
+{
+	if (shader_stage == shader_stage_active_)
+	{
+		shader_stage_active_ = nullptr;
+	}
+
+	if (shader_stage_current_ == shader_stage)
+	{
+		shader_stage_current_ = nullptr;
+	}
+}
+
+void GlShaderStageManagerImpl::set(
+	const Renderer3dShaderStagePtr shader_stage)
+{
+	if (shader_stage == shader_stage_active_)
+	{
+		return;
+	}
+
+	if (shader_stage)
+	{
+		static_cast<GlShaderStagePtr>(shader_stage)->set();
+	}
+	else
+	{
+		glUseProgram(0);
+		GlError::ensure_debug();
+
+		shader_stage_active_ = nullptr;
+	}
+}
+
+Renderer3dShaderStagePtr GlShaderStageManagerImpl::get_active() const noexcept
+{
+	return shader_stage_active_;
+}
+
+void GlShaderStageManagerImpl::set_active(
+	const Renderer3dShaderStagePtr shader_stage)
+{
+	shader_stage_active_ = shader_stage;
+}
+
+Renderer3dShaderStagePtr GlShaderStageManagerImpl::get_current() const noexcept
+{
+	return shader_stage_current_;
+}
+
+void GlShaderStageManagerImpl::set_current(
+	const Renderer3dShaderStagePtr shader_stage)
+{
+	shader_stage_current_ = shader_stage;
+}
+
+void GlShaderStageManagerImpl::set_to_current()
+{
+	set(shader_stage_current_);
+}
+
+//
+// GlShaderStageManagerImpl
+// ==========================================================================
+
+
+// ==========================================================================
+// GlShaderStageManagerFactory
+//
+
+GlShaderStageManagerUPtr GlShaderStageManagerFactory::create(
+	const GlContextPtr gl_context)
+{
+	return std::make_unique<GlShaderStageManagerImpl>(gl_context);
+}
+
+//
+// GlShaderStageManagerFactory
+// ==========================================================================
+
+
+} // detail
+} // bstone
