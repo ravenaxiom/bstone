@@ -33,7 +33,7 @@ Free Software Foundation, Inc.,
 
 #include "bstone_ref_values.h"
 #include "bstone_renderer_kind.h"
-#include "bstone_r3d_types.h"
+#include "bstone_ren_3d_types.h"
 #include "bstone_rgb_palette.h"
 #include "bstone_hw_texture_mgr.h"
 

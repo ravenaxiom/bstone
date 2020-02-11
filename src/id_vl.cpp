@@ -44,9 +44,9 @@ Free Software Foundation, Inc.,
 #include "bstone_logger.h"
 #include "bstone_mod_value.h"
 #include "bstone_mt_task_mgr.h"
-#include "bstone_r3d_cmd_queue.h"
-#include "bstone_r3d_limits.h"
-#include "bstone_r3d_mgr.h"
+#include "bstone_ren_3d_cmd_queue.h"
+#include "bstone_ren_3d_limits.h"
+#include "bstone_ren_3d_mgr.h"
 #include "bstone_hw_shader_registry.h"
 #include "bstone_sdl_types.h"
 #include "bstone_sprite.h"
@@ -55,7 +55,7 @@ Free Software Foundation, Inc.,
 #include "bstone_text_writer.h"
 #include "bstone_version.h"
 
-#include "bstone_detail_r3d_utils.h"
+#include "bstone_detail_ren_3d_utils.h"
 
 
 extern bool is_full_menu_active;

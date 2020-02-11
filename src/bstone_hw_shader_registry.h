@@ -33,8 +33,8 @@ Free Software Foundation, Inc.,
 
 #include <string>
 
-#include "bstone_r3d_shader.h"
-#include "bstone_r3d_types.h"
+#include "bstone_ren_3d_shader.h"
+#include "bstone_ren_3d_types.h"
 
 
 namespace bstone

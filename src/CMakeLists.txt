@@ -238,49 +238,49 @@ target_sources(
 		bstone_missing_wall_64x64_image.h
 		bstone_renderer_kind.h
 
-		bstone_r3d.h
-		bstone_r3d_buffer.h
-		bstone_r3d_cmd_buffer.h
-		bstone_r3d_cmd_queue.h
-		bstone_r3d_limits.h
-		bstone_r3d_mgr.h
-		bstone_r3d_sampler.h
-		bstone_r3d_shader.h
-		bstone_r3d_shader_stage.h
-		bstone_r3d_shader_var.h
-		bstone_r3d_tests.h
-		bstone_r3d_texture_2d.h
-		bstone_r3d_types.h
-		bstone_r3d_vertex_input.h
+		bstone_ren_3d.h
+		bstone_ren_3d_buffer.h
+		bstone_ren_3d_cmd_buffer.h
+		bstone_ren_3d_cmd_queue.h
+		bstone_ren_3d_limits.h
+		bstone_ren_3d_mgr.h
+		bstone_ren_3d_sampler.h
+		bstone_ren_3d_shader.h
+		bstone_ren_3d_shader_stage.h
+		bstone_ren_3d_shader_var.h
+		bstone_ren_3d_tests.h
+		bstone_ren_3d_texture_2d.h
+		bstone_ren_3d_types.h
+		bstone_ren_3d_vertex_input.h
 
-		bstone_detail_r3d_cmd_buffer.h
-		bstone_detail_r3d_cmd_buffers.h
-		bstone_detail_r3d_cmd_queue.h
-		bstone_detail_r3d_utils.h
+		bstone_detail_ren_3d_cmd_buffer.h
+		bstone_detail_ren_3d_cmd_buffers.h
+		bstone_detail_ren_3d_cmd_queue.h
+		bstone_detail_ren_3d_utils.h
 
-		bstone_detail_r3d_gl_api.h
-		bstone_detail_r3d_gl_buffer.h
-		bstone_detail_r3d_gl_buffer_mgr.h
-		bstone_detail_r3d_gl_context.h
-		bstone_detail_r3d_gl_context_kind.h
-		bstone_detail_r3d_gl_device_features.h
-		bstone_detail_r3d_gl_error.h
-		bstone_detail_r3d_gl_extension_mgr.h
-		bstone_detail_r3d_gl.h
-		bstone_detail_r3d_gl_utils.h
-		bstone_detail_r3d_gl_sampler.h
-		bstone_detail_r3d_gl_sampler_mgr.h
-		bstone_detail_r3d_gl_shader.h
-		bstone_detail_r3d_gl_shader_mgr.h
-		bstone_detail_r3d_gl_shader_stage.h
-		bstone_detail_r3d_gl_shader_stage_mgr.h
-		bstone_detail_r3d_gl_shader_var.h
-		bstone_detail_r3d_gl_texture_2d.h
-		bstone_detail_r3d_gl_texture_mgr.h
-		bstone_detail_r3d_gl_vao.h
-		bstone_detail_r3d_gl_vao_mgr.h
-		bstone_detail_r3d_gl_vertex_input.h
-		bstone_detail_r3d_gl_vertex_input_mgr.h
+		bstone_detail_ren_3d_gl_api.h
+		bstone_detail_ren_3d_gl_buffer.h
+		bstone_detail_ren_3d_gl_buffer_mgr.h
+		bstone_detail_ren_3d_gl_context.h
+		bstone_detail_ren_3d_gl_context_kind.h
+		bstone_detail_ren_3d_gl_device_features.h
+		bstone_detail_ren_3d_gl_error.h
+		bstone_detail_ren_3d_gl_extension_mgr.h
+		bstone_detail_ren_3d_gl.h
+		bstone_detail_ren_3d_gl_utils.h
+		bstone_detail_ren_3d_gl_sampler.h
+		bstone_detail_ren_3d_gl_sampler_mgr.h
+		bstone_detail_ren_3d_gl_shader.h
+		bstone_detail_ren_3d_gl_shader_mgr.h
+		bstone_detail_ren_3d_gl_shader_stage.h
+		bstone_detail_ren_3d_gl_shader_stage_mgr.h
+		bstone_detail_ren_3d_gl_shader_var.h
+		bstone_detail_ren_3d_gl_texture_2d.h
+		bstone_detail_ren_3d_gl_texture_mgr.h
+		bstone_detail_ren_3d_gl_vao.h
+		bstone_detail_ren_3d_gl_vao_mgr.h
+		bstone_detail_ren_3d_gl_vertex_input.h
+		bstone_detail_ren_3d_gl_vertex_input_mgr.h
 
 		3d_def.h
 		3d_menu.h
@@ -360,34 +360,34 @@ target_sources(
 		bstone_hw_texture_mgr.cpp
 		bstone_missing_sprite_64x64_image.cpp
 		bstone_missing_wall_64x64_image.cpp
-		bstone_r3d_mgr.cpp
+		bstone_ren_3d_mgr.cpp
 
-		bstone_detail_r3d_cmd_buffer.cpp
-		bstone_detail_r3d_cmd_buffers.cpp
-		bstone_detail_r3d_cmd_queue.cpp
-		bstone_detail_r3d_utils.cpp
+		bstone_detail_ren_3d_cmd_buffer.cpp
+		bstone_detail_ren_3d_cmd_buffers.cpp
+		bstone_detail_ren_3d_cmd_queue.cpp
+		bstone_detail_ren_3d_utils.cpp
 
-		bstone_detail_r3d_gl_api.cpp
-		bstone_detail_r3d_gl_buffer.cpp
-		bstone_detail_r3d_gl_buffer_mgr.cpp
-		bstone_detail_r3d_gl_context.cpp
-		bstone_detail_r3d_gl_error.cpp
-		bstone_detail_r3d_gl_extension_mgr.cpp
-		bstone_detail_r3d_gl.cpp
-		bstone_detail_r3d_gl_utils.cpp
-		bstone_detail_r3d_gl_sampler.cpp
-		bstone_detail_r3d_gl_sampler_mgr.cpp
-		bstone_detail_r3d_gl_shader.cpp
-		bstone_detail_r3d_gl_shader_mgr.cpp
-		bstone_detail_r3d_gl_shader_stage.cpp
-		bstone_detail_r3d_gl_shader_stage_mgr.cpp
-		bstone_detail_r3d_gl_shader_var.cpp
-		bstone_detail_r3d_gl_texture_2d.cpp
-		bstone_detail_r3d_gl_texture_mgr.cpp
-		bstone_detail_r3d_gl_vao.cpp
-		bstone_detail_r3d_gl_vao_mgr.cpp
-		bstone_detail_r3d_gl_vertex_input.cpp
-		bstone_detail_r3d_gl_vertex_input_mgr.cpp
+		bstone_detail_ren_3d_gl_api.cpp
+		bstone_detail_ren_3d_gl_buffer.cpp
+		bstone_detail_ren_3d_gl_buffer_mgr.cpp
+		bstone_detail_ren_3d_gl_context.cpp
+		bstone_detail_ren_3d_gl_error.cpp
+		bstone_detail_ren_3d_gl_extension_mgr.cpp
+		bstone_detail_ren_3d_gl.cpp
+		bstone_detail_ren_3d_gl_utils.cpp
+		bstone_detail_ren_3d_gl_sampler.cpp
+		bstone_detail_ren_3d_gl_sampler_mgr.cpp
+		bstone_detail_ren_3d_gl_shader.cpp
+		bstone_detail_ren_3d_gl_shader_mgr.cpp
+		bstone_detail_ren_3d_gl_shader_stage.cpp
+		bstone_detail_ren_3d_gl_shader_stage_mgr.cpp
+		bstone_detail_ren_3d_gl_shader_var.cpp
+		bstone_detail_ren_3d_gl_texture_2d.cpp
+		bstone_detail_ren_3d_gl_texture_mgr.cpp
+		bstone_detail_ren_3d_gl_vao.cpp
+		bstone_detail_ren_3d_gl_vao_mgr.cpp
+		bstone_detail_ren_3d_gl_vertex_input.cpp
+		bstone_detail_ren_3d_gl_vertex_input_mgr.cpp
 
 		3d_act1.cpp
 		3d_act2.cpp

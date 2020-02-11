@@ -49,7 +49,7 @@ Free Software Foundation, Inc.,
 #include "bstone_string_helper.h"
 #include "bstone_text_reader.h"
 #include "bstone_text_writer.h"
-#include "bstone_r3d_mgr.h"
+#include "bstone_ren_3d_mgr.h"
 #include "bstone_version.h"
 
 #ifdef __vita__

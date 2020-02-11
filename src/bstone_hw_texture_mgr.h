@@ -33,7 +33,7 @@ Free Software Foundation, Inc.,
 
 #include <memory>
 
-#include "bstone_r3d.h"
+#include "bstone_ren_3d.h"
 #include "bstone_rgb_palette.h"
 
 

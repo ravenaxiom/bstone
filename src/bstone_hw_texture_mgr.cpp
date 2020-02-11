@@ -44,12 +44,12 @@ Free Software Foundation, Inc.,
 #include "bstone_missing_wall_64x64_image.h"
 #include "bstone_mt_task_mgr.h"
 #include "bstone_ref_values.h"
-#include "bstone_r3d.h"
-#include "bstone_r3d_limits.h"
+#include "bstone_ren_3d.h"
+#include "bstone_ren_3d_limits.h"
 #include "bstone_rgb_palette.h"
 #include "bstone_sprite_cache.h"
 
-#include "bstone_detail_r3d_utils.h"
+#include "bstone_detail_ren_3d_utils.h"
 
 
 namespace bstone
