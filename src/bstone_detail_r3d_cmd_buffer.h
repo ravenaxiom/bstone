@@ -41,17 +41,17 @@ namespace detail
 
 
 // ==========================================================================
-// Renderer3dCommandBufferImpl
+// R3dCmdBufferImpl
 //
 
-class Renderer3dCommandBufferImpl final :
-	public Renderer3dCommandBuffer
+class R3dCmdBufferImpl final :
+	public R3dCmdBuffer
 {
 public:
-	Renderer3dCommandBufferImpl(
-		const Renderer3dCommandQueueEnqueueParam& param);
+	R3dCmdBufferImpl(
+		const R3dCmdQueueEnqueueParam& param);
 
-	~Renderer3dCommandBufferImpl() override;
+	~R3dCmdBufferImpl() override;
 
 
 	int get_command_count() const noexcept override;
@@ -67,74 +67,74 @@ public:
 
 	void write_end() override;
 
-	Renderer3dCommandClear* write_clear() override;
+	R3dCmdClear* write_clear() override;
 
-	Renderer3dCommandViewport* write_viewport() override;
+	R3dCmdViewport* write_viewport() override;
 
-	Renderer3dCommandScissor* write_scissor() override;
-	Renderer3dCommandScissorBox* write_scissor_box() override;
+	R3dCmdScissor* write_scissor() override;
+	R3dCmdScissorBox* write_scissor_box() override;
 
-	Renderer3dCommandCulling* write_culling() override;
+	R3dCmdCulling* write_culling() override;
 
-	Renderer3dCommandDepthTest* write_depth_test() override;
-	Renderer3dCommandDepthWrite* write_depth_write() override;
+	R3dCmdDepthTest* write_depth_test() override;
+	R3dCmdDepthWrite* write_depth_write() override;
 
-	Renderer3dCommandBlending* write_blending() override;
-	Renderer3dCommandBlendingFunc* write_blending_func() override;
+	R3dCmdBlending* write_blending() override;
+	R3dCmdBlendingFunc* write_blending_func() override;
 
-	Renderer3dCommandTexture* write_texture() override;
-	Renderer3dCommandSampler* write_sampler() override;
+	R3dCmdTexture* write_texture() override;
+	R3dCmdSampler* write_sampler() override;
 
-	Renderer3dCommandVertexInput* write_vertex_input() override;
+	R3dCmdVertexInput* write_vertex_input() override;
 
-	Renderer3dCommandShaderStage* write_shader_stage() override;
+	R3dCmdShaderStage* write_shader_stage() override;
 
-	Renderer3dCommandShaderVarInt32* write_shader_var_int32() override;
-	Renderer3dCommandShaderVarFloat32* write_shader_var_float32() override;
-	Renderer3dCommandShaderVarVec2* write_shader_var_vec2() override;
-	Renderer3dCommandShaderVarVec4* write_shader_var_vec4() override;
-	Renderer3dCommandShaderVarMat4* write_shader_var_mat4() override;
-	Renderer3dCommandShaderVarSampler2d* write_shader_var_sampler_2d() override;
+	R3dCmdShaderVarInt32* write_shader_var_int32() override;
+	R3dCmdShaderVarFloat32* write_shader_var_float32() override;
+	R3dCmdShaderVarVec2* write_shader_var_vec2() override;
+	R3dCmdShaderVarVec4* write_shader_var_vec4() override;
+	R3dCmdShaderVarMat4* write_shader_var_mat4() override;
+	R3dCmdShaderVarSampler2d* write_shader_var_sampler_2d() override;
 
-	Renderer3dCommandDrawIndexed* write_draw_indexed() override;
+	R3dCmdDrawIndexed* write_draw_indexed() override;
 
 
 	void read_begin() override;
 
 	void read_end() override;
 
-	Renderer3dCommandId read_command_id() override;
+	R3dCmdId read_command_id() override;
 
-	const Renderer3dCommandClear* read_clear() override;
+	const R3dCmdClear* read_clear() override;
 
-	const Renderer3dCommandViewport* read_viewport() override;
+	const R3dCmdViewport* read_viewport() override;
 
-	const Renderer3dCommandScissor* read_scissor() override;
-	const Renderer3dCommandScissorBox* read_scissor_box() override;
+	const R3dCmdScissor* read_scissor() override;
+	const R3dCmdScissorBox* read_scissor_box() override;
 
-	const Renderer3dCommandCulling* read_culling() override;
+	const R3dCmdCulling* read_culling() override;
 
-	const Renderer3dCommandDepthTest* read_depth_test() override;
-	const Renderer3dCommandDepthWrite* read_depth_write() override;
+	const R3dCmdDepthTest* read_depth_test() override;
+	const R3dCmdDepthWrite* read_depth_write() override;
 
-	const Renderer3dCommandBlending* read_blending() override;
-	const Renderer3dCommandBlendingFunc* read_blending_func() override;
+	const R3dCmdBlending* read_blending() override;
+	const R3dCmdBlendingFunc* read_blending_func() override;
 
-	const Renderer3dCommandTexture* read_texture() override;
-	const Renderer3dCommandSampler* read_sampler() override;
+	const R3dCmdTexture* read_texture() override;
+	const R3dCmdSampler* read_sampler() override;
 
-	const Renderer3dCommandVertexInput* read_vertex_input() override;
+	const R3dCmdVertexInput* read_vertex_input() override;
 
-	const Renderer3dCommandShaderStage* read_shader_stage() override;
+	const R3dCmdShaderStage* read_shader_stage() override;
 
-	const Renderer3dCommandShaderVarInt32* read_shader_var_int32() override;
-	const Renderer3dCommandShaderVarFloat32* read_shader_var_float32() override;
-	const Renderer3dCommandShaderVarVec2* read_shader_var_vec2() override;
-	const Renderer3dCommandShaderVarVec4* read_shader_var_vec4() override;
-	const Renderer3dCommandShaderVarMat4* read_shader_var_mat4() override;
-	const Renderer3dCommandShaderVarSampler2d* read_shader_var_sampler_2d() override;
+	const R3dCmdShaderVarInt32* read_shader_var_int32() override;
+	const R3dCmdShaderVarFloat32* read_shader_var_float32() override;
+	const R3dCmdShaderVarVec2* read_shader_var_vec2() override;
+	const R3dCmdShaderVarVec4* read_shader_var_vec4() override;
+	const R3dCmdShaderVarMat4* read_shader_var_mat4() override;
+	const R3dCmdShaderVarSampler2d* read_shader_var_sampler_2d() override;
 
-	const Renderer3dCommandDrawIndexed* read_draw_indexed() override;
+	const R3dCmdDrawIndexed* read_draw_indexed() override;
 
 
 private:
@@ -150,7 +150,7 @@ private:
 
 	static constexpr int get_command_id_size()
 	{
-		return static_cast<int>(sizeof(Renderer3dCommandId));
+		return static_cast<int>(sizeof(R3dCmdId));
 	}
 
 
@@ -170,14 +170,14 @@ private:
 
 
 	void validate_param(
-		const Renderer3dCommandQueueEnqueueParam& param);
+		const R3dCmdQueueEnqueueParam& param);
 
 	void resize_if_necessary(
 		const int dst_delta_size);
 
 	template<typename T>
 	T* write(
-		const Renderer3dCommandId command_id)
+		const R3dCmdId command_id)
 	{
 		if (is_reading_ || !is_writing_)
 		{
@@ -186,7 +186,7 @@ private:
 			return nullptr;
 		}
 
-		if (command_id == Renderer3dCommandId::none)
+		if (command_id == R3dCmdId::none)
 		{
 			assert(!"Invalid command id.");
 
@@ -199,7 +199,7 @@ private:
 
 		resize_if_necessary(block_size);
 
-		auto block = reinterpret_cast<Renderer3dCommandId*>(&data_[write_offset_]);
+		auto block = reinterpret_cast<R3dCmdId*>(&data_[write_offset_]);
 		*block = command_id;
 
 		write_offset_ += block_size;
@@ -231,13 +231,13 @@ private:
 
 		return command;
 	}
-}; // Renderer3dCommandBufferImpl
+}; // R3dCmdBufferImpl
 
-using Renderer3dCommandBufferPtr = Renderer3dCommandBufferImpl*;
-using Renderer3dCommandBufferUPtr = std::unique_ptr<Renderer3dCommandBufferImpl>;
+using R3dCmdBufferPtr = R3dCmdBufferImpl*;
+using R3dCmdBufferUPtr = std::unique_ptr<R3dCmdBufferImpl>;
 
 //
-// Renderer3dCommandBufferImpl
+// R3dCmdBufferImpl
 // ==========================================================================
 
 

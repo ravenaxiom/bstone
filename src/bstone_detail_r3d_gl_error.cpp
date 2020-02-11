@@ -154,10 +154,10 @@ private:
 
 
 // ==========================================================================
-// GlError
+// R3dGlError
 //
 
-void GlError::ensure()
+void R3dGlError::ensure()
 {
 	if (!glGetError)
 	{
@@ -172,7 +172,7 @@ void GlError::ensure()
 	}
 }
 
-void GlError::ensure_debug()
+void R3dGlError::ensure_debug()
 {
 #if _DEBUG
 	ensure();
@@ -180,7 +180,7 @@ void GlError::ensure_debug()
 }
 
 //
-// GlError
+// R3dGlError
 // ==========================================================================
 
 

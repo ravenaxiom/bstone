@@ -43,23 +43,23 @@ namespace detail
 {
 
 
-class GlTextureManager;
-using GlTextureManagerPtr = GlTextureManager*;
+class R3dGlTextureMgr;
+using R3dGlTextureMgrPtr = R3dGlTextureMgr*;
 
 
 // =========================================================================
-// GlTexture2d
+// R3dGlTexture2d
 //
 
-class GlTexture2d :
-	public Renderer3dTexture2d
+class R3dGlTexture2d :
+	public R3dTexture2d
 {
 protected:
-	GlTexture2d() = default;
+	R3dGlTexture2d() = default;
 
 
 public:
-	~GlTexture2d() override = default;
+	~R3dGlTexture2d() override = default;
 
 
 	virtual void set() = 0;
@@ -67,30 +67,30 @@ public:
 	virtual void bind() = 0;
 
 	virtual void update_sampler_state(
-		const Renderer3dSamplerState& new_sampler_state) = 0;
-}; // GlTexture2d
+		const R3dSamplerState& new_sampler_state) = 0;
+}; // R3dGlTexture2d
 
-using GlTexture2dPtr = GlTexture2d*;
-using GlTexture2dUPtr = std::unique_ptr<GlTexture2d>;
+using R3dGlTexture2dPtr = R3dGlTexture2d*;
+using R3dGlTexture2dUPtr = std::unique_ptr<R3dGlTexture2d>;
 
 //
-// GlTexture2d
+// R3dGlTexture2d
 // =========================================================================
 
 
 // =========================================================================
-// GlTexture2dFactory
+// R3dGlTexture2dFactory
 //
 
-struct GlTexture2dFactory
+struct R3dGlTexture2dFactory
 {
-	static GlTexture2dUPtr create(
-		const GlTextureManagerPtr gl_texture_manager,
-		const Renderer3dTexture2dCreateParam& param);
-}; // GlTexture2dFactory
+	static R3dGlTexture2dUPtr create(
+		const R3dGlTextureMgrPtr gl_texture_manager,
+		const R3dTexture2dCreateParam& param);
+}; // R3dGlTexture2dFactory
 
 //
-// GlTexture2dFactory
+// R3dGlTexture2dFactory
 // =========================================================================
 
 

@@ -42,51 +42,51 @@ namespace detail
 {
 
 
-class GlContext;
-using GlContextPtr = GlContext*;
+class R3dGlContext;
+using R3dGlContextPtr = R3dGlContext*;
 
 
 // ==========================================================================
-// GlShaderManager
+// R3dGlShaderMgr
 //
 
-class GlShaderManager
+class R3dGlShaderMgr
 {
 protected:
-	GlShaderManager() = default;
+	R3dGlShaderMgr() = default;
 
 
 public:
-	virtual ~GlShaderManager() = default;
+	virtual ~R3dGlShaderMgr() = default;
 
 
-	virtual Renderer3dShaderUPtr create(
-		const Renderer3dShaderCreateParam& param) = 0;
+	virtual R3dShaderUPtr create(
+		const R3dShaderCreateParam& param) = 0;
 
 	virtual void notify_destroy(
-		const Renderer3dShaderPtr shader) noexcept = 0;
-}; // GlShaderManager
+		const R3dShaderPtr shader) noexcept = 0;
+}; // R3dGlShaderMgr
 
-using GlShaderManagerPtr = GlShaderManager*;
-using GlShaderManagerUPtr = std::unique_ptr<GlShaderManager>;
+using R3dGlShaderMgrPtr = R3dGlShaderMgr*;
+using R3dGlShaderMgrUPtr = std::unique_ptr<R3dGlShaderMgr>;
 
 //
-// GlShaderManager
+// R3dGlShaderMgr
 // ==========================================================================
 
 
 // ==========================================================================
-// GlShaderManagerFactory
+// R3dGlShaderMgrFactory
 //
 
-struct GlShaderManagerFactory
+struct R3dGlShaderMgrFactory
 {
-	static GlShaderManagerUPtr create(
-		const GlContextPtr gl_context);
-}; // GlShaderManagerFactory
+	static R3dGlShaderMgrUPtr create(
+		const R3dGlContextPtr gl_context);
+}; // R3dGlShaderMgrFactory
 
 //
-// GlShaderManagerFactory
+// R3dGlShaderMgrFactory
 // ==========================================================================
 
 

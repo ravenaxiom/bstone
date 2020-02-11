@@ -35,7 +35,7 @@ namespace bstone
 {
 
 
-struct Renderer3dLimits
+struct R3dLimits
 {
 	static constexpr auto anisotropy_min_off = 1;
 	static constexpr auto anisotropy_min_on = 2;
@@ -47,7 +47,7 @@ struct Renderer3dLimits
 
 
 	static constexpr auto max_mipmap_count = 31;
-}; // Renderer3dLimits
+}; // R3dLimits
 
 
 } // bstone

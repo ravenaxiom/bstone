@@ -42,9 +42,9 @@ namespace detail
 {
 
 
-struct GlDeviceFeatures
+struct R3dGlDeviceFeatures
 {
-	GlContextKind context_kind_;
+	R3dGlContextKind context_kind_;
 
 	bool mipmap_is_ext_;
 	bool framebuffer_is_available_;
@@ -53,7 +53,7 @@ struct GlDeviceFeatures
 	bool buffer_storage_is_available_;
 	bool dsa_is_available_;
 	bool sso_is_available_;
-}; // GlDeviceFeatures
+}; // R3dGlDeviceFeatures
 
 
 } // detail

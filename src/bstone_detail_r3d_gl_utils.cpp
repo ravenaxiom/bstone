@@ -54,10 +54,10 @@ namespace detail
 
 
 // ==========================================================================
-// GlRenderer3dUtils
+// R3dGlUtils
 //
 
-void GlRenderer3dUtils::load_library()
+void R3dGlUtils::load_library()
 {
 	const auto error_message_prefix = "Failed to load default OpenGL library. ";
 
@@ -72,18 +72,18 @@ void GlRenderer3dUtils::load_library()
 	}
 }
 
-void GlRenderer3dUtils::unload_library() noexcept
+void R3dGlUtils::unload_library() noexcept
 {
 	::SDL_GL_UnloadLibrary();
 }
 
-void* GlRenderer3dUtils::resolve_symbol(
+void* R3dGlUtils::resolve_symbol(
 	const char* const symbol)
 {
 	return ::SDL_GL_GetProcAddress(symbol);
 }
 
-SdlGlContextUPtr GlRenderer3dUtils::create_context(
+SdlGlContextUPtr R3dGlUtils::create_context(
 	SdlWindowPtr sdl_window)
 {
 	const auto error_message_prefix = "Failed to create OpenGL context. ";
@@ -109,7 +109,7 @@ SdlGlContextUPtr GlRenderer3dUtils::create_context(
 	return sdl_gl_context;
 }
 
-void GlRenderer3dUtils::make_context_current(
+void R3dGlUtils::make_context_current(
 	SdlWindowPtr sdl_window,
 	SdlGlContextPtr sdl_gl_context)
 {
@@ -134,19 +134,19 @@ void GlRenderer3dUtils::make_context_current(
 	}
 }
 
-void GlRenderer3dUtils::create_window_and_context(
-	const Renderer3dUtilsCreateWindowParam& param,
+void R3dGlUtils::create_window_and_context(
+	const R3dUtilsCreateWindowParam& param,
 	SdlWindowUPtr& sdl_window,
 	SdlGlContextUPtr& sdl_gl_context)
 {
-	auto sdl_window_result = Renderer3dUtils::window_create(param);
+	auto sdl_window_result = R3dUtils::window_create(param);
 	auto sdl_gl_context_result = create_context(sdl_window_result.get());
 
 	sdl_window = std::move(sdl_window_result);
 	sdl_gl_context = std::move(sdl_gl_context_result);
 }
 
-void GlRenderer3dUtils::window_get_drawable_size(
+void R3dGlUtils::window_get_drawable_size(
 	SdlWindowPtr sdl_window,
 	int& width,
 	int& height)
@@ -167,13 +167,13 @@ void GlRenderer3dUtils::window_get_drawable_size(
 	}
 }
 
-GlContextKind GlRenderer3dUtils::context_get_kind()
+R3dGlContextKind R3dGlUtils::context_get_kind()
 {
 	const auto sdl_gl_context = ::SDL_GL_GetCurrentContext();
 
 	if (sdl_gl_context == nullptr)
 	{
-		return GlContextKind::invalid;
+		return R3dGlContextKind::invalid;
 	}
 
 	auto sdl_attribute = 0;
@@ -182,29 +182,29 @@ GlContextKind GlRenderer3dUtils::context_get_kind()
 
 	if (sdl_result != 0)
 	{
-		return GlContextKind::invalid;
+		return R3dGlContextKind::invalid;
 	}
 
 	switch (sdl_attribute)
 	{
 		case 0:
-			return GlContextKind::none;
+			return R3dGlContextKind::none;
 
 		case SDL_GL_CONTEXT_PROFILE_CORE:
-			return GlContextKind::core;
+			return R3dGlContextKind::core;
 
 		case SDL_GL_CONTEXT_PROFILE_COMPATIBILITY:
-			return GlContextKind::compatibility;
+			return R3dGlContextKind::compatibility;
 
 		case SDL_GL_CONTEXT_PROFILE_ES:
-			return GlContextKind::es;
+			return R3dGlContextKind::es;
 
 		default:
-			return GlContextKind::invalid;
+			return R3dGlContextKind::invalid;
 	}
 }
 
-void GlRenderer3dUtils::context_get_version(
+void R3dGlUtils::context_get_version(
 	int& major_version,
 	int& minor_version)
 {
@@ -254,19 +254,19 @@ void GlRenderer3dUtils::context_get_version(
 	minor_version = sdl_minor_version;
 }
 
-int GlRenderer3dUtils::anisotropy_clamp_value(
+int R3dGlUtils::anisotropy_clamp_value(
 	const int anisotropy_value,
-	const Renderer3dDeviceFeatures& device_features)
+	const R3dDeviceFeatures& device_features)
 {
 	auto clamped_value = anisotropy_value;
 
-	if (clamped_value < Renderer3dLimits::anisotropy_min_off)
+	if (clamped_value < R3dLimits::anisotropy_min_off)
 	{
-		clamped_value = Renderer3dLimits::anisotropy_min_off;
+		clamped_value = R3dLimits::anisotropy_min_off;
 	}
-	else if (clamped_value < Renderer3dLimits::anisotropy_min_on)
+	else if (clamped_value < R3dLimits::anisotropy_min_on)
 	{
-		clamped_value = Renderer3dLimits::anisotropy_min_on;
+		clamped_value = R3dLimits::anisotropy_min_on;
 	}
 	else if (clamped_value > device_features.anisotropy_max_degree_)
 	{
@@ -276,8 +276,8 @@ int GlRenderer3dUtils::anisotropy_clamp_value(
 	return clamped_value;
 }
 
-int GlRenderer3dUtils::msaa_window_get_max(
-	const Renderer3dKind renderer_kind)
+int R3dGlUtils::msaa_window_get_max(
+	const R3dKind renderer_kind)
 {
 	const auto sdl_gl_current_context = SDL_GL_GetCurrentContext();
 
@@ -288,16 +288,16 @@ int GlRenderer3dUtils::msaa_window_get_max(
 
 	try
 	{
-		auto window_param = Renderer3dUtilsCreateWindowParam{};
+		auto window_param = R3dUtilsCreateWindowParam{};
 		window_param.renderer_kind_ = renderer_kind;
 		window_param.window_.is_borderless_ = true;
 		window_param.window_.width_ = 1;
 		window_param.window_.height_ = 1;
-		window_param.aa_kind_ = Renderer3dAaKind::ms;
+		window_param.aa_kind_ = R3dAaKind::ms;
 
-		auto max_msaa = Renderer3dLimits::aa_min_off;
+		auto max_msaa = R3dLimits::aa_min_off;
 
-		for (int i = Renderer3dLimits::aa_min_on; i <= Renderer3dLimits::aa_max; i *= 2)
+		for (int i = R3dLimits::aa_min_on; i <= R3dLimits::aa_max; i *= 2)
 		{
 			window_param.aa_value_ = i;
 
@@ -329,14 +329,14 @@ int GlRenderer3dUtils::msaa_window_get_max(
 	}
 	catch (const Exception&)
 	{
-		return Renderer3dLimits::aa_min_off;
+		return R3dLimits::aa_min_off;
 	}
 }
 
-int GlRenderer3dUtils::msaa_fbo_get_max(
-	const Renderer3dKind renderer_kind,
-	Renderer3dDeviceFeatures& device_features,
-	GlDeviceFeatures& gl_device_features)
+int R3dGlUtils::msaa_fbo_get_max(
+	const R3dKind renderer_kind,
+	R3dDeviceFeatures& device_features,
+	R3dGlDeviceFeatures& gl_device_features)
 {
 	const auto sdl_gl_current_context = SDL_GL_GetCurrentContext();
 
@@ -347,7 +347,7 @@ int GlRenderer3dUtils::msaa_fbo_get_max(
 
 	try
 	{
-		auto window_param = Renderer3dUtilsCreateWindowParam{};
+		auto window_param = R3dUtilsCreateWindowParam{};
 		window_param.renderer_kind_ = renderer_kind;
 		window_param.window_.is_borderless_ = true;
 		window_param.window_.width_ = 1;
@@ -358,23 +358,23 @@ int GlRenderer3dUtils::msaa_fbo_get_max(
 
 		create_window_and_context(window_param, sdl_window, sdl_gl_context);
 
-		auto extension_manager = detail::GlExtensionManagerFactory::create();
+		auto extension_manager = detail::R3dGlExtensionMgrFactory::create();
 
-		extension_manager->probe(GlExtensionId::essentials);
+		extension_manager->probe(R3dGlExtensionId::essentials);
 
-		if (!extension_manager->has(GlExtensionId::essentials))
+		if (!extension_manager->has(R3dGlExtensionId::essentials))
 		{
 			throw Exception{"Essential functions not available."};
 		}
 
-		GlRenderer3dUtils::framebuffer_probe(
+		R3dGlUtils::framebuffer_probe(
 			extension_manager.get(),
 			gl_device_features
 		);
 
 		if (!gl_device_features.framebuffer_is_available_)
 		{
-			return Renderer3dLimits::aa_min_off;
+			return R3dLimits::aa_min_off;
 		}
 
 
@@ -383,30 +383,30 @@ int GlRenderer3dUtils::msaa_fbo_get_max(
 		auto gl_value = GLint{};
 
 		glGetIntegerv(gl_enum, &gl_value);
-		GlError::ensure_debug();
+		R3dGlError::ensure_debug();
 
 		return gl_value;
 	}
 	catch (const Exception&)
 	{
-		return Renderer3dLimits::aa_min_off;
+		return R3dLimits::aa_min_off;
 	}
 }
 
-void GlRenderer3dUtils::msaa_probe(
-	const Renderer3dKind renderer_kind,
-	Renderer3dDeviceFeatures& device_features,
-	GlDeviceFeatures& gl_device_features)
+void R3dGlUtils::msaa_probe(
+	const R3dKind renderer_kind,
+	R3dDeviceFeatures& device_features,
+	R3dGlDeviceFeatures& gl_device_features)
 {
 	device_features.msaa_is_available_ = false;
 	device_features.msaa_is_render_to_window_ = false;
 	device_features.msaa_is_requires_restart_ = false;
-	device_features.msaa_max_degree_ = Renderer3dLimits::aa_min_off;
+	device_features.msaa_max_degree_ = R3dLimits::aa_min_off;
 
-	const auto msaa_window_max = GlRenderer3dUtils::msaa_window_get_max(
+	const auto msaa_window_max = R3dGlUtils::msaa_window_get_max(
 		renderer_kind);
 
-	if (msaa_window_max >= Renderer3dLimits::aa_min_on)
+	if (msaa_window_max >= R3dLimits::aa_min_on)
 	{
 		device_features.msaa_is_available_ = true;
 
@@ -416,13 +416,13 @@ void GlRenderer3dUtils::msaa_probe(
 		}
 	}
 
-	const auto msaa_fbo_max = GlRenderer3dUtils::msaa_fbo_get_max(
+	const auto msaa_fbo_max = R3dGlUtils::msaa_fbo_get_max(
 		renderer_kind,
 		device_features,
 		gl_device_features
 	);
 
-	if (msaa_fbo_max >= Renderer3dLimits::aa_min_on)
+	if (msaa_fbo_max >= R3dLimits::aa_min_on)
 	{
 		device_features.msaa_is_available_ = true;
 
@@ -432,15 +432,15 @@ void GlRenderer3dUtils::msaa_probe(
 		}
 	}
 
-	if (msaa_window_max >= Renderer3dLimits::aa_min_on &&
-		msaa_fbo_max < Renderer3dLimits::aa_min_on)
+	if (msaa_window_max >= R3dLimits::aa_min_on &&
+		msaa_fbo_max < R3dLimits::aa_min_on)
 	{
 		device_features.msaa_is_render_to_window_ = true;
 		device_features.msaa_is_requires_restart_ = true;
 	}
 }
 
-int GlRenderer3dUtils::msaa_window_get_value()
+int R3dGlUtils::msaa_window_get_value()
 {
 	{
 		auto sdl_buffer_count = 0;
@@ -478,25 +478,25 @@ int GlRenderer3dUtils::msaa_window_get_value()
 	}
 }
 
-int GlRenderer3dUtils::anisotropy_get_max_value()
+int R3dGlUtils::anisotropy_get_max_value()
 {
 	auto gl_max_value = GLfloat{};
 
 	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &gl_max_value);
 
-	GlError::ensure_debug();
+	R3dGlError::ensure_debug();
 
-	if (gl_max_value <= static_cast<GLfloat>(Renderer3dLimits::anisotropy_min_off))
+	if (gl_max_value <= static_cast<GLfloat>(R3dLimits::anisotropy_min_off))
 	{
-		return Renderer3dLimits::anisotropy_min_off;
+		return R3dLimits::anisotropy_min_off;
 	}
 
 	return static_cast<int>(gl_max_value);
 }
 
-void GlRenderer3dUtils::anisotropy_set_value(
+void R3dGlUtils::anisotropy_set_value(
 	const GLenum gl_target,
-	const Renderer3dDeviceFeatures& device_features,
+	const R3dDeviceFeatures& device_features,
 	const int anisotropy_value)
 {
 	if (!device_features.anisotropy_is_available_)
@@ -509,31 +509,31 @@ void GlRenderer3dUtils::anisotropy_set_value(
 	const auto gl_value = static_cast<GLfloat>(clamped_value);
 
 	glTexParameterf(gl_target, GL_TEXTURE_MAX_ANISOTROPY, gl_value);
-	GlError::ensure_debug();
+	R3dGlError::ensure_debug();
 }
 
-void GlRenderer3dUtils::anisotropy_probe(
-	GlExtensionManagerPtr extension_manager,
-	Renderer3dDeviceFeatures& device_features)
+void R3dGlUtils::anisotropy_probe(
+	R3dGlExtensionMgrPtr extension_manager,
+	R3dDeviceFeatures& device_features)
 {
 	device_features.anisotropy_is_available_ = false;
-	device_features.anisotropy_max_degree_ = Renderer3dLimits::anisotropy_min_off;
+	device_features.anisotropy_max_degree_ = R3dLimits::anisotropy_min_off;
 
 #ifndef BSTONE_R3D_TEST_NO_ANISOTROPY
 	if (!device_features.anisotropy_is_available_)
 	{
-		extension_manager->probe(GlExtensionId::arb_texture_filter_anisotropic);
+		extension_manager->probe(R3dGlExtensionId::arb_texture_filter_anisotropic);
 
 		device_features.anisotropy_is_available_ =
-			extension_manager->has(GlExtensionId::arb_texture_filter_anisotropic);
+			extension_manager->has(R3dGlExtensionId::arb_texture_filter_anisotropic);
 	}
 
 	if (!device_features.anisotropy_is_available_)
 	{
-		extension_manager->probe(GlExtensionId::ext_texture_filter_anisotropic);
+		extension_manager->probe(R3dGlExtensionId::ext_texture_filter_anisotropic);
 
 		device_features.anisotropy_is_available_ =
-			extension_manager->has(GlExtensionId::ext_texture_filter_anisotropic);
+			extension_manager->has(R3dGlExtensionId::ext_texture_filter_anisotropic);
 	}
 
 	if (device_features.anisotropy_is_available_)
@@ -543,18 +543,18 @@ void GlRenderer3dUtils::anisotropy_probe(
 #endif // !BSTONE_R3D_TEST_NO_ANISOTROPY
 }
 
-void GlRenderer3dUtils::npot_probe(
-	GlExtensionManagerPtr extension_manager,
-	Renderer3dDeviceFeatures& device_features)
+void R3dGlUtils::npot_probe(
+	R3dGlExtensionMgrPtr extension_manager,
+	R3dDeviceFeatures& device_features)
 {
 	device_features.npot_is_available_ = false;
 
 #ifndef BSTONE_R3D_TEST_POT_ONLY
 	if (!device_features.npot_is_available_)
 	{
-		extension_manager->probe(GlExtensionId::arb_texture_non_power_of_two);
+		extension_manager->probe(R3dGlExtensionId::arb_texture_non_power_of_two);
 
-		if (extension_manager->has(GlExtensionId::arb_texture_non_power_of_two))
+		if (extension_manager->has(R3dGlExtensionId::arb_texture_non_power_of_two))
 		{
 			device_features.npot_is_available_ = true;
 		}
@@ -562,9 +562,9 @@ void GlRenderer3dUtils::npot_probe(
 
 	if (!device_features.npot_is_available_)
 	{
-		extension_manager->probe(GlExtensionId::oes_texture_npot);
+		extension_manager->probe(R3dGlExtensionId::oes_texture_npot);
 
-		if (extension_manager->has(GlExtensionId::oes_texture_npot))
+		if (extension_manager->has(R3dGlExtensionId::oes_texture_npot))
 		{
 			device_features.npot_is_available_ = true;
 		}
@@ -572,25 +572,25 @@ void GlRenderer3dUtils::npot_probe(
 #endif //!BSTONE_R3D_TEST_POT_ONLY
 }
 
-void GlRenderer3dUtils::mipmap_probe(
-	GlExtensionManagerPtr extension_manager,
-	Renderer3dDeviceFeatures& device_features,
-	GlDeviceFeatures& gl_device_features)
+void R3dGlUtils::mipmap_probe(
+	R3dGlExtensionMgrPtr extension_manager,
+	R3dDeviceFeatures& device_features,
+	R3dGlDeviceFeatures& gl_device_features)
 {
 	device_features.mipmap_is_available_ = false;
 	gl_device_features.mipmap_is_ext_ = false;
 
 #ifndef BSTONE_R3D_TEST_SW_MIPMAP
-	if (gl_device_features.context_kind_ == GlContextKind::es)
+	if (gl_device_features.context_kind_ == R3dGlContextKind::es)
 	{
 		device_features.mipmap_is_available_ = true;
 	}
 
 	if (!device_features.mipmap_is_available_)
 	{
-		extension_manager->probe(GlExtensionId::arb_framebuffer_object);
+		extension_manager->probe(R3dGlExtensionId::arb_framebuffer_object);
 
-		if (extension_manager->has(GlExtensionId::arb_framebuffer_object))
+		if (extension_manager->has(R3dGlExtensionId::arb_framebuffer_object))
 		{
 			device_features.mipmap_is_available_ = true;
 		}
@@ -598,9 +598,9 @@ void GlRenderer3dUtils::mipmap_probe(
 
 	if (!device_features.mipmap_is_available_)
 	{
-		extension_manager->probe(GlExtensionId::ext_framebuffer_object);
+		extension_manager->probe(R3dGlExtensionId::ext_framebuffer_object);
 
-		if (extension_manager->has(GlExtensionId::ext_framebuffer_object))
+		if (extension_manager->has(R3dGlExtensionId::ext_framebuffer_object))
 		{
 			device_features.mipmap_is_available_ = true;
 			gl_device_features.mipmap_is_ext_ = true;
@@ -609,10 +609,10 @@ void GlRenderer3dUtils::mipmap_probe(
 #endif // !BSTONE_R3D_TEST_SW_MIPMAP
 }
 
-void GlRenderer3dUtils::mipmap_generate(
+void R3dGlUtils::mipmap_generate(
 	const GLenum gl_target,
-	const Renderer3dDeviceFeatures& device_features,
-	const GlDeviceFeatures& gl_device_features)
+	const R3dDeviceFeatures& device_features,
+	const R3dGlDeviceFeatures& gl_device_features)
 {
 	if (!device_features.mipmap_is_available_)
 	{
@@ -631,12 +631,12 @@ void GlRenderer3dUtils::mipmap_generate(
 	const auto gl_function = (gl_device_features.mipmap_is_ext_ ? glGenerateMipmapEXT : glGenerateMipmap);
 
 	gl_function(gl_target);
-	GlError::ensure_debug();
+	R3dGlError::ensure_debug();
 }
 
-void GlRenderer3dUtils::framebuffer_probe(
-	GlExtensionManagerPtr extension_manager,
-	GlDeviceFeatures& gl_device_features)
+void R3dGlUtils::framebuffer_probe(
+	R3dGlExtensionMgrPtr extension_manager,
+	R3dGlDeviceFeatures& gl_device_features)
 {
 	gl_device_features.framebuffer_is_available_ = false;
 	gl_device_features.framebuffer_is_ext_ = false;
@@ -644,9 +644,9 @@ void GlRenderer3dUtils::framebuffer_probe(
 #ifndef BSTONE_RENDERER_TEST_3D_DEFAULT_FRAMEBUFFER
 	if (!gl_device_features.framebuffer_is_available_)
 	{
-		extension_manager->probe(GlExtensionId::arb_framebuffer_object);
+		extension_manager->probe(R3dGlExtensionId::arb_framebuffer_object);
 
-		if (extension_manager->has(GlExtensionId::arb_framebuffer_object))
+		if (extension_manager->has(R3dGlExtensionId::arb_framebuffer_object))
 		{
 			gl_device_features.framebuffer_is_available_ = true;
 		}
@@ -654,15 +654,15 @@ void GlRenderer3dUtils::framebuffer_probe(
 
 	if (!gl_device_features.framebuffer_is_available_)
 	{
-		extension_manager->probe(GlExtensionId::ext_framebuffer_blit);
-		extension_manager->probe(GlExtensionId::ext_framebuffer_multisample);
-		extension_manager->probe(GlExtensionId::ext_framebuffer_object);
-		extension_manager->probe(GlExtensionId::ext_packed_depth_stencil);
+		extension_manager->probe(R3dGlExtensionId::ext_framebuffer_blit);
+		extension_manager->probe(R3dGlExtensionId::ext_framebuffer_multisample);
+		extension_manager->probe(R3dGlExtensionId::ext_framebuffer_object);
+		extension_manager->probe(R3dGlExtensionId::ext_packed_depth_stencil);
 
-		if (extension_manager->has(GlExtensionId::ext_framebuffer_blit) &&
-			extension_manager->has(GlExtensionId::ext_framebuffer_multisample) &&
-			extension_manager->has(GlExtensionId::ext_framebuffer_object) &&
-			extension_manager->has(GlExtensionId::ext_packed_depth_stencil))
+		if (extension_manager->has(R3dGlExtensionId::ext_framebuffer_blit) &&
+			extension_manager->has(R3dGlExtensionId::ext_framebuffer_multisample) &&
+			extension_manager->has(R3dGlExtensionId::ext_framebuffer_object) &&
+			extension_manager->has(R3dGlExtensionId::ext_packed_depth_stencil))
 		{
 			gl_device_features.framebuffer_is_available_ = true;
 			gl_device_features.framebuffer_is_ext_ = true;
@@ -671,25 +671,25 @@ void GlRenderer3dUtils::framebuffer_probe(
 #endif // !BSTONE_RENDERER_TEST_3D_DEFAULT_FRAMEBUFFER
 }
 
-void GlRenderer3dUtils::sampler_probe(
-	GlExtensionManagerPtr extension_manager,
-	Renderer3dDeviceFeatures& device_features)
+void R3dGlUtils::sampler_probe(
+	R3dGlExtensionMgrPtr extension_manager,
+	R3dDeviceFeatures& device_features)
 {
 	device_features.sampler_is_available_ = false;
 
 #ifndef BSTONE_R3D_TEST_SW_SAMPLER
-	extension_manager->probe(GlExtensionId::arb_sampler_objects);
+	extension_manager->probe(R3dGlExtensionId::arb_sampler_objects);
 
-	if (extension_manager->has(GlExtensionId::arb_sampler_objects))
+	if (extension_manager->has(R3dGlExtensionId::arb_sampler_objects))
 	{
 		device_features.sampler_is_available_ = true;
 	}
 #endif // !BSTONE_R3D_TEST_SW_SAMPLER
 }
 
-void GlRenderer3dUtils::sampler_set_anisotropy(
+void R3dGlUtils::sampler_set_anisotropy(
 	const GLenum gl_sampler,
-	const Renderer3dDeviceFeatures& device_features,
+	const R3dDeviceFeatures& device_features,
 	const int anisotropy_value)
 {
 	if (!device_features.sampler_is_available_ ||
@@ -703,32 +703,32 @@ void GlRenderer3dUtils::sampler_set_anisotropy(
 	const auto gl_value = static_cast<GLfloat>(clamped_value);
 
 	glSamplerParameterf(gl_sampler, GL_TEXTURE_MAX_ANISOTROPY, gl_value);
-	GlError::ensure_debug();
+	R3dGlError::ensure_debug();
 }
 
-void GlRenderer3dUtils::vertex_input_vao_probe(
-	GlExtensionManagerPtr extension_manager,
-	GlDeviceFeatures& gl_device_features)
+void R3dGlUtils::vertex_input_vao_probe(
+	R3dGlExtensionMgrPtr extension_manager,
+	R3dGlDeviceFeatures& gl_device_features)
 {
 	gl_device_features.vao_is_available_ = false;
 
 #ifndef BSTONE_R3D_TEST_GL_NO_VAO
-	extension_manager->probe(GlExtensionId::arb_vertex_array_object);
+	extension_manager->probe(R3dGlExtensionId::arb_vertex_array_object);
 
-	if (extension_manager->has(GlExtensionId::arb_vertex_array_object))
+	if (extension_manager->has(R3dGlExtensionId::arb_vertex_array_object))
 	{
 		gl_device_features.vao_is_available_ = true;
 	}
 #endif // !BSTONE_R3D_TEST_GL_NO_VAO
 }
 
-void GlRenderer3dUtils::vertex_input_probe_max_locations(
-	Renderer3dDeviceFeatures& device_features)
+void R3dGlUtils::vertex_input_probe_max_locations(
+	R3dDeviceFeatures& device_features)
 {
 	auto gl_count = GLint{};
 
 	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &gl_count);
-	GlError::ensure_debug();
+	R3dGlError::ensure_debug();
 
 	device_features.vertex_input_max_locations_ = 0;
 
@@ -738,8 +738,8 @@ void GlRenderer3dUtils::vertex_input_probe_max_locations(
 	}
 }
 
-void GlRenderer3dUtils::vsync_probe(
-	Renderer3dDeviceFeatures& device_features)
+void R3dGlUtils::vsync_probe(
+	R3dDeviceFeatures& device_features)
 {
 	const auto sdl_gl_current_context = ::SDL_GL_GetCurrentContext();
 
@@ -762,7 +762,7 @@ void GlRenderer3dUtils::vsync_probe(
 #endif // !BSTONE_R3D_TEST_NO_SWAP_INTERVAL
 }
 
-bool GlRenderer3dUtils::vsync_get()
+bool R3dGlUtils::vsync_get()
 {
 	const auto sdl_result = ::SDL_GL_GetSwapInterval();
 
@@ -780,7 +780,7 @@ bool GlRenderer3dUtils::vsync_get()
 	}
 }
 
-bool GlRenderer3dUtils::vsync_set(
+bool R3dGlUtils::vsync_set(
 	const bool is_enabled)
 {
 	const auto sdl_result = ::SDL_GL_SetSwapInterval(is_enabled);
@@ -788,55 +788,55 @@ bool GlRenderer3dUtils::vsync_set(
 	return sdl_result == 0;
 }
 
-void GlRenderer3dUtils::buffer_storage_probe(
-	const GlExtensionManagerPtr extension_manager,
-	GlDeviceFeatures& gl_device_features)
+void R3dGlUtils::buffer_storage_probe(
+	const R3dGlExtensionMgrPtr extension_manager,
+	R3dGlDeviceFeatures& gl_device_features)
 {
 	gl_device_features.buffer_storage_is_available_ = false;
 
 #ifndef BSTONE_R3D_TEST_GL_NO_BUFFER_STORAGE
-	extension_manager->probe(GlExtensionId::arb_buffer_storage);
+	extension_manager->probe(R3dGlExtensionId::arb_buffer_storage);
 
-	if (extension_manager->has(GlExtensionId::arb_buffer_storage))
+	if (extension_manager->has(R3dGlExtensionId::arb_buffer_storage))
 	{
 		gl_device_features.buffer_storage_is_available_ = true;
 	}
 #endif // !BSTONE_R3D_TEST_GL_NO_BUFFER_STORAGE
 }
 
-void GlRenderer3dUtils::dsa_probe(
-	const GlExtensionManagerPtr extension_manager,
-	GlDeviceFeatures& gl_device_features)
+void R3dGlUtils::dsa_probe(
+	const R3dGlExtensionMgrPtr extension_manager,
+	R3dGlDeviceFeatures& gl_device_features)
 {
 	gl_device_features.dsa_is_available_ = false;
 
 #ifndef BSTONE_R3D_TEST_GL_NO_DSA
-	extension_manager->probe(GlExtensionId::arb_direct_state_access);
+	extension_manager->probe(R3dGlExtensionId::arb_direct_state_access);
 
-	if (extension_manager->has(GlExtensionId::arb_direct_state_access))
+	if (extension_manager->has(R3dGlExtensionId::arb_direct_state_access))
 	{
 		gl_device_features.dsa_is_available_ = true;
 	}
 #endif // !BSTONE_R3D_TEST_GL_NO_DSA
 }
 
-void GlRenderer3dUtils::sso_probe(
-	const GlExtensionManagerPtr extension_manager,
-	GlDeviceFeatures& gl_device_features)
+void R3dGlUtils::sso_probe(
+	const R3dGlExtensionMgrPtr extension_manager,
+	R3dGlDeviceFeatures& gl_device_features)
 {
 	gl_device_features.sso_is_available_ = false;
 
 #ifndef BSTONE_R3D_TEST_GL_NO_SSO
-	extension_manager->probe(GlExtensionId::arb_separate_shader_objects);
+	extension_manager->probe(R3dGlExtensionId::arb_separate_shader_objects);
 
-	if (extension_manager->has(GlExtensionId::arb_separate_shader_objects))
+	if (extension_manager->has(R3dGlExtensionId::arb_separate_shader_objects))
 	{
 		gl_device_features.sso_is_available_ = true;
 	}
 #endif // !BSTONE_R3D_TEST_GL_NO_SSO
 }
 
-void GlRenderer3dUtils::swap_window(
+void R3dGlUtils::swap_window(
 	SdlWindowPtr sdl_window)
 {
 	assert(sdl_window != nullptr);
@@ -844,23 +844,23 @@ void GlRenderer3dUtils::swap_window(
 	::SDL_GL_SwapWindow(sdl_window);
 }
 
-void GlRenderer3dUtils::scissor_enable(
+void R3dGlUtils::scissor_enable(
 	const bool is_enabled)
 {
 	if (is_enabled)
 	{
 		glEnable(GL_SCISSOR_TEST);
-		GlError::ensure_debug();
+		R3dGlError::ensure_debug();
 	}
 	else
 	{
 		glDisable(GL_SCISSOR_TEST);
-		GlError::ensure_debug();
+		R3dGlError::ensure_debug();
 	}
 }
 
-void GlRenderer3dUtils::scissor_set_box(
-	const Renderer3dScissorBox& scissor_box)
+void R3dGlUtils::scissor_set_box(
+	const R3dScissorBox& scissor_box)
 {
 	if (scissor_box.x_ < 0)
 	{
@@ -889,11 +889,11 @@ void GlRenderer3dUtils::scissor_set_box(
 		scissor_box.height_
 	);
 
-	GlError::ensure_debug();
+	R3dGlError::ensure_debug();
 }
 
-void GlRenderer3dUtils::viewport_set_rect(
-	const Renderer3dViewport& viewport)
+void R3dGlUtils::viewport_set_rect(
+	const R3dViewport& viewport)
 {
 	if (viewport.x_ < 0)
 	{
@@ -922,12 +922,12 @@ void GlRenderer3dUtils::viewport_set_rect(
 		viewport.height_
 	);
 
-	GlError::ensure_debug();
+	R3dGlError::ensure_debug();
 }
 
-void GlRenderer3dUtils::viewport_set_depth_range(
-	const Renderer3dViewport& viewport,
-	const GlDeviceFeatures& gl_device_features)
+void R3dGlUtils::viewport_set_depth_range(
+	const R3dViewport& viewport,
+	const R3dGlDeviceFeatures& gl_device_features)
 {
 	if (viewport.min_depth_ < 0.0F || viewport.min_depth_ > 1.0F)
 	{
@@ -939,41 +939,41 @@ void GlRenderer3dUtils::viewport_set_depth_range(
 		throw Exception{"Maximum depth out of range."};
 	}
 
-	const auto is_es = (gl_device_features.context_kind_ == GlContextKind::es);
+	const auto is_es = (gl_device_features.context_kind_ == R3dGlContextKind::es);
 
 	if (is_es)
 	{
 		glDepthRangef(viewport.min_depth_, viewport.max_depth_);
-		GlError::ensure_debug();
+		R3dGlError::ensure_debug();
 	}
 	else
 	{
 		glDepthRange(viewport.min_depth_, viewport.max_depth_);
-		GlError::ensure_debug();
+		R3dGlError::ensure_debug();
 	}
 }
 
-void GlRenderer3dUtils::culling_enable(
+void R3dGlUtils::culling_enable(
 	const bool is_enable)
 {
 	const auto gl_function = (is_enable ? glEnable : glDisable);
 
 	gl_function(GL_CULL_FACE);
-	GlError::ensure_debug();
+	R3dGlError::ensure_debug();
 }
 
-void GlRenderer3dUtils::culling_set_face(
-	const Renderer3dCullingFace culling_face)
+void R3dGlUtils::culling_set_face(
+	const R3dCullingFace culling_face)
 {
 	auto gl_culling_face = GLenum{};
 
 	switch (culling_face)
 	{
-	case Renderer3dCullingFace::clockwise:
+	case R3dCullingFace::clockwise:
 		gl_culling_face = GL_CW;
 		break;
 
-	case Renderer3dCullingFace::counter_clockwise:
+	case R3dCullingFace::counter_clockwise:
 		gl_culling_face = GL_CCW;
 		break;
 
@@ -982,25 +982,25 @@ void GlRenderer3dUtils::culling_set_face(
 	}
 
 	glFrontFace(gl_culling_face);
-	GlError::ensure_debug();
+	R3dGlError::ensure_debug();
 }
 
-void GlRenderer3dUtils::culling_set_mode(
-	const Renderer3dCullingMode culling_mode)
+void R3dGlUtils::culling_set_mode(
+	const R3dCullingMode culling_mode)
 {
 	auto gl_culling_mode = GLenum{};
 
 	switch (culling_mode)
 	{
-	case Renderer3dCullingMode::back:
+	case R3dCullingMode::back:
 		gl_culling_mode = GL_BACK;
 		break;
 
-	case Renderer3dCullingMode::front:
+	case R3dCullingMode::front:
 		gl_culling_mode = GL_FRONT;
 		break;
 
-	case Renderer3dCullingMode::both:
+	case R3dCullingMode::both:
 		gl_culling_mode = GL_FRONT_AND_BACK;
 		break;
 
@@ -1009,45 +1009,45 @@ void GlRenderer3dUtils::culling_set_mode(
 	}
 
 	glCullFace(gl_culling_mode);
-	GlError::ensure_debug();
+	R3dGlError::ensure_debug();
 }
 
-void GlRenderer3dUtils::depth_test_enable(
+void R3dGlUtils::depth_test_enable(
 	const bool is_enable)
 {
 	const auto gl_function = (is_enable ? glEnable : glDisable);
 
 	gl_function(GL_DEPTH_TEST);
-	GlError::ensure_debug();
+	R3dGlError::ensure_debug();
 }
 
-void GlRenderer3dUtils::depth_write_enable(
+void R3dGlUtils::depth_write_enable(
 	const bool is_enable)
 {
 	glDepthMask(is_enable);
-	GlError::ensure_debug();
+	R3dGlError::ensure_debug();
 }
 
-void GlRenderer3dUtils::blending_enable(
+void R3dGlUtils::blending_enable(
 	const bool is_enable)
 {
 	const auto gl_function = (is_enable ? glEnable : glDisable);
 
 	gl_function(GL_BLEND);
-	GlError::ensure_debug();
+	R3dGlError::ensure_debug();
 }
 
-void GlRenderer3dUtils::blending_set_func(
-	const Renderer3dBlendingFunc& blending_func)
+void R3dGlUtils::blending_set_func(
+	const R3dBlendingFunc& blending_func)
 {
 	auto gl_src_factor = blending_get_factor(blending_func.src_factor_);
 	auto gl_dst_factor = blending_get_factor(blending_func.dst_factor_);
 
 	glBlendFunc(gl_src_factor, gl_dst_factor);
-	GlError::ensure_debug();
+	R3dGlError::ensure_debug();
 }
 
-GLenum GlRenderer3dUtils::index_buffer_get_element_type_by_byte_depth(
+GLenum R3dGlUtils::index_buffer_get_element_type_by_byte_depth(
 	const int byte_depth)
 {
 	switch (byte_depth)
@@ -1068,8 +1068,8 @@ GLenum GlRenderer3dUtils::index_buffer_get_element_type_by_byte_depth(
 	}
 }
 
-void GlRenderer3dUtils::renderer_features_set(
-	Renderer3dDeviceFeatures& device_features)
+void R3dGlUtils::renderer_features_set(
+	R3dDeviceFeatures& device_features)
 {
 	// Max texture dimension.
 	//
@@ -1104,16 +1104,16 @@ void GlRenderer3dUtils::renderer_features_set(
 	device_features.viewport_max_height_ = gl_viewport_dimensions[1];
 }
 
-Renderer3dDeviceInfo GlRenderer3dUtils::device_info_get()
+R3dDeviceInfo R3dGlUtils::device_info_get()
 {
-	auto result = Renderer3dDeviceInfo{};
+	auto result = R3dDeviceInfo{};
 
 
 	// Name.
 	//
 	const auto gl_name = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
 
-	GlError::ensure_debug();
+	R3dGlError::ensure_debug();
 
 	if (gl_name != nullptr)
 	{
@@ -1125,7 +1125,7 @@ Renderer3dDeviceInfo GlRenderer3dUtils::device_info_get()
 	//
 	const auto gl_vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
 
-	GlError::ensure_debug();
+	R3dGlError::ensure_debug();
 
 	if (gl_vendor != nullptr)
 	{
@@ -1137,7 +1137,7 @@ Renderer3dDeviceInfo GlRenderer3dUtils::device_info_get()
 	//
 	const auto gl_version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
 
-	GlError::ensure_debug();
+	R3dGlError::ensure_debug();
 
 	if (gl_version != nullptr)
 	{
@@ -1150,7 +1150,7 @@ Renderer3dDeviceInfo GlRenderer3dUtils::device_info_get()
 	return result;
 }
 
-std::string GlRenderer3dUtils::get_log(
+std::string R3dGlUtils::get_log(
 	const bool is_shader,
 	const GLuint gl_name)
 {
@@ -1160,7 +1160,7 @@ std::string GlRenderer3dUtils::get_log(
 	auto size = GLint{};
 
 	gl_size_function(gl_name, GL_INFO_LOG_LENGTH, &size);
-	GlError::ensure_debug();
+	R3dGlError::ensure_debug();
 
 	auto result = std::string{};
 
@@ -1171,7 +1171,7 @@ std::string GlRenderer3dUtils::get_log(
 		auto info_size = GLsizei{};
 
 		gl_info_function(gl_name, size, &info_size, &result[0]);
-		GlError::ensure_debug();
+		R3dGlError::ensure_debug();
 
 		if (info_size <= 0)
 		{
@@ -1182,15 +1182,15 @@ std::string GlRenderer3dUtils::get_log(
 	return result;
 }
 
-GLenum GlRenderer3dUtils::filter_get_mag(
-	const Renderer3dFilterKind mag_filter)
+GLenum R3dGlUtils::filter_get_mag(
+	const R3dFilterKind mag_filter)
 {
 	switch (mag_filter)
 	{
-	case Renderer3dFilterKind::nearest:
+	case R3dFilterKind::nearest:
 		return GL_NEAREST;
 
-	case Renderer3dFilterKind::linear:
+	case R3dFilterKind::linear:
 		return GL_LINEAR;
 
 	default:
@@ -1198,19 +1198,19 @@ GLenum GlRenderer3dUtils::filter_get_mag(
 	}
 }
 
-GLenum GlRenderer3dUtils::filter_get_min(
-	const Renderer3dFilterKind min_filter,
-	const Renderer3dMipmapMode mipmap_mode)
+GLenum R3dGlUtils::filter_get_min(
+	const R3dFilterKind min_filter,
+	const R3dMipmapMode mipmap_mode)
 {
 	switch (mipmap_mode)
 	{
-	case Renderer3dMipmapMode::none:
+	case R3dMipmapMode::none:
 		switch (min_filter)
 		{
-		case Renderer3dFilterKind::nearest:
+		case R3dFilterKind::nearest:
 			return GL_NEAREST;
 
-		case Renderer3dFilterKind::linear:
+		case R3dFilterKind::linear:
 			return GL_LINEAR;
 
 		default:
@@ -1219,13 +1219,13 @@ GLenum GlRenderer3dUtils::filter_get_min(
 
 		break;
 
-	case Renderer3dMipmapMode::nearest:
+	case R3dMipmapMode::nearest:
 		switch (min_filter)
 		{
-		case Renderer3dFilterKind::nearest:
+		case R3dFilterKind::nearest:
 			return GL_NEAREST_MIPMAP_NEAREST;
 
-		case Renderer3dFilterKind::linear:
+		case R3dFilterKind::linear:
 			return GL_LINEAR_MIPMAP_NEAREST;
 
 		default:
@@ -1234,13 +1234,13 @@ GLenum GlRenderer3dUtils::filter_get_min(
 
 		break;
 
-	case Renderer3dMipmapMode::linear:
+	case R3dMipmapMode::linear:
 		switch (min_filter)
 		{
-		case Renderer3dFilterKind::nearest:
+		case R3dFilterKind::nearest:
 			return GL_NEAREST_MIPMAP_LINEAR;
 
-		case Renderer3dFilterKind::linear:
+		case R3dFilterKind::linear:
 			return GL_LINEAR_MIPMAP_LINEAR;
 
 		default:
@@ -1254,15 +1254,15 @@ GLenum GlRenderer3dUtils::filter_get_min(
 	}
 }
 
-GLenum GlRenderer3dUtils::address_mode_get(
-	const Renderer3dAddressMode address_mode)
+GLenum R3dGlUtils::address_mode_get(
+	const R3dAddressMode address_mode)
 {
 	switch (address_mode)
 	{
-	case Renderer3dAddressMode::clamp:
+	case R3dAddressMode::clamp:
 		return GL_CLAMP_TO_EDGE;
 
-	case Renderer3dAddressMode::repeat:
+	case R3dAddressMode::repeat:
 		return GL_REPEAT;
 
 	default:
@@ -1270,15 +1270,15 @@ GLenum GlRenderer3dUtils::address_mode_get(
 	}
 }
 
-GLenum GlRenderer3dUtils::texture_wrap_get_axis(
-	const Renderer3dTextureAxis texture_axis)
+GLenum R3dGlUtils::texture_wrap_get_axis(
+	const R3dTextureAxis texture_axis)
 {
 	switch (texture_axis)
 	{
-		case Renderer3dTextureAxis::u:
+		case R3dTextureAxis::u:
 			return GL_TEXTURE_WRAP_S;
 
-		case Renderer3dTextureAxis::v:
+		case R3dTextureAxis::v:
 			return GL_TEXTURE_WRAP_T;
 
 		default:
@@ -1286,24 +1286,24 @@ GLenum GlRenderer3dUtils::texture_wrap_get_axis(
 	}
 }
 
-GLenum GlRenderer3dUtils::blending_get_factor(
-	const Renderer3dBlendingFactor factor)
+GLenum R3dGlUtils::blending_get_factor(
+	const R3dBlendingFactor factor)
 {
 	switch (factor)
 	{
-		case Renderer3dBlendingFactor::zero:
+		case R3dBlendingFactor::zero:
 			return GL_ZERO;
 
-		case Renderer3dBlendingFactor::one:
+		case R3dBlendingFactor::one:
 			return GL_ONE;
 
-		case Renderer3dBlendingFactor::src_color:
+		case R3dBlendingFactor::src_color:
 			return GL_SRC_COLOR;
 
-		case Renderer3dBlendingFactor::src_alpha:
+		case R3dBlendingFactor::src_alpha:
 			return GL_SRC_ALPHA;
 
-		case Renderer3dBlendingFactor::one_minus_src_alpha:
+		case R3dBlendingFactor::one_minus_src_alpha:
 			return GL_ONE_MINUS_SRC_ALPHA;
 
 		default:
@@ -1312,7 +1312,7 @@ GLenum GlRenderer3dUtils::blending_get_factor(
 }
 
 //
-// GlRenderer3dUtils
+// R3dGlUtils
 // ==========================================================================
 
 

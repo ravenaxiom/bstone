@@ -42,37 +42,37 @@ namespace detail
 {
 
 
-class GlContext;
-using GlContextPtr = GlContext*;
+class R3dGlContext;
+using R3dGlContextPtr = R3dGlContext*;
 
 
 // ==========================================================================
-// GlVertexInputManager
+// R3dGlVertexInputMgr
 //
 
-class GlVertexInputManager
+class R3dGlVertexInputMgr
 {
 protected:
-	GlVertexInputManager() = default;
+	R3dGlVertexInputMgr() = default;
 
 
 public:
-	virtual ~GlVertexInputManager() = default;
+	virtual ~R3dGlVertexInputMgr() = default;
 
 
-	virtual GlContextPtr get_gl_context() const noexcept = 0;
+	virtual R3dGlContextPtr get_gl_context() const noexcept = 0;
 
 
-	virtual Renderer3dVertexInputUPtr create(
-		const Renderer3dVertexInputCreateParam& param) = 0;
+	virtual R3dVertexInputUPtr create(
+		const R3dVertexInputCreateParam& param) = 0;
 
 	virtual void notify_destroy(
-		const Renderer3dVertexInputPtr vertex_input) noexcept = 0;
+		const R3dVertexInputPtr vertex_input) noexcept = 0;
 
 	virtual void set(
-		const Renderer3dVertexInputPtr vertex_input) = 0;
+		const R3dVertexInputPtr vertex_input) = 0;
 
-	virtual Renderer3dBufferPtr get_current_index_buffer() const noexcept = 0;
+	virtual R3dBufferPtr get_current_index_buffer() const noexcept = 0;
 
 
 	virtual void enable_location(
@@ -82,28 +82,28 @@ public:
 	virtual void location_assign_begin() = 0;
 
 	virtual void location_assign_end() = 0;
-}; // GlVertexInputManager
+}; // R3dGlVertexInputMgr
 
-using GlVertexInputManagerPtr = GlVertexInputManager*;
-using GlVertexInputManagerUPtr = std::unique_ptr<GlVertexInputManager>;
+using R3dGlVertexInputMgrPtr = R3dGlVertexInputMgr*;
+using R3dGlVertexInputMgrUPtr = std::unique_ptr<R3dGlVertexInputMgr>;
 
 //
-// GlVertexInputManager
+// R3dGlVertexInputMgr
 // ==========================================================================
 
 
 // ==========================================================================
-// GlVertexInputManagerFactory
+// R3dGlVertexInputMgrFactory
 //
 
-struct GlVertexInputManagerFactory
+struct R3dGlVertexInputMgrFactory
 {
-	static GlVertexInputManagerUPtr create(
-		const GlContextPtr gl_context);
-}; // GlVertexInputManagerFactory
+	static R3dGlVertexInputMgrUPtr create(
+		const R3dGlContextPtr gl_context);
+}; // R3dGlVertexInputMgrFactory
 
 //
-// GlVertexInputManagerFactory
+// R3dGlVertexInputMgrFactory
 // ==========================================================================
 
 

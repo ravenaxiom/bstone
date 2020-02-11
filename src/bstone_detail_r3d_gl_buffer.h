@@ -42,51 +42,51 @@ namespace detail
 {
 
 
-class GlBufferManager;
-using GlBufferManagerPtr = GlBufferManager*;
+class R3dGlBufferMgr;
+using R3dGlBufferMgrPtr = R3dGlBufferMgr*;
 
 
 // =========================================================================
-// GlBuffer
+// R3dGlBuffer
 //
 
-class GlBuffer :
-	public Renderer3dBuffer
+class R3dGlBuffer :
+	public R3dBuffer
 {
 protected:
-	GlBuffer() = default;
+	R3dGlBuffer() = default;
 
 
 public:
-	~GlBuffer() override = default;
+	~R3dGlBuffer() override = default;
 
 
 	virtual void set(
 		const bool is_set) = 0;
-}; // GlBuffer
+}; // R3dGlBuffer
 
 
-using GlBufferPtr = GlBuffer*;
-using GlBufferUPtr = std::unique_ptr<GlBuffer>;
+using R3dGlBufferPtr = R3dGlBuffer*;
+using R3dGlBufferUPtr = std::unique_ptr<R3dGlBuffer>;
 
 //
-// GlBuffer
+// R3dGlBuffer
 // =========================================================================
 
 
 // =========================================================================
-// GlBufferFactory
+// R3dGlBufferFactory
 //
 
-struct GlBufferFactory
+struct R3dGlBufferFactory
 {
-	static GlBufferUPtr create(
-		const GlBufferManagerPtr gl_buffer_manager,
-		const Renderer3dBufferCreateParam& param);
-}; // GlBufferFactory
+	static R3dGlBufferUPtr create(
+		const R3dGlBufferMgrPtr gl_buffer_manager,
+		const R3dBufferCreateParam& param);
+}; // R3dGlBufferFactory
 
 //
-// GlBufferFactory
+// R3dGlBufferFactory
 // =========================================================================
 
 

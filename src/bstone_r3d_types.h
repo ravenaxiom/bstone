@@ -42,20 +42,20 @@ namespace bstone
 {
 
 
-using Renderer3dVec2 = std::array<float, 2>;
-using Renderer3dVec4 = std::array<float, 4>;
-using Renderer3dMat4 = std::array<float, 16>;
+using R3dVec2 = std::array<float, 2>;
+using R3dVec4 = std::array<float, 4>;
+using R3dMat4 = std::array<float, 16>;
 
 
-enum class Renderer3dKind
+enum class R3dKind
 {
 	gl_2_0,
 	gl_3_2_core,
 
 	gles_2_0,
-}; // Renderer3dKind
+}; // R3dKind
 
-enum class Renderer3dPrimitiveTopology
+enum class R3dPrimitiveTopology
 {
 	none,
 
@@ -66,69 +66,69 @@ enum class Renderer3dPrimitiveTopology
 
 	triangle_list,
 	triangle_strip,
-}; // Renderer3dPrimitiveTopology
+}; // R3dPrimitiveTopology
 
-enum class Renderer3dCullingFace
+enum class R3dCullingFace
 {
 	counter_clockwise,
 	clockwise,
-}; // Renderer3dCullingFace
+}; // R3dCullingFace
 
-enum class Renderer3dCullingMode
+enum class R3dCullingMode
 {
 	back,
 	front,
 	both,
-}; // Renderer3dCullingMode
+}; // R3dCullingMode
 
-enum class Renderer3dBlendingFactor
+enum class R3dBlendingFactor
 {
 	zero,
 	one,
 	src_color,
 	src_alpha,
 	one_minus_src_alpha,
-}; // Renderer3dBlendingFactor
+}; // R3dBlendingFactor
 
-enum class Renderer3dAaKind
+enum class R3dAaKind
 {
 	none,
 	ms,
-}; // Renderer3dAaKind
+}; // R3dAaKind
 
-enum class Renderer3dFilterKind
+enum class R3dFilterKind
 {
 	nearest,
 	linear,
-}; // Renderer3dFilterKind
+}; // R3dFilterKind
 
-enum class Renderer3dMipmapMode
+enum class R3dMipmapMode
 {
 	none,
 	nearest,
 	linear,
-}; // Renderer3dMipmapMode
+}; // R3dMipmapMode
 
-enum class Renderer3dAddressMode
+enum class R3dAddressMode
 {
 	clamp,
 	repeat,
-}; // Renderer3dAddressMode
+}; // R3dAddressMode
 
-enum class Renderer3dTextureAxis
+enum class R3dTextureAxis
 {
 	u,
 	v,
-}; // Renderer3dTextureAxis
+}; // R3dTextureAxis
 
-enum class Renderer3dPixelFormat
+enum class R3dPixelFormat
 {
 	none,
 	rgba_8_unorm,
-}; // Renderer3dPixelFormat
+}; // R3dPixelFormat
 
 
-struct Renderer3dViewport
+struct R3dViewport
 {
 	int x_;
 	int y_;
@@ -137,33 +137,33 @@ struct Renderer3dViewport
 
 	float min_depth_;
 	float max_depth_;
-}; // Renderer3dViewport
+}; // R3dViewport
 
-struct Renderer3dScissorBox
+struct R3dScissorBox
 {
 	int x_;
 	int y_;
 	int width_;
 	int height_;
-}; // Renderer3dScissorBox
+}; // R3dScissorBox
 
-struct Renderer3dBlendingFunc
+struct R3dBlendingFunc
 {
-	Renderer3dBlendingFactor src_factor_;
-	Renderer3dBlendingFactor dst_factor_;
-}; // Renderer3dBlendingFunc
+	R3dBlendingFactor src_factor_;
+	R3dBlendingFactor dst_factor_;
+}; // R3dBlendingFunc
 
-struct Renderer3dClearParam
+struct R3dClearParam
 {
 	Rgba8 color_;
-}; // Renderer3dClearParam
+}; // R3dClearParam
 
 
 // ==========================================================================
-// Renderer3dDeviceFeatures
+// R3dDeviceFeatures
 //
 
-struct Renderer3dDeviceFeatures
+struct R3dDeviceFeatures
 {
 	bool vsync_is_available_;
 	bool vsync_is_requires_restart_;
@@ -188,26 +188,26 @@ struct Renderer3dDeviceFeatures
 	int msaa_max_degree_;
 
 	int vertex_input_max_locations_;
-}; // Renderer3dDeviceFeatures
+}; // R3dDeviceFeatures
 
 //
-// Renderer3dDeviceFeatures
+// R3dDeviceFeatures
 // ==========================================================================
 
 
 // ==========================================================================
-// Renderer3dDeviceInfo
+// R3dDeviceInfo
 //
 
-struct Renderer3dDeviceInfo
+struct R3dDeviceInfo
 {
 	std::string name_;
 	std::string vendor_;
 	std::string version_;
-}; // Renderer3dDeviceInfo
+}; // R3dDeviceInfo
 
 //
-// Renderer3dDeviceInfo
+// R3dDeviceInfo
 // ==========================================================================
 
 

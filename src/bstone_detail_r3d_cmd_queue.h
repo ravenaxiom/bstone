@@ -42,43 +42,43 @@ namespace detail
 
 
 // ==========================================================================
-// Renderer3dCommandQueueImpl
+// R3dCmdQueueImpl
 //
 
-class Renderer3dCommandQueueImpl final :
-	public Renderer3dCommandQueue
+class R3dCmdQueueImpl final :
+	public R3dCmdQueue
 {
 public:
-	Renderer3dCommandQueueImpl();
+	R3dCmdQueueImpl();
 
-	~Renderer3dCommandQueueImpl() override;
+	~R3dCmdQueueImpl() override;
 
 
 	int get_count() const noexcept override;
 
-	bstone::Renderer3dCommandBufferPtr enqueue(
-		const Renderer3dCommandQueueEnqueueParam& param) override;
+	bstone::R3dCmdBufferPtr enqueue(
+		const R3dCmdQueueEnqueueParam& param) override;
 
 	void dequeue(
-		bstone::Renderer3dCommandBufferPtr buffer) override;
+		bstone::R3dCmdBufferPtr buffer) override;
 
-	bstone::Renderer3dCommandBufferPtr get(
+	bstone::R3dCmdBufferPtr get(
 		const int index) override;
 
 
 private:
-	Renderer3dCommandBuffersUPtr buffers_;
+	R3dCmdBuffersUPtr buffers_;
 
 
 	static void validate_param(
-		const Renderer3dCommandQueueEnqueueParam& param);
-}; // Renderer3dCommandQueueImpl
+		const R3dCmdQueueEnqueueParam& param);
+}; // R3dCmdQueueImpl
 
-using Renderer3dCommandQueueImplPtr = Renderer3dCommandQueueImpl*;
-using Renderer3dCommandQueueImplUPtr = std::unique_ptr<Renderer3dCommandQueueImpl>;
+using R3dCmdQueueImplPtr = R3dCmdQueueImpl*;
+using R3dCmdQueueImplUPtr = std::unique_ptr<R3dCmdQueueImpl>;
 
 //
-// Renderer3dCommandQueueImpl
+// R3dCmdQueueImpl
 // ==========================================================================
 
 

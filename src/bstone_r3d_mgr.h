@@ -38,28 +38,28 @@ namespace bstone
 {
 
 
-class Renderer3dManager
+class R3dMgr
 {
 protected:
-	Renderer3dManager() = default;
+	R3dMgr() = default;
 
 
 public:
-	virtual ~Renderer3dManager() = default;
+	virtual ~R3dMgr() = default;
 
 
-	virtual Renderer3dPtr renderer_initialize(
-		const Renderer3dCreateParam& param) = 0;
-}; // Renderer3dManager
+	virtual R3dPtr renderer_initialize(
+		const R3dCreateParam& param) = 0;
+}; // R3dMgr
 
-using Renderer3dManagerUPtr = std::unique_ptr<Renderer3dManager>;
+using R3dMgrUPtr = std::unique_ptr<R3dMgr>;
 
 
-class Renderer3dManagerFactory
+class R3dMgrFactory
 {
 public:
-	static Renderer3dManagerUPtr create();
-}; // Renderer3dManagerFactory
+	static R3dMgrUPtr create();
+}; // R3dMgrFactory
 
 
 } // bstone

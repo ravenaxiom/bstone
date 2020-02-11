@@ -39,131 +39,131 @@ namespace bstone
 {
 
 
-int Renderer3dShaderRegistry::get_a_position_location()
+int HwShaderRegistry::get_a_position_location()
 {
 	return 0;
 }
 
-int Renderer3dShaderRegistry::get_a_color_location()
+int HwShaderRegistry::get_a_color_location()
 {
 	return 1;
 }
 
-int Renderer3dShaderRegistry::get_a_tx_coords_location()
+int HwShaderRegistry::get_a_tx_coords_location()
 {
 	return 2;
 }
 
-const std::string& Renderer3dShaderRegistry::get_a_position_name()
+const std::string& HwShaderRegistry::get_a_position_name()
 {
 	static const auto result = std::string{"a_position"};
 
 	return result;
 }
 
-const std::string& Renderer3dShaderRegistry::get_a_color_name()
+const std::string& HwShaderRegistry::get_a_color_name()
 {
 	static const auto result = std::string{"a_color"};
 
 	return result;
 }
 
-const std::string& Renderer3dShaderRegistry::get_a_tx_coords_name()
+const std::string& HwShaderRegistry::get_a_tx_coords_name()
 {
 	static const auto result = std::string{"a_tx_coords"};
 
 	return result;
 }
 
-const std::string& Renderer3dShaderRegistry::get_u_model_mat_name()
+const std::string& HwShaderRegistry::get_u_model_mat_name()
 {
 	static const auto result = std::string{"u_model_mat"};
 
 	return result;
 }
 
-const std::string& Renderer3dShaderRegistry::get_u_view_mat_name()
+const std::string& HwShaderRegistry::get_u_view_mat_name()
 {
 	static const auto result = std::string{"u_view_mat"};
 
 	return result;
 }
 
-const std::string& Renderer3dShaderRegistry::get_u_projection_mat_name()
+const std::string& HwShaderRegistry::get_u_projection_mat_name()
 {
 	static const auto result = std::string{"u_projection_mat"};
 
 	return result;
 }
 
-const std::string& Renderer3dShaderRegistry::get_u_sampler_name()
+const std::string& HwShaderRegistry::get_u_sampler_name()
 {
 	static const auto result = std::string{"u_sampler"};
 
 	return result;
 }
 
-const std::string& Renderer3dShaderRegistry::get_u_shading_mode_name()
+const std::string& HwShaderRegistry::get_u_shading_mode_name()
 {
 	static const auto result = std::string{"u_shading_mode"};
 
 	return result;
 }
 
-const std::string& Renderer3dShaderRegistry::get_u_shade_max_name()
+const std::string& HwShaderRegistry::get_u_shade_max_name()
 {
 	static const auto result = std::string{"u_shade_max"};
 
 	return result;
 }
 
-const std::string& Renderer3dShaderRegistry::get_u_normal_shade_name()
+const std::string& HwShaderRegistry::get_u_normal_shade_name()
 {
 	static const auto result = std::string{"u_normal_shade"};
 
 	return result;
 }
 
-const std::string& Renderer3dShaderRegistry::get_u_height_numerator_name()
+const std::string& HwShaderRegistry::get_u_height_numerator_name()
 {
 	static const auto result = std::string{"u_height_numerator"};
 
 	return result;
 }
 
-const std::string& Renderer3dShaderRegistry::get_u_extra_lighting_name()
+const std::string& HwShaderRegistry::get_u_extra_lighting_name()
 {
 	static const auto result = std::string{"u_extra_lighting"};
 
 	return result;
 }
 
-const std::string& Renderer3dShaderRegistry::get_u_view_direction_name()
+const std::string& HwShaderRegistry::get_u_view_direction_name()
 {
 	static const auto result = std::string{"u_view_direction"};
 
 	return result;
 }
 
-const std::string& Renderer3dShaderRegistry::get_u_view_position_name()
+const std::string& HwShaderRegistry::get_u_view_position_name()
 {
 	static const auto result = std::string{"u_view_position"};
 
 	return result;
 }
 
-const Renderer3dShaderSource& Renderer3dShaderRegistry::get_fragment(
-	const Renderer3dKind renderer_kind)
+const R3dShaderSource& HwShaderRegistry::get_fragment(
+	const R3dKind renderer_kind)
 {
 	switch (renderer_kind)
 	{
-		case Renderer3dKind::gl_2_0:
+		case R3dKind::gl_2_0:
 			return get_fragment_gl_2();
 
-		case Renderer3dKind::gl_3_2_core:
+		case R3dKind::gl_3_2_core:
 			return get_fragment_gl_3_2_core();
 
-		case Renderer3dKind::gles_2_0:
+		case R3dKind::gles_2_0:
 			return get_fragment_gles_2_0();
 
 		default:
@@ -171,18 +171,18 @@ const Renderer3dShaderSource& Renderer3dShaderRegistry::get_fragment(
 	}
 }
 
-const Renderer3dShaderSource& Renderer3dShaderRegistry::get_vertex(
-	const Renderer3dKind renderer_kind)
+const R3dShaderSource& HwShaderRegistry::get_vertex(
+	const R3dKind renderer_kind)
 {
 	switch (renderer_kind)
 	{
-		case Renderer3dKind::gl_2_0:
+		case R3dKind::gl_2_0:
 			return get_vertex_gl_2();
 
-		case Renderer3dKind::gl_3_2_core:
+		case R3dKind::gl_3_2_core:
 			return get_vertex_gl_3_2_core();
 
-		case Renderer3dKind::gles_2_0:
+		case R3dKind::gles_2_0:
 			return get_vertex_gles_2_0();
 
 		default:
@@ -190,14 +190,14 @@ const Renderer3dShaderSource& Renderer3dShaderRegistry::get_vertex(
 	}
 }
 
-const Renderer3dShaderSource& Renderer3dShaderRegistry::get_empty()
+const R3dShaderSource& HwShaderRegistry::get_empty()
 {
-	static const auto result = Renderer3dShaderSource{};
+	static const auto result = R3dShaderSource{};
 
 	return result;
 }
 
-const Renderer3dShaderSource& Renderer3dShaderRegistry::get_fragment_gl_2()
+const R3dShaderSource& HwShaderRegistry::get_fragment_gl_2()
 {
 	static const auto source = std::string
 	{
@@ -297,7 +297,7 @@ void main()
 )FRAGMENT_SHADER"
 	};
 
-	static const auto result = Renderer3dShaderSource
+	static const auto result = R3dShaderSource
 	{
 		source.c_str(),
 		static_cast<int>(source.size()),
@@ -306,7 +306,7 @@ void main()
 	return result;
 }
 
-const Renderer3dShaderSource& Renderer3dShaderRegistry::get_vertex_gl_2()
+const R3dShaderSource& HwShaderRegistry::get_vertex_gl_2()
 {
 	static const auto source = std::string
 	{
@@ -342,7 +342,7 @@ void main()
 )VERTEX_SHADER"
 	};
 
-	static const auto result = Renderer3dShaderSource
+	static const auto result = R3dShaderSource
 	{
 		source.c_str(),
 		static_cast<int>(source.size()),
@@ -351,7 +351,7 @@ void main()
 	return result;
 }
 
-const Renderer3dShaderSource& Renderer3dShaderRegistry::get_fragment_gl_3_2_core()
+const R3dShaderSource& HwShaderRegistry::get_fragment_gl_3_2_core()
 {
 	static const auto source = std::string
 	{
@@ -454,7 +454,7 @@ void main()
 )FRAGMENT_SHADER"
 	};
 
-	static const auto result = Renderer3dShaderSource
+	static const auto result = R3dShaderSource
 	{
 		source.c_str(),
 		static_cast<int>(source.size()),
@@ -463,7 +463,7 @@ void main()
 	return result;
 }
 
-const Renderer3dShaderSource& Renderer3dShaderRegistry::get_vertex_gl_3_2_core()
+const R3dShaderSource& HwShaderRegistry::get_vertex_gl_3_2_core()
 {
 	static const auto source = std::string
 	{
@@ -499,7 +499,7 @@ void main()
 )VERTEX_SHADER"
 	};
 
-	static const auto result = Renderer3dShaderSource
+	static const auto result = R3dShaderSource
 	{
 		source.c_str(),
 		static_cast<int>(source.size()),
@@ -508,7 +508,7 @@ void main()
 	return result;
 }
 
-const Renderer3dShaderSource& Renderer3dShaderRegistry::get_fragment_gles_2_0()
+const R3dShaderSource& HwShaderRegistry::get_fragment_gles_2_0()
 {
 	static const auto source = std::string
 	{
@@ -610,7 +610,7 @@ void main()
 )FRAGMENT_SHADER"
 	};
 
-	static const auto result = Renderer3dShaderSource
+	static const auto result = R3dShaderSource
 	{
 		source.c_str(),
 		static_cast<int>(source.size()),
@@ -619,7 +619,7 @@ void main()
 	return result;
 }
 
-const Renderer3dShaderSource& Renderer3dShaderRegistry::get_vertex_gles_2_0()
+const R3dShaderSource& HwShaderRegistry::get_vertex_gles_2_0()
 {
 	static const auto source = std::string
 	{
@@ -655,7 +655,7 @@ void main()
 )VERTEX_SHADER"
 	};
 
-	static const auto result = Renderer3dShaderSource
+	static const auto result = R3dShaderSource
 	{
 		source.c_str(),
 		static_cast<int>(source.size()),

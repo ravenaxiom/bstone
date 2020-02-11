@@ -43,7 +43,7 @@ namespace detail
 {
 
 
-enum class GlExtensionId
+enum class R3dGlExtensionId
 {
 	// Virtual extensions.
 	//
@@ -84,17 +84,17 @@ enum class GlExtensionId
 
 	// Item count.
 	count_,
-}; // GlExtensionId
+}; // R3dGlExtensionId
 
 
-class GlExtensionManager
+class R3dGlExtensionMgr
 {
 protected:
-	GlExtensionManager() = default;
+	R3dGlExtensionMgr() = default;
 
 
 public:
-	virtual ~GlExtensionManager() = default;
+	virtual ~R3dGlExtensionMgr() = default;
 
 
 	virtual int get_count() const noexcept = 0;
@@ -104,24 +104,24 @@ public:
 
 
 	virtual void probe(
-		const GlExtensionId extension_id) = 0;
+		const R3dGlExtensionId extension_id) = 0;
 
 
 	virtual bool has(
-		const GlExtensionId extension_id) const noexcept = 0;
+		const R3dGlExtensionId extension_id) const noexcept = 0;
 
 	virtual bool operator[](
-		const GlExtensionId extension_id) const noexcept = 0;
-}; // GlExtensionManager
+		const R3dGlExtensionId extension_id) const noexcept = 0;
+}; // R3dGlExtensionMgr
 
-using GlExtensionManagerPtr = GlExtensionManager*;
-using GlExtensionManagerUPtr = std::unique_ptr<GlExtensionManager>;
+using R3dGlExtensionMgrPtr = R3dGlExtensionMgr*;
+using R3dGlExtensionMgrUPtr = std::unique_ptr<R3dGlExtensionMgr>;
 
 
-struct GlExtensionManagerFactory
+struct R3dGlExtensionMgrFactory
 {
-	static GlExtensionManagerUPtr create();
-}; // GlExtensionManagerFactory
+	static R3dGlExtensionMgrUPtr create();
+}; // R3dGlExtensionMgrFactory
 
 
 } // detail

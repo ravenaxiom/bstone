@@ -38,84 +38,84 @@ namespace bstone
 {
 
 
-struct Renderer3dDeviceFeatures;
+struct R3dDeviceFeatures;
 
-class Renderer3dBuffer;
-using Renderer3dBufferPtr = Renderer3dBuffer*;
+class R3dBuffer;
+using R3dBufferPtr = R3dBuffer*;
 
 
 namespace detail
 {
 
 
-class GlContext;
-using GlContextPtr = GlContext*;
+class R3dGlContext;
+using R3dGlContextPtr = R3dGlContext*;
 
-struct GlDeviceFeatures;
+struct R3dGlDeviceFeatures;
 
-class GlVao;
-using GlVaoPtr = GlVao*;
+class R3dGlVao;
+using R3dGlVaoPtr = R3dGlVao*;
 
 
 // ==========================================================================
-// GlVaoManager
+// R3dGlVaoMgr
 //
 
-class GlVaoManager
+class R3dGlVaoMgr
 {
 protected:
-	GlVaoManager() = default;
+	R3dGlVaoMgr() = default;
 
 
 public:
-	virtual ~GlVaoManager() = default;
+	virtual ~R3dGlVaoMgr() = default;
 
 
-	virtual GlContextPtr get_context() const noexcept = 0;
+	virtual R3dGlContextPtr get_context() const noexcept = 0;
 
-	virtual GlVaoPtr create() = 0;
+	virtual R3dGlVaoPtr create() = 0;
 
 	virtual void destroy(
-		const GlVaoPtr vao) = 0;
+		const R3dGlVaoPtr vao) = 0;
 
 	virtual void push_current_set_default() = 0;
 
 	virtual void pop() = 0;
 
 	virtual void bind(
-		const GlVaoPtr vao) = 0;
+		const R3dGlVaoPtr vao) = 0;
 
 	virtual bool set_current_index_buffer(
-		const Renderer3dBufferPtr index_buffer) = 0;
+		const R3dBufferPtr index_buffer) = 0;
 
 
 	virtual void enable_location(
 		const int location,
 		const bool is_enable) = 0;
-}; // GlVaoManager
+}; // R3dGlVaoMgr
 
-using GlVaoManagerPtr = GlVaoManager*;
-using GlVaoManagerUPtr = std::unique_ptr<GlVaoManager>;
+using R3dGlVaoMgrPtr = R3dGlVaoMgr*;
+using GlVaoMgrUPtr = std::unique_ptr<R3dGlVaoMgr>;
 
 //
-// GlVaoManager
+// R3dGlVaoMgr
 // ==========================================================================
 
 
 // ==========================================================================
-// GlVaoManagerFactory
+// GlVaoMgrFactory
 //
 
-struct GlVaoManagerFactory
+struct GlVaoMgrFactory
 {
-	static GlVaoManagerUPtr create(
-		const GlContextPtr gl_context,
-		const Renderer3dDeviceFeatures& device_features,
-		const GlDeviceFeatures& gl_device_features);
-}; // GlVaoManagerFactory
+	static GlVaoMgrUPtr create(
+		const R3dGlContextPtr gl_context,
+		const R3dDeviceFeatures& device_features,
+		const R3dGlDeviceFeatures& gl_device_features);
+}; // GlVaoMgrFactory
 
 //
-// GlVaoManagerFactory
+// GlVaoMgrFactory
 // ==========================================================================
 
 

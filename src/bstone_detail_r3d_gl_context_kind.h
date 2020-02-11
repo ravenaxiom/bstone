@@ -39,14 +39,14 @@ namespace detail
 {
 
 
-enum class GlContextKind
+enum class R3dGlContextKind
 {
 	invalid,
 	none,
 	core,
 	compatibility,
 	es,
-}; // GlContextKind
+}; // R3dGlContextKind
 
 
 } // detail

@@ -39,56 +39,56 @@ namespace bstone
 
 
 // ==========================================================================
-// Renderer3dCommandQueue
+// R3dCmdQueue
 //
 
-struct Renderer3dCommandQueueEnqueueParam
+struct R3dCmdQueueEnqueueParam
 {
 	int initial_size_;
 	int resize_delta_size_;
-}; // Renderer3dCommandQueueEnqueueParam
+}; // R3dCmdQueueEnqueueParam
 
-class Renderer3dCommandQueue
+class R3dCmdQueue
 {
 protected:
-	Renderer3dCommandQueue() = default;
+	R3dCmdQueue() = default;
 
 
 public:
-	virtual ~Renderer3dCommandQueue() = default;
+	virtual ~R3dCmdQueue() = default;
 
 
 	virtual int get_count() const noexcept = 0;
 
-	virtual Renderer3dCommandBufferPtr enqueue(
-		const Renderer3dCommandQueueEnqueueParam& param) = 0;
+	virtual R3dCmdBufferPtr enqueue(
+		const R3dCmdQueueEnqueueParam& param) = 0;
 
 	virtual void dequeue(
-		Renderer3dCommandBufferPtr set) = 0;
+		R3dCmdBufferPtr set) = 0;
 
-	virtual Renderer3dCommandBufferPtr get(
+	virtual R3dCmdBufferPtr get(
 		const int index) = 0;
-}; // Renderer3dCommandQueue
+}; // R3dCmdQueue
 
-using Renderer3dCommandQueuePtr = Renderer3dCommandQueue*;
-using Renderer3dCommandQueueUPtr = std::unique_ptr<Renderer3dCommandQueue>;
+using R3dCmdQueuePtr = R3dCmdQueue*;
+using R3dCmdQueueUPtr = std::unique_ptr<R3dCmdQueue>;
 
 //
-// Renderer3dCommandQueue
+// R3dCmdQueue
 // ==========================================================================
 
 
 // ==========================================================================
-// Renderer3dCommandQueueFactory
+// R3dCmdQueueFactory
 //
 
-struct Renderer3dCommandQueueFactory
+struct R3dCmdQueueFactory
 {
-	static Renderer3dCommandQueueUPtr create();
-}; // Renderer3dCommandQueueFactory
+	static R3dCmdQueueUPtr create();
+}; // R3dCmdQueueFactory
 
 //
-// Renderer3dCommandQueueFactory
+// R3dCmdQueueFactory
 // ==========================================================================
 
 

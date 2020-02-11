@@ -140,18 +140,18 @@ private:
 
 
 // ==========================================================================
-// GenericMtTaskManager
+// MtTaskMgrImpl
 //
 
-class GenericMtTaskManager :
-	public MtTaskManager
+class MtTaskMgrImpl :
+	public MtTaskMgr
 {
 public:
-	GenericMtTaskManager(
+	MtTaskMgrImpl(
 		const int concurrency_reserve,
 		const int max_task_count);
 
-	~GenericMtTaskManager() override;
+	~MtTaskMgrImpl() override;
 
 
 	int concurrency_get_max() const noexcept override;
@@ -200,13 +200,13 @@ private:
 
 	void mt_thread_func(
 		MtThread* mt_thread);
-}; // MtTaskManager
+}; // MtTaskMgr
 
-using GenericMtTaskManagerPtr = GenericMtTaskManager*;
-using GenericMtTaskManagerUPtr = std::unique_ptr<GenericMtTaskManager>;
+using MtTaskMgrImplPtr = MtTaskMgrImpl*;
+using MtTaskMgrImplUPtr = std::unique_ptr<MtTaskMgrImpl>;
 
 //
-// GenericMtTaskManager
+// MtTaskMgrImpl
 // ==========================================================================
 
 
@@ -397,23 +397,23 @@ MtTask::~MtTask() = default;
 
 
 // ==========================================================================
-// MtTaskManager
+// MtTaskMgr
 //
 
-MtTaskManager::MtTaskManager() = default;
+MtTaskMgr::MtTaskMgr() = default;
 
-MtTaskManager::~MtTaskManager() = default;
+MtTaskMgr::~MtTaskMgr() = default;
 
 //
-// MtTaskManager
+// MtTaskMgr
 // ==========================================================================
 
 
 // ==========================================================================
-// GenericMtTaskManager
+// MtTaskMgrImpl
 //
 
-GenericMtTaskManager::GenericMtTaskManager(
+MtTaskMgrImpl::MtTaskMgrImpl(
 	const int concurrency_reserve,
 	const int max_task_count)
 	:
@@ -427,27 +427,27 @@ GenericMtTaskManager::GenericMtTaskManager(
 	initialize();
 }
 
-GenericMtTaskManager::~GenericMtTaskManager()
+MtTaskMgrImpl::~MtTaskMgrImpl()
 {
 	uninitialize();
 }
 
-int GenericMtTaskManager::concurrency_get_max() const noexcept
+int MtTaskMgrImpl::concurrency_get_max() const noexcept
 {
 	return concurrency_max_;
 }
 
-int GenericMtTaskManager::concurrency_get() const noexcept
+int MtTaskMgrImpl::concurrency_get() const noexcept
 {
 	return concurrency_;
 }
 
-bool GenericMtTaskManager::has_concurrency() const noexcept
+bool MtTaskMgrImpl::has_concurrency() const noexcept
 {
 	return concurrency_ > 1;
 }
 
-void GenericMtTaskManager::add_tasks_and_wait_for_added(
+void MtTaskMgrImpl::add_tasks_and_wait_for_added(
 	MtTaskPtr* const mt_tasks,
 	const int mt_task_count)
 {
@@ -486,7 +486,7 @@ void GenericMtTaskManager::add_tasks_and_wait_for_added(
 	}
 }
 
-void GenericMtTaskManager::initialize_concurrency()
+void MtTaskMgrImpl::initialize_concurrency()
 {
 	concurrency_max_ = static_cast<int>(std::thread::hardware_concurrency());
 
@@ -508,7 +508,7 @@ void GenericMtTaskManager::initialize_concurrency()
 	}
 }
 
-void GenericMtTaskManager::initialize_threads()
+void MtTaskMgrImpl::initialize_threads()
 {
 	if (!has_concurrency())
 	{
@@ -522,17 +522,17 @@ void GenericMtTaskManager::initialize_threads()
 		mt_thread.is_failed_ = false;
 		mt_thread.exception_ = nullptr;
 
-		mt_thread.thread_ = std::move(std::thread{&GenericMtTaskManager::mt_thread_func, this, &mt_thread});
+		mt_thread.thread_ = std::move(std::thread{&MtTaskMgrImpl::mt_thread_func, this, &mt_thread});
 	}
 }
 
-void GenericMtTaskManager::initialize()
+void MtTaskMgrImpl::initialize()
 {
 	initialize_concurrency();
 	initialize_threads();
 }
 
-void GenericMtTaskManager::uninitialize()
+void MtTaskMgrImpl::uninitialize()
 {
 	mt_is_quit_ = true;
 
@@ -548,7 +548,7 @@ void GenericMtTaskManager::uninitialize()
 	}
 }
 
-void GenericMtTaskManager::mt_thread_func(
+void MtTaskMgrImpl::mt_thread_func(
 	MtThread* mt_thread)
 {
 	const auto sleep_duration_ms = std::chrono::milliseconds{1};
@@ -585,21 +585,21 @@ void GenericMtTaskManager::mt_thread_func(
 }
 
 //
-// GenericMtTaskManager
+// MtTaskMgrImpl
 // ==========================================================================
 
 
 // ==========================================================================
-// MtTaskManagerFactory
+// MtTaskMgrFactory
 
-MtTaskManagerUPtr MtTaskManagerFactory::create(
+MtTaskMgrUPtr MtTaskMgrFactory::create(
 	const int concurrency_reserve,
 	const int max_task_count)
 {
-	return std::make_unique<GenericMtTaskManager>(concurrency_reserve, max_task_count);
+	return std::make_unique<MtTaskMgrImpl>(concurrency_reserve, max_task_count);
 }
 
-// MtTaskManagerFactory
+// MtTaskMgrFactory
 // ==========================================================================
 
 

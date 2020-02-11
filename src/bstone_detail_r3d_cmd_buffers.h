@@ -43,32 +43,32 @@ namespace detail
 
 
 // ==========================================================================
-// Renderer3dCommandBuffers
+// R3dCmdBuffers
 //
 
-class Renderer3dCommandBuffers
+class R3dCmdBuffers
 {
 protected:
-	Renderer3dCommandBuffers() = default;
+	R3dCmdBuffers() = default;
 
 
 public:
-	using Iterator = Renderer3dCommandBufferUPtr*;
-	using CIterator = const Renderer3dCommandBufferUPtr*;
+	using Iterator = R3dCmdBufferUPtr*;
+	using CIterator = const R3dCmdBufferUPtr*;
 
 
-	virtual ~Renderer3dCommandBuffers() = default;
+	virtual ~R3dCmdBuffers() = default;
 
 
 	virtual int get_count() const noexcept = 0;
 
-	virtual bstone::Renderer3dCommandBufferPtr enqueue(
-		const Renderer3dCommandQueueEnqueueParam& param) = 0;
+	virtual bstone::R3dCmdBufferPtr enqueue(
+		const R3dCmdQueueEnqueueParam& param) = 0;
 
 	virtual void dequeue(
-		bstone::Renderer3dCommandBufferPtr buffer) = 0;
+		bstone::R3dCmdBufferPtr buffer) = 0;
 
-	virtual bstone::Renderer3dCommandBufferPtr get(
+	virtual bstone::R3dCmdBufferPtr get(
 		const int index) = 0;
 
 
@@ -79,27 +79,27 @@ public:
 	virtual Iterator end() noexcept = 0;
 
 	virtual CIterator cend() const noexcept = 0;
-}; // Renderer3dCommandBuffers
+}; // R3dCmdBuffers
 
-using Renderer3dCommandBuffersPtr = Renderer3dCommandBuffers*;
-using Renderer3dCommandBuffersUPtr = std::unique_ptr<Renderer3dCommandBuffers>;
+using R3dCmdBuffersPtr = R3dCmdBuffers*;
+using R3dCmdBuffersUPtr = std::unique_ptr<R3dCmdBuffers>;
 
 //
-// Renderer3dCommandBuffers
+// R3dCmdBuffers
 // ==========================================================================
 
 
 // ==========================================================================
-// Renderer3dCommandBuffersFactory
+// R3dCmdBuffersFactory
 //
 
-struct Renderer3dCommandBuffersFactory
+struct R3dCmdBuffersFactory
 {
-	static Renderer3dCommandBuffersUPtr create();
-}; // Renderer3dCommandBuffersFactory
+	static R3dCmdBuffersUPtr create();
+}; // R3dCmdBuffersFactory
 
 //
-// Renderer3dCommandBuffersFactory
+// R3dCmdBuffersFactory
 // ==========================================================================
 
 

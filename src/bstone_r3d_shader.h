@@ -42,40 +42,40 @@ namespace bstone
 // Shader
 //
 
-enum class Renderer3dShaderKind
+enum class R3dShaderKind
 {
 	none,
 	fragment,
 	vertex,
-}; // Renderer3dShaderKind
+}; // R3dShaderKind
 
-struct Renderer3dShaderSource
+struct R3dShaderSource
 {
 	const void* data_;
 	int size_;
 }; // Source
 
-struct Renderer3dShaderCreateParam
+struct R3dShaderCreateParam
 {
-	Renderer3dShaderKind kind_;
-	Renderer3dShaderSource source_;
+	R3dShaderKind kind_;
+	R3dShaderSource source_;
 }; // CreateParam
 
-class Renderer3dShader
+class R3dShader
 {
 protected:
-	Renderer3dShader() = default;
+	R3dShader() = default;
 
 
 public:
-	virtual ~Renderer3dShader() = default;
+	virtual ~R3dShader() = default;
 
 
-	virtual Renderer3dShaderKind get_kind() const noexcept = 0;
-}; // Renderer3dShader
+	virtual R3dShaderKind get_kind() const noexcept = 0;
+}; // R3dShader
 
-using Renderer3dShaderPtr = Renderer3dShader*;
-using Renderer3dShaderUPtr = std::unique_ptr<Renderer3dShader>;
+using R3dShaderPtr = R3dShader*;
+using R3dShaderUPtr = std::unique_ptr<R3dShader>;
 
 //
 // Shader

@@ -42,56 +42,56 @@ namespace detail
 {
 
 
-class GlContext;
-using GlContextPtr = GlContext*;
+class R3dGlContext;
+using R3dGlContextPtr = R3dGlContext*;
 
 
 // ==========================================================================
-// GlSamplerManager
+// R3dGlSamplerMgr
 //
 
-class GlSamplerManager
+class R3dGlSamplerMgr
 {
 protected:
-	GlSamplerManager() = default;
+	R3dGlSamplerMgr() = default;
 
 
 public:
-	virtual ~GlSamplerManager() = default;
+	virtual ~R3dGlSamplerMgr() = default;
 
 
-	virtual Renderer3dSamplerUPtr create(
-		const Renderer3dSamplerCreateParam& param) = 0;
+	virtual R3dSamplerUPtr create(
+		const R3dSamplerCreateParam& param) = 0;
 
 	virtual void notify_destroy(
-		const Renderer3dSamplerPtr sampler) noexcept = 0;
+		const R3dSamplerPtr sampler) noexcept = 0;
 
 	virtual void set(
-		const Renderer3dSamplerPtr sampler) = 0;
+		const R3dSamplerPtr sampler) = 0;
 
-	virtual const Renderer3dSamplerState& get_current_state() const noexcept = 0;
-}; // GlSamplerManager
+	virtual const R3dSamplerState& get_current_state() const noexcept = 0;
+}; // R3dGlSamplerMgr
 
-using GlSamplerManagerPtr = GlSamplerManager*;
-using GlSamplerManagerUPtr = std::unique_ptr<GlSamplerManager>;
+using R3dGlSamplerMgrPtr = R3dGlSamplerMgr*;
+using R3dGlSamplerMgrUPtr = std::unique_ptr<R3dGlSamplerMgr>;
 
 //
-// GlSamplerManager
+// R3dGlSamplerMgr
 // ==========================================================================
 
 
 // ==========================================================================
-// GlSamplerManagerFactory
+// R3dGlSamplerMgrFactory
 //
 
-struct GlSamplerManagerFactory
+struct R3dGlSamplerMgrFactory
 {
-	static GlSamplerManagerUPtr create(
-		const GlContextPtr gl_context);
-}; // GlSamplerManagerFactory
+	static R3dGlSamplerMgrUPtr create(
+		const R3dGlContextPtr gl_context);
+}; // R3dGlSamplerMgrFactory
 
 //
-// GlSamplerManagerFactory
+// R3dGlSamplerMgrFactory
 // ==========================================================================
 
 

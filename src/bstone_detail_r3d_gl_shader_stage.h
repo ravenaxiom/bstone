@@ -44,26 +44,26 @@ namespace detail
 {
 
 
-class GlShaderStageManager;
-using GlShaderStageManagerPtr = GlShaderStageManager*;
+class R3dGlShaderStageMgr;
+using R3dGlShaderStageMgrPtr = R3dGlShaderStageMgr*;
 
 
 // ==========================================================================
-// GlShaderStage
+// R3dGlShaderStage
 //
 
-class GlShaderStage :
-	public Renderer3dShaderStage
+class R3dGlShaderStage :
+	public R3dShaderStage
 {
 protected:
-	GlShaderStage() = default;
+	R3dGlShaderStage() = default;
 
 
 public:
-	~GlShaderStage() override = default;
+	~R3dGlShaderStage() override = default;
 
 
-	virtual GlShaderStageManagerPtr get_manager() const noexcept = 0;
+	virtual R3dGlShaderStageMgrPtr get_manager() const noexcept = 0;
 
 
 	virtual void set() = 0;
@@ -73,29 +73,29 @@ public:
 	virtual void detach_vertex_shader() = 0;
 
 	virtual GLuint get_gl_name() const noexcept = 0;
-}; // GlShaderStage
+}; // R3dGlShaderStage
 
-using GlShaderStagePtr = GlShaderStage*;
-using GlShaderStageUPtr = std::unique_ptr<GlShaderStage>;
+using R3dGlShaderStagePtr = R3dGlShaderStage*;
+using R3dGlShaderStageUPtr = std::unique_ptr<R3dGlShaderStage>;
 
 //
-// GlShaderStage
+// R3dGlShaderStage
 // ==========================================================================
 
 
 // ==========================================================================
-// GlShaderStageFactory
+// R3dGlShaderStageFactory
 //
 
-struct GlShaderStageFactory
+struct R3dGlShaderStageFactory
 {
-	static GlShaderStageUPtr create(
-		const GlShaderStageManagerPtr gl_shader_stage_manager,
-		const Renderer3dShaderStageCreateParam& param);
-}; // GlShaderStageFactory
+	static R3dGlShaderStageUPtr create(
+		const R3dGlShaderStageMgrPtr gl_shader_stage_manager,
+		const R3dShaderStageCreateParam& param);
+}; // R3dGlShaderStageFactory
 
 //
-// GlShaderStageFactory
+// R3dGlShaderStageFactory
 // ==========================================================================
 
 

@@ -45,58 +45,58 @@ namespace detail
 
 
 // ==========================================================================
-// GlSamplerManagerImpl
+// R3dGlSamplerMgrImpl
 //
 
-class GlSamplerManagerImpl final :
-	public GlSamplerManager
+class R3dGlSamplerMgrImpl final :
+	public R3dGlSamplerMgr
 {
 public:
-	GlSamplerManagerImpl(
-		const GlContextPtr gl_context);
+	R3dGlSamplerMgrImpl(
+		const R3dGlContextPtr gl_context);
 
-	~GlSamplerManagerImpl() override;
+	~R3dGlSamplerMgrImpl() override;
 
 
-	Renderer3dSamplerUPtr create(
-		const Renderer3dSamplerCreateParam& param) override;
+	R3dSamplerUPtr create(
+		const R3dSamplerCreateParam& param) override;
 
 	void notify_destroy(
-		const Renderer3dSamplerPtr sampler) noexcept override;
+		const R3dSamplerPtr sampler) noexcept override;
 
 	void set(
-		const Renderer3dSamplerPtr sampler) override;
+		const R3dSamplerPtr sampler) override;
 
-	const Renderer3dSamplerState& get_current_state() const noexcept override;
+	const R3dSamplerState& get_current_state() const noexcept override;
 
 
 private:
-	const GlContextPtr gl_context_;
-	const Renderer3dDeviceFeatures& device_features_;
+	const R3dGlContextPtr gl_context_;
+	const R3dDeviceFeatures& device_features_;
 
-	GlSamplerUPtr sampler_default_;
-	GlSamplerPtr sampler_current_;
+	R3dGlSamplerUPtr sampler_default_;
+	R3dGlSamplerPtr sampler_current_;
 
 
 	void initialize_default_sampler();
 
 	void set();
-}; // GlSamplerManagerImpl
+}; // R3dGlSamplerMgrImpl
 
-using GlSamplerManagerImplPtr = GlSamplerManagerImpl*;
-using GlSamplerManagerImplUPtr = std::unique_ptr<GlSamplerManagerImpl>;
+using R3dGlSamplerMgrImplPtr = R3dGlSamplerMgrImpl*;
+using R3dGlSamplerMgrImplUPtr = std::unique_ptr<R3dGlSamplerMgrImpl>;
 
 //
-// GlSamplerManagerImpl
+// R3dGlSamplerMgrImpl
 // ==========================================================================
 
 
 // ==========================================================================
-// GlSamplerManagerImpl
+// R3dGlSamplerMgrImpl
 //
 
-GlSamplerManagerImpl::GlSamplerManagerImpl(
-	const GlContextPtr gl_context)
+R3dGlSamplerMgrImpl::R3dGlSamplerMgrImpl(
+	const R3dGlContextPtr gl_context)
 	:
 	gl_context_{gl_context},
 	device_features_{gl_context_->get_device_features()},
@@ -113,16 +113,16 @@ GlSamplerManagerImpl::GlSamplerManagerImpl(
 	sampler_current_ = sampler_default_.get();
 }
 
-GlSamplerManagerImpl::~GlSamplerManagerImpl() = default;
+R3dGlSamplerMgrImpl::~R3dGlSamplerMgrImpl() = default;
 
-Renderer3dSamplerUPtr GlSamplerManagerImpl::create(
-	const Renderer3dSamplerCreateParam& param)
+R3dSamplerUPtr R3dGlSamplerMgrImpl::create(
+	const R3dSamplerCreateParam& param)
 {
-	return GlSamplerFactory::create(gl_context_, param);
+	return R3dGlSamplerFactory::create(gl_context_, param);
 }
 
-void GlSamplerManagerImpl::notify_destroy(
-	const Renderer3dSamplerPtr sampler) noexcept
+void R3dGlSamplerMgrImpl::notify_destroy(
+	const R3dSamplerPtr sampler) noexcept
 {
 	if (sampler_current_ == sampler)
 	{
@@ -137,8 +137,8 @@ void GlSamplerManagerImpl::notify_destroy(
 	}
 }
 
-void GlSamplerManagerImpl::set(
-	const Renderer3dSamplerPtr sampler)
+void R3dGlSamplerMgrImpl::set(
+	const R3dSamplerPtr sampler)
 {
 	if (!sampler)
 	{
@@ -150,23 +150,23 @@ void GlSamplerManagerImpl::set(
 		return;
 	}
 
-	sampler_current_ = static_cast<GlSamplerPtr>(sampler);
+	sampler_current_ = static_cast<R3dGlSamplerPtr>(sampler);
 	set();
 }
 
-const Renderer3dSamplerState& GlSamplerManagerImpl::get_current_state() const noexcept
+const R3dSamplerState& R3dGlSamplerMgrImpl::get_current_state() const noexcept
 {
 	return sampler_current_->get_state();
 }
 
-void GlSamplerManagerImpl::initialize_default_sampler()
+void R3dGlSamplerMgrImpl::initialize_default_sampler()
 {
-	const auto param = Renderer3dSamplerCreateParam{};
+	const auto param = R3dSamplerCreateParam{};
 
-	sampler_default_ = GlSamplerFactory::create(gl_context_, param);
+	sampler_default_ = R3dGlSamplerFactory::create(gl_context_, param);
 }
 
-void GlSamplerManagerImpl::set()
+void R3dGlSamplerMgrImpl::set()
 {
 	if (device_features_.sampler_is_available_)
 	{
@@ -181,22 +181,22 @@ void GlSamplerManagerImpl::set()
 }
 
 //
-// GlSamplerManagerImpl
+// R3dGlSamplerMgrImpl
 // ==========================================================================
 
 
 // ==========================================================================
-// GlSamplerManagerFactory
+// R3dGlSamplerMgrFactory
 //
 
-GlSamplerManagerUPtr GlSamplerManagerFactory::create(
-	const GlContextPtr gl_context)
+R3dGlSamplerMgrUPtr R3dGlSamplerMgrFactory::create(
+	const R3dGlContextPtr gl_context)
 {
-	return std::make_unique<GlSamplerManagerImpl>(gl_context);
+	return std::make_unique<R3dGlSamplerMgrImpl>(gl_context);
 }
 
 //
-// GlSamplerManagerFactory
+// R3dGlSamplerMgrFactory
 // ==========================================================================
 
 

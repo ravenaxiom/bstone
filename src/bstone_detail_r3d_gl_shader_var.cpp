@@ -50,29 +50,29 @@ namespace detail
 
 
 // ==========================================================================
-// GlShaderVar
+// R3dGlShaderVar
 //
 
-int GlShaderVar::get_unit_size(
-	const Renderer3dShaderVarTypeId type_id)
+int R3dGlShaderVar::get_unit_size(
+	const R3dShaderVarTypeId type_id)
 {
 	switch (type_id)
 	{
-		case Renderer3dShaderVarTypeId::int32:
-		case Renderer3dShaderVarTypeId::float32:
-		case Renderer3dShaderVarTypeId::sampler2d:
+		case R3dShaderVarTypeId::int32:
+		case R3dShaderVarTypeId::float32:
+		case R3dShaderVarTypeId::sampler2d:
 			return 4;
 
-		case Renderer3dShaderVarTypeId::vec2:
+		case R3dShaderVarTypeId::vec2:
 			return 2 * 4;
 
-		case Renderer3dShaderVarTypeId::vec3:
+		case R3dShaderVarTypeId::vec3:
 			return 3 * 4;
 
-		case Renderer3dShaderVarTypeId::vec4:
+		case R3dShaderVarTypeId::vec4:
 			return 4 * 4;
 
-		case Renderer3dShaderVarTypeId::mat4:
+		case R3dShaderVarTypeId::mat4:
 			return 4 * 4 * 4;
 
 		default:
@@ -81,7 +81,7 @@ int GlShaderVar::get_unit_size(
 }
 
 //
-// GlShaderVar
+// R3dGlShaderVar
 // ==========================================================================
 
 
@@ -90,19 +90,19 @@ int GlShaderVar::get_unit_size(
 //
 
 class GlShaderVarImpl final :
-	public GlShaderVar
+	public R3dGlShaderVar
 {
 public:
 	GlShaderVarImpl(
-		const GlShaderStagePtr shader_stage,
-		const GlShaderVarFactory::CreateParam& param);
+		const R3dGlShaderStagePtr shader_stage,
+		const R3dGlShaderVarFactory::CreateParam& param);
 
 	~GlShaderVarImpl() override;
 
 
-	Renderer3dShaderVarKind get_kind() const noexcept override;
+	R3dShaderVarKind get_kind() const noexcept override;
 
-	Renderer3dShaderVarTypeId get_type_id() const noexcept override;
+	R3dShaderVarTypeId get_type_id() const noexcept override;
 
 	int get_index() const noexcept override;
 
@@ -131,11 +131,11 @@ public:
 
 
 private:
-	const GlShaderStagePtr shader_stage_;
-	const GlDeviceFeatures& gl_device_features_;
+	const R3dGlShaderStagePtr shader_stage_;
+	const R3dGlDeviceFeatures& gl_device_features_;
 
-	Renderer3dShaderVarKind kind_;
-	Renderer3dShaderVarTypeId type_id_;
+	R3dShaderVarKind kind_;
+	R3dShaderVarTypeId type_id_;
 	int value_size_;
 	int index_;
 	std::string name_;
@@ -144,10 +144,10 @@ private:
 
 
 	void initialize(
-		const GlShaderVarFactory::CreateParam& param);
+		const R3dGlShaderVarFactory::CreateParam& param);
 
 	void set_value(
-		const Renderer3dShaderVarTypeId type_id,
+		const R3dShaderVarTypeId type_id,
 		const void* const value_data);
 
 	void set_value(
@@ -167,8 +167,8 @@ using GlShaderVarImplUPtr = std::unique_ptr<GlShaderVarImpl>;
 //
 
 GlShaderVarImpl::GlShaderVarImpl(
-	const GlShaderStagePtr shader_stage,
-	const GlShaderVarFactory::CreateParam& param)
+	const R3dGlShaderStagePtr shader_stage,
+	const R3dGlShaderVarFactory::CreateParam& param)
 	:
 	shader_stage_{shader_stage},
 	gl_device_features_{shader_stage->get_manager()->get_gl_context()->get_gl_device_features()},
@@ -185,12 +185,12 @@ GlShaderVarImpl::GlShaderVarImpl(
 
 GlShaderVarImpl::~GlShaderVarImpl() = default;
 
-Renderer3dShaderVarKind GlShaderVarImpl::get_kind() const noexcept
+R3dShaderVarKind GlShaderVarImpl::get_kind() const noexcept
 {
 	return kind_;
 }
 
-Renderer3dShaderVarTypeId GlShaderVarImpl::get_type_id() const noexcept
+R3dShaderVarTypeId GlShaderVarImpl::get_type_id() const noexcept
 {
 	return type_id_;
 }
@@ -213,41 +213,41 @@ int GlShaderVarImpl::get_input_index() const noexcept
 void GlShaderVarImpl::set_int(
 	const std::int32_t value)
 {
-	set_value(Renderer3dShaderVarTypeId::int32, &value);
+	set_value(R3dShaderVarTypeId::int32, &value);
 }
 
 void GlShaderVarImpl::set_float(
 	const float value)
 {
-	set_value(Renderer3dShaderVarTypeId::float32, &value);
+	set_value(R3dShaderVarTypeId::float32, &value);
 }
 
 void GlShaderVarImpl::set_vec2(
 	const float* const value)
 {
-	set_value(Renderer3dShaderVarTypeId::vec2, value);
+	set_value(R3dShaderVarTypeId::vec2, value);
 }
 
 void GlShaderVarImpl::set_vec4(
 	const float* const value)
 {
-	set_value(Renderer3dShaderVarTypeId::vec4, value);
+	set_value(R3dShaderVarTypeId::vec4, value);
 }
 
 void GlShaderVarImpl::set_mat4(
 	const float* const value)
 {
-	set_value(Renderer3dShaderVarTypeId::mat4, value);
+	set_value(R3dShaderVarTypeId::mat4, value);
 }
 
 void GlShaderVarImpl::set_sampler_2d(
 	const std::int32_t value)
 {
-	set_value(Renderer3dShaderVarTypeId::sampler2d, &value);
+	set_value(R3dShaderVarTypeId::sampler2d, &value);
 }
 
 void GlShaderVarImpl::initialize(
-	const GlShaderVarFactory::CreateParam& param)
+	const R3dGlShaderVarFactory::CreateParam& param)
 {
 	if (!shader_stage_)
 	{
@@ -264,7 +264,7 @@ void GlShaderVarImpl::initialize(
 }
 
 void GlShaderVarImpl::set_value(
-	const Renderer3dShaderVarTypeId type_id,
+	const R3dShaderVarTypeId type_id,
 	const void* const value_data)
 {
 	if (type_id != type_id_)
@@ -286,8 +286,8 @@ void GlShaderVarImpl::set_value(
 
 	switch (kind_)
 	{
-		case Renderer3dShaderVarKind::sampler:
-		case Renderer3dShaderVarKind::uniform:
+		case R3dShaderVarKind::sampler:
+		case R3dShaderVarKind::uniform:
 			break;
 
 		default:
@@ -315,8 +315,8 @@ void GlShaderVarImpl::set_value(
 
 	switch (type_id_)
 	{
-		case Renderer3dShaderVarTypeId::int32:
-		case Renderer3dShaderVarTypeId::sampler2d:
+		case R3dShaderVarTypeId::int32:
+		case R3dShaderVarTypeId::sampler2d:
 			if (gl_device_features_.sso_is_available_)
 			{
 				glProgramUniform1iv(
@@ -326,7 +326,7 @@ void GlShaderVarImpl::set_value(
 					static_cast<const GLint*>(value_data)
 				);
 
-				GlError::ensure_debug();
+				R3dGlError::ensure_debug();
 			}
 			else
 			{
@@ -336,12 +336,12 @@ void GlShaderVarImpl::set_value(
 					static_cast<const GLint*>(value_data)
 				);
 
-				GlError::ensure_debug();
+				R3dGlError::ensure_debug();
 			}
 
 			break;
 
-		case Renderer3dShaderVarTypeId::float32:
+		case R3dShaderVarTypeId::float32:
 			if (gl_device_features_.sso_is_available_)
 			{
 				glProgramUniform1fv(
@@ -351,7 +351,7 @@ void GlShaderVarImpl::set_value(
 					static_cast<const GLfloat*>(value_data)
 				);
 
-				GlError::ensure_debug();
+				R3dGlError::ensure_debug();
 			}
 			else
 			{
@@ -361,12 +361,12 @@ void GlShaderVarImpl::set_value(
 					static_cast<const GLfloat*>(value_data)
 				);
 
-				GlError::ensure_debug();
+				R3dGlError::ensure_debug();
 			}
 
 			break;
 
-		case Renderer3dShaderVarTypeId::vec2:
+		case R3dShaderVarTypeId::vec2:
 			if (gl_device_features_.sso_is_available_)
 			{
 				glProgramUniform2fv(
@@ -376,7 +376,7 @@ void GlShaderVarImpl::set_value(
 					static_cast<const GLfloat*>(value_data)
 				);
 
-				GlError::ensure_debug();
+				R3dGlError::ensure_debug();
 			}
 			else
 			{
@@ -386,12 +386,12 @@ void GlShaderVarImpl::set_value(
 					static_cast<const GLfloat*>(value_data)
 				);
 
-				GlError::ensure_debug();
+				R3dGlError::ensure_debug();
 			}
 
 			break;
 
-		case Renderer3dShaderVarTypeId::vec3:
+		case R3dShaderVarTypeId::vec3:
 			if (gl_device_features_.sso_is_available_)
 			{
 				glProgramUniform3fv(
@@ -401,7 +401,7 @@ void GlShaderVarImpl::set_value(
 					static_cast<const GLfloat*>(value_data)
 				);
 
-				GlError::ensure_debug();
+				R3dGlError::ensure_debug();
 			}
 			else
 			{
@@ -411,12 +411,12 @@ void GlShaderVarImpl::set_value(
 					static_cast<const GLfloat*>(value_data)
 				);
 
-				GlError::ensure_debug();
+				R3dGlError::ensure_debug();
 			}
 
 			break;
 
-		case Renderer3dShaderVarTypeId::vec4:
+		case R3dShaderVarTypeId::vec4:
 			if (gl_device_features_.sso_is_available_)
 			{
 				glProgramUniform4fv(
@@ -426,7 +426,7 @@ void GlShaderVarImpl::set_value(
 					static_cast<const GLfloat*>(value_data)
 				);
 
-				GlError::ensure_debug();
+				R3dGlError::ensure_debug();
 			}
 			else
 			{
@@ -436,12 +436,12 @@ void GlShaderVarImpl::set_value(
 					static_cast<const GLfloat*>(value_data)
 				);
 
-				GlError::ensure_debug();
+				R3dGlError::ensure_debug();
 			}
 
 			break;
 
-		case Renderer3dShaderVarTypeId::mat4:
+		case R3dShaderVarTypeId::mat4:
 			if (gl_device_features_.sso_is_available_)
 			{
 				glProgramUniformMatrix4fv(
@@ -452,7 +452,7 @@ void GlShaderVarImpl::set_value(
 					static_cast<const GLfloat*>(value_data)
 				);
 
-				GlError::ensure_debug();
+				R3dGlError::ensure_debug();
 			}
 			else
 			{
@@ -463,7 +463,7 @@ void GlShaderVarImpl::set_value(
 					static_cast<const GLfloat*>(value_data)
 				);
 
-				GlError::ensure_debug();
+				R3dGlError::ensure_debug();
 			}
 
 			break;
@@ -479,18 +479,18 @@ void GlShaderVarImpl::set_value(
 
 
 // ==========================================================================
-// GlShaderVarFactory
+// R3dGlShaderVarFactory
 //
 
-GlShaderVarUPtr GlShaderVarFactory::create(
-	const GlShaderStagePtr shader_stage,
-	const GlShaderVarFactory::CreateParam& param)
+R3dGlShaderVarUPtr R3dGlShaderVarFactory::create(
+	const R3dGlShaderStagePtr shader_stage,
+	const R3dGlShaderVarFactory::CreateParam& param)
 {
 	return std::make_unique<GlShaderVarImpl>(shader_stage, param);
 }
 
 //
-// GlShaderVarFactory
+// R3dGlShaderVarFactory
 // ==========================================================================
 
 

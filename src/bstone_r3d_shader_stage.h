@@ -45,63 +45,63 @@ namespace bstone
 
 
 // ==========================================================================
-// Renderer3dShaderStage
+// R3dShaderStage
 //
 
-struct Renderer3dShaderStageInputBinding
+struct R3dShaderStageInputBinding
 {
 	int index_;
 	std::string name_;
-}; // Renderer3dShaderStageInputBinding
+}; // R3dShaderStageInputBinding
 
-using Renderer3dShaderStageInputBindings = std::vector<Renderer3dShaderStageInputBinding>;
+using R3dShaderStageInputBindings = std::vector<R3dShaderStageInputBinding>;
 
 
-struct Renderer3dShaderStageCreateParam
+struct R3dShaderStageCreateParam
 {
-	Renderer3dShaderPtr fragment_shader_;
-	Renderer3dShaderPtr vertex_shader_;
-	Renderer3dShaderStageInputBindings input_bindings_;
-}; // Renderer3dShaderStageCreateParam
+	R3dShaderPtr fragment_shader_;
+	R3dShaderPtr vertex_shader_;
+	R3dShaderStageInputBindings input_bindings_;
+}; // R3dShaderStageCreateParam
 
 
-class Renderer3dShaderStage
+class R3dShaderStage
 {
 protected:
-	Renderer3dShaderStage() = default;
+	R3dShaderStage() = default;
 
 
 public:
-	virtual ~Renderer3dShaderStage() = default;
+	virtual ~R3dShaderStage() = default;
 
 
-	virtual Renderer3dShaderVarPtr find_var(
+	virtual R3dShaderVarPtr find_var(
 		const std::string& name) = 0;
 
-	virtual Renderer3dShaderVarInt32Ptr find_var_int32(
+	virtual R3dShaderVarInt32Ptr find_var_int32(
 		const std::string& name) = 0;
 
-	virtual Renderer3dShaderVarFloat32Ptr find_var_float32(
+	virtual R3dShaderVarFloat32Ptr find_var_float32(
 		const std::string& name) = 0;
 
-	virtual Renderer3dShaderVarVec2Ptr find_var_vec2(
+	virtual R3dShaderVarVec2Ptr find_var_vec2(
 		const std::string& name) = 0;
 
-	virtual Renderer3dShaderVarVec4Ptr find_var_vec4(
+	virtual R3dShaderVarVec4Ptr find_var_vec4(
 		const std::string& name) = 0;
 
-	virtual Renderer3dShaderVarMat4Ptr find_var_mat4(
+	virtual R3dShaderVarMat4Ptr find_var_mat4(
 		const std::string& name) = 0;
 
-	virtual Renderer3dShaderVarSampler2dPtr find_var_sampler_2d(
+	virtual R3dShaderVarSampler2dPtr find_var_sampler_2d(
 		const std::string& name) = 0;
-}; // Renderer3dShaderStage
+}; // R3dShaderStage
 
-using Renderer3dShaderStagePtr = Renderer3dShaderStage*;
-using Renderer3dShaderStageUPtr = std::unique_ptr<Renderer3dShaderStage>;
+using R3dShaderStagePtr = R3dShaderStage*;
+using R3dShaderStageUPtr = std::unique_ptr<R3dShaderStage>;
 
 //
-// Renderer3dShaderStage
+// R3dShaderStage
 // ==========================================================================
 
 

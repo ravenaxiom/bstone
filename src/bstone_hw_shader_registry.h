@@ -41,7 +41,7 @@ namespace bstone
 {
 
 
-class Renderer3dShaderRegistry
+class HwShaderRegistry
 {
 public:
 	static int get_a_position_location();
@@ -83,28 +83,28 @@ public:
 	static const std::string& get_u_view_position_name();
 
 
-	static const Renderer3dShaderSource& get_fragment(
-		const Renderer3dKind renderer_kind);
+	static const R3dShaderSource& get_fragment(
+		const R3dKind renderer_kind);
 
-	static const Renderer3dShaderSource& get_vertex(
-		const Renderer3dKind renderer_kind);
+	static const R3dShaderSource& get_vertex(
+		const R3dKind renderer_kind);
 
 
 private:
-	static const Renderer3dShaderSource& get_empty();
+	static const R3dShaderSource& get_empty();
 
-	static const Renderer3dShaderSource& get_fragment_gl_2();
+	static const R3dShaderSource& get_fragment_gl_2();
 
-	static const Renderer3dShaderSource& get_vertex_gl_2();
+	static const R3dShaderSource& get_vertex_gl_2();
 
-	static const Renderer3dShaderSource& get_fragment_gl_3_2_core();
+	static const R3dShaderSource& get_fragment_gl_3_2_core();
 
-	static const Renderer3dShaderSource& get_vertex_gl_3_2_core();
+	static const R3dShaderSource& get_vertex_gl_3_2_core();
 
-	static const Renderer3dShaderSource& get_fragment_gles_2_0();
+	static const R3dShaderSource& get_fragment_gles_2_0();
 
-	static const Renderer3dShaderSource& get_vertex_gles_2_0();
-}; // Renderer3dShaderRegistry
+	static const R3dShaderSource& get_vertex_gles_2_0();
+}; // HwShaderRegistry
 
 
 } // bstone

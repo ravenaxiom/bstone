@@ -56,41 +56,41 @@ namespace detail
 //
 
 class GlShaderStageImpl final :
-	public GlShaderStage
+	public R3dGlShaderStage
 {
 public:
 	GlShaderStageImpl(
-		const GlShaderStageManagerPtr gl_shader_stage_manager,
-		const Renderer3dShaderStageCreateParam& param);
+		const R3dGlShaderStageMgrPtr gl_shader_stage_manager,
+		const R3dShaderStageCreateParam& param);
 
 	~GlShaderStageImpl() override;
 
 
-	GlShaderStageManagerPtr get_manager() const noexcept override;
+	R3dGlShaderStageMgrPtr get_manager() const noexcept override;
 
 
 	void set() override;
 
 
-	Renderer3dShaderVarPtr find_var(
+	R3dShaderVarPtr find_var(
 		const std::string& name) override;
 
-	Renderer3dShaderVarInt32Ptr find_var_int32(
+	R3dShaderVarInt32Ptr find_var_int32(
 		const std::string& name) override;
 
-	Renderer3dShaderVarFloat32Ptr find_var_float32(
+	R3dShaderVarFloat32Ptr find_var_float32(
 		const std::string& name) override;
 
-	Renderer3dShaderVarVec2Ptr find_var_vec2(
+	R3dShaderVarVec2Ptr find_var_vec2(
 		const std::string& name) override;
 
-	Renderer3dShaderVarVec4Ptr find_var_vec4(
+	R3dShaderVarVec4Ptr find_var_vec4(
 		const std::string& name) override;
 
-	Renderer3dShaderVarMat4Ptr find_var_mat4(
+	R3dShaderVarMat4Ptr find_var_mat4(
 		const std::string& name) override;
 
-	Renderer3dShaderVarSampler2dPtr find_var_sampler_2d(
+	R3dShaderVarSampler2dPtr find_var_sampler_2d(
 		const std::string& name) override;
 
 
@@ -104,10 +104,10 @@ public:
 private:
 	using NameBuffer = std::vector<char>;
 
-	const GlShaderStageManagerPtr gl_shader_stage_manager_;
+	const R3dGlShaderStageMgrPtr gl_shader_stage_manager_;
 
-	GlShaderPtr fragment_shader_;
-	GlShaderPtr vertex_shader_;
+	R3dGlShaderPtr fragment_shader_;
+	R3dGlShaderPtr vertex_shader_;
 
 	static void shader_stage_resource_deleter(
 		const GLuint& gl_name) noexcept;
@@ -116,36 +116,36 @@ private:
 
 	ShaderStageResource gl_resource_;
 
-	using ShaderVars = std::vector<GlShaderVarUPtr>;
+	using ShaderVars = std::vector<R3dGlShaderVarUPtr>;
 	ShaderVars shader_vars_;
 
 
 	void validate_shader(
-		const Renderer3dShaderKind shader_kind,
-		const Renderer3dShaderPtr shader);
+		const R3dShaderKind shader_kind,
+		const R3dShaderPtr shader);
 
 	void validate_input_bindings(
-		const Renderer3dShaderStageInputBindings& input_bindings);
+		const R3dShaderStageInputBindings& input_bindings);
 
 	void validate_param(
-		const Renderer3dShaderStageCreateParam& param);
+		const R3dShaderStageCreateParam& param);
 
 	void set_input_bindings(
 		const GLuint gl_name,
-		const Renderer3dShaderStageInputBindings& input_bindings);
+		const R3dShaderStageInputBindings& input_bindings);
 
 	int get_var_count(
 		const GLuint gl_name);
 
 	void get_vars(
-		const Renderer3dShaderVarKind kind,
+		const R3dShaderVarKind kind,
 		const GLuint gl_name,
 		ShaderVars& shader_vars);
 
 	void check_input_bindings(
-		const Renderer3dShaderStageInputBindings& input_bindings);
+		const R3dShaderStageInputBindings& input_bindings);
 
-	Renderer3dShaderVarPtr find_var_internal(
+	R3dShaderVarPtr find_var_internal(
 		const std::string& name)
 	{
 		const auto end_it = shader_vars_.end();
@@ -169,7 +169,7 @@ private:
 
 	template<typename T>
 	T* find_var_internal(
-		const Renderer3dShaderVarTypeId type_id,
+		const R3dShaderVarTypeId type_id,
 		const std::string& name)
 	{
 		const auto end_it = shader_vars_.end();
@@ -205,8 +205,8 @@ using GlShaderStageImplUPtr = std::unique_ptr<GlShaderStageImpl>;
 //
 
 GlShaderStageImpl::GlShaderStageImpl(
-	const GlShaderStageManagerPtr gl_shader_stage_manager,
-	const Renderer3dShaderStageCreateParam& param)
+	const R3dGlShaderStageMgrPtr gl_shader_stage_manager,
+	const R3dShaderStageCreateParam& param)
 	:
 	gl_shader_stage_manager_{gl_shader_stage_manager},
 	fragment_shader_{},
@@ -228,29 +228,29 @@ GlShaderStageImpl::GlShaderStageImpl(
 		throw Exception{"Failed to create OpenGL program object."};
 	}
 
-	const auto fragment_shader = static_cast<GlShaderPtr>(param.fragment_shader_);
+	const auto fragment_shader = static_cast<R3dGlShaderPtr>(param.fragment_shader_);
 	glAttachShader(gl_resource_.get(), fragment_shader->get_gl_name());
-	GlError::ensure_debug();
+	R3dGlError::ensure_debug();
 
-	const auto vertex_shader = static_cast<GlShaderPtr>(param.vertex_shader_);
+	const auto vertex_shader = static_cast<R3dGlShaderPtr>(param.vertex_shader_);
 	glAttachShader(gl_resource_.get(), vertex_shader->get_gl_name());
-	GlError::ensure_debug();
+	R3dGlError::ensure_debug();
 
 	set_input_bindings(gl_resource_.get(), param.input_bindings_);
 
 	glLinkProgram(gl_resource_.get());
-	GlError::ensure_debug();
+	R3dGlError::ensure_debug();
 
 	auto link_status = GLint{};
 
 	glGetProgramiv(gl_resource_.get(), GL_LINK_STATUS, &link_status);
-	GlError::ensure_debug();
+	R3dGlError::ensure_debug();
 
 	if (link_status != GL_TRUE)
 	{
 		auto error_message = std::string{"Failed to link a program."};
 
-		const auto gl_log = GlRenderer3dUtils::get_log(false, gl_resource_.get());
+		const auto gl_log = R3dGlUtils::get_log(false, gl_resource_.get());
 
 		if (!gl_log.empty())
 		{
@@ -264,15 +264,15 @@ GlShaderStageImpl::GlShaderStageImpl(
 	const auto var_count = get_var_count(gl_resource_.get());
 	shader_vars_.reserve(var_count);
 
-	get_vars(Renderer3dShaderVarKind::attribute, gl_resource_.get(), shader_vars_);
+	get_vars(R3dShaderVarKind::attribute, gl_resource_.get(), shader_vars_);
 
 	// Note that "samplers" are included in uniforms.
-	get_vars(Renderer3dShaderVarKind::uniform, gl_resource_.get(), shader_vars_);
+	get_vars(R3dShaderVarKind::uniform, gl_resource_.get(), shader_vars_);
 
 	check_input_bindings(param.input_bindings_);
 
-	fragment_shader_ = static_cast<GlShaderPtr>(param.fragment_shader_);
-	vertex_shader_ = static_cast<GlShaderPtr>(param.vertex_shader_);
+	fragment_shader_ = static_cast<R3dGlShaderPtr>(param.fragment_shader_);
+	vertex_shader_ = static_cast<R3dGlShaderPtr>(param.vertex_shader_);
 }
 
 GlShaderStageImpl::~GlShaderStageImpl()
@@ -290,7 +290,7 @@ GlShaderStageImpl::~GlShaderStageImpl()
 	}
 }
 
-GlShaderStageManagerPtr GlShaderStageImpl::get_manager() const noexcept
+R3dGlShaderStageMgrPtr GlShaderStageImpl::get_manager() const noexcept
 {
 	return gl_shader_stage_manager_;
 }
@@ -298,67 +298,67 @@ GlShaderStageManagerPtr GlShaderStageImpl::get_manager() const noexcept
 void GlShaderStageImpl::set()
 {
 	glUseProgram(gl_resource_);
-	GlError::ensure_debug();
+	R3dGlError::ensure_debug();
 
 	gl_shader_stage_manager_->set_active(this);
 }
 
-Renderer3dShaderVarPtr GlShaderStageImpl::find_var(
+R3dShaderVarPtr GlShaderStageImpl::find_var(
 	const std::string& name)
 {
 	return find_var_internal(name);
 }
 
-Renderer3dShaderVarInt32Ptr GlShaderStageImpl::find_var_int32(
+R3dShaderVarInt32Ptr GlShaderStageImpl::find_var_int32(
 	const std::string& name)
 {
-	return find_var_internal<Renderer3dShaderVarInt32>(
-		Renderer3dShaderVarTypeId::int32,
+	return find_var_internal<R3dShaderVarInt32>(
+		R3dShaderVarTypeId::int32,
 		name
 	);
 }
 
-Renderer3dShaderVarFloat32Ptr GlShaderStageImpl::find_var_float32(
+R3dShaderVarFloat32Ptr GlShaderStageImpl::find_var_float32(
 	const std::string& name)
 {
-	return find_var_internal<Renderer3dShaderVarFloat32>(
-		Renderer3dShaderVarTypeId::float32,
+	return find_var_internal<R3dShaderVarFloat32>(
+		R3dShaderVarTypeId::float32,
 		name
 	);
 }
 
-Renderer3dShaderVarVec2Ptr GlShaderStageImpl::find_var_vec2(
+R3dShaderVarVec2Ptr GlShaderStageImpl::find_var_vec2(
 	const std::string& name)
 {
-	return find_var_internal<Renderer3dShaderVarVec2>(
-		Renderer3dShaderVarTypeId::vec2,
+	return find_var_internal<R3dShaderVarVec2>(
+		R3dShaderVarTypeId::vec2,
 		name
 	);
 }
 
-Renderer3dShaderVarVec4Ptr GlShaderStageImpl::find_var_vec4(
+R3dShaderVarVec4Ptr GlShaderStageImpl::find_var_vec4(
 	const std::string& name)
 {
-	return find_var_internal<Renderer3dShaderVarVec4>(
-		Renderer3dShaderVarTypeId::vec4,
+	return find_var_internal<R3dShaderVarVec4>(
+		R3dShaderVarTypeId::vec4,
 		name
 	);
 }
 
-Renderer3dShaderVarMat4Ptr GlShaderStageImpl::find_var_mat4(
+R3dShaderVarMat4Ptr GlShaderStageImpl::find_var_mat4(
 	const std::string& name)
 {
-	return find_var_internal<Renderer3dShaderVarMat4>(
-		Renderer3dShaderVarTypeId::mat4,
+	return find_var_internal<R3dShaderVarMat4>(
+		R3dShaderVarTypeId::mat4,
 		name
 	);
 }
 
-Renderer3dShaderVarSampler2dPtr GlShaderStageImpl::find_var_sampler_2d(
+R3dShaderVarSampler2dPtr GlShaderStageImpl::find_var_sampler_2d(
 	const std::string& name)
 {
-	return find_var_internal<Renderer3dShaderVarSampler2d>(
-		Renderer3dShaderVarTypeId::sampler2d,
+	return find_var_internal<R3dShaderVarSampler2d>(
+		R3dShaderVarTypeId::sampler2d,
 		name
 	);
 }
@@ -382,12 +382,12 @@ void GlShaderStageImpl::shader_stage_resource_deleter(
 	const GLuint& gl_name) noexcept
 {
 	glDeleteProgram(gl_name);
-	GlError::ensure_debug();
+	R3dGlError::ensure_debug();
 }
 
 void GlShaderStageImpl::validate_shader(
-	const Renderer3dShaderKind shader_kind,
-	const Renderer3dShaderPtr shader)
+	const R3dShaderKind shader_kind,
+	const R3dShaderPtr shader)
 {
 	if (!shader)
 	{
@@ -401,7 +401,7 @@ void GlShaderStageImpl::validate_shader(
 }
 
 void GlShaderStageImpl::validate_input_bindings(
-	const Renderer3dShaderStageInputBindings& input_bindings)
+	const R3dShaderStageInputBindings& input_bindings)
 {
 	if (input_bindings.empty())
 	{
@@ -471,21 +471,21 @@ void GlShaderStageImpl::validate_input_bindings(
 }
 
 void GlShaderStageImpl::validate_param(
-	const Renderer3dShaderStageCreateParam& param)
+	const R3dShaderStageCreateParam& param)
 {
-	validate_shader(Renderer3dShaderKind::fragment, param.fragment_shader_);
-	validate_shader(Renderer3dShaderKind::vertex, param.vertex_shader_);
+	validate_shader(R3dShaderKind::fragment, param.fragment_shader_);
+	validate_shader(R3dShaderKind::vertex, param.vertex_shader_);
 	validate_input_bindings(param.input_bindings_);
 }
 
 void GlShaderStageImpl::set_input_bindings(
 	const GLuint gl_name,
-	const Renderer3dShaderStageInputBindings& input_bindings)
+	const R3dShaderStageInputBindings& input_bindings)
 {
 	for (const auto& input_binding : input_bindings)
 	{
 		glBindAttribLocation(gl_name, input_binding.index_, input_binding.name_.c_str());
-		GlError::ensure_debug();
+		R3dGlError::ensure_debug();
 	}
 }
 
@@ -494,11 +494,11 @@ int GlShaderStageImpl::get_var_count(
 {
 	auto gl_vertex_attribute_count = GLint{};
 	glGetProgramiv(gl_name, GL_ACTIVE_ATTRIBUTES, &gl_vertex_attribute_count);
-	GlError::ensure_debug();
+	R3dGlError::ensure_debug();
 
 	auto gl_uniform_count = GLint{};
 	glGetProgramiv(gl_name, GL_ACTIVE_UNIFORMS, &gl_uniform_count);
-	GlError::ensure_debug();
+	R3dGlError::ensure_debug();
 
 	const auto result = static_cast<int>(gl_vertex_attribute_count + gl_uniform_count);
 
@@ -506,7 +506,7 @@ int GlShaderStageImpl::get_var_count(
 }
 
 void GlShaderStageImpl::get_vars(
-	const Renderer3dShaderVarKind kind,
+	const R3dShaderVarKind kind,
 	const GLuint gl_name,
 	ShaderVars& shader_vars)
 {
@@ -527,14 +527,14 @@ void GlShaderStageImpl::get_vars(
 
 	switch (kind)
 	{
-		case Renderer3dShaderVarKind::attribute:
+		case R3dShaderVarKind::attribute:
 			is_attribute = true;
 			gl_count_enum = GL_ACTIVE_ATTRIBUTES;
 			gl_max_length_enum = GL_ACTIVE_ATTRIBUTE_MAX_LENGTH;
 			gl_info_function = glGetActiveAttrib;
 			break;
 
-		case Renderer3dShaderVarKind::uniform:
+		case R3dShaderVarKind::uniform:
 			is_uniform = true;
 			gl_count_enum = GL_ACTIVE_UNIFORMS;
 			gl_max_length_enum = GL_ACTIVE_UNIFORM_MAX_LENGTH;
@@ -547,7 +547,7 @@ void GlShaderStageImpl::get_vars(
 
 	auto gl_count = GLint{};
 	glGetProgramiv(gl_name, gl_count_enum, &gl_count);
-	GlError::ensure_debug();
+	R3dGlError::ensure_debug();
 
 	if (gl_count <= 0)
 	{
@@ -556,7 +556,7 @@ void GlShaderStageImpl::get_vars(
 
 	auto gl_max_length = GLint{};
 	glGetProgramiv(gl_name, gl_max_length_enum, &gl_max_length);
-	GlError::ensure_debug();
+	R3dGlError::ensure_debug();
 
 	if (gl_max_length <= 0)
 	{
@@ -571,7 +571,7 @@ void GlShaderStageImpl::get_vars(
 		auto gl_length = GLsizei{};
 		auto gl_size = GLint{};
 		auto gl_type = GLenum{};
-		auto var_param = GlShaderVarFactory::CreateParam{};
+		auto var_param = R3dGlShaderVarFactory::CreateParam{};
 
 		gl_info_function(
 			gl_name,
@@ -583,7 +583,7 @@ void GlShaderStageImpl::get_vars(
 			name_buffer.data()
 		);
 
-		GlError::ensure_debug();
+		R3dGlError::ensure_debug();
 
 		if (gl_length <= 0)
 		{
@@ -603,37 +603,37 @@ void GlShaderStageImpl::get_vars(
 		}
 
 		bool is_sampler = false;
-		auto unit_type_id = Renderer3dShaderVarTypeId{};
+		auto unit_type_id = R3dShaderVarTypeId{};
 
 		switch (gl_type)
 		{
 			case GL_INT:
-				unit_type_id = Renderer3dShaderVarTypeId::int32;
+				unit_type_id = R3dShaderVarTypeId::int32;
 				break;
 
 			case GL_FLOAT:
-				unit_type_id = Renderer3dShaderVarTypeId::float32;
+				unit_type_id = R3dShaderVarTypeId::float32;
 				break;
 
 			case GL_FLOAT_VEC2:
-				unit_type_id = Renderer3dShaderVarTypeId::vec2;
+				unit_type_id = R3dShaderVarTypeId::vec2;
 				break;
 
 			case GL_FLOAT_VEC3:
-				unit_type_id = Renderer3dShaderVarTypeId::vec3;
+				unit_type_id = R3dShaderVarTypeId::vec3;
 				break;
 
 			case GL_FLOAT_VEC4:
-				unit_type_id = Renderer3dShaderVarTypeId::vec4;
+				unit_type_id = R3dShaderVarTypeId::vec4;
 				break;
 
 			case GL_FLOAT_MAT4:
-				unit_type_id = Renderer3dShaderVarTypeId::mat4;
+				unit_type_id = R3dShaderVarTypeId::mat4;
 				break;
 
 			case GL_SAMPLER_2D:
 				is_sampler = true;
-				unit_type_id = Renderer3dShaderVarTypeId::sampler2d;
+				unit_type_id = R3dShaderVarTypeId::sampler2d;
 				break;
 
 			default:
@@ -645,7 +645,7 @@ void GlShaderStageImpl::get_vars(
 		if (is_attribute)
 		{
 			input_index = glGetAttribLocation(gl_name, name_buffer.data());
-			GlError::ensure_debug();
+			R3dGlError::ensure_debug();
 
 			if (input_index < 0)
 			{
@@ -657,9 +657,9 @@ void GlShaderStageImpl::get_vars(
 			input_index = -1;
 		}
 
-		const auto new_kind = (is_sampler ? Renderer3dShaderVarKind::sampler : kind);
+		const auto new_kind = (is_sampler ? R3dShaderVarKind::sampler : kind);
 		const auto index = static_cast<int>(shader_vars.size());
-		const auto unit_size = GlShaderVar::get_unit_size(unit_type_id);
+		const auto unit_size = R3dGlShaderVar::get_unit_size(unit_type_id);
 		const auto value_size = unit_count * unit_size;
 
 		auto name = std::string{};
@@ -673,14 +673,14 @@ void GlShaderStageImpl::get_vars(
 		var_param.input_index_ = input_index;
 		var_param.gl_location_ = i;
 
-		auto var = GlShaderVarFactory::create(this, var_param);
+		auto var = R3dGlShaderVarFactory::create(this, var_param);
 
 		shader_vars.emplace_back(std::move(var));
 	}
 }
 
 void GlShaderStageImpl::check_input_bindings(
-	const Renderer3dShaderStageInputBindings& input_bindings)
+	const R3dShaderStageInputBindings& input_bindings)
 {
 	for (const auto& input_binding : input_bindings)
 	{
@@ -691,7 +691,7 @@ void GlShaderStageImpl::check_input_bindings(
 			throw Exception{"Vertex attribute not found."};
 		}
 
-		if (vertex_attribute->get_kind() != Renderer3dShaderVarKind::attribute)
+		if (vertex_attribute->get_kind() != R3dShaderVarKind::attribute)
 		{
 			throw Exception{"Not a vertex attribute."};
 		}
@@ -704,18 +704,18 @@ void GlShaderStageImpl::check_input_bindings(
 
 
 // ==========================================================================
-// GlShaderStageFactory
+// R3dGlShaderStageFactory
 //
 
-GlShaderStageUPtr GlShaderStageFactory::create(
-	const GlShaderStageManagerPtr gl_shader_stage_manager,
-	const Renderer3dShaderStageCreateParam& param)
+R3dGlShaderStageUPtr R3dGlShaderStageFactory::create(
+	const R3dGlShaderStageMgrPtr gl_shader_stage_manager,
+	const R3dShaderStageCreateParam& param)
 {
 	return std::make_unique<GlShaderStageImpl>(gl_shader_stage_manager, param);
 }
 
 //
-// GlShaderStageFactory
+// R3dGlShaderStageFactory
 // ==========================================================================
 
 

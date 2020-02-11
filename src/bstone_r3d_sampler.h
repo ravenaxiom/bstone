@@ -41,54 +41,54 @@ namespace bstone
 
 
 // ==========================================================================
-// Renderer3dSampler
+// R3dSampler
 //
 
-struct Renderer3dSamplerState
+struct R3dSamplerState
 {
-	Renderer3dFilterKind mag_filter_;
-	Renderer3dFilterKind min_filter_;
+	R3dFilterKind mag_filter_;
+	R3dFilterKind min_filter_;
 
-	Renderer3dMipmapMode mipmap_mode_;
+	R3dMipmapMode mipmap_mode_;
 
-	Renderer3dAddressMode address_mode_u_;
-	Renderer3dAddressMode address_mode_v_;
+	R3dAddressMode address_mode_u_;
+	R3dAddressMode address_mode_v_;
 
 	int anisotropy_;
-}; // Renderer3dSamplerState
+}; // R3dSamplerState
 
-struct Renderer3dSamplerCreateParam
+struct R3dSamplerCreateParam
 {
-	Renderer3dSamplerState state_;
-}; // Renderer3dSamplerCreateParam
+	R3dSamplerState state_;
+}; // R3dSamplerCreateParam
 
-struct Renderer3dSamplerUpdateParam
+struct R3dSamplerUpdateParam
 {
-	Renderer3dSamplerState state_;
-}; // Renderer3dSamplerUpdateParam
+	R3dSamplerState state_;
+}; // R3dSamplerUpdateParam
 
 
-class Renderer3dSampler
+class R3dSampler
 {
 protected:
-	Renderer3dSampler() = default;
+	R3dSampler() = default;
 
 
 public:
-	virtual ~Renderer3dSampler() = default;
+	virtual ~R3dSampler() = default;
 
 
 	virtual void update(
-		const Renderer3dSamplerUpdateParam& param) = 0;
+		const R3dSamplerUpdateParam& param) = 0;
 
-	virtual const Renderer3dSamplerState& get_state() const noexcept = 0;
-}; // Renderer3dSampler
+	virtual const R3dSamplerState& get_state() const noexcept = 0;
+}; // R3dSampler
 
-using Renderer3dSamplerPtr = Renderer3dSampler*;
-using Renderer3dSamplerUPtr = std::unique_ptr<Renderer3dSampler>;
+using R3dSamplerPtr = R3dSampler*;
+using R3dSamplerUPtr = std::unique_ptr<R3dSampler>;
 
 //
-// Renderer3dSampler
+// R3dSampler
 // ==========================================================================
 
 

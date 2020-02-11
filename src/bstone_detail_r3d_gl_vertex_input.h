@@ -42,51 +42,51 @@ namespace detail
 {
 
 
-class GlVertexInputManager;
-using GlVertexInputManagerPtr = GlVertexInputManager*;
+class R3dGlVertexInputMgr;
+using R3dGlVertexInputMgrPtr = R3dGlVertexInputMgr*;
 
 
 // =========================================================================
-// GlVertexInput
+// R3dGlVertexInput
 //
 
-class GlVertexInput :
-	public Renderer3dVertexInput
+class R3dGlVertexInput :
+	public R3dVertexInput
 {
 protected:
-	GlVertexInput() = default;
+	R3dGlVertexInput() = default;
 
 
 public:
-	~GlVertexInput() override = default;
+	~R3dGlVertexInput() override = default;
 
 
 	virtual void bind() = 0;
 
-	virtual Renderer3dBufferPtr get_index_buffer() const noexcept = 0;
+	virtual R3dBufferPtr get_index_buffer() const noexcept = 0;
 }; // VertexInput
 
-using GlVertexInputPtr = GlVertexInput*;
-using GlVertexInputUPtr = std::unique_ptr<GlVertexInput>;
+using R3dGlVertexInputPtr = R3dGlVertexInput*;
+using R3dGlVertexInputUPtr = std::unique_ptr<R3dGlVertexInput>;
 
 //
-// GlVertexInput
+// R3dGlVertexInput
 // =========================================================================
 
 
 // =========================================================================
-// GlVertexInputFactory
+// R3dGlVertexInputFactory
 //
 
-struct GlVertexInputFactory
+struct R3dGlVertexInputFactory
 {
-	static GlVertexInputUPtr create(
-		const GlVertexInputManagerPtr vertex_input_manager,
-		const Renderer3dVertexInputCreateParam& param);
-}; // GlVertexInputFactory
+	static R3dGlVertexInputUPtr create(
+		const R3dGlVertexInputMgrPtr vertex_input_manager,
+		const R3dVertexInputCreateParam& param);
+}; // R3dGlVertexInputFactory
 
 //
-// GlVertexInputFactory
+// R3dGlVertexInputFactory
 // =========================================================================
 
 

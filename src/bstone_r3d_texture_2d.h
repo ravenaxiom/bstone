@@ -41,48 +41,48 @@ namespace bstone
 
 
 // ==========================================================================
-// Renderer3dTexture2d
+// R3dTexture2d
 //
 
-struct Renderer3dTexture2dCreateParam
+struct R3dTexture2dCreateParam
 {
-	Renderer3dPixelFormat pixel_format_;
+	R3dPixelFormat pixel_format_;
 
 	int width_;
 	int height_;
 
 	int mipmap_count_;
-}; // Renderer3dTexture2dCreateParam
+}; // R3dTexture2dCreateParam
 
-struct Renderer3dTexture2dUpdateParam
+struct R3dTexture2dUpdateParam
 {
 	int mipmap_level_;
 
 	const void* image_;
-}; // Renderer3dTexture2dUpdateParam
+}; // R3dTexture2dUpdateParam
 
 
-class Renderer3dTexture2d
+class R3dTexture2d
 {
 protected:
-	Renderer3dTexture2d() = default;
+	R3dTexture2d() = default;
 
 
 public:
-	virtual ~Renderer3dTexture2d() = default;
+	virtual ~R3dTexture2d() = default;
 
 
 	virtual void update(
-		const Renderer3dTexture2dUpdateParam& param) = 0;
+		const R3dTexture2dUpdateParam& param) = 0;
 
 	virtual void generate_mipmaps() = 0;
-}; // Renderer3dTexture2d
+}; // R3dTexture2d
 
-using Renderer3dTexture2dPtr = Renderer3dTexture2d*;
-using Renderer3dTexture2dUPtr = std::unique_ptr<Renderer3dTexture2d>;
+using R3dTexture2dPtr = R3dTexture2d*;
+using R3dTexture2dUPtr = std::unique_ptr<R3dTexture2d>;
 
 //
-// Renderer3dTexture2d
+// R3dTexture2d
 // ==========================================================================
 
 

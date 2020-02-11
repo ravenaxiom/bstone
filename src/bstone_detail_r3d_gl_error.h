@@ -40,10 +40,10 @@ namespace detail
 
 
 // ==========================================================================
-// GlError
+// R3dGlError
 //
 
-struct GlError
+struct R3dGlError
 {
 	//
 	// Throws an exception on OpenGL error for any build.
@@ -54,10 +54,10 @@ struct GlError
 	// Throws an exception on OpenGL error for debug build.
 	//
 	static void ensure_debug();
-}; // GlError
+}; // R3dGlError
 
 //
-// GlError
+// R3dGlError
 // ==========================================================================
 
 

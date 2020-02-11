@@ -42,32 +42,32 @@ namespace detail
 
 
 // ==========================================================================
-// Renderer3dCommandBufferImplInitException
+// R3dCmdBufferImplInitException
 //
 
-class Renderer3dCommandBufferImplInitException :
+class R3dCmdBufferImplInitException :
 	public Exception
 {
 public:
-	explicit Renderer3dCommandBufferImplInitException(
+	explicit R3dCmdBufferImplInitException(
 		const char* const message)
 		:
 		Exception{std::string{"[R3D_CMD_BUF_INIT] "} + message}
 	{
 	}
-}; // Renderer3dCommandBufferImplInitException
+}; // R3dCmdBufferImplInitException
 
 //
-// Renderer3dCommandBufferImplInitException
+// R3dCmdBufferImplInitException
 // ==========================================================================
 
 
 // ==========================================================================
-// Renderer3dCommandBufferImpl
+// R3dCmdBufferImpl
 //
 
-Renderer3dCommandBufferImpl::Renderer3dCommandBufferImpl(
-	const Renderer3dCommandQueueEnqueueParam& param)
+R3dCmdBufferImpl::R3dCmdBufferImpl(
+	const R3dCmdQueueEnqueueParam& param)
 	:
 	is_enabled_{},
 	is_reading_{},
@@ -87,25 +87,25 @@ Renderer3dCommandBufferImpl::Renderer3dCommandBufferImpl(
 	data_.resize(size_);
 }
 
-Renderer3dCommandBufferImpl::~Renderer3dCommandBufferImpl() = default;
+R3dCmdBufferImpl::~R3dCmdBufferImpl() = default;
 
-int Renderer3dCommandBufferImpl::get_command_count() const noexcept
+int R3dCmdBufferImpl::get_command_count() const noexcept
 {
 	return command_count_;
 }
 
-bool Renderer3dCommandBufferImpl::is_enabled() const noexcept
+bool R3dCmdBufferImpl::is_enabled() const noexcept
 {
 	return is_enabled_;
 }
 
-void Renderer3dCommandBufferImpl::enable(
+void R3dCmdBufferImpl::enable(
 	const bool is_enabled)
 {
 	is_enabled_ = is_enabled;
 }
 
-void Renderer3dCommandBufferImpl::write_begin()
+void R3dCmdBufferImpl::write_begin()
 {
 	if (is_reading_)
 	{
@@ -122,7 +122,7 @@ void Renderer3dCommandBufferImpl::write_begin()
 	command_count_ = 0;
 }
 
-void Renderer3dCommandBufferImpl::write_end()
+void R3dCmdBufferImpl::write_end()
 {
 	if (is_reading_)
 	{
@@ -137,107 +137,107 @@ void Renderer3dCommandBufferImpl::write_end()
 	is_writing_ = false;
 }
 
-Renderer3dCommandClear* Renderer3dCommandBufferImpl::write_clear()
+R3dCmdClear* R3dCmdBufferImpl::write_clear()
 {
-	return write<Renderer3dCommandClear>(Renderer3dCommandId::clear);
+	return write<R3dCmdClear>(R3dCmdId::clear);
 }
 
-Renderer3dCommandViewport* Renderer3dCommandBufferImpl::write_viewport()
+R3dCmdViewport* R3dCmdBufferImpl::write_viewport()
 {
-	return write<Renderer3dCommandViewport>(Renderer3dCommandId::viewport);
+	return write<R3dCmdViewport>(R3dCmdId::viewport);
 }
 
-Renderer3dCommandScissor* Renderer3dCommandBufferImpl::write_scissor()
+R3dCmdScissor* R3dCmdBufferImpl::write_scissor()
 {
-	return write<Renderer3dCommandScissor>(Renderer3dCommandId::scissor);
+	return write<R3dCmdScissor>(R3dCmdId::scissor);
 }
 
-Renderer3dCommandScissorBox* Renderer3dCommandBufferImpl::write_scissor_box()
+R3dCmdScissorBox* R3dCmdBufferImpl::write_scissor_box()
 {
-	return write<Renderer3dCommandScissorBox>(Renderer3dCommandId::scissor_set_box);
+	return write<R3dCmdScissorBox>(R3dCmdId::scissor_set_box);
 }
 
-Renderer3dCommandCulling* Renderer3dCommandBufferImpl::write_culling()
+R3dCmdCulling* R3dCmdBufferImpl::write_culling()
 {
-	return write<Renderer3dCommandCulling>(Renderer3dCommandId::culling);
+	return write<R3dCmdCulling>(R3dCmdId::culling);
 }
 
-Renderer3dCommandDepthTest* Renderer3dCommandBufferImpl::write_depth_test()
+R3dCmdDepthTest* R3dCmdBufferImpl::write_depth_test()
 {
-	return write<Renderer3dCommandDepthTest>(Renderer3dCommandId::depth_set_test);
+	return write<R3dCmdDepthTest>(R3dCmdId::depth_set_test);
 }
 
-Renderer3dCommandDepthWrite* Renderer3dCommandBufferImpl::write_depth_write()
+R3dCmdDepthWrite* R3dCmdBufferImpl::write_depth_write()
 {
-	return write<Renderer3dCommandDepthWrite>(Renderer3dCommandId::depth_set_write);
+	return write<R3dCmdDepthWrite>(R3dCmdId::depth_set_write);
 }
 
-Renderer3dCommandBlending* Renderer3dCommandBufferImpl::write_blending()
+R3dCmdBlending* R3dCmdBufferImpl::write_blending()
 {
-	return write<Renderer3dCommandBlending>(Renderer3dCommandId::blending);
+	return write<R3dCmdBlending>(R3dCmdId::blending);
 }
 
-Renderer3dCommandBlendingFunc* Renderer3dCommandBufferImpl::write_blending_func()
+R3dCmdBlendingFunc* R3dCmdBufferImpl::write_blending_func()
 {
-	return write<Renderer3dCommandBlendingFunc>(Renderer3dCommandId::blending_func);
+	return write<R3dCmdBlendingFunc>(R3dCmdId::blending_func);
 }
 
-Renderer3dCommandTexture* Renderer3dCommandBufferImpl::write_texture()
+R3dCmdTexture* R3dCmdBufferImpl::write_texture()
 {
-	return write<Renderer3dCommandTexture>(Renderer3dCommandId::texture);
+	return write<R3dCmdTexture>(R3dCmdId::texture);
 }
 
-Renderer3dCommandSampler* Renderer3dCommandBufferImpl::write_sampler()
+R3dCmdSampler* R3dCmdBufferImpl::write_sampler()
 {
-	return write<Renderer3dCommandSampler>(Renderer3dCommandId::sampler);
+	return write<R3dCmdSampler>(R3dCmdId::sampler);
 }
 
-Renderer3dCommandVertexInput* Renderer3dCommandBufferImpl::write_vertex_input()
+R3dCmdVertexInput* R3dCmdBufferImpl::write_vertex_input()
 {
-	return write<Renderer3dCommandVertexInput>(Renderer3dCommandId::vertex_input);
+	return write<R3dCmdVertexInput>(R3dCmdId::vertex_input);
 }
 
-Renderer3dCommandShaderStage* Renderer3dCommandBufferImpl::write_shader_stage()
+R3dCmdShaderStage* R3dCmdBufferImpl::write_shader_stage()
 {
-	return write<Renderer3dCommandShaderStage>(Renderer3dCommandId::shader_stage);
+	return write<R3dCmdShaderStage>(R3dCmdId::shader_stage);
 }
 
-Renderer3dCommandShaderVarInt32* Renderer3dCommandBufferImpl::write_shader_var_int32()
+R3dCmdShaderVarInt32* R3dCmdBufferImpl::write_shader_var_int32()
 {
-	return write<Renderer3dCommandShaderVarInt32>(Renderer3dCommandId::shader_var_int32);
+	return write<R3dCmdShaderVarInt32>(R3dCmdId::shader_var_int32);
 }
 
-Renderer3dCommandShaderVarFloat32* Renderer3dCommandBufferImpl::write_shader_var_float32()
+R3dCmdShaderVarFloat32* R3dCmdBufferImpl::write_shader_var_float32()
 {
-	return write<Renderer3dCommandShaderVarFloat32>(Renderer3dCommandId::shader_var_float32);
+	return write<R3dCmdShaderVarFloat32>(R3dCmdId::shader_var_float32);
 }
 
-Renderer3dCommandShaderVarVec2* Renderer3dCommandBufferImpl::write_shader_var_vec2()
+R3dCmdShaderVarVec2* R3dCmdBufferImpl::write_shader_var_vec2()
 {
-	return write<Renderer3dCommandShaderVarVec2>(Renderer3dCommandId::shader_var_vec2);
+	return write<R3dCmdShaderVarVec2>(R3dCmdId::shader_var_vec2);
 }
 
-Renderer3dCommandShaderVarVec4* Renderer3dCommandBufferImpl::write_shader_var_vec4()
+R3dCmdShaderVarVec4* R3dCmdBufferImpl::write_shader_var_vec4()
 {
-	return write<Renderer3dCommandShaderVarVec4>(Renderer3dCommandId::shader_var_vec4);
+	return write<R3dCmdShaderVarVec4>(R3dCmdId::shader_var_vec4);
 }
 
-Renderer3dCommandShaderVarMat4* Renderer3dCommandBufferImpl::write_shader_var_mat4()
+R3dCmdShaderVarMat4* R3dCmdBufferImpl::write_shader_var_mat4()
 {
-	return write<Renderer3dCommandShaderVarMat4>(Renderer3dCommandId::shader_var_mat4);
+	return write<R3dCmdShaderVarMat4>(R3dCmdId::shader_var_mat4);
 }
 
-Renderer3dCommandShaderVarSampler2d* Renderer3dCommandBufferImpl::write_shader_var_sampler_2d()
+R3dCmdShaderVarSampler2d* R3dCmdBufferImpl::write_shader_var_sampler_2d()
 {
-	return write<Renderer3dCommandShaderVarSampler2d>(Renderer3dCommandId::shader_var_sampler_2d);
+	return write<R3dCmdShaderVarSampler2d>(R3dCmdId::shader_var_sampler_2d);
 }
 
-Renderer3dCommandDrawIndexed* Renderer3dCommandBufferImpl::write_draw_indexed()
+R3dCmdDrawIndexed* R3dCmdBufferImpl::write_draw_indexed()
 {
-	return write<Renderer3dCommandDrawIndexed>(Renderer3dCommandId::draw_indexed);
+	return write<R3dCmdDrawIndexed>(R3dCmdId::draw_indexed);
 }
 
-void Renderer3dCommandBufferImpl::read_begin()
+void R3dCmdBufferImpl::read_begin()
 {
 	if (is_reading_)
 	{
@@ -253,7 +253,7 @@ void Renderer3dCommandBufferImpl::read_begin()
 	read_offset_ = 0;
 }
 
-void Renderer3dCommandBufferImpl::read_end()
+void R3dCmdBufferImpl::read_end()
 {
 	if (!is_reading_)
 	{
@@ -273,133 +273,133 @@ void Renderer3dCommandBufferImpl::read_end()
 	is_reading_ = false;
 }
 
-Renderer3dCommandId Renderer3dCommandBufferImpl::read_command_id()
+R3dCmdId R3dCmdBufferImpl::read_command_id()
 {
-	const auto command_id = read<Renderer3dCommandId>();
+	const auto command_id = read<R3dCmdId>();
 
 	if (!command_id)
 	{
-		return Renderer3dCommandId::none;
+		return R3dCmdId::none;
 	}
 
 	return *command_id;
 }
 
-const Renderer3dCommandClear* Renderer3dCommandBufferImpl::read_clear()
+const R3dCmdClear* R3dCmdBufferImpl::read_clear()
 {
-	return read<Renderer3dCommandClear>();
+	return read<R3dCmdClear>();
 }
 
-const Renderer3dCommandViewport* Renderer3dCommandBufferImpl::read_viewport()
+const R3dCmdViewport* R3dCmdBufferImpl::read_viewport()
 {
-	return read<Renderer3dCommandViewport>();
+	return read<R3dCmdViewport>();
 }
 
-const Renderer3dCommandScissor* Renderer3dCommandBufferImpl::read_scissor()
+const R3dCmdScissor* R3dCmdBufferImpl::read_scissor()
 {
-	return read<Renderer3dCommandScissor>();
+	return read<R3dCmdScissor>();
 }
 
-const Renderer3dCommandScissorBox* Renderer3dCommandBufferImpl::read_scissor_box()
+const R3dCmdScissorBox* R3dCmdBufferImpl::read_scissor_box()
 {
-	return read<Renderer3dCommandScissorBox>();
+	return read<R3dCmdScissorBox>();
 }
 
-const Renderer3dCommandCulling* Renderer3dCommandBufferImpl::read_culling()
+const R3dCmdCulling* R3dCmdBufferImpl::read_culling()
 {
-	return read<Renderer3dCommandCulling>();
+	return read<R3dCmdCulling>();
 }
 
-const Renderer3dCommandDepthTest* Renderer3dCommandBufferImpl::read_depth_test()
+const R3dCmdDepthTest* R3dCmdBufferImpl::read_depth_test()
 {
-	return read<Renderer3dCommandDepthTest>();
+	return read<R3dCmdDepthTest>();
 }
 
-const Renderer3dCommandDepthWrite* Renderer3dCommandBufferImpl::read_depth_write()
+const R3dCmdDepthWrite* R3dCmdBufferImpl::read_depth_write()
 {
-	return read<Renderer3dCommandDepthWrite>();
+	return read<R3dCmdDepthWrite>();
 }
 
-const Renderer3dCommandBlending* Renderer3dCommandBufferImpl::read_blending()
+const R3dCmdBlending* R3dCmdBufferImpl::read_blending()
 {
-	return read<Renderer3dCommandBlending>();
+	return read<R3dCmdBlending>();
 }
 
-const Renderer3dCommandBlendingFunc* Renderer3dCommandBufferImpl::read_blending_func()
+const R3dCmdBlendingFunc* R3dCmdBufferImpl::read_blending_func()
 {
-	return read<Renderer3dCommandBlendingFunc>();
+	return read<R3dCmdBlendingFunc>();
 }
 
-const Renderer3dCommandTexture* Renderer3dCommandBufferImpl::read_texture()
+const R3dCmdTexture* R3dCmdBufferImpl::read_texture()
 {
-	return read<Renderer3dCommandTexture>();
+	return read<R3dCmdTexture>();
 }
 
-const Renderer3dCommandSampler* Renderer3dCommandBufferImpl::read_sampler()
+const R3dCmdSampler* R3dCmdBufferImpl::read_sampler()
 {
-	return read<Renderer3dCommandSampler>();
+	return read<R3dCmdSampler>();
 }
 
-const Renderer3dCommandVertexInput* Renderer3dCommandBufferImpl::read_vertex_input()
+const R3dCmdVertexInput* R3dCmdBufferImpl::read_vertex_input()
 {
-	return read<Renderer3dCommandVertexInput>();
+	return read<R3dCmdVertexInput>();
 }
 
-const Renderer3dCommandShaderStage* Renderer3dCommandBufferImpl::read_shader_stage()
+const R3dCmdShaderStage* R3dCmdBufferImpl::read_shader_stage()
 {
-	return read<Renderer3dCommandShaderStage>();
+	return read<R3dCmdShaderStage>();
 }
 
-const Renderer3dCommandShaderVarInt32* Renderer3dCommandBufferImpl::read_shader_var_int32()
+const R3dCmdShaderVarInt32* R3dCmdBufferImpl::read_shader_var_int32()
 {
-	return read<Renderer3dCommandShaderVarInt32>();
+	return read<R3dCmdShaderVarInt32>();
 }
 
-const Renderer3dCommandShaderVarFloat32* Renderer3dCommandBufferImpl::read_shader_var_float32()
+const R3dCmdShaderVarFloat32* R3dCmdBufferImpl::read_shader_var_float32()
 {
-	return read<Renderer3dCommandShaderVarFloat32>();
+	return read<R3dCmdShaderVarFloat32>();
 }
 
-const Renderer3dCommandShaderVarVec2* Renderer3dCommandBufferImpl::read_shader_var_vec2()
+const R3dCmdShaderVarVec2* R3dCmdBufferImpl::read_shader_var_vec2()
 {
-	return read<Renderer3dCommandShaderVarVec2>();
+	return read<R3dCmdShaderVarVec2>();
 }
 
-const Renderer3dCommandShaderVarVec4* Renderer3dCommandBufferImpl::read_shader_var_vec4()
+const R3dCmdShaderVarVec4* R3dCmdBufferImpl::read_shader_var_vec4()
 {
-	return read<Renderer3dCommandShaderVarVec4>();
+	return read<R3dCmdShaderVarVec4>();
 }
 
-const Renderer3dCommandShaderVarMat4* Renderer3dCommandBufferImpl::read_shader_var_mat4()
+const R3dCmdShaderVarMat4* R3dCmdBufferImpl::read_shader_var_mat4()
 {
-	return read<Renderer3dCommandShaderVarMat4>();
+	return read<R3dCmdShaderVarMat4>();
 }
 
-const Renderer3dCommandShaderVarSampler2d* Renderer3dCommandBufferImpl::read_shader_var_sampler_2d()
+const R3dCmdShaderVarSampler2d* R3dCmdBufferImpl::read_shader_var_sampler_2d()
 {
-	return read<Renderer3dCommandShaderVarSampler2d>();
+	return read<R3dCmdShaderVarSampler2d>();
 }
 
-const Renderer3dCommandDrawIndexed* Renderer3dCommandBufferImpl::read_draw_indexed()
+const R3dCmdDrawIndexed* R3dCmdBufferImpl::read_draw_indexed()
 {
-	return read<Renderer3dCommandDrawIndexed>();
+	return read<R3dCmdDrawIndexed>();
 }
 
-void Renderer3dCommandBufferImpl::validate_param(
-	const Renderer3dCommandQueueEnqueueParam& param)
+void R3dCmdBufferImpl::validate_param(
+	const R3dCmdQueueEnqueueParam& param)
 {
 	if (param.initial_size_ <= 0)
 	{
-		throw Renderer3dCommandBufferImplInitException{"Initial size out of range."};
+		throw R3dCmdBufferImplInitException{"Initial size out of range."};
 	}
 
 	if (param.resize_delta_size_ < 0)
 	{
-		throw Renderer3dCommandBufferImplInitException{"Resize delta out of range."};
+		throw R3dCmdBufferImplInitException{"Resize delta out of range."};
 	}
 }
 
-void Renderer3dCommandBufferImpl::resize_if_necessary(
+void R3dCmdBufferImpl::resize_if_necessary(
 	const int dst_delta_size)
 {
 	if (dst_delta_size <= 0)
@@ -418,7 +418,7 @@ void Renderer3dCommandBufferImpl::resize_if_necessary(
 }
 
 //
-// Renderer3dCommandBufferImpl
+// R3dCmdBufferImpl
 // ==========================================================================
 
 

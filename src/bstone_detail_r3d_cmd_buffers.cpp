@@ -44,48 +44,48 @@ namespace detail
 
 
 // ==========================================================================
-// Renderer3dCommandBuffersImplException
+// R3dCmdBuffersImplException
 //
 
-class Renderer3dCommandBuffersImplException :
+class R3dCmdBuffersImplException :
 	public Exception
 {
 public:
-	explicit Renderer3dCommandBuffersImplException(
+	explicit R3dCmdBuffersImplException(
 		const char* const message)
 		:
 		Exception{std::string{"[R3D_CMD_BUFS] "} + message}
 	{
 	}
-}; // Renderer3dCommandBuffersImplException
+}; // R3dCmdBuffersImplException
 
 //
-// Renderer3dCommandBuffersImplException
+// R3dCmdBuffersImplException
 // ==========================================================================
 
 
 // ==========================================================================
-// Renderer3dCommandBuffersImpl
+// R3dCmdBuffersImpl
 //
 
-class Renderer3dCommandBuffersImpl final :
-	public Renderer3dCommandBuffers
+class R3dCmdBuffersImpl final :
+	public R3dCmdBuffers
 {
 public:
-	Renderer3dCommandBuffersImpl();
+	R3dCmdBuffersImpl();
 
-	~Renderer3dCommandBuffersImpl() override = default;
+	~R3dCmdBuffersImpl() override = default;
 
 
 	int get_count() const noexcept override;
 
-	bstone::Renderer3dCommandBufferPtr enqueue(
-		const Renderer3dCommandQueueEnqueueParam& param) override;
+	bstone::R3dCmdBufferPtr enqueue(
+		const R3dCmdQueueEnqueueParam& param) override;
 
 	void dequeue(
-		const bstone::Renderer3dCommandBufferPtr buffer) override;
+		const bstone::R3dCmdBufferPtr buffer) override;
 
-	bstone::Renderer3dCommandBufferPtr get(
+	bstone::R3dCmdBufferPtr get(
 		const int index) override;
 
 
@@ -102,46 +102,46 @@ private:
 	static constexpr auto reserve_count = 16;
 
 
-	using Buffers = std::vector<Renderer3dCommandBufferUPtr>;
+	using Buffers = std::vector<R3dCmdBufferUPtr>;
 	Buffers buffers_;
-}; // Renderer3dCommandBuffersImpl
+}; // R3dCmdBuffersImpl
 
-using Renderer3dCommandBuffersImplPtr = Renderer3dCommandBuffersImpl*;
-using Renderer3dCommandBuffersImplUPtr = std::unique_ptr<Renderer3dCommandBuffersImpl>;
+using R3dCmdBuffersImplPtr = R3dCmdBuffersImpl*;
+using R3dCmdBuffersImplUPtr = std::unique_ptr<R3dCmdBuffersImpl>;
 
 //
-// Renderer3dCommandBuffersImpl
+// R3dCmdBuffersImpl
 // ==========================================================================
 
 
 // ==========================================================================
-// Renderer3dCommandBuffersImpl
+// R3dCmdBuffersImpl
 //
 
-Renderer3dCommandBuffersImpl::Renderer3dCommandBuffersImpl()
+R3dCmdBuffersImpl::R3dCmdBuffersImpl()
 	:
 	buffers_{}
 {
 	buffers_.reserve(reserve_count);
 }
 
-int Renderer3dCommandBuffersImpl::get_count() const noexcept
+int R3dCmdBuffersImpl::get_count() const noexcept
 {
 	return static_cast<int>(buffers_.size());
 }
 
-bstone::Renderer3dCommandBufferPtr Renderer3dCommandBuffersImpl::enqueue(
-	const Renderer3dCommandQueueEnqueueParam& param)
+bstone::R3dCmdBufferPtr R3dCmdBuffersImpl::enqueue(
+	const R3dCmdQueueEnqueueParam& param)
 {
-	auto buffer = std::make_unique<Renderer3dCommandBufferImpl>(param);
+	auto buffer = std::make_unique<R3dCmdBufferImpl>(param);
 
 	buffers_.push_back(std::move(buffer));
 
 	return buffers_.back().get();
 }
 
-void Renderer3dCommandBuffersImpl::dequeue(
-	const bstone::Renderer3dCommandBufferPtr buffer)
+void R3dCmdBuffersImpl::dequeue(
+	const bstone::R3dCmdBufferPtr buffer)
 {
 	if (!buffer)
 	{
@@ -158,53 +158,53 @@ void Renderer3dCommandBuffersImpl::dequeue(
 	));
 }
 
-bstone::Renderer3dCommandBufferPtr Renderer3dCommandBuffersImpl::get(
+bstone::R3dCmdBufferPtr R3dCmdBuffersImpl::get(
 	const int index)
 {
 	if (index < 0 || index >= get_count())
 	{
-		throw Renderer3dCommandBuffersImplException{"Index out of range."};
+		throw R3dCmdBuffersImplException{"Index out of range."};
 	}
 
 	return buffers_[index].get();
 }
 
-Renderer3dCommandBuffers::Iterator Renderer3dCommandBuffersImpl::begin() noexcept
+R3dCmdBuffers::Iterator R3dCmdBuffersImpl::begin() noexcept
 {
 	return buffers_.data();
 }
 
-Renderer3dCommandBuffers::CIterator Renderer3dCommandBuffersImpl::cbegin() const noexcept
+R3dCmdBuffers::CIterator R3dCmdBuffersImpl::cbegin() const noexcept
 {
 	return buffers_.data();
 }
 
-Renderer3dCommandBuffers::Iterator Renderer3dCommandBuffersImpl::end() noexcept
+R3dCmdBuffers::Iterator R3dCmdBuffersImpl::end() noexcept
 {
 	return buffers_.data() + buffers_.size();
 }
 
-Renderer3dCommandBuffers::CIterator Renderer3dCommandBuffersImpl::cend() const noexcept
+R3dCmdBuffers::CIterator R3dCmdBuffersImpl::cend() const noexcept
 {
 	return buffers_.data() + buffers_.size();
 }
 
 //
-// Renderer3dCommandBuffersImpl
+// R3dCmdBuffersImpl
 // ==========================================================================
 
 
 // ==========================================================================
-// Renderer3dCommandBuffersFactory
+// R3dCmdBuffersFactory
 //
 
-Renderer3dCommandBuffersUPtr Renderer3dCommandBuffersFactory::create()
+R3dCmdBuffersUPtr R3dCmdBuffersFactory::create()
 {
-	return std::make_unique<Renderer3dCommandBuffersImpl>();
+	return std::make_unique<R3dCmdBuffersImpl>();
 }
 
 //
-// Renderer3dCommandBuffersFactory
+// R3dCmdBuffersFactory
 // ==========================================================================
 
 

@@ -45,97 +45,97 @@ namespace detail
 
 
 // ==========================================================================
-// GlBufferManagerImplException
+// GlBufferMgrImplException
 //
 
-struct GlBufferManagerImplException :
+struct GlBufferMgrImplException :
 	public Exception
 {
-	explicit GlBufferManagerImplException(
+	explicit GlBufferMgrImplException(
 		const char* const message)
 		:
 		Exception{std::string{"[GL_BUF_MGR] "} + message}
 	{
 	}
-}; // GlBufferManagerImplException
+}; // GlBufferMgrImplException
 
 //
-// GlBufferManagerImplException
+// GlBufferMgrImplException
 // ==========================================================================
 
 
 // ==========================================================================
-// GlBufferManagerImplCreateException
+// GlBufferMgrImplCreateException
 //
 
-struct GlBufferManagerImplCreateException :
+struct GlBufferMgrImplCreateException :
 	public Exception
 {
-	explicit GlBufferManagerImplCreateException(
+	explicit GlBufferMgrImplCreateException(
 		const char* const message)
 		:
 		Exception{std::string{"[GL_BUF_MGR_INIT] "} + message}
 	{
 	}
-}; // GlBufferManagerImplCreateException
+}; // GlBufferMgrImplCreateException
 
 //
-// GlBufferManagerImplCreateException
+// GlBufferMgrImplCreateException
 // ==========================================================================
 
 
 // ==========================================================================
-// GlBufferManagerImpl
+// R3dGlBufferMgrImpl
 //
 
-class GlBufferManagerImpl final :
-	public GlBufferManager
+class R3dGlBufferMgrImpl final :
+	public R3dGlBufferMgr
 {
 public:
-	GlBufferManagerImpl(
-		const GlContextPtr gl_context,
-		const GlVaoManagerPtr gl_vao_manager);
+	R3dGlBufferMgrImpl(
+		const R3dGlContextPtr gl_context,
+		const R3dGlVaoMgrPtr gl_vao_manager);
 
-	~GlBufferManagerImpl() override;
-
-
-	GlContextPtr get_context() const noexcept override;
+	~R3dGlBufferMgrImpl() override;
 
 
-	Renderer3dBufferUPtr buffer_create(
-		const Renderer3dBufferCreateParam& param) override;
+	R3dGlContextPtr get_context() const noexcept override;
+
+
+	R3dBufferUPtr buffer_create(
+		const R3dBufferCreateParam& param) override;
 
 	void buffer_notify_destroy(
-		const Renderer3dBufferPtr buffer) noexcept override;
+		const R3dBufferPtr buffer) noexcept override;
 
 
 	bool buffer_set_current(
-		const Renderer3dBufferKind buffer_kind,
-		const Renderer3dBufferPtr index_buffer) override;
+		const R3dBufferKind buffer_kind,
+		const R3dBufferPtr index_buffer) override;
 
 
 private:
-	const GlContextPtr gl_context_;
-	const GlVaoManagerPtr gl_vao_manager_;
+	const R3dGlContextPtr gl_context_;
+	const R3dGlVaoMgrPtr gl_vao_manager_;
 
-	Renderer3dBufferPtr vertex_buffer_current_;
-}; // GlBufferManagerImpl
+	R3dBufferPtr vertex_buffer_current_;
+}; // R3dGlBufferMgrImpl
 
-using GlBufferManagerImplPtr = GlBufferManagerImpl*;
-using GlBufferManagerImplUPtr = std::unique_ptr<GlBufferManagerImpl>;
+using R3dGlBufferMgrImplPtr = R3dGlBufferMgrImpl*;
+using R3dGlBufferMgrImplUPtr = std::unique_ptr<R3dGlBufferMgrImpl>;
 
 //
-// GlBufferManagerImpl
+// R3dGlBufferMgrImpl
 // ==========================================================================
 
 
 // ==========================================================================
-// GlBufferManagerImpl
+// R3dGlBufferMgrImpl
 //
 
-GlBufferManagerImpl::GlBufferManagerImpl(
-	const GlContextPtr gl_context,
-	const GlVaoManagerPtr gl_vao_manager)
+R3dGlBufferMgrImpl::R3dGlBufferMgrImpl(
+	const R3dGlContextPtr gl_context,
+	const R3dGlVaoMgrPtr gl_vao_manager)
 	:
 	gl_context_{gl_context},
 	gl_vao_manager_{gl_vao_manager},
@@ -143,30 +143,30 @@ GlBufferManagerImpl::GlBufferManagerImpl(
 {
 	if (!gl_context_)
 	{
-		throw GlBufferManagerImplCreateException{"Null context."};
+		throw GlBufferMgrImplCreateException{"Null context."};
 	}
 
 	if (!gl_vao_manager_)
 	{
-		throw GlBufferManagerImplCreateException{"Null VAO manager."};
+		throw GlBufferMgrImplCreateException{"Null VAO manager."};
 	}
 }
 
-GlBufferManagerImpl::~GlBufferManagerImpl() = default;
+R3dGlBufferMgrImpl::~R3dGlBufferMgrImpl() = default;
 
-GlContextPtr GlBufferManagerImpl::get_context() const noexcept
+R3dGlContextPtr R3dGlBufferMgrImpl::get_context() const noexcept
 {
 	return gl_context_;
 }
 
-Renderer3dBufferUPtr GlBufferManagerImpl::buffer_create(
-	const Renderer3dBufferCreateParam& param)
+R3dBufferUPtr R3dGlBufferMgrImpl::buffer_create(
+	const R3dBufferCreateParam& param)
 {
-	return GlBufferFactory::create(this, param);
+	return R3dGlBufferFactory::create(this, param);
 }
 
-void GlBufferManagerImpl::buffer_notify_destroy(
-	const Renderer3dBufferPtr buffer) noexcept
+void R3dGlBufferMgrImpl::buffer_notify_destroy(
+	const R3dBufferPtr buffer) noexcept
 {
 	if (vertex_buffer_current_ == buffer)
 	{
@@ -174,29 +174,29 @@ void GlBufferManagerImpl::buffer_notify_destroy(
 	}
 }
 
-bool GlBufferManagerImpl::buffer_set_current(
-	const Renderer3dBufferKind buffer_kind,
-	const Renderer3dBufferPtr buffer)
+bool R3dGlBufferMgrImpl::buffer_set_current(
+	const R3dBufferKind buffer_kind,
+	const R3dBufferPtr buffer)
 {
-	Renderer3dBufferPtr* buffer_current_ptr = nullptr;
+	R3dBufferPtr* buffer_current_ptr = nullptr;
 
 	switch (buffer_kind)
 	{
-		case Renderer3dBufferKind::index:
+		case R3dBufferKind::index:
 			return gl_vao_manager_->set_current_index_buffer(buffer);
 
-		case Renderer3dBufferKind::vertex:
+		case R3dBufferKind::vertex:
 			buffer_current_ptr = &vertex_buffer_current_;
 
 			break;
 
 		default:
-			throw GlBufferManagerImplException{"Unsupported buffer kind."};
+			throw GlBufferMgrImplException{"Unsupported buffer kind."};
 	}
 
 	if (!buffer_current_ptr)
 	{
-		throw GlBufferManagerImplException{"Null current buffer."};
+		throw GlBufferMgrImplException{"Null current buffer."};
 	}
 
 	if (*buffer_current_ptr == buffer)
@@ -210,23 +210,23 @@ bool GlBufferManagerImpl::buffer_set_current(
 }
 
 //
-// GlBufferManagerImpl
+// R3dGlBufferMgrImpl
 // ==========================================================================
 
 
 // ==========================================================================
-// GlBufferManagerFactory
+// R3dGlBufferMgrFactory
 //
 
-GlBufferManagerUPtr GlBufferManagerFactory::create(
-	const GlContextPtr gl_context,
-	const GlVaoManagerPtr gl_vao_manager)
+R3dGlBufferMgrUPtr R3dGlBufferMgrFactory::create(
+	const R3dGlContextPtr gl_context,
+	const R3dGlVaoMgrPtr gl_vao_manager)
 {
-	return std::make_unique<GlBufferManagerImpl>(gl_context, gl_vao_manager);
+	return std::make_unique<R3dGlBufferMgrImpl>(gl_context, gl_vao_manager);
 }
 
 //
-// GlBufferManagerFactory
+// R3dGlBufferMgrFactory
 // ==========================================================================
 
 

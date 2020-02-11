@@ -42,52 +42,52 @@ namespace detail
 {
 
 
-class GlShaderStage;
-using GlShaderStagePtr = GlShaderStage*;
+class R3dGlShaderStage;
+using R3dGlShaderStagePtr = R3dGlShaderStage*;
 
 
 // ==========================================================================
-// GlShaderVar
+// R3dGlShaderVar
 //
 
-class GlShaderVar :
-	public virtual Renderer3dShaderVarInt32,
-	public virtual Renderer3dShaderVarFloat32,
-	public virtual Renderer3dShaderVarVec2,
-	public virtual Renderer3dShaderVarVec4,
-	public virtual Renderer3dShaderVarMat4,
-	public virtual Renderer3dShaderVarSampler2d
+class R3dGlShaderVar :
+	public virtual R3dShaderVarInt32,
+	public virtual R3dShaderVarFloat32,
+	public virtual R3dShaderVarVec2,
+	public virtual R3dShaderVarVec4,
+	public virtual R3dShaderVarMat4,
+	public virtual R3dShaderVarSampler2d
 {
 protected:
-	GlShaderVar() = default;
+	R3dGlShaderVar() = default;
 
 
 public:
-	~GlShaderVar() override = default;
+	~R3dGlShaderVar() override = default;
 
 
 	static int get_unit_size(
-		const Renderer3dShaderVarTypeId type_id);
-}; // GlShaderVar
+		const R3dShaderVarTypeId type_id);
+}; // R3dGlShaderVar
 
-using GlShaderVarPtr = GlShaderVar*;
-using GlShaderVarUPtr = std::unique_ptr<GlShaderVar>;
+using R3dGlShaderVarPtr = R3dGlShaderVar*;
+using R3dGlShaderVarUPtr = std::unique_ptr<R3dGlShaderVar>;
 
 //
-// GlShaderVar
+// R3dGlShaderVar
 // ==========================================================================
 
 
 // ==========================================================================
-// GlShaderVarFactory
+// R3dGlShaderVarFactory
 //
 
-struct GlShaderVarFactory
+struct R3dGlShaderVarFactory
 {
 	struct CreateParam
 	{
-		Renderer3dShaderVarKind kind_;
-		Renderer3dShaderVarTypeId type_id_;
+		R3dShaderVarKind kind_;
+		R3dShaderVarTypeId type_id_;
 		int value_size_;
 		int index_;
 		std::string name_;
@@ -95,13 +95,13 @@ struct GlShaderVarFactory
 		int gl_location_;
 	}; // CreateParam
 
-	static GlShaderVarUPtr create(
-		const GlShaderStagePtr shader_stage,
+	static R3dGlShaderVarUPtr create(
+		const R3dGlShaderStagePtr shader_stage,
 		const CreateParam& param);
-}; // GlShaderVarFactory
+}; // R3dGlShaderVarFactory
 
 //
-// GlShaderVarFactory
+// R3dGlShaderVarFactory
 // ==========================================================================
 
 

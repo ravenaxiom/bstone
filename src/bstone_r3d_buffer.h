@@ -39,17 +39,17 @@ namespace bstone
 
 
 // ==========================================================================
-// Renderer3dBuffer
+// R3dBuffer
 //
 
-enum class Renderer3dBufferKind
+enum class R3dBufferKind
 {
 	none,
 	index,
 	vertex,
-}; // Renderer3dBufferKind
+}; // R3dBufferKind
 
-enum class Renderer3dBufferUsageKind
+enum class R3dBufferUsageKind
 {
 	none,
 
@@ -61,48 +61,48 @@ enum class Renderer3dBufferUsageKind
 
 	// Target - drawing; updates - often.
 	draw_dynamic,
-}; // Renderer3dBufferUsageKind
+}; // R3dBufferUsageKind
 
-struct Renderer3dBufferCreateParam
+struct R3dBufferCreateParam
 {
-	Renderer3dBufferKind kind_;
-	Renderer3dBufferUsageKind usage_kind_;
+	R3dBufferKind kind_;
+	R3dBufferUsageKind usage_kind_;
 	int size_;
-}; // Renderer3dBufferCreateParam
+}; // R3dBufferCreateParam
 
-struct Renderer3dBufferUpdateParam
+struct R3dBufferUpdateParam
 {
 	int offset_;
 	int size_;
 	const void* data_;
-}; // Renderer3dBufferUpdateParam
+}; // R3dBufferUpdateParam
 
 
-class Renderer3dBuffer
+class R3dBuffer
 {
 protected:
-	Renderer3dBuffer() = default;
+	R3dBuffer() = default;
 
 
 public:
-	virtual ~Renderer3dBuffer() = default;
+	virtual ~R3dBuffer() = default;
 
 
-	virtual Renderer3dBufferKind get_kind() const noexcept = 0;
+	virtual R3dBufferKind get_kind() const noexcept = 0;
 
-	virtual Renderer3dBufferUsageKind get_usage_kind() const noexcept = 0;
+	virtual R3dBufferUsageKind get_usage_kind() const noexcept = 0;
 
 	virtual int get_size() const noexcept = 0;
 
 	virtual void update(
-		const Renderer3dBufferUpdateParam& param) = 0;
-}; // Renderer3dBuffer
+		const R3dBufferUpdateParam& param) = 0;
+}; // R3dBuffer
 
-using Renderer3dBufferPtr = Renderer3dBuffer*;
-using Renderer3dBufferUPtr = std::unique_ptr<Renderer3dBuffer>;
+using R3dBufferPtr = R3dBuffer*;
+using R3dBufferUPtr = std::unique_ptr<R3dBuffer>;
 
 //
-// Renderer3dBuffer
+// R3dBuffer
 // ==========================================================================
 
 

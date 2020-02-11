@@ -40,18 +40,18 @@ namespace bstone
 
 
 // ==========================================================================
-// Renderer3dShaderVar
+// R3dShaderVar
 //
 
-enum class Renderer3dShaderVarKind
+enum class R3dShaderVarKind
 {
 	none,
 	attribute,
 	sampler,
 	uniform,
-}; // Renderer3dShaderVarKind
+}; // R3dShaderVarKind
 
-enum class Renderer3dShaderVarTypeId
+enum class R3dShaderVarTypeId
 {
 	none,
 	int32,
@@ -61,190 +61,190 @@ enum class Renderer3dShaderVarTypeId
 	vec4,
 	mat4,
 	sampler2d,
-}; // Renderer3dShaderVarTypeId
+}; // R3dShaderVarTypeId
 
 
-class Renderer3dShaderVar
+class R3dShaderVar
 {
 protected:
-	Renderer3dShaderVar() = default;
+	R3dShaderVar() = default;
 
-	virtual ~Renderer3dShaderVar() = default;
+	virtual ~R3dShaderVar() = default;
 
 
 public:
-	virtual Renderer3dShaderVarKind get_kind() const noexcept = 0;
+	virtual R3dShaderVarKind get_kind() const noexcept = 0;
 
-	virtual Renderer3dShaderVarTypeId get_type_id() const noexcept = 0;
+	virtual R3dShaderVarTypeId get_type_id() const noexcept = 0;
 
 	virtual int get_index() const noexcept = 0;
 
 	virtual const std::string& get_name() const noexcept = 0;
 
 	virtual int get_input_index() const noexcept = 0;
-}; // Renderer3dShaderVar
+}; // R3dShaderVar
 
-using Renderer3dShaderVarPtr = Renderer3dShaderVar*;
-using Renderer3dShaderVarCPtr = const Renderer3dShaderVar*;
+using R3dShaderVarPtr = R3dShaderVar*;
+using R3dShaderVarCPtr = const R3dShaderVar*;
 
 //
-// Renderer3dShaderVar
+// R3dShaderVar
 // ==========================================================================
 
 
 // ==========================================================================
-// Renderer3dShaderVarInt32
+// R3dShaderVarInt32
 //
 
-class Renderer3dShaderVarInt32 :
-	public virtual Renderer3dShaderVar
+class R3dShaderVarInt32 :
+	public virtual R3dShaderVar
 {
 protected:
-	Renderer3dShaderVarInt32() = default;
+	R3dShaderVarInt32() = default;
 
-	virtual ~Renderer3dShaderVarInt32() = default;
+	virtual ~R3dShaderVarInt32() = default;
 
 
 public:
 	virtual void set_int(
 		const std::int32_t value) = 0;
-}; // Renderer3dShaderVarInt32
+}; // R3dShaderVarInt32
 
-using Renderer3dShaderVarInt32Ptr = Renderer3dShaderVarInt32*;
-using Renderer3dShaderVarInt32CPtr = const Renderer3dShaderVarInt32*;
+using R3dShaderVarInt32Ptr = R3dShaderVarInt32*;
+using R3dShaderVarInt32CPtr = const R3dShaderVarInt32*;
 
 //
-// Renderer3dShaderVarInt32
+// R3dShaderVarInt32
 // ==========================================================================
 
 
 // ==========================================================================
-// Renderer3dShaderVarFloat32
+// R3dShaderVarFloat32
 //
 
-class Renderer3dShaderVarFloat32 :
-	public virtual Renderer3dShaderVar
+class R3dShaderVarFloat32 :
+	public virtual R3dShaderVar
 {
 protected:
-	Renderer3dShaderVarFloat32() = default;
+	R3dShaderVarFloat32() = default;
 
-	virtual ~Renderer3dShaderVarFloat32() = default;
+	virtual ~R3dShaderVarFloat32() = default;
 
 
 public:
 	virtual void set_float(
 		const float value) = 0;
-}; // Renderer3dShaderVarFloat32
+}; // R3dShaderVarFloat32
 
-using Renderer3dShaderVarFloat32Ptr = Renderer3dShaderVarFloat32*;
-using Renderer3dShaderVarFloat32CPtr = const Renderer3dShaderVarFloat32*;
+using R3dShaderVarFloat32Ptr = R3dShaderVarFloat32*;
+using R3dShaderVarFloat32CPtr = const R3dShaderVarFloat32*;
 
 //
-// Renderer3dShaderVarFloat32
+// R3dShaderVarFloat32
 // ==========================================================================
 
 
 // ==========================================================================
-// Renderer3dShaderVarVec2
+// R3dShaderVarVec2
 //
 
-class Renderer3dShaderVarVec2 :
-	public virtual Renderer3dShaderVar
+class R3dShaderVarVec2 :
+	public virtual R3dShaderVar
 {
 protected:
-	Renderer3dShaderVarVec2() = default;
+	R3dShaderVarVec2() = default;
 
-	virtual ~Renderer3dShaderVarVec2() = default;
+	virtual ~R3dShaderVarVec2() = default;
 
 
 public:
 	virtual void set_vec2(
 		const float* const value) = 0;
-}; // Renderer3dShaderVarVec2
+}; // R3dShaderVarVec2
 
-using Renderer3dShaderVarVec2Ptr = Renderer3dShaderVarVec2*;
-using Renderer3dShaderVarVec2CPtr = const Renderer3dShaderVarVec2*;
+using R3dShaderVarVec2Ptr = R3dShaderVarVec2*;
+using R3dShaderVarVec2CPtr = const R3dShaderVarVec2*;
 
 //
-// Renderer3dShaderVarVec2
+// R3dShaderVarVec2
 // ==========================================================================
 
 
 // ==========================================================================
-// Renderer3dShaderVarVec4
+// R3dShaderVarVec4
 //
 
-class Renderer3dShaderVarVec4 :
-	public virtual Renderer3dShaderVar
+class R3dShaderVarVec4 :
+	public virtual R3dShaderVar
 {
 protected:
-	Renderer3dShaderVarVec4() = default;
+	R3dShaderVarVec4() = default;
 
-	virtual ~Renderer3dShaderVarVec4() = default;
+	virtual ~R3dShaderVarVec4() = default;
 
 
 public:
 	virtual void set_vec4(
 		const float* const value) = 0;
-}; // Renderer3dShaderVarVec4
+}; // R3dShaderVarVec4
 
-using Renderer3dShaderVarVec4Ptr = Renderer3dShaderVarVec4*;
-using Renderer3dShaderVarVec4CPtr = const Renderer3dShaderVarVec4*;
+using R3dShaderVarVec4Ptr = R3dShaderVarVec4*;
+using R3dShaderVarVec4CPtr = const R3dShaderVarVec4*;
 
 //
-// Renderer3dShaderVarVec4
+// R3dShaderVarVec4
 // ==========================================================================
 
 
 // ==========================================================================
-// Renderer3dShaderVarMat4
+// R3dShaderVarMat4
 //
 
-class Renderer3dShaderVarMat4 :
-	public virtual Renderer3dShaderVar
+class R3dShaderVarMat4 :
+	public virtual R3dShaderVar
 {
 protected:
-	Renderer3dShaderVarMat4() = default;
+	R3dShaderVarMat4() = default;
 
-	virtual ~Renderer3dShaderVarMat4() = default;
+	virtual ~R3dShaderVarMat4() = default;
 
 
 public:
 	virtual void set_mat4(
 		const float* const value) = 0;
-}; // Renderer3dShaderVarMat4
+}; // R3dShaderVarMat4
 
-using Renderer3dShaderVarMat4Ptr = Renderer3dShaderVarMat4*;
-using Renderer3dShaderVarMat4CPtr = const Renderer3dShaderVarMat4*;
+using R3dShaderVarMat4Ptr = R3dShaderVarMat4*;
+using R3dShaderVarMat4CPtr = const R3dShaderVarMat4*;
 
 //
-// Renderer3dShaderVarMat4
+// R3dShaderVarMat4
 // ==========================================================================
 
 
 // ==========================================================================
-// Renderer3dShaderVarSampler2d
+// R3dShaderVarSampler2d
 //
 
-class Renderer3dShaderVarSampler2d :
-	public virtual Renderer3dShaderVar
+class R3dShaderVarSampler2d :
+	public virtual R3dShaderVar
 {
 protected:
-	Renderer3dShaderVarSampler2d() = default;
+	R3dShaderVarSampler2d() = default;
 
-	virtual ~Renderer3dShaderVarSampler2d() = default;
+	virtual ~R3dShaderVarSampler2d() = default;
 
 
 public:
 	virtual void set_sampler_2d(
 		const std::int32_t value) = 0;
-}; // Renderer3dShaderVarSampler2d
+}; // R3dShaderVarSampler2d
 
-using Renderer3dShaderVarSampler2dPtr = Renderer3dShaderVarSampler2d*;
-using Renderer3dShaderVarSampler2dCPtr = const Renderer3dShaderVarSampler2d*;
+using R3dShaderVarSampler2dPtr = R3dShaderVarSampler2d*;
+using R3dShaderVarSampler2dCPtr = const R3dShaderVarSampler2d*;
 
 //
-// Renderer3dShaderVarSampler2d
+// R3dShaderVarSampler2d
 // ==========================================================================
 
 

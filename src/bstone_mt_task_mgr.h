@@ -76,17 +76,17 @@ using MtTaskUPtr = std::unique_ptr<MtTask>;
 
 
 // ==========================================================================
-// MtTaskManager
+// MtTaskMgr
 //
 
-class MtTaskManager
+class MtTaskMgr
 {
 protected:
-	MtTaskManager();
+	MtTaskMgr();
 
 
 public:
-	virtual ~MtTaskManager();
+	virtual ~MtTaskMgr();
 
 
 	virtual int concurrency_get_max() const noexcept = 0;
@@ -99,27 +99,27 @@ public:
 	virtual void add_tasks_and_wait_for_added(
 		MtTaskPtr* const mt_tasks,
 		const int mt_task_count) = 0;
-}; // MtTaskManager
+}; // MtTaskMgr
 
-using MtTaskManagerPtr = MtTaskManager*;
-using MtTaskManagerUPtr = std::unique_ptr<MtTaskManager>;
+using MtTaskMgrPtr = MtTaskMgr*;
+using MtTaskMgrUPtr = std::unique_ptr<MtTaskMgr>;
 
 //
-// MtTaskManager
+// MtTaskMgr
 // ==========================================================================
 
 
 // ==========================================================================
-// MtTaskManagerFactory
+// MtTaskMgrFactory
 
-struct MtTaskManagerFactory final
+struct MtTaskMgrFactory final
 {
-	static MtTaskManagerUPtr create(
+	static MtTaskMgrUPtr create(
 		const int concurrency_reserve,
 		const int max_task_count);
-}; // MtTaskManagerFactory
+}; // MtTaskMgrFactory
 
-// MtTaskManagerFactory
+// MtTaskMgrFactory
 // ==========================================================================
 
 

@@ -44,11 +44,11 @@ namespace bstone
 class SpriteCache;
 using SpriteCachePtr = SpriteCache*;
 
-class MtTaskManager;
-using MtTaskManagerPtr = MtTaskManager*;
+class MtTaskMgr;
+using MtTaskMgrPtr = MtTaskMgr*;
 
 
-enum class HwTextureManagerSolid1x1Id
+enum class HwTextureMgrSolid1x1Id
 {
 	black,
 	white,
@@ -59,37 +59,37 @@ enum class HwTextureManagerSolid1x1Id
 
 	// Item count.
 	count_,
-}; // HwTextureManagerSolid1x1Id
+}; // HwTextureMgrSolid1x1Id
 
-enum class HwTextureManagerUpscaleFilterKind
+enum class HwTextureMgrUpscaleFilterKind
 {
 	none,
 	xbrz,
-}; // HwTextureManagerUpscaleFilterKind
+}; // HwTextureMgrUpscaleFilterKind
 
 
-class HwTextureManager
+class HwTextureMgr
 {
 protected:
-	HwTextureManager() = default;
+	HwTextureMgr() = default;
 
 
 public:
-	virtual ~HwTextureManager() = default;
+	virtual ~HwTextureMgr() = default;
 
 
 	virtual int upscale_filter_get_min_factor(
-		const HwTextureManagerUpscaleFilterKind upscale_filter_kind) const = 0;
+		const HwTextureMgrUpscaleFilterKind upscale_filter_kind) const = 0;
 
 	virtual int upscale_filter_get_max_factor(
-		const HwTextureManagerUpscaleFilterKind upscale_filter_kind) const = 0;
+		const HwTextureMgrUpscaleFilterKind upscale_filter_kind) const = 0;
 
-	virtual HwTextureManagerUpscaleFilterKind upscale_filter_get_kind() const noexcept = 0;
+	virtual HwTextureMgrUpscaleFilterKind upscale_filter_get_kind() const noexcept = 0;
 
 	virtual int upscale_filter_get_factor() const noexcept = 0;
 
 	virtual void upscale_filter_set(
-		const HwTextureManagerUpscaleFilterKind upscale_filter_kind,
+		const HwTextureMgrUpscaleFilterKind upscale_filter_kind,
 		const int upscale_filter_factor) = 0;
 
 
@@ -103,14 +103,14 @@ public:
 	virtual void wall_cache(
 		const int id) = 0;
 
-	virtual Renderer3dTexture2dPtr wall_get(
+	virtual R3dTexture2dPtr wall_get(
 		const int id) const = 0;
 
 
 	virtual void sprite_cache(
 		const int id) = 0;
 
-	virtual Renderer3dTexture2dPtr sprite_get(
+	virtual R3dTexture2dPtr sprite_get(
 		const int id) const = 0;
 
 
@@ -123,35 +123,35 @@ public:
 
 	virtual void ui_update() = 0;
 
-	virtual Renderer3dTexture2dPtr ui_get() const = 0;
+	virtual R3dTexture2dPtr ui_get() const = 0;
 
 
 	virtual void solid_1x1_destroy(
-		const HwTextureManagerSolid1x1Id id) = 0;
+		const HwTextureMgrSolid1x1Id id) = 0;
 
 	virtual void solid_1x1_create(
-		const HwTextureManagerSolid1x1Id id) = 0;
+		const HwTextureMgrSolid1x1Id id) = 0;
 
 	virtual void solid_1x1_update(
-		const HwTextureManagerSolid1x1Id id,
+		const HwTextureMgrSolid1x1Id id,
 		const Rgba8 color) = 0;
 
-	virtual Renderer3dTexture2dPtr solid_1x1_get(
-		const HwTextureManagerSolid1x1Id id) const = 0;
-}; // HwTextureManager
+	virtual R3dTexture2dPtr solid_1x1_get(
+		const HwTextureMgrSolid1x1Id id) const = 0;
+}; // HwTextureMgr
 
-using HwTextureManagerPtr = HwTextureManager*;
-using HwTextureManagerUPtr = std::unique_ptr<HwTextureManager>;
+using HwTextureMgrPtr = HwTextureMgr*;
+using HwTextureMgrUPtr = std::unique_ptr<HwTextureMgr>;
 
 
-class HwTextureManagerFactory
+class HwTextureMgrFactory
 {
 public:
-	static HwTextureManagerUPtr create(
-		const Renderer3dPtr renderer,
+	static HwTextureMgrUPtr create(
+		const R3dPtr renderer,
 		const SpriteCachePtr sprite_cache,
-		const MtTaskManagerPtr mt_task_manager);
-}; // HwTextureManagerFactory
+		const MtTaskMgrPtr mt_task_manager);
+}; // HwTextureMgrFactory
 
 
 } // bstone

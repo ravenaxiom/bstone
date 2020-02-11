@@ -42,74 +42,74 @@ namespace detail
 {
 
 
-class GlContext;
-using GlContextPtr = GlContext*;
+class R3dGlContext;
+using R3dGlContextPtr = R3dGlContext*;
 
 
 // ==========================================================================
-// GlShaderStageManager
+// R3dGlShaderStageMgr
 //
 
-class GlShaderStageManager
+class R3dGlShaderStageMgr
 {
 protected:
-	GlShaderStageManager() = default;
+	R3dGlShaderStageMgr() = default;
 
 
 public:
-	virtual ~GlShaderStageManager() = default;
+	virtual ~R3dGlShaderStageMgr() = default;
 
 
-	virtual GlContextPtr get_gl_context() const noexcept = 0;
+	virtual R3dGlContextPtr get_gl_context() const noexcept = 0;
 
 
-	virtual Renderer3dShaderStageUPtr create(
-		const Renderer3dShaderStageCreateParam& param) = 0;
+	virtual R3dShaderStageUPtr create(
+		const R3dShaderStageCreateParam& param) = 0;
 
 
 	virtual void notify_destroy(
-		const Renderer3dShaderStagePtr shader_stage) noexcept = 0;
+		const R3dShaderStagePtr shader_stage) noexcept = 0;
 
 
 	virtual void set(
-		const Renderer3dShaderStagePtr shader_stage) = 0;
+		const R3dShaderStagePtr shader_stage) = 0;
 
 
-	virtual Renderer3dShaderStagePtr get_active() const noexcept = 0;
+	virtual R3dShaderStagePtr get_active() const noexcept = 0;
 
 	virtual void set_active(
-		const Renderer3dShaderStagePtr shader_stage) = 0;
+		const R3dShaderStagePtr shader_stage) = 0;
 
 
-	virtual Renderer3dShaderStagePtr get_current() const noexcept = 0;
+	virtual R3dShaderStagePtr get_current() const noexcept = 0;
 
 	virtual void set_current(
-		const Renderer3dShaderStagePtr shader_stage) = 0;
+		const R3dShaderStagePtr shader_stage) = 0;
 
 
 	virtual void set_to_current() = 0;
-}; // GlShaderStageManager
+}; // R3dGlShaderStageMgr
 
-using GlShaderStageManagerPtr = GlShaderStageManager*;
-using GlShaderStageManagerUPtr = std::unique_ptr<GlShaderStageManager>;
+using R3dGlShaderStageMgrPtr = R3dGlShaderStageMgr*;
+using R3dGlShaderStageMgrUPtr = std::unique_ptr<R3dGlShaderStageMgr>;
 
 //
-// GlShaderStageManager
+// R3dGlShaderStageMgr
 // ==========================================================================
 
 
 // ==========================================================================
-// GlShaderStageManagerFactory
+// R3dGlShaderStageMgrFactory
 //
 
-struct GlShaderStageManagerFactory
+struct R3dGlShaderStageMgrFactory
 {
-	static GlShaderStageManagerUPtr create(
-		const GlContextPtr gl_context);
-}; // GlShaderStageManagerFactory
+	static R3dGlShaderStageMgrUPtr create(
+		const R3dGlContextPtr gl_context);
+}; // R3dGlShaderStageMgrFactory
 
 //
-// GlShaderStageManager
+// R3dGlShaderStageMgr
 // ==========================================================================
 
 

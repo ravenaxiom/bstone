@@ -38,89 +38,89 @@ namespace bstone
 {
 
 
-class Renderer3dBuffer;
-using Renderer3dBufferPtr = Renderer3dBuffer*;
+class R3dBuffer;
+using R3dBufferPtr = R3dBuffer*;
 
 
 namespace detail
 {
 
 
-class GlVaoManager;
-using GlVaoManagerPtr = GlVaoManager*;
+class R3dGlVaoMgr;
+using R3dGlVaoMgrPtr = R3dGlVaoMgr*;
 
 
 // ==========================================================================
-// GlVao
+// R3dGlVao
 //
 
-class GlVao
+class R3dGlVao
 {
 protected:
-	GlVao() = default;
+	R3dGlVao() = default;
 
 
 public:
-	virtual ~GlVao() = default;
+	virtual ~R3dGlVao() = default;
 
 
 	virtual void bind() = 0;
 
 
 	virtual bool set_current_index_buffer(
-		const Renderer3dBufferPtr index_buffer) = 0;
+		const R3dBufferPtr index_buffer) = 0;
 
 
 	virtual void enable_location(
 		const int location,
 		const bool is_enable) = 0;
-}; // GlVao
+}; // R3dGlVao
 
-using GlVaoPtr = GlVao*;
-using GlVaoUPtr = std::unique_ptr<GlVao>;
+using R3dGlVaoPtr = R3dGlVao*;
+using R3dGlVaoUPtr = std::unique_ptr<R3dGlVao>;
 
 //
-// GlVao
+// R3dGlVao
 // ==========================================================================
 
 
 // ==========================================================================
-// GlVaoDeleter
+// R3dGlVaoDeleter
 //
 
-class GlVaoDeleter
+class R3dGlVaoDeleter
 {
 public:
-	GlVaoDeleter(
-		const GlVaoManagerPtr gl_vao_manager);
+	R3dGlVaoDeleter(
+		const R3dGlVaoMgrPtr gl_vao_manager);
 
 	void operator()(
-		const GlVaoPtr resource);
+		const R3dGlVaoPtr resource);
 
 
 private:
-	const GlVaoManagerPtr gl_vao_manager_;
-}; // GlVaoDeleter
+	const R3dGlVaoMgrPtr gl_vao_manager_;
+}; // R3dGlVaoDeleter
 
-using GlVaoResource = std::unique_ptr<GlVao, GlVaoDeleter>;
+using R3dGlVaoResource = std::unique_ptr<R3dGlVao, R3dGlVaoDeleter>;
 
 //
-// GlVaoDeleter
+// R3dGlVaoDeleter
 // ==========================================================================
 
 
 // ==========================================================================
-// GlVaoFactory
+// R3dGlVaoFactory
 //
 
-struct GlVaoFactory
+struct R3dGlVaoFactory
 {
-	static GlVaoUPtr create(
-		const GlVaoManagerPtr gl_vao_manager);
-}; // GlVaoFactory
+	static R3dGlVaoUPtr create(
+		const R3dGlVaoMgrPtr gl_vao_manager);
+}; // R3dGlVaoFactory
 
 //
-// GlVaoFactory
+// R3dGlVaoFactory
 // ==========================================================================
 
 

@@ -43,52 +43,52 @@ namespace bstone
 
 
 // ==========================================================================
-// Renderer3dVertexInput
+// R3dVertexInput
 //
 
-enum class Renderer3dVertexAttributeFormat
+enum class R3dVertexAttribFormat
 {
 	none,
 	rgba_8_unorm,
 	rg_32_sfloat,
 	rgb_32_sfloat,
-}; // Renderer3dVertexAttributeFormat
+}; // R3dVertexAttribFormat
 
-struct Renderer3dVertexAttributeDescription
+struct R3dVertexAttributeDescription
 {
 	bool is_default_;
 	int location_;
-	Renderer3dVertexAttributeFormat format_;
-	Renderer3dBufferPtr vertex_buffer_;
+	R3dVertexAttribFormat format_;
+	R3dBufferPtr vertex_buffer_;
 	int offset_;
 	int stride_;
-	Renderer3dVec4 default_value_;
-}; // Renderer3dVertexAttributeDescription
+	R3dVec4 default_value_;
+}; // R3dVertexAttributeDescription
 
-using Renderer3dVertexAttributeDescriptions = std::vector<Renderer3dVertexAttributeDescription>;
+using R3dVertexAttributeDescriptions = std::vector<R3dVertexAttributeDescription>;
 
-struct Renderer3dVertexInputCreateParam
+struct R3dVertexInputCreateParam
 {
-	Renderer3dBufferPtr index_buffer_;
-	Renderer3dVertexAttributeDescriptions attribute_descriptions_;
-}; // Renderer3dVertexInputCreateParam
+	R3dBufferPtr index_buffer_;
+	R3dVertexAttributeDescriptions attribute_descriptions_;
+}; // R3dVertexInputCreateParam
 
 
-class Renderer3dVertexInput
+class R3dVertexInput
 {
 protected:
-	Renderer3dVertexInput() = default;
+	R3dVertexInput() = default;
 
 
 public:
-	virtual ~Renderer3dVertexInput() = default;
-}; // Renderer3dVertexInput
+	virtual ~R3dVertexInput() = default;
+}; // R3dVertexInput
 
-using Renderer3dVertexInputPtr = Renderer3dVertexInput*;
-using Renderer3dVertexInputUPtr = std::unique_ptr<Renderer3dVertexInput>;
+using R3dVertexInputPtr = R3dVertexInput*;
+using R3dVertexInputUPtr = std::unique_ptr<R3dVertexInput>;
 
 //
-// Renderer3dVertexInput
+// R3dVertexInput
 // ==========================================================================
 
 

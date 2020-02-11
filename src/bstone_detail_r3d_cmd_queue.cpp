@@ -41,42 +41,42 @@ namespace detail
 
 
 // ==========================================================================
-// Renderer3dCommandQueueImpl
+// R3dCmdQueueImpl
 //
 
-Renderer3dCommandQueueImpl::Renderer3dCommandQueueImpl()
+R3dCmdQueueImpl::R3dCmdQueueImpl()
 	:
-	buffers_{Renderer3dCommandBuffersFactory::create()}
+	buffers_{R3dCmdBuffersFactory::create()}
 {
 }
 
-Renderer3dCommandQueueImpl::~Renderer3dCommandQueueImpl() = default;
+R3dCmdQueueImpl::~R3dCmdQueueImpl() = default;
 
-int Renderer3dCommandQueueImpl::get_count() const noexcept
+int R3dCmdQueueImpl::get_count() const noexcept
 {
 	return buffers_->get_count();
 }
 
-bstone::Renderer3dCommandBufferPtr Renderer3dCommandQueueImpl::enqueue(
-	const Renderer3dCommandQueueEnqueueParam& param)
+bstone::R3dCmdBufferPtr R3dCmdQueueImpl::enqueue(
+	const R3dCmdQueueEnqueueParam& param)
 {
 	return buffers_->enqueue(param);
 }
 
-void Renderer3dCommandQueueImpl::dequeue(
-	bstone::Renderer3dCommandBufferPtr buffer)
+void R3dCmdQueueImpl::dequeue(
+	bstone::R3dCmdBufferPtr buffer)
 {
 	buffers_->dequeue(buffer);
 }
 
-bstone::Renderer3dCommandBufferPtr Renderer3dCommandQueueImpl::get(
+bstone::R3dCmdBufferPtr R3dCmdQueueImpl::get(
 	const int index)
 {
 	return buffers_->get(index);
 }
 
-void Renderer3dCommandQueueImpl::validate_param(
-	const Renderer3dCommandQueueEnqueueParam& param)
+void R3dCmdQueueImpl::validate_param(
+	const R3dCmdQueueEnqueueParam& param)
 {
 	if (param.initial_size_ < 0)
 	{
@@ -90,7 +90,7 @@ void Renderer3dCommandQueueImpl::validate_param(
 }
 
 //
-// Renderer3dCommandQueueImpl
+// R3dCmdQueueImpl
 // ==========================================================================
 
 
@@ -98,16 +98,16 @@ void Renderer3dCommandQueueImpl::validate_param(
 
 
 // ==========================================================================
-// Renderer3dCommandQueueFactory
+// R3dCmdQueueFactory
 //
 
-Renderer3dCommandQueueUPtr Renderer3dCommandQueueFactory::create()
+R3dCmdQueueUPtr R3dCmdQueueFactory::create()
 {
-	return std::make_unique<detail::Renderer3dCommandQueueImpl>();
+	return std::make_unique<detail::R3dCmdQueueImpl>();
 }
 
 //
-// Renderer3dCommandQueueFactory
+// R3dCmdQueueFactory
 // ==========================================================================
 
 

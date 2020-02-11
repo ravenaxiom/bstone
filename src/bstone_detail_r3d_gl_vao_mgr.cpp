@@ -49,39 +49,39 @@ namespace detail
 
 
 // ==========================================================================
-// GlVaoManagerImpl
+// R3dGlVaoMgrImpl
 //
 
-class GlVaoManagerImpl final :
-	public GlVaoManager
+class R3dGlVaoMgrImpl final :
+	public R3dGlVaoMgr
 {
 public:
-	GlVaoManagerImpl(
-		const GlContextPtr gl_context,
-		const Renderer3dDeviceFeatures& device_features,
-		const GlDeviceFeatures& gl_device_features);
+	R3dGlVaoMgrImpl(
+		const R3dGlContextPtr gl_context,
+		const R3dDeviceFeatures& device_features,
+		const R3dGlDeviceFeatures& gl_device_features);
 
-	~GlVaoManagerImpl() override;
-
-
-	GlContextPtr get_context() const noexcept override;
+	~R3dGlVaoMgrImpl() override;
 
 
-	GlVaoPtr create() override;
+	R3dGlContextPtr get_context() const noexcept override;
+
+
+	R3dGlVaoPtr create() override;
 
 	void destroy(
-		const GlVaoPtr vao) override;
+		const R3dGlVaoPtr vao) override;
 
 	void push_current_set_default() override;
 
 	void pop() override;
 
 	void bind(
-		const GlVaoPtr vao) override;
+		const R3dGlVaoPtr vao) override;
 
 
 	bool set_current_index_buffer(
-		const Renderer3dBufferPtr index_buffer) override;
+		const R3dBufferPtr index_buffer) override;
 
 
 	void enable_location(
@@ -90,18 +90,18 @@ public:
 
 
 private:
-	const GlContextPtr gl_context_;
-	const Renderer3dDeviceFeatures& device_features_;
-	const GlDeviceFeatures& gl_device_features_;
+	const R3dGlContextPtr gl_context_;
+	const R3dDeviceFeatures& device_features_;
+	const R3dGlDeviceFeatures& gl_device_features_;
 
 
-	GlVaoPtr vao_current_;
-	GlVaoUPtr vao_default_;
+	R3dGlVaoPtr vao_current_;
+	R3dGlVaoUPtr vao_default_;
 
-	using VaoStack = std::stack<GlVaoPtr>;
+	using VaoStack = std::stack<R3dGlVaoPtr>;
 	VaoStack vao_stack_;
 
-	using Vaos = UPtrResourceList<GlVao, GlVaoFactory, Exception>;
+	using Vaos = UPtrResourceList<R3dGlVao, R3dGlVaoFactory, Exception>;
 	Vaos vaos_;
 
 
@@ -110,24 +110,24 @@ private:
 	void bind();
 
 	void initialize();
-}; // GlVaoManagerImpl
+}; // R3dGlVaoMgrImpl
 
-using GlVaoManagerImplPtr = GlVaoManagerImpl*;
-using GlVaoManagerImplUPtr = std::unique_ptr<GlVaoManagerImpl>;
+using R3dGlVaoMgrImplPtr = R3dGlVaoMgrImpl*;
+using R3dGlVaoMgrImplUPtr = std::unique_ptr<R3dGlVaoMgrImpl>;
 
 //
-// GlVaoManagerImpl
+// R3dGlVaoMgrImpl
 // ==========================================================================
 
 
 // ==========================================================================
-// GlVaoManagerImpl
+// R3dGlVaoMgrImpl
 //
 
-GlVaoManagerImpl::GlVaoManagerImpl(
-	const GlContextPtr gl_context,
-	const Renderer3dDeviceFeatures& device_features,
-	const GlDeviceFeatures& gl_device_features)
+R3dGlVaoMgrImpl::R3dGlVaoMgrImpl(
+	const R3dGlContextPtr gl_context,
+	const R3dDeviceFeatures& device_features,
+	const R3dGlDeviceFeatures& gl_device_features)
 	:
 	gl_context_{gl_context},
 	device_features_{device_features},
@@ -140,14 +140,14 @@ GlVaoManagerImpl::GlVaoManagerImpl(
 	initialize();
 }
 
-GlVaoManagerImpl::~GlVaoManagerImpl() = default;
+R3dGlVaoMgrImpl::~R3dGlVaoMgrImpl() = default;
 
-GlContextPtr GlVaoManagerImpl::get_context() const noexcept
+R3dGlContextPtr R3dGlVaoMgrImpl::get_context() const noexcept
 {
 	return gl_context_;
 }
 
-GlVaoPtr GlVaoManagerImpl::create()
+R3dGlVaoPtr R3dGlVaoMgrImpl::create()
 {
 	if (!gl_device_features_.vao_is_available_)
 	{
@@ -157,8 +157,8 @@ GlVaoPtr GlVaoManagerImpl::create()
 	return vaos_.add(this);
 }
 
-void GlVaoManagerImpl::destroy(
-	const GlVaoPtr vao)
+void R3dGlVaoMgrImpl::destroy(
+	const R3dGlVaoPtr vao)
 {
 	if (!gl_device_features_.vao_is_available_)
 	{
@@ -184,14 +184,14 @@ void GlVaoManagerImpl::destroy(
 	vaos_.remove(vao);
 }
 
-void GlVaoManagerImpl::push_current_set_default()
+void R3dGlVaoMgrImpl::push_current_set_default()
 {
 	vao_stack_.emplace(vao_current_);
 
 	bind(vao_default_.get());
 }
 
-void GlVaoManagerImpl::pop()
+void R3dGlVaoMgrImpl::pop()
 {
 	if (vao_stack_.empty())
 	{
@@ -204,8 +204,8 @@ void GlVaoManagerImpl::pop()
 	bind(vao);
 }
 
-void GlVaoManagerImpl::bind(
-	const GlVaoPtr vao)
+void R3dGlVaoMgrImpl::bind(
+	const R3dGlVaoPtr vao)
 {
 	if (!vao)
 	{
@@ -221,33 +221,33 @@ void GlVaoManagerImpl::bind(
 	bind();
 }
 
-bool GlVaoManagerImpl::set_current_index_buffer(
-	const Renderer3dBufferPtr index_buffer)
+bool R3dGlVaoMgrImpl::set_current_index_buffer(
+	const R3dBufferPtr index_buffer)
 {
 	return vao_current_->set_current_index_buffer(index_buffer);
 }
 
-void GlVaoManagerImpl::enable_location(
+void R3dGlVaoMgrImpl::enable_location(
 	const int location,
 	const bool is_enable)
 {
 	vao_current_->enable_location(location, is_enable);
 }
 
-void GlVaoManagerImpl::initialize_default_vao()
+void R3dGlVaoMgrImpl::initialize_default_vao()
 {
-	vao_default_ = GlVaoFactory::create(this);
+	vao_default_ = R3dGlVaoFactory::create(this);
 
 	vao_current_ = vao_default_.get();
 	bind();
 }
 
-void GlVaoManagerImpl::bind()
+void R3dGlVaoMgrImpl::bind()
 {
 	vao_current_->bind();
 }
 
-void GlVaoManagerImpl::initialize()
+void R3dGlVaoMgrImpl::initialize()
 {
 	if (!gl_context_)
 	{
@@ -258,20 +258,20 @@ void GlVaoManagerImpl::initialize()
 }
 
 //
-// GlVaoManagerImpl
+// R3dGlVaoMgrImpl
 // ==========================================================================
 
 
 // ==========================================================================
-// GlVaoManagerFactory
+// GlVaoMgrFactory
 //
 
-GlVaoManagerUPtr GlVaoManagerFactory::create(
-	const GlContextPtr gl_context,
-	const Renderer3dDeviceFeatures& device_features,
-	const GlDeviceFeatures& gl_device_features)
+GlVaoMgrUPtr GlVaoMgrFactory::create(
+	const R3dGlContextPtr gl_context,
+	const R3dDeviceFeatures& device_features,
+	const R3dGlDeviceFeatures& gl_device_features)
 {
-	return std::make_unique<GlVaoManagerImpl>(
+	return std::make_unique<R3dGlVaoMgrImpl>(
 		gl_context,
 		device_features,
 		gl_device_features
@@ -279,7 +279,7 @@ GlVaoManagerUPtr GlVaoManagerFactory::create(
 }
 
 //
-// GlVaoManagerFactory
+// GlVaoMgrFactory
 // ==========================================================================
 
 

@@ -44,61 +44,61 @@ namespace detail
 {
 
 
-class GlVao;
-using GlVaoPtr = GlVao*;
+class R3dGlVao;
+using R3dGlVaoPtr = R3dGlVao*;
 
-class GlBufferManager;
-using GlBufferManagerPtr = GlBufferManager*;
+class R3dGlBufferMgr;
+using R3dGlBufferMgrPtr = R3dGlBufferMgr*;
 
-class GlSamplerManager;
-using GlSamplerManagerPtr = GlSamplerManager*;
+class R3dGlSamplerMgr;
+using R3dGlSamplerMgrPtr = R3dGlSamplerMgr*;
 
-class GlTextureManager;
-using GlTextureManagerPtr = GlTextureManager*;
+class R3dGlTextureMgr;
+using R3dGlTextureMgrPtr = R3dGlTextureMgr*;
 
-class GlVaoManager;
-using GlVaoManagerPtr = GlVaoManager*;
+class R3dGlVaoMgr;
+using R3dGlVaoMgrPtr = R3dGlVaoMgr*;
 
-class GlVertexInputManager;
-using GlVertexInputManagerPtr = GlVertexInputManager*;
+class R3dGlVertexInputMgr;
+using R3dGlVertexInputMgrPtr = R3dGlVertexInputMgr*;
 
-class GlShaderManager;
-using GlShaderManagerPtr = GlShaderManager*;
+class R3dGlShaderMgr;
+using R3dGlShaderMgrPtr = R3dGlShaderMgr*;
 
-class GlShaderStageManager;
-using GlShaderStageManagerPtr = GlShaderStageManager*;
+class R3dGlShaderStageMgr;
+using R3dGlShaderStageMgrPtr = R3dGlShaderStageMgr*;
 
 
 // =========================================================================
-// GlContext
+// R3dGlContext
 //
 
-class GlContext
+class R3dGlContext
 {
 public:
-	GlContext() = default;
+	R3dGlContext() = default;
 
-	virtual ~GlContext() = default;
-
-
-	virtual const Renderer3dDeviceFeatures& get_device_features() const noexcept = 0;
-
-	virtual const GlDeviceFeatures& get_gl_device_features() const noexcept = 0;
+	virtual ~R3dGlContext() = default;
 
 
-	virtual GlBufferManagerPtr buffer_get_manager() const noexcept = 0;
+	virtual const R3dDeviceFeatures& get_device_features() const noexcept = 0;
 
-	virtual GlSamplerManagerPtr sampler_get_manager() const noexcept = 0;
+	virtual const R3dGlDeviceFeatures& get_gl_device_features() const noexcept = 0;
 
-	virtual GlTextureManagerPtr texture_get_manager() const noexcept = 0;
 
-	virtual GlVaoManagerPtr vao_get_manager() const noexcept = 0;
+	virtual R3dGlBufferMgrPtr buffer_get_manager() const noexcept = 0;
 
-	virtual GlVertexInputManagerPtr vertex_input_get_manager() const noexcept = 0;
+	virtual R3dGlSamplerMgrPtr sampler_get_manager() const noexcept = 0;
 
-	virtual GlShaderManagerPtr shader_get_manager() const noexcept = 0;
+	virtual R3dGlTextureMgrPtr texture_get_manager() const noexcept = 0;
 
-	virtual GlShaderStageManagerPtr shader_stage_get_manager() const noexcept = 0;
+	virtual R3dGlVaoMgrPtr vao_get_manager() const noexcept = 0;
+
+	virtual R3dGlVertexInputMgrPtr vertex_input_get_manager() const noexcept = 0;
+
+	virtual R3dGlShaderMgrPtr shader_get_manager() const noexcept = 0;
+
+	virtual R3dGlShaderStageMgrPtr shader_stage_get_manager() const noexcept = 0;
 
 
 	virtual void clear(
@@ -106,14 +106,14 @@ public:
 
 
 	virtual void viewport_set(
-		const Renderer3dViewport& viewport) = 0;
+		const R3dViewport& viewport) = 0;
 
 
 	virtual void scissor_enable(
 		const bool is_enable) = 0;
 
 	virtual void scissor_set_box(
-		const Renderer3dScissorBox& scissor_box) = 0;
+		const R3dScissorBox& scissor_box) = 0;
 
 
 	virtual void culling_enable(
@@ -131,34 +131,34 @@ public:
 		const bool is_enable) = 0;
 
 	virtual void blending_set_func(
-		const Renderer3dBlendingFunc& func) = 0;
-}; // GlContext
+		const R3dBlendingFunc& func) = 0;
+}; // R3dGlContext
 
 
-using GlContextPtr = GlContext*;
-using GlContextUPtr = std::unique_ptr<GlContext>;
+using R3dGlContextPtr = R3dGlContext*;
+using R3dGlContextUPtr = std::unique_ptr<R3dGlContext>;
 
 //
-// GlContext
+// R3dGlContext
 // =========================================================================
 
 
 // =========================================================================
-// GlContextFactory
+// R3dGlContextFactory
 //
 
 
-struct GlContextFactory
+struct R3dGlContextFactory
 {
-	static GlContextUPtr create(
-		const Renderer3dKind renderer_kind,
-		const Renderer3dDeviceFeatures& device_features,
-		const GlDeviceFeatures& gl_device_features);
-}; // GlContextFactory
+	static R3dGlContextUPtr create(
+		const R3dKind renderer_kind,
+		const R3dDeviceFeatures& device_features,
+		const R3dGlDeviceFeatures& gl_device_features);
+}; // R3dGlContextFactory
 
 
 //
-// GlContextFactory
+// R3dGlContextFactory
 // =========================================================================
 
 

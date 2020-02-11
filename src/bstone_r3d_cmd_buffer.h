@@ -38,7 +38,7 @@ namespace bstone
 {
 
 
-enum class Renderer3dCommandId
+enum class R3dCmdId
 {
 	none,
 
@@ -72,126 +72,126 @@ enum class Renderer3dCommandId
 	shader_var_sampler_2d,
 
 	draw_indexed,
-}; // Renderer3dCommandId
+}; // R3dCmdId
 
 
-struct Renderer3dCommandClear
+struct R3dCmdClear
 {
-	Renderer3dClearParam param_;
-}; // Renderer3dCommandClear
+	R3dClearParam param_;
+}; // R3dCmdClear
 
-struct Renderer3dCommandViewport
+struct R3dCmdViewport
 {
-	Renderer3dViewport viewport_;
-}; // Renderer3dCommandViewport
+	R3dViewport viewport_;
+}; // R3dCmdViewport
 
-struct Renderer3dCommandScissor
-{
-	bool is_enable_;
-}; // Renderer3dCommandScissor
-
-struct Renderer3dCommandScissorBox
-{
-	Renderer3dScissorBox scissor_box_;
-}; // Renderer3dCommandScissorBox
-
-struct Renderer3dCommandCulling
+struct R3dCmdScissor
 {
 	bool is_enable_;
-}; // Renderer3dCommandCulling
+}; // R3dCmdScissor
 
-struct Renderer3dCommandBlending
+struct R3dCmdScissorBox
+{
+	R3dScissorBox scissor_box_;
+}; // R3dCmdScissorBox
+
+struct R3dCmdCulling
 {
 	bool is_enable_;
-}; // Renderer3dCommandBlending
+}; // R3dCmdCulling
 
-struct Renderer3dCommandBlendingFunc
-{
-	Renderer3dBlendingFunc blending_func_;
-}; // Renderer3dCommandBlendingFunc
-
-struct Renderer3dCommandDepthTest
+struct R3dCmdBlending
 {
 	bool is_enable_;
-}; // Renderer3dCommandDepthTest
+}; // R3dCmdBlending
 
-struct Renderer3dCommandDepthWrite
+struct R3dCmdBlendingFunc
+{
+	R3dBlendingFunc blending_func_;
+}; // R3dCmdBlendingFunc
+
+struct R3dCmdDepthTest
 {
 	bool is_enable_;
-}; // Renderer3dCommandDepthWrite
+}; // R3dCmdDepthTest
 
-struct Renderer3dCommandTexture
+struct R3dCmdDepthWrite
 {
-	Renderer3dTexture2dPtr texture_2d_;
-}; // Renderer3dCommandTexture
+	bool is_enable_;
+}; // R3dCmdDepthWrite
 
-struct Renderer3dCommandSampler
+struct R3dCmdTexture
 {
-	Renderer3dSamplerPtr sampler_;
-}; // Renderer3dCommandSampler
+	R3dTexture2dPtr texture_2d_;
+}; // R3dCmdTexture
 
-struct Renderer3dCommandVertexInput
+struct R3dCmdSampler
 {
-	Renderer3dVertexInputPtr vertex_input_;
-}; // Renderer3dCommandVertexInput
+	R3dSamplerPtr sampler_;
+}; // R3dCmdSampler
 
-struct Renderer3dCommandShaderStage
+struct R3dCmdVertexInput
 {
-	Renderer3dShaderStagePtr shader_stage_;
-}; // Renderer3dCommandShaderStage
+	R3dVertexInputPtr vertex_input_;
+}; // R3dCmdVertexInput
 
-struct Renderer3dCommandShaderVarInt32
+struct R3dCmdShaderStage
 {
-	Renderer3dShaderVarInt32Ptr var_;
+	R3dShaderStagePtr shader_stage_;
+}; // R3dCmdShaderStage
+
+struct R3dCmdShaderVarInt32
+{
+	R3dShaderVarInt32Ptr var_;
 	int value_;
-}; // Renderer3dCommandShaderVarInt32
+}; // R3dCmdShaderVarInt32
 
-struct Renderer3dCommandShaderVarFloat32
+struct R3dCmdShaderVarFloat32
 {
-	Renderer3dShaderVarFloat32Ptr var_;
+	R3dShaderVarFloat32Ptr var_;
 	float value_;
-}; // Renderer3dCommandShaderVarFloat32
+}; // R3dCmdShaderVarFloat32
 
-struct Renderer3dCommandShaderVarVec2
+struct R3dCmdShaderVarVec2
 {
-	Renderer3dShaderVarVec2Ptr var_;
-	Renderer3dVec2 value_;
-}; // Renderer3dCommandShaderVarVec2
+	R3dShaderVarVec2Ptr var_;
+	R3dVec2 value_;
+}; // R3dCmdShaderVarVec2
 
-struct Renderer3dCommandShaderVarVec4
+struct R3dCmdShaderVarVec4
 {
-	Renderer3dShaderVarVec4Ptr var_;
-	Renderer3dVec4 value_;
-}; // Renderer3dCommandShaderVarVec4
+	R3dShaderVarVec4Ptr var_;
+	R3dVec4 value_;
+}; // R3dCmdShaderVarVec4
 
-struct Renderer3dCommandShaderVarMat4
+struct R3dCmdShaderVarMat4
 {
-	Renderer3dShaderVarMat4Ptr var_;
-	Renderer3dMat4 value_;
-}; // Renderer3dCommandShaderVarMat4
+	R3dShaderVarMat4Ptr var_;
+	R3dMat4 value_;
+}; // R3dCmdShaderVarMat4
 
-struct Renderer3dCommandShaderVarSampler2d
+struct R3dCmdShaderVarSampler2d
 {
-	Renderer3dShaderVarSampler2dPtr var_;
+	R3dShaderVarSampler2dPtr var_;
 	int value_;
-}; // Renderer3dCommandShaderVarSampler2d
+}; // R3dCmdShaderVarSampler2d
 
-struct Renderer3dCommandDrawIndexed
+struct R3dCmdDrawIndexed
 {
-	Renderer3dDrawIndexedParam param_;
-}; // Renderer3dCommandDrawIndexed
+	R3dDrawIndexedParam param_;
+}; // R3dCmdDrawIndexed
 
 
 // ==========================================================================
-// Renderer3dCommandBuffer
+// R3dCmdBuffer
 //
 
-class Renderer3dCommandBuffer
+class R3dCmdBuffer
 {
 protected:
-	Renderer3dCommandBuffer() = default;
+	R3dCmdBuffer() = default;
 
-	virtual ~Renderer3dCommandBuffer() = default;
+	virtual ~R3dCmdBuffer() = default;
 
 
 public:
@@ -208,80 +208,80 @@ public:
 
 	virtual void write_end() = 0;
 
-	virtual Renderer3dCommandClear* write_clear() = 0;
+	virtual R3dCmdClear* write_clear() = 0;
 
-	virtual Renderer3dCommandViewport* write_viewport() = 0;
+	virtual R3dCmdViewport* write_viewport() = 0;
 
-	virtual Renderer3dCommandScissor* write_scissor() = 0;
-	virtual Renderer3dCommandScissorBox* write_scissor_box() = 0;
+	virtual R3dCmdScissor* write_scissor() = 0;
+	virtual R3dCmdScissorBox* write_scissor_box() = 0;
 
-	virtual Renderer3dCommandCulling* write_culling() = 0;
+	virtual R3dCmdCulling* write_culling() = 0;
 
-	virtual Renderer3dCommandDepthTest* write_depth_test() = 0;
-	virtual Renderer3dCommandDepthWrite* write_depth_write() = 0;
+	virtual R3dCmdDepthTest* write_depth_test() = 0;
+	virtual R3dCmdDepthWrite* write_depth_write() = 0;
 
-	virtual Renderer3dCommandBlending* write_blending() = 0;
-	virtual Renderer3dCommandBlendingFunc* write_blending_func() = 0;
+	virtual R3dCmdBlending* write_blending() = 0;
+	virtual R3dCmdBlendingFunc* write_blending_func() = 0;
 
-	virtual Renderer3dCommandTexture* write_texture() = 0;
-	virtual Renderer3dCommandSampler* write_sampler() = 0;
+	virtual R3dCmdTexture* write_texture() = 0;
+	virtual R3dCmdSampler* write_sampler() = 0;
 
-	virtual Renderer3dCommandVertexInput* write_vertex_input() = 0;
+	virtual R3dCmdVertexInput* write_vertex_input() = 0;
 
-	virtual Renderer3dCommandShaderStage* write_shader_stage() = 0;
+	virtual R3dCmdShaderStage* write_shader_stage() = 0;
 
-	virtual Renderer3dCommandShaderVarInt32* write_shader_var_int32() = 0;
-	virtual Renderer3dCommandShaderVarFloat32* write_shader_var_float32() = 0;
-	virtual Renderer3dCommandShaderVarVec2* write_shader_var_vec2() = 0;
-	virtual Renderer3dCommandShaderVarVec4* write_shader_var_vec4() = 0;
-	virtual Renderer3dCommandShaderVarMat4* write_shader_var_mat4() = 0;
-	virtual Renderer3dCommandShaderVarSampler2d* write_shader_var_sampler_2d() = 0;
+	virtual R3dCmdShaderVarInt32* write_shader_var_int32() = 0;
+	virtual R3dCmdShaderVarFloat32* write_shader_var_float32() = 0;
+	virtual R3dCmdShaderVarVec2* write_shader_var_vec2() = 0;
+	virtual R3dCmdShaderVarVec4* write_shader_var_vec4() = 0;
+	virtual R3dCmdShaderVarMat4* write_shader_var_mat4() = 0;
+	virtual R3dCmdShaderVarSampler2d* write_shader_var_sampler_2d() = 0;
 
-	virtual Renderer3dCommandDrawIndexed* write_draw_indexed() = 0;
+	virtual R3dCmdDrawIndexed* write_draw_indexed() = 0;
 
 
 	virtual void read_begin() = 0;
 
 	virtual void read_end() = 0;
 
-	virtual Renderer3dCommandId read_command_id() = 0;
+	virtual R3dCmdId read_command_id() = 0;
 
-	virtual const Renderer3dCommandClear* read_clear() = 0;
+	virtual const R3dCmdClear* read_clear() = 0;
 
-	virtual const Renderer3dCommandViewport* read_viewport() = 0;
+	virtual const R3dCmdViewport* read_viewport() = 0;
 
-	virtual const Renderer3dCommandScissor* read_scissor() = 0;
-	virtual const Renderer3dCommandScissorBox* read_scissor_box() = 0;
+	virtual const R3dCmdScissor* read_scissor() = 0;
+	virtual const R3dCmdScissorBox* read_scissor_box() = 0;
 
-	virtual const Renderer3dCommandCulling* read_culling() = 0;
+	virtual const R3dCmdCulling* read_culling() = 0;
 
-	virtual const Renderer3dCommandDepthTest* read_depth_test() = 0;
-	virtual const Renderer3dCommandDepthWrite* read_depth_write() = 0;
+	virtual const R3dCmdDepthTest* read_depth_test() = 0;
+	virtual const R3dCmdDepthWrite* read_depth_write() = 0;
 
-	virtual const Renderer3dCommandBlending* read_blending() = 0;
-	virtual const Renderer3dCommandBlendingFunc* read_blending_func() = 0;
+	virtual const R3dCmdBlending* read_blending() = 0;
+	virtual const R3dCmdBlendingFunc* read_blending_func() = 0;
 
-	virtual const Renderer3dCommandTexture* read_texture() = 0;
-	virtual const Renderer3dCommandSampler* read_sampler() = 0;
+	virtual const R3dCmdTexture* read_texture() = 0;
+	virtual const R3dCmdSampler* read_sampler() = 0;
 
-	virtual const Renderer3dCommandVertexInput* read_vertex_input() = 0;
+	virtual const R3dCmdVertexInput* read_vertex_input() = 0;
 
-	virtual const Renderer3dCommandShaderStage* read_shader_stage() = 0;
+	virtual const R3dCmdShaderStage* read_shader_stage() = 0;
 
-	virtual const Renderer3dCommandShaderVarInt32* read_shader_var_int32() = 0;
-	virtual const Renderer3dCommandShaderVarFloat32* read_shader_var_float32() = 0;
-	virtual const Renderer3dCommandShaderVarVec2* read_shader_var_vec2() = 0;
-	virtual const Renderer3dCommandShaderVarVec4* read_shader_var_vec4() = 0;
-	virtual const Renderer3dCommandShaderVarMat4* read_shader_var_mat4() = 0;
-	virtual const Renderer3dCommandShaderVarSampler2d* read_shader_var_sampler_2d() = 0;
+	virtual const R3dCmdShaderVarInt32* read_shader_var_int32() = 0;
+	virtual const R3dCmdShaderVarFloat32* read_shader_var_float32() = 0;
+	virtual const R3dCmdShaderVarVec2* read_shader_var_vec2() = 0;
+	virtual const R3dCmdShaderVarVec4* read_shader_var_vec4() = 0;
+	virtual const R3dCmdShaderVarMat4* read_shader_var_mat4() = 0;
+	virtual const R3dCmdShaderVarSampler2d* read_shader_var_sampler_2d() = 0;
 
-	virtual const Renderer3dCommandDrawIndexed* read_draw_indexed() = 0;
-}; // Renderer3dCommandBuffer
+	virtual const R3dCmdDrawIndexed* read_draw_indexed() = 0;
+}; // R3dCmdBuffer
 
-using Renderer3dCommandBufferPtr = Renderer3dCommandBuffer*;
+using R3dCmdBufferPtr = R3dCmdBuffer*;
 
 //
-// Renderer3dCommandBuffer
+// R3dCmdBuffer
 // ==========================================================================
 
 

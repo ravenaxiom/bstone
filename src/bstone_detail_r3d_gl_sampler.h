@@ -42,49 +42,49 @@ namespace detail
 {
 
 
-class GlContext;
-using GlContextPtr = GlContext*;
+class R3dGlContext;
+using R3dGlContextPtr = R3dGlContext*;
 
 
 // =========================================================================
-// GlSampler
+// R3dGlSampler
 //
 
-class GlSampler :
-	public Renderer3dSampler
+class R3dGlSampler :
+	public R3dSampler
 {
 protected:
-	GlSampler() = default;
+	R3dGlSampler() = default;
 
 
 public:
-	~GlSampler() override = default;
+	~R3dGlSampler() override = default;
 
 
 	virtual void set() = 0;
-}; // GlSampler
+}; // R3dGlSampler
 
-using GlSamplerPtr = GlSampler*;
-using GlSamplerUPtr = std::unique_ptr<GlSampler>;
+using R3dGlSamplerPtr = R3dGlSampler*;
+using R3dGlSamplerUPtr = std::unique_ptr<R3dGlSampler>;
 
 //
-// GlSampler
+// R3dGlSampler
 // =========================================================================
 
 
 // =========================================================================
-// GlSamplerFactory
+// R3dGlSamplerFactory
 //
 
-struct GlSamplerFactory
+struct R3dGlSamplerFactory
 {
-	static GlSamplerUPtr create(
-		GlContextPtr gl_context,
-		const Renderer3dSamplerCreateParam& param);
-}; // GlSamplerFactory
+	static R3dGlSamplerUPtr create(
+		R3dGlContextPtr gl_context,
+		const R3dSamplerCreateParam& param);
+}; // R3dGlSamplerFactory
 
 //
-// GlSamplerFactory
+// R3dGlSamplerFactory
 // =========================================================================
 
 

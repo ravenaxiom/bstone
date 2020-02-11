@@ -45,32 +45,32 @@ namespace detail
 
 
 // ==========================================================================
-// GlVertexInputManagerImpl
+// R3dGlVertexInputMgrImpl
 //
 
-class GlVertexInputManagerImpl final :
-	public GlVertexInputManager
+class R3dGlVertexInputMgrImpl final :
+	public R3dGlVertexInputMgr
 {
 public:
-	GlVertexInputManagerImpl(
-		const GlContextPtr gl_context);
+	R3dGlVertexInputMgrImpl(
+		const R3dGlContextPtr gl_context);
 
-	~GlVertexInputManagerImpl() override;
-
-
-	GlContextPtr get_gl_context() const noexcept override;
+	~R3dGlVertexInputMgrImpl() override;
 
 
-	Renderer3dVertexInputUPtr create(
-		const Renderer3dVertexInputCreateParam& param) override;
+	R3dGlContextPtr get_gl_context() const noexcept override;
+
+
+	R3dVertexInputUPtr create(
+		const R3dVertexInputCreateParam& param) override;
 
 	void notify_destroy(
-		const Renderer3dVertexInputPtr vertex_input) noexcept override;
+		const R3dVertexInputPtr vertex_input) noexcept override;
 
 	void set(
-		const Renderer3dVertexInputPtr vertex_input) override;
+		const R3dVertexInputPtr vertex_input) override;
 
-	Renderer3dBufferPtr get_current_index_buffer() const noexcept override;
+	R3dBufferPtr get_current_index_buffer() const noexcept override;
 
 
 	void enable_location(
@@ -83,10 +83,10 @@ public:
 
 
 private:
-	const GlContextPtr gl_context_;
+	const R3dGlContextPtr gl_context_;
 
 
-	GlVertexInputPtr vertex_input_current_;
+	R3dGlVertexInputPtr vertex_input_current_;
 
 	bool vertex_input_location_is_assigning_;
 	using VertexInputAssignedLocations = std::vector<bool>;
@@ -98,22 +98,22 @@ private:
 	void initialize();
 
 	void set();
-}; // GlVertexInputManagerImpl
+}; // R3dGlVertexInputMgrImpl
 
-using GlVaoManagerImplPtr = GlVertexInputManagerImpl*;
-using GlVaoManagerImplUPtr = std::unique_ptr<GlVertexInputManagerImpl>;
+using R3dGlVaoMgrImplPtr = R3dGlVertexInputMgrImpl*;
+using R3dGlVaoMgrImplUPtr = std::unique_ptr<R3dGlVertexInputMgrImpl>;
 
 //
-// GlVertexInputManagerImpl
+// R3dGlVertexInputMgrImpl
 // ==========================================================================
 
 
 // ==========================================================================
-// GlVertexInputManagerImpl
+// R3dGlVertexInputMgrImpl
 //
 
-GlVertexInputManagerImpl::GlVertexInputManagerImpl(
-	const GlContextPtr gl_context)
+R3dGlVertexInputMgrImpl::R3dGlVertexInputMgrImpl(
+	const R3dGlContextPtr gl_context)
 	:
 	gl_context_{gl_context},
 	vertex_input_current_{},
@@ -123,21 +123,21 @@ GlVertexInputManagerImpl::GlVertexInputManagerImpl(
 	initialize();
 }
 
-GlVertexInputManagerImpl::~GlVertexInputManagerImpl() = default;
+R3dGlVertexInputMgrImpl::~R3dGlVertexInputMgrImpl() = default;
 
-GlContextPtr GlVertexInputManagerImpl::get_gl_context() const noexcept
+R3dGlContextPtr R3dGlVertexInputMgrImpl::get_gl_context() const noexcept
 {
 	return gl_context_;
 }
 
-Renderer3dVertexInputUPtr GlVertexInputManagerImpl::create(
-	const Renderer3dVertexInputCreateParam& param)
+R3dVertexInputUPtr R3dGlVertexInputMgrImpl::create(
+	const R3dVertexInputCreateParam& param)
 {
-	return GlVertexInputFactory::create(this, param);
+	return R3dGlVertexInputFactory::create(this, param);
 }
 
-void GlVertexInputManagerImpl::notify_destroy(
-	const Renderer3dVertexInputPtr vertex_input) noexcept
+void R3dGlVertexInputMgrImpl::notify_destroy(
+	const R3dVertexInputPtr vertex_input) noexcept
 {
 	if (vertex_input_current_ == vertex_input)
 	{
@@ -145,19 +145,19 @@ void GlVertexInputManagerImpl::notify_destroy(
 	}
 }
 
-void GlVertexInputManagerImpl::set(
-	const Renderer3dVertexInputPtr vertex_input)
+void R3dGlVertexInputMgrImpl::set(
+	const R3dVertexInputPtr vertex_input)
 {
 	if (vertex_input_current_ == vertex_input)
 	{
 		return;
 	}
 
-	vertex_input_current_ = static_cast<GlVertexInputPtr>(vertex_input);
+	vertex_input_current_ = static_cast<R3dGlVertexInputPtr>(vertex_input);
 	set();
 }
 
-Renderer3dBufferPtr GlVertexInputManagerImpl::get_current_index_buffer() const noexcept
+R3dBufferPtr R3dGlVertexInputMgrImpl::get_current_index_buffer() const noexcept
 {
 	if (!vertex_input_current_)
 	{
@@ -167,7 +167,7 @@ Renderer3dBufferPtr GlVertexInputManagerImpl::get_current_index_buffer() const n
 	return vertex_input_current_->get_index_buffer();
 }
 
-void GlVertexInputManagerImpl::enable_location(
+void R3dGlVertexInputMgrImpl::enable_location(
 	const int location,
 	const bool is_enabled)
 {
@@ -183,7 +183,7 @@ void GlVertexInputManagerImpl::enable_location(
 	vao_manager->enable_location(location, is_enabled);
 }
 
-void GlVertexInputManagerImpl::location_assign_begin()
+void R3dGlVertexInputMgrImpl::location_assign_begin()
 {
 	if (vertex_input_location_is_assigning_)
 	{
@@ -199,7 +199,7 @@ void GlVertexInputManagerImpl::location_assign_begin()
 	);
 }
 
-void GlVertexInputManagerImpl::location_assign_end()
+void R3dGlVertexInputMgrImpl::location_assign_end()
 {
 	if (!vertex_input_location_is_assigning_)
 	{
@@ -216,7 +216,7 @@ void GlVertexInputManagerImpl::location_assign_end()
 	}
 }
 
-void GlVertexInputManagerImpl::initialize_vertex_input_locations()
+void R3dGlVertexInputMgrImpl::initialize_vertex_input_locations()
 {
 	const auto& device_features = gl_context_->get_device_features();
 
@@ -228,7 +228,7 @@ void GlVertexInputManagerImpl::initialize_vertex_input_locations()
 	}
 }
 
-void GlVertexInputManagerImpl::initialize()
+void R3dGlVertexInputMgrImpl::initialize()
 {
 	if (!gl_context_)
 	{
@@ -238,7 +238,7 @@ void GlVertexInputManagerImpl::initialize()
 	initialize_vertex_input_locations();
 }
 
-void GlVertexInputManagerImpl::set()
+void R3dGlVertexInputMgrImpl::set()
 {
 	if (!vertex_input_current_)
 	{
@@ -249,22 +249,22 @@ void GlVertexInputManagerImpl::set()
 }
 
 //
-// GlVertexInputManagerImpl
+// R3dGlVertexInputMgrImpl
 // ==========================================================================
 
 
 // ==========================================================================
-// GlVaoManagerFactory
+// GlVaoMgrFactory
 //
 
-GlVertexInputManagerUPtr GlVertexInputManagerFactory::create(
-	const GlContextPtr gl_context)
+R3dGlVertexInputMgrUPtr R3dGlVertexInputMgrFactory::create(
+	const R3dGlContextPtr gl_context)
 {
-	return std::make_unique<GlVertexInputManagerImpl>(gl_context);
+	return std::make_unique<R3dGlVertexInputMgrImpl>(gl_context);
 }
 
 //
-// GlVaoManagerFactory
+// GlVaoMgrFactory
 // ==========================================================================
 
 

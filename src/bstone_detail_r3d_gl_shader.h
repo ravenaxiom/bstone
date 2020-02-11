@@ -44,55 +44,55 @@ namespace detail
 {
 
 
-class GlShaderManager;
-using GlShaderManagerPtr = GlShaderManager*;
+class R3dGlShaderMgr;
+using R3dGlShaderMgrPtr = R3dGlShaderMgr*;
 
-class GlShaderStage;
-using GlShaderStagePtr = GlShaderStage*;
+class R3dGlShaderStage;
+using R3dGlShaderStagePtr = R3dGlShaderStage*;
 
 
 // ==========================================================================
-// GlShader
+// R3dGlShader
 //
 
-class GlShader :
-	public Renderer3dShader
+class R3dGlShader :
+	public R3dShader
 {
 protected:
-	GlShader() = default;
+	R3dGlShader() = default;
 
 
 public:
-	~GlShader() override = default;
+	~R3dGlShader() override = default;
 
 
 	virtual GLuint get_gl_name() const noexcept = 0;
 
 	virtual void attach_to_shader_stage(
-		const GlShaderStagePtr shader_stage) = 0;
-}; // GlShader
+		const R3dGlShaderStagePtr shader_stage) = 0;
+}; // R3dGlShader
 
-using GlShaderPtr = GlShader*;
-using GlShaderUPtr = std::unique_ptr<GlShader>;
+using R3dGlShaderPtr = R3dGlShader*;
+using R3dGlShaderUPtr = std::unique_ptr<R3dGlShader>;
 
 //
-// GlShader
+// R3dGlShader
 // ==========================================================================
 
 
 // ==========================================================================
-// GlShaderFactory
+// R3dGlShaderFactory
 //
 
-struct GlShaderFactory
+struct R3dGlShaderFactory
 {
-	static GlShaderUPtr create(
-		const GlShaderManagerPtr gl_shader_manager,
-		const Renderer3dShaderCreateParam& param);
-}; // GlShaderFactory
+	static R3dGlShaderUPtr create(
+		const R3dGlShaderMgrPtr gl_shader_manager,
+		const R3dShaderCreateParam& param);
+}; // R3dGlShaderFactory
 
 //
-// GlShaderFactory
+// R3dGlShaderFactory
 // ==========================================================================
 
 

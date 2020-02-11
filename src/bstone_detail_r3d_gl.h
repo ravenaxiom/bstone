@@ -55,30 +55,30 @@ namespace detail
 {
 
 
-class GlRenderer3d final :
-	public Renderer3d
+class R3dGl final :
+	public R3d
 {
 public:
-	GlRenderer3d(
-		const Renderer3dCreateParam& param);
+	R3dGl(
+		const R3dCreateParam& param);
 
-	~GlRenderer3d() override;
+	~R3dGl() override;
 
 
-	Renderer3dKind get_kind() const noexcept override;
+	R3dKind get_kind() const noexcept override;
 
 	const std::string& get_name() const noexcept override;
 
 	const std::string& get_description() const noexcept override;
 
 
-	const Renderer3dDeviceFeatures& device_get_features() const noexcept override;
+	const R3dDeviceFeatures& device_get_features() const noexcept override;
 
-	const Renderer3dDeviceInfo& device_get_info() const noexcept override;
+	const R3dDeviceInfo& device_get_info() const noexcept override;
 
 
 	void window_set_mode(
-		const Renderer3dWindowSetModeParam& param) override;
+		const R3dWindowSetModeParam& param) override;
 
 	void window_set_title(
 		const std::string& title_utf8) override;
@@ -94,34 +94,34 @@ public:
 
 
 	void aa_set(
-		const Renderer3dAaKind aa_kind,
+		const R3dAaKind aa_kind,
 		const int aa_value) override;
 
 
 	void present() override;
 
 
-	Renderer3dBufferUPtr buffer_create(
-		const Renderer3dBufferCreateParam& param) override;
+	R3dBufferUPtr buffer_create(
+		const R3dBufferCreateParam& param) override;
 
-	Renderer3dTexture2dUPtr texture_2d_create(
-		const Renderer3dTexture2dCreateParam& param) override;
+	R3dTexture2dUPtr texture_2d_create(
+		const R3dTexture2dCreateParam& param) override;
 
-	Renderer3dSamplerUPtr sampler_create(
-		const Renderer3dSamplerCreateParam& param) override;
+	R3dSamplerUPtr sampler_create(
+		const R3dSamplerCreateParam& param) override;
 
-	Renderer3dVertexInputUPtr vertex_input_create(
-		const Renderer3dVertexInputCreateParam& param) override;
+	R3dVertexInputUPtr vertex_input_create(
+		const R3dVertexInputCreateParam& param) override;
 
-	Renderer3dShaderUPtr shader_create(
-		const Renderer3dShaderCreateParam& param) override;
+	R3dShaderUPtr shader_create(
+		const R3dShaderCreateParam& param) override;
 
-	Renderer3dShaderStageUPtr shader_stage_create(
-		const Renderer3dShaderStageCreateParam& param) override;
+	R3dShaderStageUPtr shader_stage_create(
+		const R3dShaderStageCreateParam& param) override;
 
 
 	void submit_commands(
-		const Renderer3dCommandQueuePtr command_queue) override;
+		const R3dCmdQueuePtr command_queue) override;
 
 
 private:
@@ -137,29 +137,29 @@ private:
 	using RboResource = UniqueResource<GLuint, rbo_resource_deleter>;
 
 
-	using Shaders = std::list<detail::GlShaderUPtr>;
-	using ShaderStages = std::list<detail::GlShaderStageUPtr>;
+	using Shaders = std::list<R3dGlShaderUPtr>;
+	using ShaderStages = std::list<R3dGlShaderStageUPtr>;
 
 
-	Renderer3dKind kind_;
+	R3dKind kind_;
 	std::string name_;
 	std::string description_;
 
-	Renderer3dDeviceInfo device_info_;
-	Renderer3dDeviceFeatures device_features_;
-	detail::GlDeviceFeatures gl_device_features_;
+	R3dDeviceInfo device_info_;
+	R3dDeviceFeatures device_features_;
+	R3dGlDeviceFeatures gl_device_features_;
 
 	int screen_width_;
 	int screen_height_;
 
-	Renderer3dAaKind aa_kind_;
+	R3dAaKind aa_kind_;
 	int aa_value_;
 
 	SdlWindowUPtr sdl_window_;
 	SdlGlContextUPtr sdl_gl_context_;
 
-	GlExtensionManagerUPtr extension_manager_;
-	GlContextUPtr gl_context_;
+	R3dGlExtensionMgrUPtr extension_manager_;
+	R3dGlContextUPtr gl_context_;
 
 	FboResource gl_msaa_fbo_;
 	RboResource gl_msaa_color_rb_;
@@ -232,69 +232,69 @@ private:
 
 
 	void command_execute_clear(
-		const Renderer3dCommandClear& command);
+		const R3dCmdClear& command);
 
 	void command_execute_culling(
-		const Renderer3dCommandCulling& command);
+		const R3dCmdCulling& command);
 
 	void command_execute_depth_test(
-		const Renderer3dCommandDepthTest& command);
+		const R3dCmdDepthTest& command);
 
 	void command_execute_depth_write(
-		const Renderer3dCommandDepthWrite& command);
+		const R3dCmdDepthWrite& command);
 
 	void command_execute_blending(
-		const Renderer3dCommandBlending& command);
+		const R3dCmdBlending& command);
 
 	void command_execute_blending_func(
-		const Renderer3dCommandBlendingFunc& command);
+		const R3dCmdBlendingFunc& command);
 
 	void command_execute_viewport(
-		const Renderer3dCommandViewport& command);
+		const R3dCmdViewport& command);
 
 	void command_execute_scissor(
-		const Renderer3dCommandScissor& command);
+		const R3dCmdScissor& command);
 
 	void command_execute_scissor_box(
-		const Renderer3dCommandScissorBox& command);
+		const R3dCmdScissorBox& command);
 
 	void command_execute_texture(
-		const Renderer3dCommandTexture& command);
+		const R3dCmdTexture& command);
 
 	void command_execute_sampler(
-		const Renderer3dCommandSampler& command);
+		const R3dCmdSampler& command);
 
 	void command_execute_vertex_input(
-		const Renderer3dCommandVertexInput& command);
+		const R3dCmdVertexInput& command);
 
 	void command_execute_shader_stage(
-		const Renderer3dCommandShaderStage& command);
+		const R3dCmdShaderStage& command);
 
 	void command_execute_shader_var_int32(
-		const Renderer3dCommandShaderVarInt32& command);
+		const R3dCmdShaderVarInt32& command);
 
 	void command_execute_shader_var_float32(
-		const Renderer3dCommandShaderVarFloat32& command);
+		const R3dCmdShaderVarFloat32& command);
 
 	void command_execute_shader_var_vec2(
-		const Renderer3dCommandShaderVarVec2& command);
+		const R3dCmdShaderVarVec2& command);
 
 	void command_execute_shader_var_vec4(
-		const Renderer3dCommandShaderVarVec4& command);
+		const R3dCmdShaderVarVec4& command);
 
 	void command_execute_shader_var_mat4(
-		const Renderer3dCommandShaderVarMat4& command);
+		const R3dCmdShaderVarMat4& command);
 
 	void command_execute_shader_var_sampler_2d(
-		const Renderer3dCommandShaderVarSampler2d& command);
+		const R3dCmdShaderVarSampler2d& command);
 
 	void command_execute_draw_indexed(
-		const Renderer3dCommandDrawIndexed& command);
-}; // GlRenderer3d
+		const R3dCmdDrawIndexed& command);
+}; // R3dGl
 
 
-using GlRenderer3dPtr = GlRenderer3d*;
-using GlRenderer3dUPtr = std::unique_ptr<GlRenderer3d>;
+using R3dGlPtr = R3dGl*;
+using R3dGlUPtr = std::unique_ptr<R3dGl>;
 
 
 } // detail

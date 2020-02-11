@@ -43,77 +43,77 @@ namespace detail
 {
 
 
-class GlContext;
-using GlContextPtr = GlContext*;
+class R3dGlContext;
+using R3dGlContextPtr = R3dGlContext*;
 
 
 // ==========================================================================
-// GlTextureManager
+// R3dGlTextureMgr
 //
 
-class GlTextureManager
+class R3dGlTextureMgr
 {
 protected:
-	GlTextureManager() = default;
+	R3dGlTextureMgr() = default;
 
 
 public:
-	virtual ~GlTextureManager() = default;
+	virtual ~R3dGlTextureMgr() = default;
 
 
-	virtual GlContextPtr get_gl_context() const noexcept = 0;
+	virtual R3dGlContextPtr get_gl_context() const noexcept = 0;
 
 
-	virtual Renderer3dTexture2dUPtr create(
-		const Renderer3dTexture2dCreateParam& param) = 0;
+	virtual R3dTexture2dUPtr create(
+		const R3dTexture2dCreateParam& param) = 0;
 
 	virtual void notify_destroy(
-		const Renderer3dTexture2dPtr texture_2d) noexcept = 0;
+		const R3dTexture2dPtr texture_2d) noexcept = 0;
 
 
 	virtual void set(
-		const Renderer3dTexture2dPtr texture_2d) = 0;
+		const R3dTexture2dPtr texture_2d) = 0;
 
 
-	virtual Renderer3dTexture2dPtr get_active() const noexcept = 0;
+	virtual R3dTexture2dPtr get_active() const noexcept = 0;
 
 	virtual void set_active(
-		const Renderer3dTexture2dPtr texture_2d) = 0;
+		const R3dTexture2dPtr texture_2d) = 0;
 
 
-	virtual Renderer3dTexture2dPtr get_current() const noexcept = 0;
+	virtual R3dTexture2dPtr get_current() const noexcept = 0;
 
 	virtual void set_current(
-		const Renderer3dTexture2dPtr texture_2d) = 0;
+		const R3dTexture2dPtr texture_2d) = 0;
 
 
 	virtual void set_to_current() = 0;
 
 
 	virtual void update_current_sampler_state(
-		const Renderer3dSamplerState& sampler_state) = 0;
-}; // GlTextureManager
+		const R3dSamplerState& sampler_state) = 0;
+}; // R3dGlTextureMgr
 
-using GlTextureManagerPtr = GlTextureManager*;
-using GlTextureManagerUPtr = std::unique_ptr<GlTextureManager>;
+using R3dGlTextureMgrPtr = R3dGlTextureMgr*;
+using R3dGlTextureMgrUPtr = std::unique_ptr<R3dGlTextureMgr>;
 
 //
-// GlTextureManager
+// R3dGlTextureMgr
 // ==========================================================================
 
 
 // ==========================================================================
-// GlTextureManagerFactory
+// R3dGlTextureMgrFactory
 //
 
-struct GlTextureManagerFactory
+struct R3dGlTextureMgrFactory
 {
-	static GlTextureManagerUPtr create(
-		const GlContextPtr gl_context);
-}; // GlTextureManagerFactory
+	static R3dGlTextureMgrUPtr create(
+		const R3dGlContextPtr gl_context);
+}; // R3dGlTextureMgrFactory
 
 //
-// GlTextureManagerFactory
+// R3dGlTextureMgrFactory
 // ==========================================================================
 
 

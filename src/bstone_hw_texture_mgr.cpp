@@ -23,7 +23,7 @@ Free Software Foundation, Inc.,
 
 
 //
-// Renderer3d texture manager (implementation).
+// R3d texture manager (implementation).
 //
 
 
@@ -225,33 +225,33 @@ void XbrzTask::initialize(
 
 
 // ==========================================================================
-// GenericHwTextureManager
+// HwTextureMgrImpl
 //
 
-class GenericHwTextureManager final :
-	public HwTextureManager
+class HwTextureMgrImpl final :
+	public HwTextureMgr
 {
 public:
-	GenericHwTextureManager(
-		const Renderer3dPtr renderer,
+	HwTextureMgrImpl(
+		const R3dPtr renderer,
 		const SpriteCachePtr sprite_cache,
-		const MtTaskManagerPtr mt_task_manager);
+		const MtTaskMgrPtr mt_task_manager);
 
-	~GenericHwTextureManager() override;
+	~HwTextureMgrImpl() override;
 
 
 	int upscale_filter_get_min_factor(
-		const HwTextureManagerUpscaleFilterKind upscale_filter_kind) const override;
+		const HwTextureMgrUpscaleFilterKind upscale_filter_kind) const override;
 
 	int upscale_filter_get_max_factor(
-		const HwTextureManagerUpscaleFilterKind upscale_filter_kind) const override;
+		const HwTextureMgrUpscaleFilterKind upscale_filter_kind) const override;
 
-	HwTextureManagerUpscaleFilterKind upscale_filter_get_kind() const noexcept override;
+	HwTextureMgrUpscaleFilterKind upscale_filter_get_kind() const noexcept override;
 
 	int upscale_filter_get_factor() const noexcept override;
 
 	void upscale_filter_set(
-		const HwTextureManagerUpscaleFilterKind upscale_filter,
+		const HwTextureMgrUpscaleFilterKind upscale_filter,
 		const int upscale_filter_factor) override;
 
 
@@ -265,14 +265,14 @@ public:
 	void wall_cache(
 		const int id) override;
 
-	Renderer3dTexture2dPtr wall_get(
+	R3dTexture2dPtr wall_get(
 		const int id) const override;
 
 
 	void sprite_cache(
 		const int id) override;
 
-	Renderer3dTexture2dPtr sprite_get(
+	R3dTexture2dPtr sprite_get(
 		const int id) const override;
 
 
@@ -285,21 +285,21 @@ public:
 
 	void ui_update() override;
 
-	Renderer3dTexture2dPtr ui_get() const override;
+	R3dTexture2dPtr ui_get() const override;
 
 
 	void solid_1x1_destroy(
-		const HwTextureManagerSolid1x1Id id) override;
+		const HwTextureMgrSolid1x1Id id) override;
 
 	void solid_1x1_create(
-		const HwTextureManagerSolid1x1Id id) override;
+		const HwTextureMgrSolid1x1Id id) override;
 
 	void solid_1x1_update(
-		const HwTextureManagerSolid1x1Id id,
+		const HwTextureMgrSolid1x1Id id,
 		const Rgba8 color) override;
 
-	Renderer3dTexture2dPtr solid_1x1_get(
-		const HwTextureManagerSolid1x1Id id) const override;
+	R3dTexture2dPtr solid_1x1_get(
+		const HwTextureMgrSolid1x1Id id) const override;
 
 
 private:
@@ -323,7 +323,7 @@ private:
 
 	struct Texture2dProperties
 	{
-		Renderer3dPixelFormat image_pixel_format_;
+		R3dPixelFormat image_pixel_format_;
 
 		bool is_npot_;
 
@@ -353,7 +353,7 @@ private:
 	{
 		GenerationId generation_id_;
 		Texture2dProperties properties_;
-		Renderer3dTexture2dUPtr texture_2d_;
+		R3dTexture2dUPtr texture_2d_;
 
 		Texture2dItem();
 
@@ -370,20 +370,20 @@ private:
 	{
 		Rgba8 color_;
 		Texture2dProperties properties_;
-		Renderer3dTexture2dUPtr texture_2d_;
+		R3dTexture2dUPtr texture_2d_;
 
 
 		void clear();
 	}; // Solid1x1Item
 
-	using Solid1x1Items = std::array<Solid1x1Item, static_cast<std::size_t>(HwTextureManagerSolid1x1Id::count_)>;
+	using Solid1x1Items = std::array<Solid1x1Item, static_cast<std::size_t>(HwTextureMgrSolid1x1Id::count_)>;
 
 
-	Renderer3dPtr renderer_;
+	R3dPtr renderer_;
 	SpriteCachePtr sprite_cache_;
-	MtTaskManagerPtr mt_task_manager_;
+	MtTaskMgrPtr mt_task_manager_;
 
-	HwTextureManagerUpscaleFilterKind upscale_filter_kind_;
+	HwTextureMgrUpscaleFilterKind upscale_filter_kind_;
 	int upscale_filter_factor_;
 
 	bool is_caching_;
@@ -397,8 +397,8 @@ private:
 
 	Texture2dItem ui_t2d_item_;
 
-	detail::Renderer3dUtils::Rgba8Buffer mipmap_buffer_;
-	detail::Renderer3dUtils::Rgba8Buffer upscale_buffer_;
+	detail::R3dUtils::Rgba8Buffer mipmap_buffer_;
+	detail::R3dUtils::Rgba8Buffer upscale_buffer_;
 
 	Solid1x1Items solid_1x1_items_;
 
@@ -407,7 +407,7 @@ private:
 
 
 	static void validate_upscale_filter(
-		const HwTextureManagerUpscaleFilterKind upscale_filter_kind,
+		const HwTextureMgrUpscaleFilterKind upscale_filter_kind,
 		const int upscale_filter_factor);
 
 
@@ -450,7 +450,7 @@ private:
 	void uninitialize();
 
 	void initialize(
-		Renderer3dPtr renderer,
+		R3dPtr renderer,
 		SpriteCachePtr sprite_cache);
 
 	void uninitialize_internal();
@@ -468,7 +468,7 @@ private:
 
 	void update_mipmaps(
 		const Texture2dProperties& properties,
-		const Renderer3dTexture2dUPtr& texture_2d);
+		const R3dTexture2dUPtr& texture_2d);
 
 
 	void destroy_missing_sprite_texture();
@@ -489,13 +489,13 @@ private:
 
 
 	void initialize_internal(
-		Renderer3dPtr renderer,
+		R3dPtr renderer,
 		SpriteCachePtr sprite_cache);
 
 	void cache_purge(
 		IdToTexture2dMap& map);
 
-	Renderer3dTexture2dPtr get_texture_2d(
+	R3dTexture2dPtr get_texture_2d(
 		const ImageKind image_kind,
 		const int id,
 		const IdToTexture2dMap& map) const;
@@ -503,29 +503,29 @@ private:
 	void solid_1x1_destroy_all();
 
 	static int solid_1x1_get_index(
-		const HwTextureManagerSolid1x1Id id);
+		const HwTextureMgrSolid1x1Id id);
 
 	static int solid_1x1_get_updateable_index(
-		const HwTextureManagerSolid1x1Id id);
+		const HwTextureMgrSolid1x1Id id);
 
 	static Rgba8 solid_1x1_get_default_color(
-		const HwTextureManagerSolid1x1Id id);
+		const HwTextureMgrSolid1x1Id id);
 
 	static int upscale_filter_get_min_factor_internal(
-		const HwTextureManagerUpscaleFilterKind upscale_filter_kind);
+		const HwTextureMgrUpscaleFilterKind upscale_filter_kind);
 
 	static int upscale_filter_get_max_factor_internal(
-		const HwTextureManagerUpscaleFilterKind upscale_filter_kind);
+		const HwTextureMgrUpscaleFilterKind upscale_filter_kind);
 
 	static int upscale_filter_clamp_factor(
-		const HwTextureManagerUpscaleFilterKind upscale_filter_kind,
+		const HwTextureMgrUpscaleFilterKind upscale_filter_kind,
 		const int upscale_filter_factor);
 }; // Detail
 
-using HwTextureManagerImplUPtr = std::unique_ptr<GenericHwTextureManager>;
+using HwTextureMgrImplUPtr = std::unique_ptr<HwTextureMgrImpl>;
 
 
-GenericHwTextureManager::Texture2dItem::Texture2dItem()
+HwTextureMgrImpl::Texture2dItem::Texture2dItem()
 	:
 	generation_id_{},
 	properties_{},
@@ -533,7 +533,7 @@ GenericHwTextureManager::Texture2dItem::Texture2dItem()
 {
 }
 
-GenericHwTextureManager::Texture2dItem::Texture2dItem(
+HwTextureMgrImpl::Texture2dItem::Texture2dItem(
 	Texture2dItem&& rhs)
 	:
 	generation_id_{std::move(rhs.generation_id_)},
@@ -542,7 +542,7 @@ GenericHwTextureManager::Texture2dItem::Texture2dItem(
 {
 }
 
-GenericHwTextureManager::Texture2dItem& GenericHwTextureManager::Texture2dItem::operator=(
+HwTextureMgrImpl::Texture2dItem& HwTextureMgrImpl::Texture2dItem::operator=(
 	Texture2dItem&& rhs)
 {
 	std::swap(generation_id_, rhs.generation_id_);
@@ -552,17 +552,17 @@ GenericHwTextureManager::Texture2dItem& GenericHwTextureManager::Texture2dItem::
 	return *this;
 }
 
-void GenericHwTextureManager::Solid1x1Item::clear()
+void HwTextureMgrImpl::Solid1x1Item::clear()
 {
 	color_.reset();
 	properties_ = {};
 	texture_2d_ = nullptr;
 }
 
-GenericHwTextureManager::GenericHwTextureManager(
-	const Renderer3dPtr renderer,
+HwTextureMgrImpl::HwTextureMgrImpl(
+	const R3dPtr renderer,
 	const SpriteCachePtr sprite_cache,
-	const MtTaskManagerPtr mt_task_manager)
+	const MtTaskMgrPtr mt_task_manager)
 	:
 	renderer_{},
 	sprite_cache_{},
@@ -585,17 +585,17 @@ GenericHwTextureManager::GenericHwTextureManager(
 	initialize(renderer, sprite_cache);
 }
 
-GenericHwTextureManager::~GenericHwTextureManager()
+HwTextureMgrImpl::~HwTextureMgrImpl()
 {
 	uninitialize_internal();
 }
 
-void GenericHwTextureManager::uninitialize()
+void HwTextureMgrImpl::uninitialize()
 {
 	uninitialize_internal();
 }
 
-void GenericHwTextureManager::recreate_indexed_resources()
+void HwTextureMgrImpl::recreate_indexed_resources()
 {
 	// Sprites.
 	//
@@ -645,30 +645,30 @@ void GenericHwTextureManager::recreate_indexed_resources()
 	}
 }
 
-int GenericHwTextureManager::upscale_filter_get_min_factor(
-	const HwTextureManagerUpscaleFilterKind upscale_filter_kind) const
+int HwTextureMgrImpl::upscale_filter_get_min_factor(
+	const HwTextureMgrUpscaleFilterKind upscale_filter_kind) const
 {
 	return upscale_filter_get_min_factor_internal(upscale_filter_kind);
 }
 
-int GenericHwTextureManager::upscale_filter_get_max_factor(
-	const HwTextureManagerUpscaleFilterKind upscale_filter_kind) const
+int HwTextureMgrImpl::upscale_filter_get_max_factor(
+	const HwTextureMgrUpscaleFilterKind upscale_filter_kind) const
 {
 	return upscale_filter_get_max_factor_internal(upscale_filter_kind);
 }
 
-HwTextureManagerUpscaleFilterKind GenericHwTextureManager::upscale_filter_get_kind() const noexcept
+HwTextureMgrUpscaleFilterKind HwTextureMgrImpl::upscale_filter_get_kind() const noexcept
 {
 	return upscale_filter_kind_;
 }
 
-int GenericHwTextureManager::upscale_filter_get_factor() const noexcept
+int HwTextureMgrImpl::upscale_filter_get_factor() const noexcept
 {
 	return upscale_filter_factor_;
 }
 
-void GenericHwTextureManager::upscale_filter_set(
-	const HwTextureManagerUpscaleFilterKind upscale_filter_kind,
+void HwTextureMgrImpl::upscale_filter_set(
+	const HwTextureMgrUpscaleFilterKind upscale_filter_kind,
 	const int upscale_filter_factor)
 {
 	const auto clamped_upscale_filter_factor = upscale_filter_clamp_factor(
@@ -690,7 +690,7 @@ void GenericHwTextureManager::upscale_filter_set(
 	recreate_indexed_resources();
 }
 
-void GenericHwTextureManager::cache_begin()
+void HwTextureMgrImpl::cache_begin()
 {
 	if (is_caching_)
 	{
@@ -707,7 +707,7 @@ void GenericHwTextureManager::cache_begin()
 	}
 }
 
-void GenericHwTextureManager::cache_end()
+void HwTextureMgrImpl::cache_end()
 {
 	if (!is_caching_)
 	{
@@ -717,7 +717,7 @@ void GenericHwTextureManager::cache_end()
 	is_caching_ = false;
 }
 
-void GenericHwTextureManager::cache_purge()
+void HwTextureMgrImpl::cache_purge()
 {
 	if (is_caching_)
 	{
@@ -728,7 +728,7 @@ void GenericHwTextureManager::cache_purge()
 	cache_purge(sprite_map_);
 }
 
-void GenericHwTextureManager::wall_cache(
+void HwTextureMgrImpl::wall_cache(
 	const int id)
 {
 	if (id < 0 || id >= max_walls)
@@ -751,7 +751,7 @@ void GenericHwTextureManager::wall_cache(
 	wall_map_[id] = std::move(texture_2d_item);
 }
 
-Renderer3dTexture2dPtr GenericHwTextureManager::wall_get(
+R3dTexture2dPtr HwTextureMgrImpl::wall_get(
 	const int id) const
 {
 	if (id < 0 || id >= max_walls)
@@ -762,7 +762,7 @@ Renderer3dTexture2dPtr GenericHwTextureManager::wall_get(
 	return get_texture_2d(ImageKind::wall, id, wall_map_);
 }
 
-void GenericHwTextureManager::sprite_cache(
+void HwTextureMgrImpl::sprite_cache(
 	const int id)
 {
 	if (id <= 0 || id >= max_sprites)
@@ -785,7 +785,7 @@ void GenericHwTextureManager::sprite_cache(
 	sprite_map_[id] = std::move(texture_2d_item);
 }
 
-Renderer3dTexture2dPtr GenericHwTextureManager::sprite_get(
+R3dTexture2dPtr HwTextureMgrImpl::sprite_get(
 	const int id) const
 {
 	if (id <= 0 || id >= max_sprites)
@@ -796,12 +796,12 @@ Renderer3dTexture2dPtr GenericHwTextureManager::sprite_get(
 	return get_texture_2d(ImageKind::sprite, id, sprite_map_);
 }
 
-void GenericHwTextureManager::ui_destroy()
+void HwTextureMgrImpl::ui_destroy()
 {
 	ui_t2d_item_.texture_2d_ = nullptr;
 }
 
-void GenericHwTextureManager::ui_create(
+void HwTextureMgrImpl::ui_create(
 	const std::uint8_t* const indexed_pixels,
 	const bool* const indexed_alphas,
 	const Rgba8PaletteCPtr indexed_palette)
@@ -827,7 +827,7 @@ void GenericHwTextureManager::ui_create(
 	}
 
 	auto param = Texture2dProperties{};
-	param.image_pixel_format_ = Renderer3dPixelFormat::rgba_8_unorm;
+	param.image_pixel_format_ = R3dPixelFormat::rgba_8_unorm;
 	param.width_ = ::vga_ref_width;
 	param.height_ = ::vga_ref_height;
 	param.mipmap_count_ = 1;
@@ -841,18 +841,18 @@ void GenericHwTextureManager::ui_create(
 	ui_t2d_item_ = std::move(texture_2d_item);
 }
 
-void GenericHwTextureManager::ui_update()
+void HwTextureMgrImpl::ui_update()
 {
 	update_mipmaps(ui_t2d_item_.properties_, ui_t2d_item_.texture_2d_);
 }
 
-Renderer3dTexture2dPtr GenericHwTextureManager::ui_get() const
+R3dTexture2dPtr HwTextureMgrImpl::ui_get() const
 {
 	return ui_t2d_item_.texture_2d_.get();
 }
 
-void GenericHwTextureManager::solid_1x1_destroy(
-	const HwTextureManagerSolid1x1Id id)
+void HwTextureMgrImpl::solid_1x1_destroy(
+	const HwTextureMgrSolid1x1Id id)
 {
 	const auto index = solid_1x1_get_index(id);
 
@@ -860,15 +860,15 @@ void GenericHwTextureManager::solid_1x1_destroy(
 	item.clear();
 }
 
-void GenericHwTextureManager::solid_1x1_create(
-	const HwTextureManagerSolid1x1Id id)
+void HwTextureMgrImpl::solid_1x1_create(
+	const HwTextureMgrSolid1x1Id id)
 {
 	const auto index = solid_1x1_get_index(id);
 
 	const auto default_color = solid_1x1_get_default_color(id);
 
 	auto param = Texture2dProperties{};
-	param.image_pixel_format_ = bstone::Renderer3dPixelFormat::rgba_8_unorm;
+	param.image_pixel_format_ = bstone::R3dPixelFormat::rgba_8_unorm;
 	param.width_ = 1;
 	param.height_ = 1;
 	param.mipmap_count_ = 1;
@@ -884,8 +884,8 @@ void GenericHwTextureManager::solid_1x1_create(
 	update_mipmaps(item.properties_, item.texture_2d_);
 }
 
-void GenericHwTextureManager::solid_1x1_update(
-	const HwTextureManagerSolid1x1Id id,
+void HwTextureMgrImpl::solid_1x1_update(
+	const HwTextureMgrSolid1x1Id id,
 	const Rgba8 color)
 {
 	const auto index = solid_1x1_get_updateable_index(id);
@@ -893,14 +893,14 @@ void GenericHwTextureManager::solid_1x1_update(
 	auto& item = solid_1x1_items_[index];
 	item.color_ = color;
 
-	auto param = Renderer3dTexture2dUpdateParam{};
+	auto param = R3dTexture2dUpdateParam{};
 	param.image_ = &item.color_;
 
 	item.texture_2d_->update(param);
 }
 
-Renderer3dTexture2dPtr GenericHwTextureManager::solid_1x1_get(
-	const HwTextureManagerSolid1x1Id id) const
+R3dTexture2dPtr HwTextureMgrImpl::solid_1x1_get(
+	const HwTextureMgrSolid1x1Id id) const
 {
 	const auto index = solid_1x1_get_index(id);
 
@@ -914,14 +914,14 @@ Renderer3dTexture2dPtr GenericHwTextureManager::solid_1x1_get(
 	return solid_1x1_items_[index].texture_2d_.get();
 }
 
-void GenericHwTextureManager::initialize(
-	Renderer3dPtr renderer,
+void HwTextureMgrImpl::initialize(
+	R3dPtr renderer,
 	SpriteCachePtr sprite_cache)
 {
 	initialize_internal(renderer, sprite_cache);
 }
 
-void GenericHwTextureManager::uninitialize_internal()
+void HwTextureMgrImpl::uninitialize_internal()
 {
 	generation_id_ = invalid_generation_id;
 
@@ -951,14 +951,14 @@ void GenericHwTextureManager::uninitialize_internal()
 	mipmap_buffer_.clear();
 }
 
-void GenericHwTextureManager::validate_upscale_filter(
-	const HwTextureManagerUpscaleFilterKind upscale_filter_kind,
+void HwTextureMgrImpl::validate_upscale_filter(
+	const HwTextureMgrUpscaleFilterKind upscale_filter_kind,
 	const int upscale_filter_factor)
 {
 	switch (upscale_filter_kind)
 	{
-		case HwTextureManagerUpscaleFilterKind::none:
-		case HwTextureManagerUpscaleFilterKind::xbrz:
+		case HwTextureMgrUpscaleFilterKind::none:
+		case HwTextureMgrUpscaleFilterKind::xbrz:
 			return;
 
 		default:
@@ -975,7 +975,7 @@ void GenericHwTextureManager::validate_upscale_filter(
 	}
 }
 
-void GenericHwTextureManager::validate_image_source_texture_2d_properties(
+void HwTextureMgrImpl::validate_image_source_texture_2d_properties(
 	const Texture2dProperties& properties)
 {
 	auto source_count = 0;
@@ -1006,12 +1006,12 @@ void GenericHwTextureManager::validate_image_source_texture_2d_properties(
 	}
 }
 
-void GenericHwTextureManager::validate_image_pixel_format_texture_2d_properties(
+void HwTextureMgrImpl::validate_image_pixel_format_texture_2d_properties(
 	const Texture2dProperties& properties)
 {
 	switch (properties.image_pixel_format_)
 	{
-		case Renderer3dPixelFormat::rgba_8_unorm:
+		case R3dPixelFormat::rgba_8_unorm:
 			return;
 
 		default:
@@ -1019,7 +1019,7 @@ void GenericHwTextureManager::validate_image_pixel_format_texture_2d_properties(
 	}
 }
 
-void GenericHwTextureManager::validate_dimensions_texture_2d_properties(
+void HwTextureMgrImpl::validate_dimensions_texture_2d_properties(
 	const Texture2dProperties& properties)
 {
 	if (properties.width_ <= 0)
@@ -1033,17 +1033,17 @@ void GenericHwTextureManager::validate_dimensions_texture_2d_properties(
 	}
 }
 
-void GenericHwTextureManager::validate_mipmap_texture_2d_properties(
+void HwTextureMgrImpl::validate_mipmap_texture_2d_properties(
 	const Texture2dProperties& properties)
 {
 	if (properties.mipmap_count_ <= 0 ||
-		properties.mipmap_count_ > Renderer3dLimits::max_mipmap_count)
+		properties.mipmap_count_ > R3dLimits::max_mipmap_count)
 	{
 		throw Exception{"Mipmap count out of range."};
 	}
 }
 
-void GenericHwTextureManager::validate_common_texture_2d_properties(
+void HwTextureMgrImpl::validate_common_texture_2d_properties(
 	const Texture2dProperties& properties)
 {
 	validate_image_source_texture_2d_properties(properties);
@@ -1052,7 +1052,7 @@ void GenericHwTextureManager::validate_common_texture_2d_properties(
 	validate_mipmap_texture_2d_properties(properties);
 }
 
-void GenericHwTextureManager::validate_indexed_texture_2d_properties(
+void HwTextureMgrImpl::validate_indexed_texture_2d_properties(
 	const Texture2dProperties& properties)
 {
 	if (properties.indexed_pixels_ == nullptr)
@@ -1066,7 +1066,7 @@ void GenericHwTextureManager::validate_indexed_texture_2d_properties(
 	}
 }
 
-void GenericHwTextureManager::validate_indexed_sprite_texture_2d_properties(
+void HwTextureMgrImpl::validate_indexed_sprite_texture_2d_properties(
 	const Texture2dProperties& properties)
 {
 	if (properties.indexed_sprite_ == nullptr)
@@ -1080,7 +1080,7 @@ void GenericHwTextureManager::validate_indexed_sprite_texture_2d_properties(
 	}
 }
 
-void GenericHwTextureManager::validate_rgba_8_texture_2d_properties(
+void HwTextureMgrImpl::validate_rgba_8_texture_2d_properties(
 	const Texture2dProperties& properties)
 {
 	if (properties.rgba_8_pixels_ == nullptr)
@@ -1089,7 +1089,7 @@ void GenericHwTextureManager::validate_rgba_8_texture_2d_properties(
 	}
 }
 
-void GenericHwTextureManager::validate_source_texture_2d_properties(
+void HwTextureMgrImpl::validate_source_texture_2d_properties(
 	const Texture2dProperties& properties)
 {
 	if (properties.indexed_pixels_ != nullptr)
@@ -1110,14 +1110,14 @@ void GenericHwTextureManager::validate_source_texture_2d_properties(
 	}
 }
 
-void GenericHwTextureManager::validate_texture_2d_properties(
+void HwTextureMgrImpl::validate_texture_2d_properties(
 	const Texture2dProperties& properties)
 {
 	validate_common_texture_2d_properties(properties);
 	validate_source_texture_2d_properties(properties);
 }
 
-void GenericHwTextureManager::set_common_texture_2d_properties(
+void HwTextureMgrImpl::set_common_texture_2d_properties(
 	Texture2dProperties& properties)
 {
 	const auto& device_features = renderer_->device_get_features();
@@ -1129,7 +1129,7 @@ void GenericHwTextureManager::set_common_texture_2d_properties(
 	{
 		switch (upscale_filter_kind_)
 		{
-			case HwTextureManagerUpscaleFilterKind::xbrz:
+			case HwTextureMgrUpscaleFilterKind::xbrz:
 				upscale_width *= upscale_filter_factor_;
 				upscale_height *= upscale_filter_factor_;
 				break;
@@ -1142,8 +1142,8 @@ void GenericHwTextureManager::set_common_texture_2d_properties(
 	auto actual_width = upscale_width;
 	auto actual_height = upscale_height;
 
-	const auto is_width_pot = detail::Renderer3dUtils::is_pot_value(actual_width);
-	const auto is_height_pot = detail::Renderer3dUtils::is_pot_value(actual_height);
+	const auto is_width_pot = detail::R3dUtils::is_pot_value(actual_width);
+	const auto is_height_pot = detail::R3dUtils::is_pot_value(actual_height);
 
 	const auto is_npot = (!is_width_pot || !is_height_pot);
 	const auto has_hw_npot = (!is_npot || (is_npot && device_features.npot_is_available_));
@@ -1155,10 +1155,10 @@ void GenericHwTextureManager::set_common_texture_2d_properties(
 	}
 	else
 	{
-		actual_width = detail::Renderer3dUtils::find_nearest_pot_value(actual_width);
+		actual_width = detail::R3dUtils::find_nearest_pot_value(actual_width);
 		actual_width = std::min(actual_width, device_features.texture_max_dimension_);
 
-		actual_height = detail::Renderer3dUtils::find_nearest_pot_value(actual_height);
+		actual_height = detail::R3dUtils::find_nearest_pot_value(actual_height);
 		actual_height = std::min(actual_height, device_features.texture_max_dimension_);
 	}
 
@@ -1171,7 +1171,7 @@ void GenericHwTextureManager::set_common_texture_2d_properties(
 	properties.is_npot_ = is_npot;
 }
 
-void GenericHwTextureManager::upscale_xbrz(
+void HwTextureMgrImpl::upscale_xbrz(
 	const Texture2dProperties& properties)
 {
 	const auto area = properties.width_ * properties.height_;
@@ -1192,7 +1192,7 @@ void GenericHwTextureManager::upscale_xbrz(
 
 	if (properties.indexed_pixels_)
 	{
-		auto param = detail::Renderer3dUtils::IndexedToRgba8Param{};
+		auto param = detail::R3dUtils::IndexedToRgba8Param{};
 		param.width_ = properties.width_;
 		param.height_ = properties.height_;
 		param.indexed_is_column_major_ = properties.indexed_is_column_major_;
@@ -1201,11 +1201,11 @@ void GenericHwTextureManager::upscale_xbrz(
 		param.indexed_alphas_ = properties.indexed_alphas_;
 		param.rgba_8_buffer_ = &mipmap_buffer_;
 
-		detail::Renderer3dUtils::indexed_to_rgba_8(param);
+		detail::R3dUtils::indexed_to_rgba_8(param);
 	}
 	else if (properties.indexed_sprite_)
 	{
-		detail::Renderer3dUtils::indexed_sprite_to_rgba_8_pot(
+		detail::R3dUtils::indexed_sprite_to_rgba_8_pot(
 			*properties.indexed_sprite_,
 			*properties.indexed_palette_,
 			mipmap_buffer_
@@ -1296,7 +1296,7 @@ void GenericHwTextureManager::upscale_xbrz(
 	}
 }
 
-void GenericHwTextureManager::upscale(
+void HwTextureMgrImpl::upscale(
 	const Texture2dProperties& properties)
 {
 	if (properties.upscale_width_ == properties.width_ &&
@@ -1307,7 +1307,7 @@ void GenericHwTextureManager::upscale(
 
 	switch (upscale_filter_kind_)
 	{
-		case HwTextureManagerUpscaleFilterKind::xbrz:
+		case HwTextureMgrUpscaleFilterKind::xbrz:
 			upscale_xbrz(properties);
 
 		default:
@@ -1315,7 +1315,7 @@ void GenericHwTextureManager::upscale(
 	}
 }
 
-GenericHwTextureManager::Texture2dItem GenericHwTextureManager::create_texture(
+HwTextureMgrImpl::Texture2dItem HwTextureMgrImpl::create_texture(
 	const Texture2dProperties& properties)
 {
 	validate_texture_2d_properties(properties);
@@ -1326,7 +1326,7 @@ GenericHwTextureManager::Texture2dItem GenericHwTextureManager::create_texture(
 
 	// Create texture object.
 	//
-	auto param = Renderer3dTexture2dCreateParam{};
+	auto param = R3dTexture2dCreateParam{};
 	param.pixel_format_ = new_properties.image_pixel_format_;
 	param.width_ = new_properties.actual_width_;
 	param.height_ = new_properties.actual_height_;
@@ -1346,9 +1346,9 @@ GenericHwTextureManager::Texture2dItem GenericHwTextureManager::create_texture(
 	return result;
 }
 
-void GenericHwTextureManager::update_mipmaps(
+void HwTextureMgrImpl::update_mipmaps(
 	const Texture2dProperties& properties,
-	const Renderer3dTexture2dUPtr& texture_2d)
+	const R3dTexture2dUPtr& texture_2d)
 {
 	upscale(properties);
 
@@ -1394,7 +1394,7 @@ void GenericHwTextureManager::update_mipmaps(
 	{
 		if (properties.is_npot_ && !npot_is_available)
 		{
-			detail::Renderer3dUtils::rgba_8_npot_to_rgba_8_pot(
+			detail::R3dUtils::rgba_8_npot_to_rgba_8_pot(
 				properties.upscale_width_,
 				properties.upscale_height_,
 				properties.actual_width_,
@@ -1416,7 +1416,7 @@ void GenericHwTextureManager::update_mipmaps(
 	{
 		if (properties.is_npot_ && !npot_is_available)
 		{
-			detail::Renderer3dUtils::rgba_8_npot_to_rgba_8_pot(
+			detail::R3dUtils::rgba_8_npot_to_rgba_8_pot(
 				properties.width_,
 				properties.height_,
 				properties.actual_width_,
@@ -1436,7 +1436,7 @@ void GenericHwTextureManager::update_mipmaps(
 	}
 	else if (properties.indexed_pixels_)
 	{
-		auto param = detail::Renderer3dUtils::IndexedToRgba8Param{};
+		auto param = detail::R3dUtils::IndexedToRgba8Param{};
 
 		param.width_ = properties.width_;
 		param.height_ = properties.height_;
@@ -1448,11 +1448,11 @@ void GenericHwTextureManager::update_mipmaps(
 		param.indexed_alphas_ = properties.indexed_alphas_;
 		param.rgba_8_buffer_ = &mipmap_buffer_;
 
-		detail::Renderer3dUtils::indexed_to_rgba_8_pot(param);
+		detail::R3dUtils::indexed_to_rgba_8_pot(param);
 	}
 	else if (properties.indexed_sprite_)
 	{
-		detail::Renderer3dUtils::indexed_sprite_to_rgba_8_pot(
+		detail::R3dUtils::indexed_sprite_to_rgba_8_pot(
 			*properties.indexed_sprite_,
 			*properties.indexed_palette_,
 			mipmap_buffer_
@@ -1475,7 +1475,7 @@ void GenericHwTextureManager::update_mipmaps(
 	{
 		if (i_mipmap > 0)
 		{
-			detail::Renderer3dUtils::build_mipmap(
+			detail::R3dUtils::build_mipmap(
 				mipmap_width,
 				mipmap_height,
 				texture_subbuffer_0,
@@ -1501,7 +1501,7 @@ void GenericHwTextureManager::update_mipmaps(
 			std::swap(texture_subbuffer_0, texture_subbuffer_1);
 		}
 
-		auto param = Renderer3dTexture2dUpdateParam{};
+		auto param = R3dTexture2dUpdateParam{};
 		param.mipmap_level_ = i_mipmap;
 		param.image_ = texture_subbuffer_0;
 
@@ -1516,12 +1516,12 @@ void GenericHwTextureManager::update_mipmaps(
 	}
 }
 
-void GenericHwTextureManager::destroy_missing_sprite_texture()
+void HwTextureMgrImpl::destroy_missing_sprite_texture()
 {
 	missing_sprite_texture_2d_item_.texture_2d_ = nullptr;
 }
 
-void GenericHwTextureManager::create_missing_sprite_texture()
+void HwTextureMgrImpl::create_missing_sprite_texture()
 {
 	destroy_missing_sprite_texture();
 
@@ -1529,11 +1529,11 @@ void GenericHwTextureManager::create_missing_sprite_texture()
 	const auto rgba_8_image = reinterpret_cast<const Rgba8*>(raw_image.data());
 
 	auto param = Texture2dProperties{};
-	param.image_pixel_format_ = Renderer3dPixelFormat::rgba_8_unorm;
+	param.image_pixel_format_ = R3dPixelFormat::rgba_8_unorm;
 	param.width_ = Sprite::dimension;
 	param.height_ = Sprite::dimension;
 	param.is_generate_mipmaps_ = true;
-	param.mipmap_count_ = detail::Renderer3dUtils::calculate_mipmap_count(Sprite::dimension, Sprite::dimension);
+	param.mipmap_count_ = detail::R3dUtils::calculate_mipmap_count(Sprite::dimension, Sprite::dimension);
 	param.rgba_8_pixels_ = rgba_8_image;
 
 	auto texture_2d_item = create_texture(param);
@@ -1544,12 +1544,12 @@ void GenericHwTextureManager::create_missing_sprite_texture()
 	update_mipmaps(missing_sprite_texture_2d_item_.properties_, missing_sprite_texture_2d_item_.texture_2d_);
 }
 
-void GenericHwTextureManager::destroy_missing_wall_texture()
+void HwTextureMgrImpl::destroy_missing_wall_texture()
 {
 	missing_wall_texture_2d_item_.texture_2d_ = nullptr;
 }
 
-void GenericHwTextureManager::create_missing_wall_texture()
+void HwTextureMgrImpl::create_missing_wall_texture()
 {
 	destroy_missing_wall_texture();
 
@@ -1557,11 +1557,11 @@ void GenericHwTextureManager::create_missing_wall_texture()
 	const auto rgba_8_image = reinterpret_cast<const Rgba8*>(raw_image.data());
 
 	auto param = Texture2dProperties{};
-	param.image_pixel_format_ = Renderer3dPixelFormat::rgba_8_unorm;
+	param.image_pixel_format_ = R3dPixelFormat::rgba_8_unorm;
 	param.width_ = wall_dimension;
 	param.height_ = wall_dimension;
 	param.is_generate_mipmaps_ = true;
-	param.mipmap_count_ = detail::Renderer3dUtils::calculate_mipmap_count(param.width_, param.height_);
+	param.mipmap_count_ = detail::R3dUtils::calculate_mipmap_count(param.width_, param.height_);
 	param.rgba_8_pixels_ = rgba_8_image;
 
 	auto texture_2d_item = create_texture(param);
@@ -1571,7 +1571,7 @@ void GenericHwTextureManager::create_missing_wall_texture()
 	missing_wall_texture_2d_item_ = std::move(texture_2d_item);
 }
 
-GenericHwTextureManager::Texture2dItem GenericHwTextureManager::wall_create_texture(
+HwTextureMgrImpl::Texture2dItem HwTextureMgrImpl::wall_create_texture(
 	const int wall_id)
 {
 	const auto indexed_pixels = static_cast<const std::uint8_t*>(::PM_GetPage(wall_id));
@@ -1582,11 +1582,11 @@ GenericHwTextureManager::Texture2dItem GenericHwTextureManager::wall_create_text
 	}
 
 	auto param = Texture2dProperties{};
-	param.image_pixel_format_ = Renderer3dPixelFormat::rgba_8_unorm;
+	param.image_pixel_format_ = R3dPixelFormat::rgba_8_unorm;
 	param.width_ = wall_dimension;
 	param.height_ = wall_dimension;
 	param.is_generate_mipmaps_ = true;
-	param.mipmap_count_ = detail::Renderer3dUtils::calculate_mipmap_count(param.width_, param.height_);
+	param.mipmap_count_ = detail::R3dUtils::calculate_mipmap_count(param.width_, param.height_);
 	param.indexed_is_column_major_ = true;
 	param.indexed_pixels_ = indexed_pixels;
 	param.indexed_palette_ = &::vid_hw_get_default_palette();
@@ -1598,7 +1598,7 @@ GenericHwTextureManager::Texture2dItem GenericHwTextureManager::wall_create_text
 	return texture_2d_item;
 }
 
-GenericHwTextureManager::Texture2dItem GenericHwTextureManager::sprite_create_texture(
+HwTextureMgrImpl::Texture2dItem HwTextureMgrImpl::sprite_create_texture(
 	const int sprite_id)
 {
 	auto sprite = sprite_cache_->cache(sprite_id);
@@ -1614,11 +1614,11 @@ GenericHwTextureManager::Texture2dItem GenericHwTextureManager::sprite_create_te
 	}
 
 	auto param = Texture2dProperties{};
-	param.image_pixel_format_ = Renderer3dPixelFormat::rgba_8_unorm;
+	param.image_pixel_format_ = R3dPixelFormat::rgba_8_unorm;
 	param.width_ = Sprite::dimension;
 	param.height_ = Sprite::dimension;
 	param.is_generate_mipmaps_ = true;
-	param.mipmap_count_ = detail::Renderer3dUtils::calculate_mipmap_count(param.width_, param.height_);
+	param.mipmap_count_ = detail::R3dUtils::calculate_mipmap_count(param.width_, param.height_);
 	param.indexed_sprite_ = sprite;
 	param.indexed_palette_ = &::vid_hw_get_default_palette();
 
@@ -1629,8 +1629,8 @@ GenericHwTextureManager::Texture2dItem GenericHwTextureManager::sprite_create_te
 	return texture_2d_item;
 }
 
-void GenericHwTextureManager::initialize_internal(
-	Renderer3dPtr renderer,
+void HwTextureMgrImpl::initialize_internal(
+	R3dPtr renderer,
 	SpriteCachePtr sprite_cache)
 {
 	if (!renderer)
@@ -1662,7 +1662,7 @@ void GenericHwTextureManager::initialize_internal(
 	upscale_filter_factor_ = upscale_filter_clamp_factor(upscale_filter_kind_, upscale_filter_factor_);
 }
 
-void GenericHwTextureManager::cache_purge(
+void HwTextureMgrImpl::cache_purge(
 	IdToTexture2dMap& map)
 {
 	for (auto map_it = map.begin(); map_it != map.end(); )
@@ -1682,7 +1682,7 @@ void GenericHwTextureManager::cache_purge(
 	}
 }
 
-Renderer3dTexture2dPtr GenericHwTextureManager::get_texture_2d(
+R3dTexture2dPtr HwTextureMgrImpl::get_texture_2d(
 	const ImageKind image_kind,
 	const int id,
 	const IdToTexture2dMap& map) const
@@ -1707,27 +1707,27 @@ Renderer3dTexture2dPtr GenericHwTextureManager::get_texture_2d(
 	return item_it->second.texture_2d_.get();
 }
 
-void GenericHwTextureManager::solid_1x1_destroy_all()
+void HwTextureMgrImpl::solid_1x1_destroy_all()
 {
-	for (int i = 0; i < static_cast<int>(HwTextureManagerSolid1x1Id::count_); ++i)
+	for (int i = 0; i < static_cast<int>(HwTextureMgrSolid1x1Id::count_); ++i)
 	{
-		const auto id = static_cast<HwTextureManagerSolid1x1Id>(i);
+		const auto id = static_cast<HwTextureMgrSolid1x1Id>(i);
 
 		solid_1x1_destroy(id);
 	}
 }
 
-int GenericHwTextureManager::solid_1x1_get_index(
-	const HwTextureManagerSolid1x1Id id)
+int HwTextureMgrImpl::solid_1x1_get_index(
+	const HwTextureMgrSolid1x1Id id)
 {
 	switch (id)
 	{
-		case HwTextureManagerSolid1x1Id::black:
-		case HwTextureManagerSolid1x1Id::white:
-		case HwTextureManagerSolid1x1Id::fade_2d:
-		case HwTextureManagerSolid1x1Id::fade_3d:
-		case HwTextureManagerSolid1x1Id::flooring:
-		case HwTextureManagerSolid1x1Id::ceiling:
+		case HwTextureMgrSolid1x1Id::black:
+		case HwTextureMgrSolid1x1Id::white:
+		case HwTextureMgrSolid1x1Id::fade_2d:
+		case HwTextureMgrSolid1x1Id::fade_3d:
+		case HwTextureMgrSolid1x1Id::flooring:
+		case HwTextureMgrSolid1x1Id::ceiling:
 			return static_cast<int>(id);
 
 		default:
@@ -1735,15 +1735,15 @@ int GenericHwTextureManager::solid_1x1_get_index(
 	}
 }
 
-int GenericHwTextureManager::solid_1x1_get_updateable_index(
-	const HwTextureManagerSolid1x1Id id)
+int HwTextureMgrImpl::solid_1x1_get_updateable_index(
+	const HwTextureMgrSolid1x1Id id)
 {
 	switch (id)
 	{
-		case HwTextureManagerSolid1x1Id::fade_2d:
-		case HwTextureManagerSolid1x1Id::fade_3d:
-		case HwTextureManagerSolid1x1Id::flooring:
-		case HwTextureManagerSolid1x1Id::ceiling:
+		case HwTextureMgrSolid1x1Id::fade_2d:
+		case HwTextureMgrSolid1x1Id::fade_3d:
+		case HwTextureMgrSolid1x1Id::flooring:
+		case HwTextureMgrSolid1x1Id::ceiling:
 			return static_cast<int>(id);
 
 		default:
@@ -1751,23 +1751,23 @@ int GenericHwTextureManager::solid_1x1_get_updateable_index(
 	}
 }
 
-Rgba8 GenericHwTextureManager::solid_1x1_get_default_color(
-	const HwTextureManagerSolid1x1Id id)
+Rgba8 HwTextureMgrImpl::solid_1x1_get_default_color(
+	const HwTextureMgrSolid1x1Id id)
 {
 	switch (id)
 	{
-		case HwTextureManagerSolid1x1Id::black:
+		case HwTextureMgrSolid1x1Id::black:
 			return Rgba8{0x00, 0x00, 0x00, 0xFF};
 
-		case HwTextureManagerSolid1x1Id::white:
+		case HwTextureMgrSolid1x1Id::white:
 			return Rgba8{0xFF, 0xFF, 0xFF, 0xFF};
 
-		case HwTextureManagerSolid1x1Id::fade_2d:
-		case HwTextureManagerSolid1x1Id::fade_3d:
+		case HwTextureMgrSolid1x1Id::fade_2d:
+		case HwTextureMgrSolid1x1Id::fade_3d:
 			return Rgba8{0x00, 0x00, 0x00, 0xFF};
 
-		case HwTextureManagerSolid1x1Id::flooring:
-		case HwTextureManagerSolid1x1Id::ceiling:
+		case HwTextureMgrSolid1x1Id::flooring:
+		case HwTextureMgrSolid1x1Id::ceiling:
 			return Rgba8{0x00, 0x00, 0x00, 0xFF};
 
 		default:
@@ -1775,15 +1775,15 @@ Rgba8 GenericHwTextureManager::solid_1x1_get_default_color(
 	}
 }
 
-int GenericHwTextureManager::upscale_filter_get_min_factor_internal(
-	const HwTextureManagerUpscaleFilterKind upscale_filter_kind)
+int HwTextureMgrImpl::upscale_filter_get_min_factor_internal(
+	const HwTextureMgrUpscaleFilterKind upscale_filter_kind)
 {
 	switch (upscale_filter_kind)
 	{
-		case HwTextureManagerUpscaleFilterKind::none:
+		case HwTextureMgrUpscaleFilterKind::none:
 			return 1;
 
-		case HwTextureManagerUpscaleFilterKind::xbrz:
+		case HwTextureMgrUpscaleFilterKind::xbrz:
 			return 2;
 
 		default:
@@ -1791,15 +1791,15 @@ int GenericHwTextureManager::upscale_filter_get_min_factor_internal(
 	}
 }
 
-int GenericHwTextureManager::upscale_filter_get_max_factor_internal(
-	const HwTextureManagerUpscaleFilterKind upscale_filter_kind)
+int HwTextureMgrImpl::upscale_filter_get_max_factor_internal(
+	const HwTextureMgrUpscaleFilterKind upscale_filter_kind)
 {
 	switch (upscale_filter_kind)
 	{
-		case HwTextureManagerUpscaleFilterKind::none:
+		case HwTextureMgrUpscaleFilterKind::none:
 			return 1;
 
-		case HwTextureManagerUpscaleFilterKind::xbrz:
+		case HwTextureMgrUpscaleFilterKind::xbrz:
 			return xbrz::SCALE_FACTOR_MAX;
 
 		default:
@@ -1807,8 +1807,8 @@ int GenericHwTextureManager::upscale_filter_get_max_factor_internal(
 	}
 }
 
-int GenericHwTextureManager::upscale_filter_clamp_factor(
-	const HwTextureManagerUpscaleFilterKind upscale_filter_kind,
+int HwTextureMgrImpl::upscale_filter_clamp_factor(
+	const HwTextureMgrUpscaleFilterKind upscale_filter_kind,
 	const int upscale_filter_factor)
 {
 	auto result = upscale_filter_factor;
@@ -1833,24 +1833,24 @@ int GenericHwTextureManager::upscale_filter_clamp_factor(
 }
 
 //
-// GenericHwTextureManager
+// HwTextureMgrImpl
 // ==========================================================================
 
 
 // ==========================================================================
-// HwTextureManagerFactory
+// HwTextureMgrFactory
 //
 
-HwTextureManagerUPtr HwTextureManagerFactory::create(
-	const Renderer3dPtr renderer,
+HwTextureMgrUPtr HwTextureMgrFactory::create(
+	const R3dPtr renderer,
 	const SpriteCachePtr sprite_cache,
-	const MtTaskManagerPtr mt_task_manager)
+	const MtTaskMgrPtr mt_task_manager)
 {
-	return HwTextureManagerImplUPtr{new GenericHwTextureManager{renderer, sprite_cache, mt_task_manager}};
+	return std::make_unique<HwTextureMgrImpl>(renderer, sprite_cache, mt_task_manager);
 }
 
 //
-// HwTextureManagerFactory
+// HwTextureMgrFactory
 // ==========================================================================
 
 

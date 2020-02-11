@@ -42,63 +42,63 @@ namespace detail
 {
 
 
-class GlContext;
-using GlContextPtr = GlContext*;
+class R3dGlContext;
+using R3dGlContextPtr = R3dGlContext*;
 
-class GlVaoManager;
-using GlVaoManagerPtr = GlVaoManager*;
+class R3dGlVaoMgr;
+using R3dGlVaoMgrPtr = R3dGlVaoMgr*;
 
 
 // ==========================================================================
-// GlBufferManager
+// R3dGlBufferMgr
 //
 
-class GlBufferManager
+class R3dGlBufferMgr
 {
 protected:
-	GlBufferManager() = default;
+	R3dGlBufferMgr() = default;
 
 
 public:
-	virtual ~GlBufferManager() = default;
+	virtual ~R3dGlBufferMgr() = default;
 
 
-	virtual GlContextPtr get_context() const noexcept = 0;
+	virtual R3dGlContextPtr get_context() const noexcept = 0;
 
 
-	virtual Renderer3dBufferUPtr buffer_create(
-		const Renderer3dBufferCreateParam& param) = 0;
+	virtual R3dBufferUPtr buffer_create(
+		const R3dBufferCreateParam& param) = 0;
 
 	virtual void buffer_notify_destroy(
-		const Renderer3dBufferPtr buffer) noexcept = 0;
+		const R3dBufferPtr buffer) noexcept = 0;
 
 
 	virtual bool buffer_set_current(
-		const Renderer3dBufferKind buffer_kind,
-		const Renderer3dBufferPtr buffer) = 0;
-}; // GlBufferManager
+		const R3dBufferKind buffer_kind,
+		const R3dBufferPtr buffer) = 0;
+}; // R3dGlBufferMgr
 
-using GlBufferManagerPtr = GlBufferManager*;
-using GlBufferManagerUPtr = std::unique_ptr<GlBufferManager>;
+using R3dGlBufferMgrPtr = R3dGlBufferMgr*;
+using R3dGlBufferMgrUPtr = std::unique_ptr<R3dGlBufferMgr>;
 
 //
-// GlBufferManager
+// R3dGlBufferMgr
 // ==========================================================================
 
 
 // ==========================================================================
-// GlBufferManagerFactory
+// R3dGlBufferMgrFactory
 //
 
-struct GlBufferManagerFactory
+struct R3dGlBufferMgrFactory
 {
-	static GlBufferManagerUPtr create(
-		const GlContextPtr gl_context,
-		const GlVaoManagerPtr gl_vao_manager);
-}; // GlBufferManagerFactory
+	static R3dGlBufferMgrUPtr create(
+		const R3dGlContextPtr gl_context,
+		const R3dGlVaoMgrPtr gl_vao_manager);
+}; // R3dGlBufferMgrFactory
 
 //
-// GlBufferManagerFactory
+// R3dGlBufferMgrFactory
 // ==========================================================================
 
 

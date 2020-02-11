@@ -46,21 +46,21 @@ namespace detail
 {
 
 
-class Renderer3dUtilsCreateWindowParam
+class R3dUtilsCreateWindowParam
 {
 public:
-	Renderer3dKind renderer_kind_;
+	R3dKind renderer_kind_;
 
-	Renderer3dCreateWindowParam window_;
+	R3dCreateWindowParam window_;
 
-	Renderer3dAaKind aa_kind_;
+	R3dAaKind aa_kind_;
 	int aa_value_;
 
 	bool is_default_depth_buffer_disabled_;
-}; // Renderer3dUtilsCreateWindowParam
+}; // R3dUtilsCreateWindowParam
 
 
-class Renderer3dUtils
+class R3dUtils
 {
 public:
 	static constexpr float pi = static_cast<float>(3.14159265358979323846);
@@ -103,12 +103,12 @@ public:
 		const int height);
 
 	static SdlWindowUPtr window_create(
-		const Renderer3dUtilsCreateWindowParam& param);
+		const R3dUtilsCreateWindowParam& param);
 
 
 	static void window_set_mode(
 		SdlWindowPtr sdl_window,
-		const Renderer3dWindowSetModeParam& param);
+		const R3dWindowSetModeParam& param);
 
 	static void window_show(
 		SdlWindowPtr sdl_window,
@@ -120,23 +120,23 @@ public:
 
 
 	static void validate_initialize_param(
-		const Renderer3dCreateParam& param);
+		const R3dCreateParam& param);
 
 
 	static void validate_buffer_update_param(
-		const Renderer3dBufferUpdateParam& param);
+		const R3dBufferUpdateParam& param);
 
 
 	static void validate_buffer_create_param(
-		const Renderer3dBufferCreateParam& param);
+		const R3dBufferCreateParam& param);
 
 
 	static void vertex_input_validate_format(
-		const Renderer3dVertexAttributeFormat attribute_format);
+		const R3dVertexAttribFormat attribute_format);
 
 	static void vertex_input_validate_param(
 		const int max_locations,
-		const Renderer3dVertexInputCreateParam& param);
+		const R3dVertexInputCreateParam& param);
 
 
 	// Converts indexed opaque (MxN) or indexed transparent (MxN) to RGBA (MxN).
@@ -178,20 +178,20 @@ public:
 
 
 private:
-	Renderer3dUtils();
+	R3dUtils();
 
 
 	static void create_window_validate_param(
-		const Renderer3dUtilsCreateWindowParam& param);
+		const R3dUtilsCreateWindowParam& param);
 
 	static void create_window_set_gl_profile_and_version(
-		const Renderer3dKind renderer_kind);
+		const R3dKind renderer_kind);
 
 	static void create_window_set_gl_attributes(
-		const Renderer3dUtilsCreateWindowParam& param);
+		const R3dUtilsCreateWindowParam& param);
 
 	static std::uint32_t create_window_sdl_flags(
-		const Renderer3dUtilsCreateWindowParam& param);
+		const R3dUtilsCreateWindowParam& param);
 
 
 	// Indexed (row major, has no alpha) -> RGBA
@@ -232,7 +232,7 @@ private:
 		const int previous_dimension,
 		const Rgba8CPtr src_colors,
 		const Rgba8Ptr dst_colors);
-}; // Renderer3dUtils
+}; // R3dUtils
 
 
 } // detail
