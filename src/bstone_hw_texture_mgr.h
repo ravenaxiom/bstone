@@ -103,14 +103,14 @@ public:
 	virtual void wall_cache(
 		const int id) = 0;
 
-	virtual R3dTexture2dPtr wall_get(
+	virtual Ren3dTexture2dPtr wall_get(
 		const int id) const = 0;
 
 
 	virtual void sprite_cache(
 		const int id) = 0;
 
-	virtual R3dTexture2dPtr sprite_get(
+	virtual Ren3dTexture2dPtr sprite_get(
 		const int id) const = 0;
 
 
@@ -123,7 +123,7 @@ public:
 
 	virtual void ui_update() = 0;
 
-	virtual R3dTexture2dPtr ui_get() const = 0;
+	virtual Ren3dTexture2dPtr ui_get() const = 0;
 
 
 	virtual void solid_1x1_destroy(
@@ -136,7 +136,7 @@ public:
 		const HwTextureMgrSolid1x1Id id,
 		const Rgba8 color) = 0;
 
-	virtual R3dTexture2dPtr solid_1x1_get(
+	virtual Ren3dTexture2dPtr solid_1x1_get(
 		const HwTextureMgrSolid1x1Id id) const = 0;
 }; // HwTextureMgr
 
@@ -148,7 +148,7 @@ class HwTextureMgrFactory
 {
 public:
 	static HwTextureMgrUPtr create(
-		const R3dPtr renderer,
+		const Ren3dPtr renderer,
 		const SpriteCachePtr sprite_cache,
 		const MtTaskMgrPtr mt_task_manager);
 }; // HwTextureMgrFactory

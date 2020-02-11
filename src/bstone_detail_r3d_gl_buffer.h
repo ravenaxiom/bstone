@@ -29,8 +29,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_DETAIL_R3D_GL_BUFFER_INCLUDED
-#define BSTONE_DETAIL_R3D_GL_BUFFER_INCLUDED
+#ifndef BSTONE_DETAIL_REN_3D_GL_BUFFER_INCLUDED
+#define BSTONE_DETAIL_REN_3D_GL_BUFFER_INCLUDED
 
 
 #include "bstone_r3d_buffer.h"
@@ -42,51 +42,51 @@ namespace detail
 {
 
 
-class R3dGlBufferMgr;
-using R3dGlBufferMgrPtr = R3dGlBufferMgr*;
+class Ren3dGlBufferMgr;
+using Ren3dGlBufferMgrPtr = Ren3dGlBufferMgr*;
 
 
 // =========================================================================
-// R3dGlBuffer
+// Ren3dGlBuffer
 //
 
-class R3dGlBuffer :
-	public R3dBuffer
+class Ren3dGlBuffer :
+	public Ren3dBuffer
 {
 protected:
-	R3dGlBuffer() = default;
+	Ren3dGlBuffer() = default;
 
 
 public:
-	~R3dGlBuffer() override = default;
+	~Ren3dGlBuffer() override = default;
 
 
 	virtual void set(
 		const bool is_set) = 0;
-}; // R3dGlBuffer
+}; // Ren3dGlBuffer
 
 
-using R3dGlBufferPtr = R3dGlBuffer*;
-using R3dGlBufferUPtr = std::unique_ptr<R3dGlBuffer>;
+using Ren3dGlBufferPtr = Ren3dGlBuffer*;
+using Ren3dGlBufferUPtr = std::unique_ptr<Ren3dGlBuffer>;
 
 //
-// R3dGlBuffer
+// Ren3dGlBuffer
 // =========================================================================
 
 
 // =========================================================================
-// R3dGlBufferFactory
+// Ren3dGlBufferFactory
 //
 
-struct R3dGlBufferFactory
+struct Ren3dGlBufferFactory
 {
-	static R3dGlBufferUPtr create(
-		const R3dGlBufferMgrPtr gl_buffer_manager,
-		const R3dBufferCreateParam& param);
-}; // R3dGlBufferFactory
+	static Ren3dGlBufferUPtr create(
+		const Ren3dGlBufferMgrPtr gl_buffer_manager,
+		const Ren3dBufferCreateParam& param);
+}; // Ren3dGlBufferFactory
 
 //
-// R3dGlBufferFactory
+// Ren3dGlBufferFactory
 // =========================================================================
 
 
@@ -94,4 +94,4 @@ struct R3dGlBufferFactory
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_R3D_GL_BUFFER_INCLUDED
+#endif // !BSTONE_DETAIL_REN_3D_GL_BUFFER_INCLUDED

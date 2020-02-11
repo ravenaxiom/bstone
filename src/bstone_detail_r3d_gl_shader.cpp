@@ -53,28 +53,28 @@ namespace detail
 //
 
 class GlShaderImpl final :
-	public R3dGlShader
+	public Ren3dGlShader
 {
 public:
 	GlShaderImpl(
-		const R3dGlShaderMgrPtr gl_shader_manager,
-		const R3dShaderCreateParam& param);
+		const Ren3dGlShaderMgrPtr gl_shader_manager,
+		const Ren3dShaderCreateParam& param);
 
 	~GlShaderImpl() override;
 
 
-	R3dShaderKind get_kind() const noexcept override;
+	Ren3dShaderKind get_kind() const noexcept override;
 
 	GLuint get_gl_name() const noexcept override;
 
 	void attach_to_shader_stage(
-		const R3dGlShaderStagePtr shader_stage) override;
+		const Ren3dGlShaderStagePtr shader_stage) override;
 
 
 private:
-	const R3dGlShaderMgrPtr gl_shader_manager_;
+	const Ren3dGlShaderMgrPtr gl_shader_manager_;
 
-	R3dShaderKind kind_;
+	Ren3dShaderKind kind_;
 
 	static void shader_resource_deleter(
 		const GLuint& gl_name) noexcept;
@@ -83,17 +83,17 @@ private:
 
 	ShaderResource gl_resource_;
 
-	R3dGlShaderStagePtr shader_stage_;
+	Ren3dGlShaderStagePtr shader_stage_;
 
 
 	void initialize(
-		const R3dShaderCreateParam& param);
+		const Ren3dShaderCreateParam& param);
 
 	GLenum get_gl_kind(
-		const R3dShaderKind kind);
+		const Ren3dShaderKind kind);
 
 	void validate_param(
-		const R3dShaderCreateParam& param);
+		const Ren3dShaderCreateParam& param);
 }; // GlShaderImpl
 
 using GlShaderImplPtr = GlShaderImpl*;
@@ -109,8 +109,8 @@ using GlShaderImplUPtr = std::unique_ptr<GlShaderImpl>;
 //
 
 GlShaderImpl::GlShaderImpl(
-	const R3dGlShaderMgrPtr gl_shader_manager,
-	const R3dShaderCreateParam& param)
+	const Ren3dGlShaderMgrPtr gl_shader_manager,
+	const Ren3dShaderCreateParam& param)
 	:
 	gl_shader_manager_{gl_shader_manager},
 	kind_{},
@@ -128,11 +128,11 @@ GlShaderImpl::~GlShaderImpl()
 	{
 		switch (kind_)
 		{
-			case R3dShaderKind::fragment:
+			case Ren3dShaderKind::fragment:
 				shader_stage_->detach_fragment_shader();
 				break;
 
-			case R3dShaderKind::vertex:
+			case Ren3dShaderKind::vertex:
 				shader_stage_->detach_vertex_shader();
 				break;
 
@@ -143,7 +143,7 @@ GlShaderImpl::~GlShaderImpl()
 	}
 }
 
-R3dShaderKind GlShaderImpl::get_kind() const noexcept
+Ren3dShaderKind GlShaderImpl::get_kind() const noexcept
 {
 	return kind_;
 }
@@ -152,11 +152,11 @@ void GlShaderImpl::shader_resource_deleter(
 	const GLuint& gl_name) noexcept
 {
 	glDeleteShader(gl_name);
-	R3dGlError::ensure_debug();
+	Ren3dGlError::ensure_debug();
 }
 
 void GlShaderImpl::initialize(
-	const R3dShaderCreateParam& param)
+	const Ren3dShaderCreateParam& param)
 {
 	validate_param(param);
 
@@ -180,21 +180,21 @@ void GlShaderImpl::initialize(
 	};
 
 	glShaderSource(gl_resource_.get(), 1, strings, lengths);
-	R3dGlError::ensure_debug();
+	Ren3dGlError::ensure_debug();
 
 	glCompileShader(gl_resource_.get());
-	R3dGlError::ensure_debug();
+	Ren3dGlError::ensure_debug();
 
 	auto compile_status = GLint{};
 
 	glGetShaderiv(gl_resource_.get(), GL_COMPILE_STATUS, &compile_status);
-	R3dGlError::ensure_debug();
+	Ren3dGlError::ensure_debug();
 
 	if (compile_status != GL_TRUE)
 	{
 		auto error_message = std::string{"Failed to compile a shader."};
 
-		const auto gl_log = R3dGlUtils::get_log(true, gl_resource_.get());
+		const auto gl_log = Ren3dGlUtils::get_log(true, gl_resource_.get());
 
 		if (!gl_log.empty())
 		{
@@ -214,20 +214,20 @@ GLuint GlShaderImpl::get_gl_name() const noexcept
 }
 
 void GlShaderImpl::attach_to_shader_stage(
-	const R3dGlShaderStagePtr shader_stage)
+	const Ren3dGlShaderStagePtr shader_stage)
 {
 	shader_stage_ = shader_stage;
 }
 
 GLenum GlShaderImpl::get_gl_kind(
-	const R3dShaderKind kind)
+	const Ren3dShaderKind kind)
 {
 	switch (kind)
 	{
-		case R3dShaderKind::fragment:
+		case Ren3dShaderKind::fragment:
 			return GL_FRAGMENT_SHADER;
 
-		case R3dShaderKind::vertex:
+		case Ren3dShaderKind::vertex:
 			return GL_VERTEX_SHADER;
 
 		default:
@@ -236,12 +236,12 @@ GLenum GlShaderImpl::get_gl_kind(
 }
 
 void GlShaderImpl::validate_param(
-	const R3dShaderCreateParam& param)
+	const Ren3dShaderCreateParam& param)
 {
 	switch (param.kind_)
 	{
-		case R3dShaderKind::fragment:
-		case R3dShaderKind::vertex:
+		case Ren3dShaderKind::fragment:
+		case Ren3dShaderKind::vertex:
 			break;
 
 		default:
@@ -265,18 +265,18 @@ void GlShaderImpl::validate_param(
 
 
 // ==========================================================================
-// R3dGlShaderFactory
+// Ren3dGlShaderFactory
 //
 
-R3dGlShaderUPtr R3dGlShaderFactory::create(
-	const R3dGlShaderMgrPtr gl_shader_manager,
-	const R3dShaderCreateParam& param)
+Ren3dGlShaderUPtr Ren3dGlShaderFactory::create(
+	const Ren3dGlShaderMgrPtr gl_shader_manager,
+	const Ren3dShaderCreateParam& param)
 {
 	return std::make_unique<GlShaderImpl>(gl_shader_manager, param);
 }
 
 //
-// R3dGlShaderFactory
+// Ren3dGlShaderFactory
 // ==========================================================================
 
 

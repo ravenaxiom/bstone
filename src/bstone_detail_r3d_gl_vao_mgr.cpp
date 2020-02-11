@@ -49,39 +49,39 @@ namespace detail
 
 
 // ==========================================================================
-// R3dGlVaoMgrImpl
+// Ren3dGlVaoMgrImpl
 //
 
-class R3dGlVaoMgrImpl final :
-	public R3dGlVaoMgr
+class Ren3dGlVaoMgrImpl final :
+	public Ren3dGlVaoMgr
 {
 public:
-	R3dGlVaoMgrImpl(
-		const R3dGlContextPtr gl_context,
-		const R3dDeviceFeatures& device_features,
-		const R3dGlDeviceFeatures& gl_device_features);
+	Ren3dGlVaoMgrImpl(
+		const Ren3dGlContextPtr gl_context,
+		const Ren3dDeviceFeatures& device_features,
+		const Ren3dGlDeviceFeatures& gl_device_features);
 
-	~R3dGlVaoMgrImpl() override;
-
-
-	R3dGlContextPtr get_context() const noexcept override;
+	~Ren3dGlVaoMgrImpl() override;
 
 
-	R3dGlVaoPtr create() override;
+	Ren3dGlContextPtr get_context() const noexcept override;
+
+
+	Ren3dGlVaoPtr create() override;
 
 	void destroy(
-		const R3dGlVaoPtr vao) override;
+		const Ren3dGlVaoPtr vao) override;
 
 	void push_current_set_default() override;
 
 	void pop() override;
 
 	void bind(
-		const R3dGlVaoPtr vao) override;
+		const Ren3dGlVaoPtr vao) override;
 
 
 	bool set_current_index_buffer(
-		const R3dBufferPtr index_buffer) override;
+		const Ren3dBufferPtr index_buffer) override;
 
 
 	void enable_location(
@@ -90,18 +90,18 @@ public:
 
 
 private:
-	const R3dGlContextPtr gl_context_;
-	const R3dDeviceFeatures& device_features_;
-	const R3dGlDeviceFeatures& gl_device_features_;
+	const Ren3dGlContextPtr gl_context_;
+	const Ren3dDeviceFeatures& device_features_;
+	const Ren3dGlDeviceFeatures& gl_device_features_;
 
 
-	R3dGlVaoPtr vao_current_;
-	R3dGlVaoUPtr vao_default_;
+	Ren3dGlVaoPtr vao_current_;
+	Ren3dGlVaoUPtr vao_default_;
 
-	using VaoStack = std::stack<R3dGlVaoPtr>;
+	using VaoStack = std::stack<Ren3dGlVaoPtr>;
 	VaoStack vao_stack_;
 
-	using Vaos = UPtrResourceList<R3dGlVao, R3dGlVaoFactory, Exception>;
+	using Vaos = UPtrResourceList<Ren3dGlVao, Ren3dGlVaoFactory, Exception>;
 	Vaos vaos_;
 
 
@@ -110,24 +110,24 @@ private:
 	void bind();
 
 	void initialize();
-}; // R3dGlVaoMgrImpl
+}; // Ren3dGlVaoMgrImpl
 
-using R3dGlVaoMgrImplPtr = R3dGlVaoMgrImpl*;
-using R3dGlVaoMgrImplUPtr = std::unique_ptr<R3dGlVaoMgrImpl>;
+using Ren3dGlVaoMgrImplPtr = Ren3dGlVaoMgrImpl*;
+using Ren3dGlVaoMgrImplUPtr = std::unique_ptr<Ren3dGlVaoMgrImpl>;
 
 //
-// R3dGlVaoMgrImpl
+// Ren3dGlVaoMgrImpl
 // ==========================================================================
 
 
 // ==========================================================================
-// R3dGlVaoMgrImpl
+// Ren3dGlVaoMgrImpl
 //
 
-R3dGlVaoMgrImpl::R3dGlVaoMgrImpl(
-	const R3dGlContextPtr gl_context,
-	const R3dDeviceFeatures& device_features,
-	const R3dGlDeviceFeatures& gl_device_features)
+Ren3dGlVaoMgrImpl::Ren3dGlVaoMgrImpl(
+	const Ren3dGlContextPtr gl_context,
+	const Ren3dDeviceFeatures& device_features,
+	const Ren3dGlDeviceFeatures& gl_device_features)
 	:
 	gl_context_{gl_context},
 	device_features_{device_features},
@@ -140,14 +140,14 @@ R3dGlVaoMgrImpl::R3dGlVaoMgrImpl(
 	initialize();
 }
 
-R3dGlVaoMgrImpl::~R3dGlVaoMgrImpl() = default;
+Ren3dGlVaoMgrImpl::~Ren3dGlVaoMgrImpl() = default;
 
-R3dGlContextPtr R3dGlVaoMgrImpl::get_context() const noexcept
+Ren3dGlContextPtr Ren3dGlVaoMgrImpl::get_context() const noexcept
 {
 	return gl_context_;
 }
 
-R3dGlVaoPtr R3dGlVaoMgrImpl::create()
+Ren3dGlVaoPtr Ren3dGlVaoMgrImpl::create()
 {
 	if (!gl_device_features_.vao_is_available_)
 	{
@@ -157,8 +157,8 @@ R3dGlVaoPtr R3dGlVaoMgrImpl::create()
 	return vaos_.add(this);
 }
 
-void R3dGlVaoMgrImpl::destroy(
-	const R3dGlVaoPtr vao)
+void Ren3dGlVaoMgrImpl::destroy(
+	const Ren3dGlVaoPtr vao)
 {
 	if (!gl_device_features_.vao_is_available_)
 	{
@@ -184,14 +184,14 @@ void R3dGlVaoMgrImpl::destroy(
 	vaos_.remove(vao);
 }
 
-void R3dGlVaoMgrImpl::push_current_set_default()
+void Ren3dGlVaoMgrImpl::push_current_set_default()
 {
 	vao_stack_.emplace(vao_current_);
 
 	bind(vao_default_.get());
 }
 
-void R3dGlVaoMgrImpl::pop()
+void Ren3dGlVaoMgrImpl::pop()
 {
 	if (vao_stack_.empty())
 	{
@@ -204,8 +204,8 @@ void R3dGlVaoMgrImpl::pop()
 	bind(vao);
 }
 
-void R3dGlVaoMgrImpl::bind(
-	const R3dGlVaoPtr vao)
+void Ren3dGlVaoMgrImpl::bind(
+	const Ren3dGlVaoPtr vao)
 {
 	if (!vao)
 	{
@@ -221,33 +221,33 @@ void R3dGlVaoMgrImpl::bind(
 	bind();
 }
 
-bool R3dGlVaoMgrImpl::set_current_index_buffer(
-	const R3dBufferPtr index_buffer)
+bool Ren3dGlVaoMgrImpl::set_current_index_buffer(
+	const Ren3dBufferPtr index_buffer)
 {
 	return vao_current_->set_current_index_buffer(index_buffer);
 }
 
-void R3dGlVaoMgrImpl::enable_location(
+void Ren3dGlVaoMgrImpl::enable_location(
 	const int location,
 	const bool is_enable)
 {
 	vao_current_->enable_location(location, is_enable);
 }
 
-void R3dGlVaoMgrImpl::initialize_default_vao()
+void Ren3dGlVaoMgrImpl::initialize_default_vao()
 {
-	vao_default_ = R3dGlVaoFactory::create(this);
+	vao_default_ = Ren3dGlVaoFactory::create(this);
 
 	vao_current_ = vao_default_.get();
 	bind();
 }
 
-void R3dGlVaoMgrImpl::bind()
+void Ren3dGlVaoMgrImpl::bind()
 {
 	vao_current_->bind();
 }
 
-void R3dGlVaoMgrImpl::initialize()
+void Ren3dGlVaoMgrImpl::initialize()
 {
 	if (!gl_context_)
 	{
@@ -258,20 +258,20 @@ void R3dGlVaoMgrImpl::initialize()
 }
 
 //
-// R3dGlVaoMgrImpl
+// Ren3dGlVaoMgrImpl
 // ==========================================================================
 
 
 // ==========================================================================
-// GlVaoMgrFactory
+// Ren3dGlVaoMgrFactory
 //
 
-GlVaoMgrUPtr GlVaoMgrFactory::create(
-	const R3dGlContextPtr gl_context,
-	const R3dDeviceFeatures& device_features,
-	const R3dGlDeviceFeatures& gl_device_features)
+Ren3dGlVaoMgrUPtr Ren3dGlVaoMgrFactory::create(
+	const Ren3dGlContextPtr gl_context,
+	const Ren3dDeviceFeatures& device_features,
+	const Ren3dGlDeviceFeatures& gl_device_features)
 {
-	return std::make_unique<R3dGlVaoMgrImpl>(
+	return std::make_unique<Ren3dGlVaoMgrImpl>(
 		gl_context,
 		device_features,
 		gl_device_features
@@ -279,7 +279,7 @@ GlVaoMgrUPtr GlVaoMgrFactory::create(
 }
 
 //
-// GlVaoMgrFactory
+// Ren3dGlVaoMgrFactory
 // ==========================================================================
 
 

@@ -27,8 +27,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_R3D_SHADER_STAGE_INCLUDED
-#define BSTONE_R3D_SHADER_STAGE_INCLUDED
+#ifndef BSTONE_REN_3D_SHADER_STAGE_INCLUDED
+#define BSTONE_REN_3D_SHADER_STAGE_INCLUDED
 
 
 #include <memory>
@@ -45,67 +45,67 @@ namespace bstone
 
 
 // ==========================================================================
-// R3dShaderStage
+// Ren3dShaderStage
 //
 
-struct R3dShaderStageInputBinding
+struct Ren3dShaderStageInputBinding
 {
 	int index_;
 	std::string name_;
-}; // R3dShaderStageInputBinding
+}; // Ren3dShaderStageInputBinding
 
-using R3dShaderStageInputBindings = std::vector<R3dShaderStageInputBinding>;
+using Ren3dShaderStageInputBindings = std::vector<Ren3dShaderStageInputBinding>;
 
 
-struct R3dShaderStageCreateParam
+struct Ren3dShaderStageCreateParam
 {
-	R3dShaderPtr fragment_shader_;
-	R3dShaderPtr vertex_shader_;
-	R3dShaderStageInputBindings input_bindings_;
-}; // R3dShaderStageCreateParam
+	Ren3dShaderPtr fragment_shader_;
+	Ren3dShaderPtr vertex_shader_;
+	Ren3dShaderStageInputBindings input_bindings_;
+}; // Ren3dShaderStageCreateParam
 
 
-class R3dShaderStage
+class Ren3dShaderStage
 {
 protected:
-	R3dShaderStage() = default;
+	Ren3dShaderStage() = default;
 
 
 public:
-	virtual ~R3dShaderStage() = default;
+	virtual ~Ren3dShaderStage() = default;
 
 
-	virtual R3dShaderVarPtr find_var(
+	virtual Ren3dShaderVarPtr find_var(
 		const std::string& name) = 0;
 
-	virtual R3dShaderVarInt32Ptr find_var_int32(
+	virtual Ren3dShaderVarInt32Ptr find_var_int32(
 		const std::string& name) = 0;
 
-	virtual R3dShaderVarFloat32Ptr find_var_float32(
+	virtual Ren3dShaderVarFloat32Ptr find_var_float32(
 		const std::string& name) = 0;
 
-	virtual R3dShaderVarVec2Ptr find_var_vec2(
+	virtual Ren3dShaderVarVec2Ptr find_var_vec2(
 		const std::string& name) = 0;
 
-	virtual R3dShaderVarVec4Ptr find_var_vec4(
+	virtual Ren3dShaderVarVec4Ptr find_var_vec4(
 		const std::string& name) = 0;
 
-	virtual R3dShaderVarMat4Ptr find_var_mat4(
+	virtual Ren3dShaderVarMat4Ptr find_var_mat4(
 		const std::string& name) = 0;
 
-	virtual R3dShaderVarSampler2dPtr find_var_sampler_2d(
+	virtual Ren3dShaderVarSampler2dPtr find_var_sampler_2d(
 		const std::string& name) = 0;
-}; // R3dShaderStage
+}; // Ren3dShaderStage
 
-using R3dShaderStagePtr = R3dShaderStage*;
-using R3dShaderStageUPtr = std::unique_ptr<R3dShaderStage>;
+using Ren3dShaderStagePtr = Ren3dShaderStage*;
+using Ren3dShaderStageUPtr = std::unique_ptr<Ren3dShaderStage>;
 
 //
-// R3dShaderStage
+// Ren3dShaderStage
 // ==========================================================================
 
 
 } // bstone
 
 
-#endif // !BSTONE_R3D_SHADER_STAGE_INCLUDED
+#endif // !BSTONE_REN_3D_SHADER_STAGE_INCLUDED

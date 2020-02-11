@@ -53,29 +53,29 @@ namespace detail
 {
 
 
-struct R3dGlExtensionMgrImplMissingSymbolException :
+struct Ren3dGlExtensionMgrImplMissingSymbolException :
 	public Exception
 {
-	R3dGlExtensionMgrImplMissingSymbolException(
+	Ren3dGlExtensionMgrImplMissingSymbolException(
 		const char* const symbol_name)
 		:
 		Exception{std::string{"[GL_EXT_MGR] ["} + symbol_name + "] Symbol not found."}
 	{
 	}
-}; // R3dGlExtensionMgrImplMissingSymbolException
+}; // Ren3dGlExtensionMgrImplMissingSymbolException
 
 
 // ==========================================================================
-// R3dGlExtensionMgrImpl
+// Ren3dGlExtensionMgrImpl
 //
 
-class R3dGlExtensionMgrImpl final :
-	public R3dGlExtensionMgr
+class Ren3dGlExtensionMgrImpl final :
+	public Ren3dGlExtensionMgr
 {
 public:
-	R3dGlExtensionMgrImpl();
+	Ren3dGlExtensionMgrImpl();
 
-	~R3dGlExtensionMgrImpl() override;
+	~Ren3dGlExtensionMgrImpl() override;
 
 
 	int get_count() const noexcept override;
@@ -85,14 +85,14 @@ public:
 
 
 	void probe(
-		const R3dGlExtensionId extension_id) override;
+		const Ren3dGlExtensionId extension_id) override;
 
 
 	bool has(
-		const R3dGlExtensionId extension_id) const noexcept override;
+		const Ren3dGlExtensionId extension_id) const noexcept override;
 
 	bool operator[](
-		const R3dGlExtensionId extension_id) const noexcept override;
+		const Ren3dGlExtensionId extension_id) const noexcept override;
 
 
 private:
@@ -115,7 +115,7 @@ private:
 	using Registry = std::vector<RegistryItem>;
 
 
-	R3dGlContextKind context_kind_;
+	Ren3dGlContextKind context_kind_;
 	int context_major_version_;
 	int context_minor_version_;
 	ExtensionNames extension_names_;
@@ -165,7 +165,7 @@ private:
 	static int get_registered_extension_count() noexcept;
 
 	static int get_extension_index(
-		const R3dGlExtensionId extension_id) noexcept;
+		const Ren3dGlExtensionId extension_id) noexcept;
 
 
 	void initialize();
@@ -184,15 +184,15 @@ private:
 
 
 	void probe_generic(
-		const R3dGlExtensionId extension_id);
-}; // R3dGlExtensionMgrImpl
+		const Ren3dGlExtensionId extension_id);
+}; // Ren3dGlExtensionMgrImpl
 
 
-using R3dGlExtensionMgrImplPtr = R3dGlExtensionMgrImpl*;
-using R3dGlExtensionMgrImplUPtr = std::unique_ptr<R3dGlExtensionMgrImpl>;
+using Ren3dGlExtensionMgrImplPtr = Ren3dGlExtensionMgrImpl*;
+using Ren3dGlExtensionMgrImplUPtr = std::unique_ptr<Ren3dGlExtensionMgrImpl>;
 
 
-R3dGlExtensionMgrImpl::R3dGlExtensionMgrImpl()
+Ren3dGlExtensionMgrImpl::Ren3dGlExtensionMgrImpl()
 	:
 	context_kind_{},
 	extension_names_{},
@@ -201,9 +201,9 @@ R3dGlExtensionMgrImpl::R3dGlExtensionMgrImpl()
 	initialize();
 }
 
-R3dGlExtensionMgrImpl::~R3dGlExtensionMgrImpl() = default;
+Ren3dGlExtensionMgrImpl::~Ren3dGlExtensionMgrImpl() = default;
 
-void R3dGlExtensionMgrImpl::initialize()
+void Ren3dGlExtensionMgrImpl::initialize()
 {
 	gl_symbol_clear();
 	gl_symbol_resolve();
@@ -214,12 +214,12 @@ void R3dGlExtensionMgrImpl::initialize()
 	initialize_registry();
 }
 
-int R3dGlExtensionMgrImpl::get_count() const noexcept
+int Ren3dGlExtensionMgrImpl::get_count() const noexcept
 {
 	return static_cast<int>(extension_names_.size());
 }
 
-const std::string& R3dGlExtensionMgrImpl::get_name(
+const std::string& Ren3dGlExtensionMgrImpl::get_name(
 	const int extension_index) const noexcept
 {
 	if (extension_index < 0 || extension_index >= get_count())
@@ -230,14 +230,14 @@ const std::string& R3dGlExtensionMgrImpl::get_name(
 	return extension_names_[extension_index];
 }
 
-void R3dGlExtensionMgrImpl::probe(
-	const R3dGlExtensionId extension_id)
+void Ren3dGlExtensionMgrImpl::probe(
+	const Ren3dGlExtensionId extension_id)
 {
 	probe_generic(extension_id);
 }
 
-bool R3dGlExtensionMgrImpl::has(
-	const R3dGlExtensionId extension_id) const noexcept
+bool Ren3dGlExtensionMgrImpl::has(
+	const Ren3dGlExtensionId extension_id) const noexcept
 {
 	const auto extension_index = get_extension_index(extension_id);
 
@@ -249,13 +249,13 @@ bool R3dGlExtensionMgrImpl::has(
 	return registry_[extension_index].is_available_;
 }
 
-bool R3dGlExtensionMgrImpl::operator[](
-	const R3dGlExtensionId extension_id) const noexcept
+bool Ren3dGlExtensionMgrImpl::operator[](
+	const Ren3dGlExtensionId extension_id) const noexcept
 {
 	return has(extension_id);
 }
 
-R3dGlExtensionMgrImpl::GlSymbolRegistry& R3dGlExtensionMgrImpl::gl_symbol_get_registry()
+Ren3dGlExtensionMgrImpl::GlSymbolRegistry& Ren3dGlExtensionMgrImpl::gl_symbol_get_registry()
 {
 	static auto gl_symbol_registry = GlSymbolRegistry
 	{
@@ -1139,7 +1139,7 @@ R3dGlExtensionMgrImpl::GlSymbolRegistry& R3dGlExtensionMgrImpl::gl_symbol_get_re
 	return gl_symbol_registry;
 }
 
-void R3dGlExtensionMgrImpl::gl_symbol_clear()
+void Ren3dGlExtensionMgrImpl::gl_symbol_clear()
 {
 	auto& gl_symbol_registry = gl_symbol_get_registry();
 
@@ -1149,17 +1149,17 @@ void R3dGlExtensionMgrImpl::gl_symbol_clear()
 	}
 }
 
-void R3dGlExtensionMgrImpl::gl_symbol_resolve()
+void Ren3dGlExtensionMgrImpl::gl_symbol_resolve()
 {
 	auto& gl_symbol_registry = gl_symbol_get_registry();
 
 	for (auto& gl_symbol_item : gl_symbol_registry)
 	{
-		*gl_symbol_item.first = R3dGlUtils::resolve_symbol(gl_symbol_item.second);
+		*gl_symbol_item.first = Ren3dGlUtils::resolve_symbol(gl_symbol_item.second);
 	}
 }
 
-bool R3dGlExtensionMgrImpl::gl_symbol_has(
+bool Ren3dGlExtensionMgrImpl::gl_symbol_has(
 	const GlSymbolPtrs& gl_symbol_ptrs)
 {
 	return std::all_of(
@@ -1172,7 +1172,7 @@ bool R3dGlExtensionMgrImpl::gl_symbol_has(
 	);
 }
 
-R3dGlExtensionMgrImpl::GlSymbolPtrs& R3dGlExtensionMgrImpl::gl_symbol_get_essentials()
+Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::gl_symbol_get_essentials()
 {
 	static auto gl_symbols = GlSymbolPtrs
 	{
@@ -1183,7 +1183,7 @@ R3dGlExtensionMgrImpl::GlSymbolPtrs& R3dGlExtensionMgrImpl::gl_symbol_get_essent
 	return gl_symbols;
 }
 
-R3dGlExtensionMgrImpl::GlSymbolPtrs& R3dGlExtensionMgrImpl::gl_symbol_get_v2_0()
+Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::gl_symbol_get_v2_0()
 {
 	static auto gl_symbols = GlSymbolPtrs
 	{
@@ -1737,7 +1737,7 @@ R3dGlExtensionMgrImpl::GlSymbolPtrs& R3dGlExtensionMgrImpl::gl_symbol_get_v2_0()
 	return gl_symbols;
 }
 
-R3dGlExtensionMgrImpl::GlSymbolPtrs& R3dGlExtensionMgrImpl::gl_symbol_get_v3_2_core()
+Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::gl_symbol_get_v3_2_core()
 {
 	static auto gl_symbols = GlSymbolPtrs
 	{
@@ -2062,7 +2062,7 @@ R3dGlExtensionMgrImpl::GlSymbolPtrs& R3dGlExtensionMgrImpl::gl_symbol_get_v3_2_c
 	return gl_symbols;
 }
 
-R3dGlExtensionMgrImpl::GlSymbolPtrs& R3dGlExtensionMgrImpl::gl_symbol_get_es_v2_0()
+Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::gl_symbol_get_es_v2_0()
 {
 	static auto gl_symbols = GlSymbolPtrs
 	{
@@ -2213,7 +2213,7 @@ R3dGlExtensionMgrImpl::GlSymbolPtrs& R3dGlExtensionMgrImpl::gl_symbol_get_es_v2_
 	return gl_symbols;
 }
 
-R3dGlExtensionMgrImpl::GlSymbolPtrs& R3dGlExtensionMgrImpl::gl_symbol_get_arb_buffer_storage()
+Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::gl_symbol_get_arb_buffer_storage()
 {
 	static auto gl_symbols = GlSymbolPtrs
 	{
@@ -2223,7 +2223,7 @@ R3dGlExtensionMgrImpl::GlSymbolPtrs& R3dGlExtensionMgrImpl::gl_symbol_get_arb_bu
 	return gl_symbols;
 }
 
-R3dGlExtensionMgrImpl::GlSymbolPtrs& R3dGlExtensionMgrImpl::gl_symbol_get_arb_direct_state_access()
+Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::gl_symbol_get_arb_direct_state_access()
 {
 	static auto gl_symbols = GlSymbolPtrs
 	{
@@ -2329,7 +2329,7 @@ R3dGlExtensionMgrImpl::GlSymbolPtrs& R3dGlExtensionMgrImpl::gl_symbol_get_arb_di
 	return gl_symbols;
 }
 
-R3dGlExtensionMgrImpl::GlSymbolPtrs& R3dGlExtensionMgrImpl::gl_symbol_get_arb_framebuffer_object()
+Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::gl_symbol_get_arb_framebuffer_object()
 {
 	static auto gl_symbols = GlSymbolPtrs
 	{
@@ -2358,7 +2358,7 @@ R3dGlExtensionMgrImpl::GlSymbolPtrs& R3dGlExtensionMgrImpl::gl_symbol_get_arb_fr
 	return gl_symbols;
 }
 
-R3dGlExtensionMgrImpl::GlSymbolPtrs& R3dGlExtensionMgrImpl::gl_symbol_get_arb_sampler_objects()
+Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::gl_symbol_get_arb_sampler_objects()
 {
 	static auto gl_symbols = GlSymbolPtrs
 	{
@@ -2381,7 +2381,7 @@ R3dGlExtensionMgrImpl::GlSymbolPtrs& R3dGlExtensionMgrImpl::gl_symbol_get_arb_sa
 	return gl_symbols;
 }
 
-R3dGlExtensionMgrImpl::GlSymbolPtrs& R3dGlExtensionMgrImpl::gl_symbol_get_arb_separate_shader_objects()
+Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::gl_symbol_get_arb_separate_shader_objects()
 {
 	static auto gl_symbols = GlSymbolPtrs
 	{
@@ -2451,7 +2451,7 @@ R3dGlExtensionMgrImpl::GlSymbolPtrs& R3dGlExtensionMgrImpl::gl_symbol_get_arb_se
 	return gl_symbols;
 }
 
-R3dGlExtensionMgrImpl::GlSymbolPtrs& R3dGlExtensionMgrImpl::gl_symbol_get_arb_vertex_array_object()
+Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::gl_symbol_get_arb_vertex_array_object()
 {
 	static auto gl_symbols = GlSymbolPtrs
 	{
@@ -2464,7 +2464,7 @@ R3dGlExtensionMgrImpl::GlSymbolPtrs& R3dGlExtensionMgrImpl::gl_symbol_get_arb_ve
 	return gl_symbols;
 }
 
-R3dGlExtensionMgrImpl::GlSymbolPtrs& R3dGlExtensionMgrImpl::gl_symbol_get_ext_framebuffer_blit()
+Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::gl_symbol_get_ext_framebuffer_blit()
 {
 	static auto gl_symbols = GlSymbolPtrs
 	{
@@ -2474,7 +2474,7 @@ R3dGlExtensionMgrImpl::GlSymbolPtrs& R3dGlExtensionMgrImpl::gl_symbol_get_ext_fr
 	return gl_symbols;
 }
 
-R3dGlExtensionMgrImpl::GlSymbolPtrs& R3dGlExtensionMgrImpl::gl_symbol_get_ext_framebuffer_multisample()
+Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::gl_symbol_get_ext_framebuffer_multisample()
 {
 	static auto gl_symbols = GlSymbolPtrs
 	{
@@ -2484,7 +2484,7 @@ R3dGlExtensionMgrImpl::GlSymbolPtrs& R3dGlExtensionMgrImpl::gl_symbol_get_ext_fr
 	return gl_symbols;
 }
 
-R3dGlExtensionMgrImpl::GlSymbolPtrs& R3dGlExtensionMgrImpl::gl_symbol_get_ext_framebuffer_object()
+Ren3dGlExtensionMgrImpl::GlSymbolPtrs& Ren3dGlExtensionMgrImpl::gl_symbol_get_ext_framebuffer_object()
 {
 	static auto gl_symbols = GlSymbolPtrs
 	{
@@ -2510,20 +2510,20 @@ R3dGlExtensionMgrImpl::GlSymbolPtrs& R3dGlExtensionMgrImpl::gl_symbol_get_ext_fr
 	return gl_symbols;
 }
 
-const std::string& R3dGlExtensionMgrImpl::get_empty_extension_name() noexcept
+const std::string& Ren3dGlExtensionMgrImpl::get_empty_extension_name() noexcept
 {
 	static const auto result = std::string{};
 
 	return result;
 }
 
-int R3dGlExtensionMgrImpl::get_registered_extension_count() noexcept
+int Ren3dGlExtensionMgrImpl::get_registered_extension_count() noexcept
 {
-	return static_cast<int>(R3dGlExtensionId::count_);
+	return static_cast<int>(Ren3dGlExtensionId::count_);
 }
 
-int R3dGlExtensionMgrImpl::get_extension_index(
-	const R3dGlExtensionId extension_id) noexcept
+int Ren3dGlExtensionMgrImpl::get_extension_index(
+	const Ren3dGlExtensionId extension_id) noexcept
 {
 	const auto extension_index = static_cast<int>(extension_id);
 
@@ -2535,13 +2535,13 @@ int R3dGlExtensionMgrImpl::get_extension_index(
 	return extension_index;
 }
 
-void R3dGlExtensionMgrImpl::initialize_registry()
+void Ren3dGlExtensionMgrImpl::initialize_registry()
 {
 	registry_.clear();
-	registry_.resize(static_cast<int>(R3dGlExtensionId::count_));
+	registry_.resize(static_cast<int>(Ren3dGlExtensionId::count_));
 
 	{
-		auto& registry_item = registry_[static_cast<int>(R3dGlExtensionId::essentials)];
+		auto& registry_item = registry_[static_cast<int>(Ren3dGlExtensionId::essentials)];
 		registry_item.is_virtual_ = true;
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
@@ -2550,7 +2550,7 @@ void R3dGlExtensionMgrImpl::initialize_registry()
 	}
 
 	{
-		auto& registry_item = registry_[static_cast<int>(R3dGlExtensionId::v2_0)];
+		auto& registry_item = registry_[static_cast<int>(Ren3dGlExtensionId::v2_0)];
 		registry_item.is_virtual_ = true;
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
@@ -2559,7 +2559,7 @@ void R3dGlExtensionMgrImpl::initialize_registry()
 	}
 
 	{
-		auto& registry_item = registry_[static_cast<int>(R3dGlExtensionId::v3_2_core)];
+		auto& registry_item = registry_[static_cast<int>(Ren3dGlExtensionId::v3_2_core)];
 		registry_item.is_virtual_ = true;
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
@@ -2568,7 +2568,7 @@ void R3dGlExtensionMgrImpl::initialize_registry()
 	}
 
 	{
-		auto& registry_item = registry_[static_cast<int>(R3dGlExtensionId::es_v2_0)];
+		auto& registry_item = registry_[static_cast<int>(Ren3dGlExtensionId::es_v2_0)];
 		registry_item.is_virtual_ = true;
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
@@ -2577,7 +2577,7 @@ void R3dGlExtensionMgrImpl::initialize_registry()
 	}
 
 	{
-		auto& registry_item = registry_[static_cast<int>(R3dGlExtensionId::arb_buffer_storage)];
+		auto& registry_item = registry_[static_cast<int>(Ren3dGlExtensionId::arb_buffer_storage)];
 		registry_item.is_virtual_ = false;
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
@@ -2586,7 +2586,7 @@ void R3dGlExtensionMgrImpl::initialize_registry()
 	}
 
 	{
-		auto& registry_item = registry_[static_cast<int>(R3dGlExtensionId::arb_direct_state_access)];
+		auto& registry_item = registry_[static_cast<int>(Ren3dGlExtensionId::arb_direct_state_access)];
 		registry_item.is_virtual_ = false;
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
@@ -2595,7 +2595,7 @@ void R3dGlExtensionMgrImpl::initialize_registry()
 	}
 
 	{
-		auto& registry_item = registry_[static_cast<int>(R3dGlExtensionId::arb_framebuffer_object)];
+		auto& registry_item = registry_[static_cast<int>(Ren3dGlExtensionId::arb_framebuffer_object)];
 		registry_item.is_virtual_ = false;
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
@@ -2604,7 +2604,7 @@ void R3dGlExtensionMgrImpl::initialize_registry()
 	}
 
 	{
-		auto& registry_item = registry_[static_cast<int>(R3dGlExtensionId::arb_texture_filter_anisotropic)];
+		auto& registry_item = registry_[static_cast<int>(Ren3dGlExtensionId::arb_texture_filter_anisotropic)];
 		registry_item.is_virtual_ = false;
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
@@ -2613,7 +2613,7 @@ void R3dGlExtensionMgrImpl::initialize_registry()
 	}
 
 	{
-		auto& registry_item = registry_[static_cast<int>(R3dGlExtensionId::arb_texture_non_power_of_two)];
+		auto& registry_item = registry_[static_cast<int>(Ren3dGlExtensionId::arb_texture_non_power_of_two)];
 		registry_item.is_virtual_ = false;
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
@@ -2622,7 +2622,7 @@ void R3dGlExtensionMgrImpl::initialize_registry()
 	}
 
 	{
-		auto& registry_item = registry_[static_cast<int>(R3dGlExtensionId::arb_sampler_objects)];
+		auto& registry_item = registry_[static_cast<int>(Ren3dGlExtensionId::arb_sampler_objects)];
 		registry_item.is_virtual_ = false;
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
@@ -2631,7 +2631,7 @@ void R3dGlExtensionMgrImpl::initialize_registry()
 	}
 
 	{
-		auto& registry_item = registry_[static_cast<int>(R3dGlExtensionId::arb_separate_shader_objects)];
+		auto& registry_item = registry_[static_cast<int>(Ren3dGlExtensionId::arb_separate_shader_objects)];
 		registry_item.is_virtual_ = false;
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
@@ -2640,7 +2640,7 @@ void R3dGlExtensionMgrImpl::initialize_registry()
 	}
 
 	{
-		auto& registry_item = registry_[static_cast<int>(R3dGlExtensionId::arb_vertex_array_object)];
+		auto& registry_item = registry_[static_cast<int>(Ren3dGlExtensionId::arb_vertex_array_object)];
 		registry_item.is_virtual_ = false;
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
@@ -2649,7 +2649,7 @@ void R3dGlExtensionMgrImpl::initialize_registry()
 	}
 
 	{
-		auto& registry_item = registry_[static_cast<int>(R3dGlExtensionId::ext_framebuffer_blit)];
+		auto& registry_item = registry_[static_cast<int>(Ren3dGlExtensionId::ext_framebuffer_blit)];
 		registry_item.is_virtual_ = false;
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
@@ -2658,7 +2658,7 @@ void R3dGlExtensionMgrImpl::initialize_registry()
 	}
 
 	{
-		auto& registry_item = registry_[static_cast<int>(R3dGlExtensionId::ext_framebuffer_multisample)];
+		auto& registry_item = registry_[static_cast<int>(Ren3dGlExtensionId::ext_framebuffer_multisample)];
 		registry_item.is_virtual_ = false;
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
@@ -2667,7 +2667,7 @@ void R3dGlExtensionMgrImpl::initialize_registry()
 	}
 
 	{
-		auto& registry_item = registry_[static_cast<int>(R3dGlExtensionId::ext_packed_depth_stencil)];
+		auto& registry_item = registry_[static_cast<int>(Ren3dGlExtensionId::ext_packed_depth_stencil)];
 		registry_item.is_virtual_ = false;
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
@@ -2676,7 +2676,7 @@ void R3dGlExtensionMgrImpl::initialize_registry()
 	}
 
 	{
-		auto& registry_item = registry_[static_cast<int>(R3dGlExtensionId::ext_texture_filter_anisotropic)];
+		auto& registry_item = registry_[static_cast<int>(Ren3dGlExtensionId::ext_texture_filter_anisotropic)];
 		registry_item.is_virtual_ = false;
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
@@ -2685,7 +2685,7 @@ void R3dGlExtensionMgrImpl::initialize_registry()
 	}
 
 	{
-		auto& registry_item = registry_[static_cast<int>(R3dGlExtensionId::oes_texture_npot)];
+		auto& registry_item = registry_[static_cast<int>(Ren3dGlExtensionId::oes_texture_npot)];
 		registry_item.is_virtual_ = false;
 		registry_item.is_probed_ = false;
 		registry_item.is_available_ = false;
@@ -2694,34 +2694,34 @@ void R3dGlExtensionMgrImpl::initialize_registry()
 	}
 }
 
-void R3dGlExtensionMgrImpl::get_context_attributes()
+void Ren3dGlExtensionMgrImpl::get_context_attributes()
 {
-	context_kind_ = R3dGlUtils::context_get_kind();
+	context_kind_ = Ren3dGlUtils::context_get_kind();
 
-	if (context_kind_ == R3dGlContextKind::invalid)
+	if (context_kind_ == Ren3dGlContextKind::invalid)
 	{
 		throw Exception{"Invalid context kind."};
 	}
 
-	R3dGlUtils::context_get_version(context_major_version_, context_minor_version_);
+	Ren3dGlUtils::context_get_version(context_major_version_, context_minor_version_);
 }
 
-void R3dGlExtensionMgrImpl::get_names_multiple_strings()
+void Ren3dGlExtensionMgrImpl::get_names_multiple_strings()
 {
 	if (!glGetIntegerv)
 	{
-		throw R3dGlExtensionMgrImplMissingSymbolException{"glGetIntegerv"};
+		throw Ren3dGlExtensionMgrImplMissingSymbolException{"glGetIntegerv"};
 	}
 
 	if (!glGetStringi)
 	{
-		throw R3dGlExtensionMgrImplMissingSymbolException{"glGetStringi"};
+		throw Ren3dGlExtensionMgrImplMissingSymbolException{"glGetStringi"};
 	}
 
 	auto gl_extension_count = GLint{};
 
 	glGetIntegerv(GL_NUM_EXTENSIONS, &gl_extension_count);
-	R3dGlError::ensure_debug();
+	Ren3dGlError::ensure_debug();
 
 	if (gl_extension_count == 0)
 	{
@@ -2743,15 +2743,15 @@ void R3dGlExtensionMgrImpl::get_names_multiple_strings()
 	}
 }
 
-void R3dGlExtensionMgrImpl::get_names_one_string()
+void Ren3dGlExtensionMgrImpl::get_names_one_string()
 {
 	if (!glGetString)
 	{
-		throw R3dGlExtensionMgrImplMissingSymbolException{"glGetString"};
+		throw Ren3dGlExtensionMgrImplMissingSymbolException{"glGetString"};
 	}
 
 	const auto gl_extensions_c_string = glGetString(GL_EXTENSIONS);
-	R3dGlError::ensure_debug();
+	Ren3dGlError::ensure_debug();
 
 	if (gl_extensions_c_string == nullptr)
 	{
@@ -2779,7 +2779,7 @@ void R3dGlExtensionMgrImpl::get_names_one_string()
 	);
 }
 
-void R3dGlExtensionMgrImpl::get_extension_names()
+void Ren3dGlExtensionMgrImpl::get_extension_names()
 {
 	if (context_major_version_ >= 3)
 	{
@@ -2793,8 +2793,8 @@ void R3dGlExtensionMgrImpl::get_extension_names()
 	std::sort(extension_names_.begin(), extension_names_.end());
 }
 
-void R3dGlExtensionMgrImpl::probe_generic(
-	const R3dGlExtensionId extension_id)
+void Ren3dGlExtensionMgrImpl::probe_generic(
+	const Ren3dGlExtensionId extension_id)
 {
 	const auto extension_index = get_extension_index(extension_id);
 
@@ -2848,21 +2848,21 @@ void R3dGlExtensionMgrImpl::probe_generic(
 }
 
 //
-// R3dGlExtensionMgrImpl
+// Ren3dGlExtensionMgrImpl
 // ==========================================================================
 
 
 // ==========================================================================
-// R3dGlExtensionMgrFactory
+// Ren3dGlExtensionMgrFactory
 //
 
-R3dGlExtensionMgrUPtr R3dGlExtensionMgrFactory::create()
+Ren3dGlExtensionMgrUPtr Ren3dGlExtensionMgrFactory::create()
 {
-	return std::make_unique<R3dGlExtensionMgrImpl>();
+	return std::make_unique<Ren3dGlExtensionMgrImpl>();
 }
 
 //
-// R3dGlExtensionMgrFactory
+// Ren3dGlExtensionMgrFactory
 // ==========================================================================
 
 

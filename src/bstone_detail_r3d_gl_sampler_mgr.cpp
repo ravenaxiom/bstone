@@ -45,58 +45,58 @@ namespace detail
 
 
 // ==========================================================================
-// R3dGlSamplerMgrImpl
+// Ren3dGlSamplerMgrImpl
 //
 
-class R3dGlSamplerMgrImpl final :
-	public R3dGlSamplerMgr
+class Ren3dGlSamplerMgrImpl final :
+	public Ren3dGlSamplerMgr
 {
 public:
-	R3dGlSamplerMgrImpl(
-		const R3dGlContextPtr gl_context);
+	Ren3dGlSamplerMgrImpl(
+		const Ren3dGlContextPtr gl_context);
 
-	~R3dGlSamplerMgrImpl() override;
+	~Ren3dGlSamplerMgrImpl() override;
 
 
-	R3dSamplerUPtr create(
-		const R3dSamplerCreateParam& param) override;
+	Ren3dSamplerUPtr create(
+		const Ren3dSamplerCreateParam& param) override;
 
 	void notify_destroy(
-		const R3dSamplerPtr sampler) noexcept override;
+		const Ren3dSamplerPtr sampler) noexcept override;
 
 	void set(
-		const R3dSamplerPtr sampler) override;
+		const Ren3dSamplerPtr sampler) override;
 
-	const R3dSamplerState& get_current_state() const noexcept override;
+	const Ren3dSamplerState& get_current_state() const noexcept override;
 
 
 private:
-	const R3dGlContextPtr gl_context_;
-	const R3dDeviceFeatures& device_features_;
+	const Ren3dGlContextPtr gl_context_;
+	const Ren3dDeviceFeatures& device_features_;
 
-	R3dGlSamplerUPtr sampler_default_;
-	R3dGlSamplerPtr sampler_current_;
+	Ren3dGlSamplerUPtr sampler_default_;
+	Ren3dGlSamplerPtr sampler_current_;
 
 
 	void initialize_default_sampler();
 
 	void set();
-}; // R3dGlSamplerMgrImpl
+}; // Ren3dGlSamplerMgrImpl
 
-using R3dGlSamplerMgrImplPtr = R3dGlSamplerMgrImpl*;
-using R3dGlSamplerMgrImplUPtr = std::unique_ptr<R3dGlSamplerMgrImpl>;
+using Ren3dGlSamplerMgrImplPtr = Ren3dGlSamplerMgrImpl*;
+using Ren3dGlSamplerMgrImplUPtr = std::unique_ptr<Ren3dGlSamplerMgrImpl>;
 
 //
-// R3dGlSamplerMgrImpl
+// Ren3dGlSamplerMgrImpl
 // ==========================================================================
 
 
 // ==========================================================================
-// R3dGlSamplerMgrImpl
+// Ren3dGlSamplerMgrImpl
 //
 
-R3dGlSamplerMgrImpl::R3dGlSamplerMgrImpl(
-	const R3dGlContextPtr gl_context)
+Ren3dGlSamplerMgrImpl::Ren3dGlSamplerMgrImpl(
+	const Ren3dGlContextPtr gl_context)
 	:
 	gl_context_{gl_context},
 	device_features_{gl_context_->get_device_features()},
@@ -113,16 +113,16 @@ R3dGlSamplerMgrImpl::R3dGlSamplerMgrImpl(
 	sampler_current_ = sampler_default_.get();
 }
 
-R3dGlSamplerMgrImpl::~R3dGlSamplerMgrImpl() = default;
+Ren3dGlSamplerMgrImpl::~Ren3dGlSamplerMgrImpl() = default;
 
-R3dSamplerUPtr R3dGlSamplerMgrImpl::create(
-	const R3dSamplerCreateParam& param)
+Ren3dSamplerUPtr Ren3dGlSamplerMgrImpl::create(
+	const Ren3dSamplerCreateParam& param)
 {
-	return R3dGlSamplerFactory::create(gl_context_, param);
+	return Ren3dGlSamplerFactory::create(gl_context_, param);
 }
 
-void R3dGlSamplerMgrImpl::notify_destroy(
-	const R3dSamplerPtr sampler) noexcept
+void Ren3dGlSamplerMgrImpl::notify_destroy(
+	const Ren3dSamplerPtr sampler) noexcept
 {
 	if (sampler_current_ == sampler)
 	{
@@ -137,8 +137,8 @@ void R3dGlSamplerMgrImpl::notify_destroy(
 	}
 }
 
-void R3dGlSamplerMgrImpl::set(
-	const R3dSamplerPtr sampler)
+void Ren3dGlSamplerMgrImpl::set(
+	const Ren3dSamplerPtr sampler)
 {
 	if (!sampler)
 	{
@@ -150,23 +150,23 @@ void R3dGlSamplerMgrImpl::set(
 		return;
 	}
 
-	sampler_current_ = static_cast<R3dGlSamplerPtr>(sampler);
+	sampler_current_ = static_cast<Ren3dGlSamplerPtr>(sampler);
 	set();
 }
 
-const R3dSamplerState& R3dGlSamplerMgrImpl::get_current_state() const noexcept
+const Ren3dSamplerState& Ren3dGlSamplerMgrImpl::get_current_state() const noexcept
 {
 	return sampler_current_->get_state();
 }
 
-void R3dGlSamplerMgrImpl::initialize_default_sampler()
+void Ren3dGlSamplerMgrImpl::initialize_default_sampler()
 {
-	const auto param = R3dSamplerCreateParam{};
+	const auto param = Ren3dSamplerCreateParam{};
 
-	sampler_default_ = R3dGlSamplerFactory::create(gl_context_, param);
+	sampler_default_ = Ren3dGlSamplerFactory::create(gl_context_, param);
 }
 
-void R3dGlSamplerMgrImpl::set()
+void Ren3dGlSamplerMgrImpl::set()
 {
 	if (device_features_.sampler_is_available_)
 	{
@@ -181,22 +181,22 @@ void R3dGlSamplerMgrImpl::set()
 }
 
 //
-// R3dGlSamplerMgrImpl
+// Ren3dGlSamplerMgrImpl
 // ==========================================================================
 
 
 // ==========================================================================
-// R3dGlSamplerMgrFactory
+// Ren3dGlSamplerMgrFactory
 //
 
-R3dGlSamplerMgrUPtr R3dGlSamplerMgrFactory::create(
-	const R3dGlContextPtr gl_context)
+Ren3dGlSamplerMgrUPtr Ren3dGlSamplerMgrFactory::create(
+	const Ren3dGlContextPtr gl_context)
 {
-	return std::make_unique<R3dGlSamplerMgrImpl>(gl_context);
+	return std::make_unique<Ren3dGlSamplerMgrImpl>(gl_context);
 }
 
 //
-// R3dGlSamplerMgrFactory
+// Ren3dGlSamplerMgrFactory
 // ==========================================================================
 
 

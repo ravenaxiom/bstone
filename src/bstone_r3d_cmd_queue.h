@@ -27,8 +27,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_R3D_COMMAND_QUEUE_INCLUDED
-#define BSTONE_R3D_COMMAND_QUEUE_INCLUDED
+#ifndef BSTONE_REN_3D_COMMAND_QUEUE_INCLUDED
+#define BSTONE_REN_3D_COMMAND_QUEUE_INCLUDED
 
 
 #include "bstone_r3d_cmd_buffer.h"
@@ -39,60 +39,60 @@ namespace bstone
 
 
 // ==========================================================================
-// R3dCmdQueue
+// Ren3dCmdQueue
 //
 
-struct R3dCmdQueueEnqueueParam
+struct Ren3dCmdQueueEnqueueParam
 {
 	int initial_size_;
 	int resize_delta_size_;
-}; // R3dCmdQueueEnqueueParam
+}; // Ren3dCmdQueueEnqueueParam
 
-class R3dCmdQueue
+class Ren3dCmdQueue
 {
 protected:
-	R3dCmdQueue() = default;
+	Ren3dCmdQueue() = default;
 
 
 public:
-	virtual ~R3dCmdQueue() = default;
+	virtual ~Ren3dCmdQueue() = default;
 
 
 	virtual int get_count() const noexcept = 0;
 
-	virtual R3dCmdBufferPtr enqueue(
-		const R3dCmdQueueEnqueueParam& param) = 0;
+	virtual Ren3dCmdBufferPtr enqueue(
+		const Ren3dCmdQueueEnqueueParam& param) = 0;
 
 	virtual void dequeue(
-		R3dCmdBufferPtr set) = 0;
+		Ren3dCmdBufferPtr set) = 0;
 
-	virtual R3dCmdBufferPtr get(
+	virtual Ren3dCmdBufferPtr get(
 		const int index) = 0;
-}; // R3dCmdQueue
+}; // Ren3dCmdQueue
 
-using R3dCmdQueuePtr = R3dCmdQueue*;
-using R3dCmdQueueUPtr = std::unique_ptr<R3dCmdQueue>;
+using Ren3dCmdQueuePtr = Ren3dCmdQueue*;
+using Ren3dCmdQueueUPtr = std::unique_ptr<Ren3dCmdQueue>;
 
 //
-// R3dCmdQueue
+// Ren3dCmdQueue
 // ==========================================================================
 
 
 // ==========================================================================
-// R3dCmdQueueFactory
+// Ren3dCmdQueueFactory
 //
 
-struct R3dCmdQueueFactory
+struct Ren3dCmdQueueFactory
 {
-	static R3dCmdQueueUPtr create();
-}; // R3dCmdQueueFactory
+	static Ren3dCmdQueueUPtr create();
+}; // Ren3dCmdQueueFactory
 
 //
-// R3dCmdQueueFactory
+// Ren3dCmdQueueFactory
 // ==========================================================================
 
 
 } // bstone
 
 
-#endif // !BSTONE_R3D_COMMAND_QUEUE_INCLUDED
+#endif // !BSTONE_REN_3D_COMMAND_QUEUE_INCLUDED

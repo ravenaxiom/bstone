@@ -72,14 +72,14 @@ struct VidCfg
 	int windowed_width_;
 	int windowed_height_;
 
-	bstone::R3dFilterKind d2_texture_filter_;
+	bstone::Ren3dFilterKind d2_texture_filter_;
 
-	bstone::R3dFilterKind d3_texture_image_filter_;
-	bstone::R3dFilterKind d3_texture_mipmap_filter_;
+	bstone::Ren3dFilterKind d3_texture_image_filter_;
+	bstone::Ren3dFilterKind d3_texture_mipmap_filter_;
 
 	int d3_texture_anisotropy_;
 
-	bstone::R3dAaKind aa_kind_;
+	bstone::Ren3dAaKind aa_kind_;
 	int aa_degree_;
 
 	bstone::HwTextureMgrUpscaleFilterKind texture_upscale_kind_;
@@ -93,7 +93,7 @@ struct VideoModeCfg
 	int windowed_width_;
 	int windowed_height_;
 	bool is_vsync_;
-	bstone::R3dAaKind aa_kind_;
+	bstone::Ren3dAaKind aa_kind_;
 	int aa_degree_;
 }; // VideoModeCfg
 

@@ -29,8 +29,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_DETAIL_R3D_GL_TEXTURE_2D_INCLUDED
-#define BSTONE_DETAIL_R3D_GL_TEXTURE_2D_INCLUDED
+#ifndef BSTONE_DETAIL_REN_3D_GL_TEXTURE_2D_INCLUDED
+#define BSTONE_DETAIL_REN_3D_GL_TEXTURE_2D_INCLUDED
 
 
 #include "bstone_r3d_sampler.h"
@@ -43,23 +43,23 @@ namespace detail
 {
 
 
-class R3dGlTextureMgr;
-using R3dGlTextureMgrPtr = R3dGlTextureMgr*;
+class Ren3dGlTextureMgr;
+using Ren3dGlTextureMgrPtr = Ren3dGlTextureMgr*;
 
 
 // =========================================================================
-// R3dGlTexture2d
+// Ren3dGlTexture2d
 //
 
-class R3dGlTexture2d :
-	public R3dTexture2d
+class Ren3dGlTexture2d :
+	public Ren3dTexture2d
 {
 protected:
-	R3dGlTexture2d() = default;
+	Ren3dGlTexture2d() = default;
 
 
 public:
-	~R3dGlTexture2d() override = default;
+	~Ren3dGlTexture2d() override = default;
 
 
 	virtual void set() = 0;
@@ -67,30 +67,30 @@ public:
 	virtual void bind() = 0;
 
 	virtual void update_sampler_state(
-		const R3dSamplerState& new_sampler_state) = 0;
-}; // R3dGlTexture2d
+		const Ren3dSamplerState& new_sampler_state) = 0;
+}; // Ren3dGlTexture2d
 
-using R3dGlTexture2dPtr = R3dGlTexture2d*;
-using R3dGlTexture2dUPtr = std::unique_ptr<R3dGlTexture2d>;
+using Ren3dGlTexture2dPtr = Ren3dGlTexture2d*;
+using Ren3dGlTexture2dUPtr = std::unique_ptr<Ren3dGlTexture2d>;
 
 //
-// R3dGlTexture2d
+// Ren3dGlTexture2d
 // =========================================================================
 
 
 // =========================================================================
-// R3dGlTexture2dFactory
+// Ren3dGlTexture2dFactory
 //
 
-struct R3dGlTexture2dFactory
+struct Ren3dGlTexture2dFactory
 {
-	static R3dGlTexture2dUPtr create(
-		const R3dGlTextureMgrPtr gl_texture_manager,
-		const R3dTexture2dCreateParam& param);
-}; // R3dGlTexture2dFactory
+	static Ren3dGlTexture2dUPtr create(
+		const Ren3dGlTextureMgrPtr gl_texture_manager,
+		const Ren3dTexture2dCreateParam& param);
+}; // Ren3dGlTexture2dFactory
 
 //
-// R3dGlTexture2dFactory
+// Ren3dGlTexture2dFactory
 // =========================================================================
 
 
@@ -98,4 +98,4 @@ struct R3dGlTexture2dFactory
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_R3D_GL_TEXTURE_2D_INCLUDED
+#endif // !BSTONE_DETAIL_REN_3D_GL_TEXTURE_2D_INCLUDED

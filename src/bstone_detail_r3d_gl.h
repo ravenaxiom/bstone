@@ -29,8 +29,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_DETAIL_R3D_GL_INCLUDED
-#define BSTONE_DETAIL_R3D_GL_INCLUDED
+#ifndef BSTONE_DETAIL_REN_3D_GL_INCLUDED
+#define BSTONE_DETAIL_REN_3D_GL_INCLUDED
 
 
 #include <array>
@@ -55,30 +55,30 @@ namespace detail
 {
 
 
-class R3dGl final :
-	public R3d
+class Ren3dGl final :
+	public Ren3d
 {
 public:
-	R3dGl(
-		const R3dCreateParam& param);
+	Ren3dGl(
+		const Ren3dCreateParam& param);
 
-	~R3dGl() override;
+	~Ren3dGl() override;
 
 
-	R3dKind get_kind() const noexcept override;
+	Ren3dKind get_kind() const noexcept override;
 
 	const std::string& get_name() const noexcept override;
 
 	const std::string& get_description() const noexcept override;
 
 
-	const R3dDeviceFeatures& device_get_features() const noexcept override;
+	const Ren3dDeviceFeatures& device_get_features() const noexcept override;
 
-	const R3dDeviceInfo& device_get_info() const noexcept override;
+	const Ren3dDeviceInfo& device_get_info() const noexcept override;
 
 
 	void window_set_mode(
-		const R3dWindowSetModeParam& param) override;
+		const Ren3dWindowSetModeParam& param) override;
 
 	void window_set_title(
 		const std::string& title_utf8) override;
@@ -94,34 +94,34 @@ public:
 
 
 	void aa_set(
-		const R3dAaKind aa_kind,
+		const Ren3dAaKind aa_kind,
 		const int aa_value) override;
 
 
 	void present() override;
 
 
-	R3dBufferUPtr buffer_create(
-		const R3dBufferCreateParam& param) override;
+	Ren3dBufferUPtr buffer_create(
+		const Ren3dBufferCreateParam& param) override;
 
-	R3dTexture2dUPtr texture_2d_create(
-		const R3dTexture2dCreateParam& param) override;
+	Ren3dTexture2dUPtr texture_2d_create(
+		const Ren3dTexture2dCreateParam& param) override;
 
-	R3dSamplerUPtr sampler_create(
-		const R3dSamplerCreateParam& param) override;
+	Ren3dSamplerUPtr sampler_create(
+		const Ren3dSamplerCreateParam& param) override;
 
-	R3dVertexInputUPtr vertex_input_create(
-		const R3dVertexInputCreateParam& param) override;
+	Ren3dVertexInputUPtr vertex_input_create(
+		const Ren3dVertexInputCreateParam& param) override;
 
-	R3dShaderUPtr shader_create(
-		const R3dShaderCreateParam& param) override;
+	Ren3dShaderUPtr shader_create(
+		const Ren3dShaderCreateParam& param) override;
 
-	R3dShaderStageUPtr shader_stage_create(
-		const R3dShaderStageCreateParam& param) override;
+	Ren3dShaderStageUPtr shader_stage_create(
+		const Ren3dShaderStageCreateParam& param) override;
 
 
 	void submit_commands(
-		const R3dCmdQueuePtr command_queue) override;
+		const Ren3dCmdQueuePtr command_queue) override;
 
 
 private:
@@ -137,29 +137,29 @@ private:
 	using RboResource = UniqueResource<GLuint, rbo_resource_deleter>;
 
 
-	using Shaders = std::list<R3dGlShaderUPtr>;
-	using ShaderStages = std::list<R3dGlShaderStageUPtr>;
+	using Shaders = std::list<Ren3dGlShaderUPtr>;
+	using ShaderStages = std::list<Ren3dGlShaderStageUPtr>;
 
 
-	R3dKind kind_;
+	Ren3dKind kind_;
 	std::string name_;
 	std::string description_;
 
-	R3dDeviceInfo device_info_;
-	R3dDeviceFeatures device_features_;
-	R3dGlDeviceFeatures gl_device_features_;
+	Ren3dDeviceInfo device_info_;
+	Ren3dDeviceFeatures device_features_;
+	Ren3dGlDeviceFeatures gl_device_features_;
 
 	int screen_width_;
 	int screen_height_;
 
-	R3dAaKind aa_kind_;
+	Ren3dAaKind aa_kind_;
 	int aa_value_;
 
 	SdlWindowUPtr sdl_window_;
 	SdlGlContextUPtr sdl_gl_context_;
 
-	R3dGlExtensionMgrUPtr extension_manager_;
-	R3dGlContextUPtr gl_context_;
+	Ren3dGlExtensionMgrUPtr extension_manager_;
+	Ren3dGlContextUPtr gl_context_;
 
 	FboResource gl_msaa_fbo_;
 	RboResource gl_msaa_color_rb_;
@@ -232,73 +232,73 @@ private:
 
 
 	void command_execute_clear(
-		const R3dCmdClear& command);
+		const Ren3dCmdClear& command);
 
 	void command_execute_culling(
-		const R3dCmdCulling& command);
+		const Ren3dCmdCulling& command);
 
 	void command_execute_depth_test(
-		const R3dCmdDepthTest& command);
+		const Ren3dCmdDepthTest& command);
 
 	void command_execute_depth_write(
-		const R3dCmdDepthWrite& command);
+		const Ren3dCmdDepthWrite& command);
 
 	void command_execute_blending(
-		const R3dCmdBlending& command);
+		const Ren3dCmdBlending& command);
 
 	void command_execute_blending_func(
-		const R3dCmdBlendingFunc& command);
+		const Ren3dCmdBlendingFunc& command);
 
 	void command_execute_viewport(
-		const R3dCmdViewport& command);
+		const Ren3dCmdViewport& command);
 
 	void command_execute_scissor(
-		const R3dCmdScissor& command);
+		const Ren3dCmdScissor& command);
 
 	void command_execute_scissor_box(
-		const R3dCmdScissorBox& command);
+		const Ren3dCmdScissorBox& command);
 
 	void command_execute_texture(
-		const R3dCmdTexture& command);
+		const Ren3dCmdTexture& command);
 
 	void command_execute_sampler(
-		const R3dCmdSampler& command);
+		const Ren3dCmdSampler& command);
 
 	void command_execute_vertex_input(
-		const R3dCmdVertexInput& command);
+		const Ren3dCmdVertexInput& command);
 
 	void command_execute_shader_stage(
-		const R3dCmdShaderStage& command);
+		const Ren3dCmdShaderStage& command);
 
 	void command_execute_shader_var_int32(
-		const R3dCmdShaderVarInt32& command);
+		const Ren3dCmdShaderVarInt32& command);
 
 	void command_execute_shader_var_float32(
-		const R3dCmdShaderVarFloat32& command);
+		const Ren3dCmdShaderVarFloat32& command);
 
 	void command_execute_shader_var_vec2(
-		const R3dCmdShaderVarVec2& command);
+		const Ren3dCmdShaderVarVec2& command);
 
 	void command_execute_shader_var_vec4(
-		const R3dCmdShaderVarVec4& command);
+		const Ren3dCmdShaderVarVec4& command);
 
 	void command_execute_shader_var_mat4(
-		const R3dCmdShaderVarMat4& command);
+		const Ren3dCmdShaderVarMat4& command);
 
 	void command_execute_shader_var_sampler_2d(
-		const R3dCmdShaderVarSampler2d& command);
+		const Ren3dCmdShaderVarSampler2d& command);
 
 	void command_execute_draw_indexed(
-		const R3dCmdDrawIndexed& command);
-}; // R3dGl
+		const Ren3dCmdDrawIndexed& command);
+}; // Ren3dGl
 
 
-using R3dGlPtr = R3dGl*;
-using R3dGlUPtr = std::unique_ptr<R3dGl>;
+using Ren3dGlPtr = Ren3dGl*;
+using Ren3dGlUPtr = std::unique_ptr<Ren3dGl>;
 
 
 } // detail
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_R3D_GL_INCLUDED
+#endif // !BSTONE_DETAIL_REN_3D_GL_INCLUDED

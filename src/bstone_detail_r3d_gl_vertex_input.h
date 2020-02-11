@@ -27,8 +27,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_DETAIL_R3D_GL_VERTEX_INPUT_INCLUDED
-#define BSTONE_DETAIL_R3D_GL_VERTEX_INPUT_INCLUDED
+#ifndef BSTONE_DETAIL_REN_3D_GL_VERTEX_INPUT_INCLUDED
+#define BSTONE_DETAIL_REN_3D_GL_VERTEX_INPUT_INCLUDED
 
 
 #include "bstone_r3d_vertex_input.h"
@@ -42,51 +42,51 @@ namespace detail
 {
 
 
-class R3dGlVertexInputMgr;
-using R3dGlVertexInputMgrPtr = R3dGlVertexInputMgr*;
+class Ren3dGlVertexInputMgr;
+using Ren3dGlVertexInputMgrPtr = Ren3dGlVertexInputMgr*;
 
 
 // =========================================================================
-// R3dGlVertexInput
+// Ren3dGlVertexInput
 //
 
-class R3dGlVertexInput :
-	public R3dVertexInput
+class Ren3dGlVertexInput :
+	public Ren3dVertexInput
 {
 protected:
-	R3dGlVertexInput() = default;
+	Ren3dGlVertexInput() = default;
 
 
 public:
-	~R3dGlVertexInput() override = default;
+	~Ren3dGlVertexInput() override = default;
 
 
 	virtual void bind() = 0;
 
-	virtual R3dBufferPtr get_index_buffer() const noexcept = 0;
+	virtual Ren3dBufferPtr get_index_buffer() const noexcept = 0;
 }; // VertexInput
 
-using R3dGlVertexInputPtr = R3dGlVertexInput*;
-using R3dGlVertexInputUPtr = std::unique_ptr<R3dGlVertexInput>;
+using Ren3dGlVertexInputPtr = Ren3dGlVertexInput*;
+using Ren3dGlVertexInputUPtr = std::unique_ptr<Ren3dGlVertexInput>;
 
 //
-// R3dGlVertexInput
+// Ren3dGlVertexInput
 // =========================================================================
 
 
 // =========================================================================
-// R3dGlVertexInputFactory
+// Ren3dGlVertexInputFactory
 //
 
-struct R3dGlVertexInputFactory
+struct Ren3dGlVertexInputFactory
 {
-	static R3dGlVertexInputUPtr create(
-		const R3dGlVertexInputMgrPtr vertex_input_manager,
-		const R3dVertexInputCreateParam& param);
-}; // R3dGlVertexInputFactory
+	static Ren3dGlVertexInputUPtr create(
+		const Ren3dGlVertexInputMgrPtr vertex_input_manager,
+		const Ren3dVertexInputCreateParam& param);
+}; // Ren3dGlVertexInputFactory
 
 //
-// R3dGlVertexInputFactory
+// Ren3dGlVertexInputFactory
 // =========================================================================
 
 
@@ -94,4 +94,4 @@ struct R3dGlVertexInputFactory
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_R3D_GL_VERTEX_INPUT_INCLUDED
+#endif // !BSTONE_DETAIL_REN_3D_GL_VERTEX_INPUT_INCLUDED

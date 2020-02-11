@@ -57,18 +57,18 @@ namespace detail
 //
 
 class GlTexture2dImpl final :
-	public R3dGlTexture2d
+	public Ren3dGlTexture2d
 {
 public:
 	GlTexture2dImpl(
-		const R3dGlTextureMgrPtr gl_texture_manager,
-		const R3dTexture2dCreateParam& param);
+		const Ren3dGlTextureMgrPtr gl_texture_manager,
+		const Ren3dTexture2dCreateParam& param);
 
 	~GlTexture2dImpl() override;
 
 
 	void update(
-		const R3dTexture2dUpdateParam& param) override;
+		const Ren3dTexture2dUpdateParam& param) override;
 
 	void generate_mipmaps() override;
 
@@ -76,15 +76,15 @@ public:
 	void set() override;
 
 	void update_sampler_state(
-		const R3dSamplerState& new_sampler_state) override;
+		const Ren3dSamplerState& new_sampler_state) override;
 
 
 private:
-	const R3dGlTextureMgrPtr gl_texture_manager_;
-	const R3dDeviceFeatures& device_features_;
-	const R3dGlDeviceFeatures& gl_device_features_;
+	const Ren3dGlTextureMgrPtr gl_texture_manager_;
+	const Ren3dDeviceFeatures& device_features_;
+	const Ren3dGlDeviceFeatures& gl_device_features_;
 
-	R3dPixelFormat pixel_format_;
+	Ren3dPixelFormat pixel_format_;
 	GLenum gl_internal_format_;
 	GLenum gl_format_;
 	GLenum gl_type_;
@@ -94,14 +94,14 @@ private:
 
 	int mipmap_count_;
 
-	R3dSamplerState sampler_state_;
+	Ren3dSamplerState sampler_state_;
 
 
 	void validate(
-		const R3dTexture2dCreateParam& param);
+		const Ren3dTexture2dCreateParam& param);
 
 	void validate(
-		const R3dTexture2dUpdateParam& param);
+		const Ren3dTexture2dUpdateParam& param);
 
 
 	void bind() override;
@@ -117,8 +117,8 @@ private:
 	void set_min_filter();
 
 	void set_address_mode(
-		const R3dTextureAxis texture_axis,
-		const R3dAddressMode address_mode);
+		const Ren3dTextureAxis texture_axis,
+		const Ren3dAddressMode address_mode);
 
 	void set_address_mode_u();
 
@@ -134,7 +134,7 @@ private:
 
 	using GlTextureResource = UniqueResource<GLuint, texture_resource_deleter>;
 	GlTextureResource gl_resource_;
-}; // R3dGlTexture2d
+}; // Ren3dGlTexture2d
 
 using GlTexture2dImplPtr = GlTexture2dImpl*;
 using GlTexture2dImplUPtr = std::unique_ptr<GlTexture2dImpl>;
@@ -149,8 +149,8 @@ using GlTexture2dImplUPtr = std::unique_ptr<GlTexture2dImpl>;
 //
 
 GlTexture2dImpl::GlTexture2dImpl(
-	const R3dGlTextureMgrPtr gl_texture_manager,
-	const R3dTexture2dCreateParam& param)
+	const Ren3dGlTextureMgrPtr gl_texture_manager,
+	const Ren3dTexture2dCreateParam& param)
 	:
 	gl_texture_manager_{gl_texture_manager},
 	device_features_{gl_texture_manager_->get_gl_context()->get_device_features()},
@@ -169,11 +169,11 @@ GlTexture2dImpl::GlTexture2dImpl(
 
 	pixel_format_ = param.pixel_format_;
 
-	const auto is_es = (gl_device_features_.context_kind_ == R3dGlContextKind::es);
+	const auto is_es = (gl_device_features_.context_kind_ == Ren3dGlContextKind::es);
 
 	switch (pixel_format_)
 	{
-		case R3dPixelFormat::rgba_8_unorm:
+		case Ren3dPixelFormat::rgba_8_unorm:
 			gl_internal_format_ = (is_es ? GL_RGBA : GL_RGBA8);
 			gl_format_ = GL_RGBA;
 			gl_type_ = GL_UNSIGNED_BYTE;
@@ -187,7 +187,7 @@ GlTexture2dImpl::GlTexture2dImpl(
 	height_ = param.height_;
 	mipmap_count_ = param.mipmap_count_;
 
-	const auto max_mipmap_count = R3dUtils::calculate_mipmap_count(width_, height_);
+	const auto max_mipmap_count = Ren3dUtils::calculate_mipmap_count(width_, height_);
 
 	if (mipmap_count_ > max_mipmap_count)
 	{
@@ -199,12 +199,12 @@ GlTexture2dImpl::GlTexture2dImpl(
 	if (gl_device_features_.dsa_is_available_)
 	{
 		glCreateTextures(GL_TEXTURE_2D, 1, &gl_name);
-		R3dGlError::ensure_debug();
+		Ren3dGlError::ensure_debug();
 	}
 	else
 	{
 		glGenTextures(1, &gl_name);
-		R3dGlError::ensure_debug();
+		Ren3dGlError::ensure_debug();
 	}
 
 	gl_resource_.reset(gl_name);
@@ -217,10 +217,10 @@ GlTexture2dImpl::GlTexture2dImpl(
 	if (gl_device_features_.dsa_is_available_)
 	{
 		glTextureParameteri(gl_resource_.get(), GL_TEXTURE_BASE_LEVEL, 0);
-		R3dGlError::ensure_debug();
+		Ren3dGlError::ensure_debug();
 
 		glTextureParameteri(gl_resource_.get(), GL_TEXTURE_MAX_LEVEL, mipmap_count_ - 1);
-		R3dGlError::ensure_debug();
+		Ren3dGlError::ensure_debug();
 	}
 	else
 	{
@@ -229,10 +229,10 @@ GlTexture2dImpl::GlTexture2dImpl(
 		gl_texture_manager_->set_active(this);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-		R3dGlError::ensure_debug();
+		Ren3dGlError::ensure_debug();
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mipmap_count_ - 1);
-		R3dGlError::ensure_debug();
+		Ren3dGlError::ensure_debug();
 	}
 
 	set_sampler_state_defaults();
@@ -247,7 +247,7 @@ GlTexture2dImpl::GlTexture2dImpl(
 			height_
 		);
 
-		R3dGlError::ensure_debug();
+		Ren3dGlError::ensure_debug();
 	}
 	else
 	{
@@ -268,7 +268,7 @@ GlTexture2dImpl::GlTexture2dImpl(
 				nullptr // pixels
 			);
 
-			R3dGlError::ensure_debug();
+			Ren3dGlError::ensure_debug();
 
 			if (mipmap_width > 1)
 			{
@@ -289,7 +289,7 @@ GlTexture2dImpl::~GlTexture2dImpl()
 }
 
 void GlTexture2dImpl::update(
-	const R3dTexture2dUpdateParam& param)
+	const Ren3dTexture2dUpdateParam& param)
 {
 	validate(param);
 
@@ -337,13 +337,13 @@ void GlTexture2dImpl::generate_mipmaps()
 	if (gl_device_features_.dsa_is_available_)
 	{
 		glGenerateTextureMipmap(gl_resource_.get());
-		R3dGlError::ensure_debug();
+		Ren3dGlError::ensure_debug();
 	}
 	else
 	{
 		gl_texture_manager_->set(this);
 
-		R3dGlUtils::mipmap_generate(
+		Ren3dGlUtils::mipmap_generate(
 			GL_TEXTURE_2D,
 			device_features_,
 			gl_device_features_);
@@ -354,15 +354,15 @@ void GlTexture2dImpl::texture_resource_deleter(
 	const GLuint& gl_name) noexcept
 {
 	glDeleteTextures(1, &gl_name);
-	R3dGlError::ensure_debug();
+	Ren3dGlError::ensure_debug();
 }
 
 void GlTexture2dImpl::validate(
-	const R3dTexture2dCreateParam& param)
+	const Ren3dTexture2dCreateParam& param)
 {
 	switch (param.pixel_format_)
 	{
-		case R3dPixelFormat::rgba_8_unorm:
+		case Ren3dPixelFormat::rgba_8_unorm:
 			break;
 
 		default:
@@ -386,10 +386,10 @@ void GlTexture2dImpl::validate(
 }
 
 void GlTexture2dImpl::validate(
-	const R3dTexture2dUpdateParam& param)
+	const Ren3dTexture2dUpdateParam& param)
 {
 	if (param.mipmap_level_ < 0 ||
-		param.mipmap_level_ >= R3dLimits::max_mipmap_count)
+		param.mipmap_level_ >= Ren3dLimits::max_mipmap_count)
 	{
 		throw Exception{"Mipmap level out of range."};
 	}
@@ -403,7 +403,7 @@ void GlTexture2dImpl::validate(
 void GlTexture2dImpl::bind()
 {
 	glBindTexture(GL_TEXTURE_2D, gl_resource_.get());
-	R3dGlError::ensure_debug();
+	Ren3dGlError::ensure_debug();
 }
 
 void GlTexture2dImpl::upload_mipmap(
@@ -426,7 +426,7 @@ void GlTexture2dImpl::upload_mipmap(
 			src_data // pixels
 		);
 
-		R3dGlError::ensure_debug();
+		Ren3dGlError::ensure_debug();
 	}
 	else
 	{
@@ -442,7 +442,7 @@ void GlTexture2dImpl::upload_mipmap(
 			src_data // pixels
 		);
 
-		R3dGlError::ensure_debug();
+		Ren3dGlError::ensure_debug();
 	}
 }
 
@@ -462,23 +462,23 @@ void GlTexture2dImpl::set()
 
 void GlTexture2dImpl::set_mag_filter()
 {
-	const auto gl_mag_filter = R3dGlUtils::filter_get_mag(sampler_state_.mag_filter_);
+	const auto gl_mag_filter = Ren3dGlUtils::filter_get_mag(sampler_state_.mag_filter_);
 
 	if (gl_device_features_.dsa_is_available_)
 	{
 		glTextureParameteri(gl_resource_.get(), GL_TEXTURE_MAG_FILTER, gl_mag_filter);
-		R3dGlError::ensure_debug();
+		Ren3dGlError::ensure_debug();
 	}
 	else
 	{
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_mag_filter);
-		R3dGlError::ensure_debug();
+		Ren3dGlError::ensure_debug();
 	}
 }
 
 void GlTexture2dImpl::set_min_filter()
 {
-	const auto gl_min_filter = R3dGlUtils::filter_get_min(
+	const auto gl_min_filter = Ren3dGlUtils::filter_get_min(
 		sampler_state_.min_filter_,
 		sampler_state_.mipmap_mode_
 	);
@@ -486,42 +486,42 @@ void GlTexture2dImpl::set_min_filter()
 	if (gl_device_features_.dsa_is_available_)
 	{
 		glTextureParameteri(gl_resource_.get(), GL_TEXTURE_MIN_FILTER, gl_min_filter);
-		R3dGlError::ensure_debug();
+		Ren3dGlError::ensure_debug();
 	}
 	else
 	{
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_min_filter);
-		R3dGlError::ensure_debug();
+		Ren3dGlError::ensure_debug();
 	}
 }
 
 void GlTexture2dImpl::set_address_mode(
-	const R3dTextureAxis texture_axis,
-	const R3dAddressMode address_mode)
+	const Ren3dTextureAxis texture_axis,
+	const Ren3dAddressMode address_mode)
 {
-	const auto gl_wrap_axis = R3dGlUtils::texture_wrap_get_axis(texture_axis);
-	const auto gl_address_mode = R3dGlUtils::address_mode_get(address_mode);
+	const auto gl_wrap_axis = Ren3dGlUtils::texture_wrap_get_axis(texture_axis);
+	const auto gl_address_mode = Ren3dGlUtils::address_mode_get(address_mode);
 
 	if (gl_device_features_.dsa_is_available_)
 	{
 		glTextureParameteri(gl_resource_.get(), gl_wrap_axis, gl_address_mode);
-		R3dGlError::ensure_debug();
+		Ren3dGlError::ensure_debug();
 	}
 	else
 	{
 		glTexParameteri(GL_TEXTURE_2D, gl_wrap_axis, gl_address_mode);
-		R3dGlError::ensure_debug();
+		Ren3dGlError::ensure_debug();
 	}
 }
 
 void GlTexture2dImpl::set_address_mode_u()
 {
-	set_address_mode(R3dTextureAxis::u, sampler_state_.address_mode_u_);
+	set_address_mode(Ren3dTextureAxis::u, sampler_state_.address_mode_u_);
 }
 
 void GlTexture2dImpl::set_address_mode_v()
 {
-	set_address_mode(R3dTextureAxis::v, sampler_state_.address_mode_v_);
+	set_address_mode(Ren3dTextureAxis::v, sampler_state_.address_mode_v_);
 }
 
 void GlTexture2dImpl::set_anisotropy()
@@ -533,9 +533,9 @@ void GlTexture2dImpl::set_anisotropy()
 
 	auto anisotropy = sampler_state_.anisotropy_;
 
-	if (anisotropy < R3dLimits::anisotropy_min_off)
+	if (anisotropy < Ren3dLimits::anisotropy_min_off)
 	{
-		anisotropy = R3dLimits::anisotropy_min_off;
+		anisotropy = Ren3dLimits::anisotropy_min_off;
 	}
 	else if (anisotropy > device_features_.anisotropy_max_degree_)
 	{
@@ -547,17 +547,17 @@ void GlTexture2dImpl::set_anisotropy()
 	if (gl_device_features_.dsa_is_available_)
 	{
 		glTextureParameterf(gl_resource_.get(), GL_TEXTURE_MAX_ANISOTROPY, gl_anisotropy);
-		R3dGlError::ensure_debug();
+		Ren3dGlError::ensure_debug();
 	}
 	else
 	{
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, gl_anisotropy);
-		R3dGlError::ensure_debug();
+		Ren3dGlError::ensure_debug();
 	}
 }
 
 void GlTexture2dImpl::update_sampler_state(
-	const R3dSamplerState& new_sampler_state)
+	const Ren3dSamplerState& new_sampler_state)
 {
 	auto is_modified = false;
 
@@ -659,20 +659,20 @@ void GlTexture2dImpl::update_sampler_state(
 
 void GlTexture2dImpl::set_sampler_state_defaults()
 {
-	sampler_state_.mag_filter_ = R3dFilterKind::nearest;
+	sampler_state_.mag_filter_ = Ren3dFilterKind::nearest;
 	set_mag_filter();
 
-	sampler_state_.min_filter_ = R3dFilterKind::nearest;
-	sampler_state_.mipmap_mode_ = R3dMipmapMode::none;
+	sampler_state_.min_filter_ = Ren3dFilterKind::nearest;
+	sampler_state_.mipmap_mode_ = Ren3dMipmapMode::none;
 	set_min_filter();
 
-	sampler_state_.address_mode_u_ = R3dAddressMode::clamp;
+	sampler_state_.address_mode_u_ = Ren3dAddressMode::clamp;
 	set_address_mode_u();
 
-	sampler_state_.address_mode_v_ = R3dAddressMode::clamp;
+	sampler_state_.address_mode_v_ = Ren3dAddressMode::clamp;
 	set_address_mode_v();
 
-	sampler_state_.anisotropy_ = R3dLimits::anisotropy_min_off;
+	sampler_state_.anisotropy_ = Ren3dLimits::anisotropy_min_off;
 	set_anisotropy();
 }
 
@@ -682,18 +682,18 @@ void GlTexture2dImpl::set_sampler_state_defaults()
 
 
 // =========================================================================
-// R3dGlTexture2dFactory
+// Ren3dGlTexture2dFactory
 //
 
-R3dGlTexture2dUPtr R3dGlTexture2dFactory::create(
-	const R3dGlTextureMgrPtr gl_texture_manager,
-	const R3dTexture2dCreateParam& param)
+Ren3dGlTexture2dUPtr Ren3dGlTexture2dFactory::create(
+	const Ren3dGlTextureMgrPtr gl_texture_manager,
+	const Ren3dTexture2dCreateParam& param)
 {
 	return std::make_unique<GlTexture2dImpl>(gl_texture_manager, param);
 }
 
 //
-// R3dGlTexture2dFactory
+// Ren3dGlTexture2dFactory
 // =========================================================================
 
 

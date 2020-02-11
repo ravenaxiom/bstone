@@ -53,11 +53,11 @@ namespace detail
 //
 
 class GlVaoImpl final :
-	public R3dGlVao
+	public Ren3dGlVao
 {
 public:
 	GlVaoImpl(
-		const R3dGlVaoMgrPtr manager);
+		const Ren3dGlVaoMgrPtr manager);
 
 	~GlVaoImpl() override;
 
@@ -66,7 +66,7 @@ public:
 
 
 	bool set_current_index_buffer(
-		const R3dBufferPtr index_buffer) override;
+		const Ren3dBufferPtr index_buffer) override;
 
 
 	void enable_location(
@@ -75,9 +75,9 @@ public:
 
 
 private:
-	const R3dGlVaoMgrPtr manager_;
-	const R3dDeviceFeatures& device_features_;
-	const R3dGlDeviceFeatures& gl_device_features_;
+	const Ren3dGlVaoMgrPtr manager_;
+	const Ren3dDeviceFeatures& device_features_;
+	const Ren3dGlDeviceFeatures& gl_device_features_;
 
 
 	static void gl_deleter(
@@ -86,7 +86,7 @@ private:
 	using VaoResource = UniqueResource<GLuint, gl_deleter>;
 	VaoResource gl_vao_resource_;
 
-	R3dBufferPtr index_buffer_;
+	Ren3dBufferPtr index_buffer_;
 
 
 	using EnabledLocations = std::vector<bool>;
@@ -116,7 +116,7 @@ using GlVaoImplUPtr = std::unique_ptr<GlVaoImpl>;
 //
 
 GlVaoImpl::GlVaoImpl(
-	const R3dGlVaoMgrPtr manager)
+	const Ren3dGlVaoMgrPtr manager)
 	:
 	manager_{manager},
 	device_features_{manager->get_context()->get_device_features()},
@@ -138,11 +138,11 @@ void GlVaoImpl::bind()
 	}
 
 	glBindVertexArray(gl_vao_resource_);
-	R3dGlError::ensure_debug();
+	Ren3dGlError::ensure_debug();
 }
 
 bool GlVaoImpl::set_current_index_buffer(
-	const R3dBufferPtr index_buffer)
+	const Ren3dBufferPtr index_buffer)
 {
 	if (index_buffer_ == index_buffer)
 	{
@@ -171,7 +171,7 @@ void GlVaoImpl::gl_deleter(
 	const GLuint& gl_name) noexcept
 {
 	glDeleteVertexArrays(1, &gl_name);
-	R3dGlError::ensure_debug();
+	Ren3dGlError::ensure_debug();
 }
 
 void GlVaoImpl::enable_location(
@@ -184,7 +184,7 @@ void GlVaoImpl::enable_location(
 	);
 
 	gl_function(location);
-	R3dGlError::ensure_debug();
+	Ren3dGlError::ensure_debug();
 }
 
 void GlVaoImpl::initialize_resource()
@@ -197,7 +197,7 @@ void GlVaoImpl::initialize_resource()
 	auto gl_name = GLuint{};
 
 	glGenVertexArrays(1, &gl_name);
-	R3dGlError::ensure_debug();
+	Ren3dGlError::ensure_debug();
 
 	if (gl_name == 0)
 	{
@@ -229,39 +229,39 @@ void GlVaoImpl::initialize()
 
 
 // ==========================================================================
-// R3dGlVaoDeleter
+// Ren3dGlVaoDeleter
 //
 
-R3dGlVaoDeleter::R3dGlVaoDeleter(
-	const R3dGlVaoMgrPtr gl_vao_manager)
+Ren3dGlVaoDeleter::Ren3dGlVaoDeleter(
+	const Ren3dGlVaoMgrPtr gl_vao_manager)
 	:
 	gl_vao_manager_{gl_vao_manager}
 {
 }
 
-void R3dGlVaoDeleter::operator()(
-	const R3dGlVaoPtr resource)
+void Ren3dGlVaoDeleter::operator()(
+	const Ren3dGlVaoPtr resource)
 {
 	gl_vao_manager_->destroy(resource);
 }
 
 //
-// R3dGlVaoDeleter
+// Ren3dGlVaoDeleter
 // ==========================================================================
 
 
 // ==========================================================================
-// R3dGlVaoFactory
+// Ren3dGlVaoFactory
 //
 
-R3dGlVaoUPtr R3dGlVaoFactory::create(
-	const R3dGlVaoMgrPtr gl_vao_manager)
+Ren3dGlVaoUPtr Ren3dGlVaoFactory::create(
+	const Ren3dGlVaoMgrPtr gl_vao_manager)
 {
 	return std::make_unique<GlVaoImpl>(gl_vao_manager);
 }
 
 //
-// R3dGlVaoFactory
+// Ren3dGlVaoFactory
 // ==========================================================================
 
 

@@ -27,15 +27,15 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_R3D_LIMITS_INCLUDED
-#define BSTONE_R3D_LIMITS_INCLUDED
+#ifndef BSTONE_REN_3D_LIMITS_INCLUDED
+#define BSTONE_REN_3D_LIMITS_INCLUDED
 
 
 namespace bstone
 {
 
 
-struct R3dLimits
+struct Ren3dLimits
 {
 	static constexpr auto anisotropy_min_off = 1;
 	static constexpr auto anisotropy_min_on = 2;
@@ -47,10 +47,10 @@ struct R3dLimits
 
 
 	static constexpr auto max_mipmap_count = 31;
-}; // R3dLimits
+}; // Ren3dLimits
 
 
 } // bstone
 
 
-#endif // !BSTONE_R3D_LIMITS_INCLUDED
+#endif // !BSTONE_REN_3D_LIMITS_INCLUDED

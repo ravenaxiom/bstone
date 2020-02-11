@@ -29,8 +29,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_DETAIL_R3D_GL_SHADER_VAR_INCLUDED
-#define BSTONE_DETAIL_R3D_GL_SHADER_VAR_INCLUDED
+#ifndef BSTONE_DETAIL_REN_3D_GL_SHADER_VAR_INCLUDED
+#define BSTONE_DETAIL_REN_3D_GL_SHADER_VAR_INCLUDED
 
 
 #include "bstone_r3d_shader_var.h"
@@ -42,52 +42,52 @@ namespace detail
 {
 
 
-class R3dGlShaderStage;
-using R3dGlShaderStagePtr = R3dGlShaderStage*;
+class Ren3dGlShaderStage;
+using Ren3dGlShaderStagePtr = Ren3dGlShaderStage*;
 
 
 // ==========================================================================
-// R3dGlShaderVar
+// Ren3dGlShaderVar
 //
 
-class R3dGlShaderVar :
-	public virtual R3dShaderVarInt32,
-	public virtual R3dShaderVarFloat32,
-	public virtual R3dShaderVarVec2,
-	public virtual R3dShaderVarVec4,
-	public virtual R3dShaderVarMat4,
-	public virtual R3dShaderVarSampler2d
+class Ren3dGlShaderVar :
+	public virtual Ren3dShaderVarInt32,
+	public virtual Ren3dShaderVarFloat32,
+	public virtual Ren3dShaderVarVec2,
+	public virtual Ren3dShaderVarVec4,
+	public virtual Ren3dShaderVarMat4,
+	public virtual Ren3dShaderVarSampler2d
 {
 protected:
-	R3dGlShaderVar() = default;
+	Ren3dGlShaderVar() = default;
 
 
 public:
-	~R3dGlShaderVar() override = default;
+	~Ren3dGlShaderVar() override = default;
 
 
 	static int get_unit_size(
-		const R3dShaderVarTypeId type_id);
-}; // R3dGlShaderVar
+		const Ren3dShaderVarTypeId type_id);
+}; // Ren3dGlShaderVar
 
-using R3dGlShaderVarPtr = R3dGlShaderVar*;
-using R3dGlShaderVarUPtr = std::unique_ptr<R3dGlShaderVar>;
+using Ren3dGlShaderVarPtr = Ren3dGlShaderVar*;
+using Ren3dGlShaderVarUPtr = std::unique_ptr<Ren3dGlShaderVar>;
 
 //
-// R3dGlShaderVar
+// Ren3dGlShaderVar
 // ==========================================================================
 
 
 // ==========================================================================
-// R3dGlShaderVarFactory
+// Ren3dGlShaderVarFactory
 //
 
-struct R3dGlShaderVarFactory
+struct Ren3dGlShaderVarFactory
 {
 	struct CreateParam
 	{
-		R3dShaderVarKind kind_;
-		R3dShaderVarTypeId type_id_;
+		Ren3dShaderVarKind kind_;
+		Ren3dShaderVarTypeId type_id_;
 		int value_size_;
 		int index_;
 		std::string name_;
@@ -95,13 +95,13 @@ struct R3dGlShaderVarFactory
 		int gl_location_;
 	}; // CreateParam
 
-	static R3dGlShaderVarUPtr create(
-		const R3dGlShaderStagePtr shader_stage,
+	static Ren3dGlShaderVarUPtr create(
+		const Ren3dGlShaderStagePtr shader_stage,
 		const CreateParam& param);
-}; // R3dGlShaderVarFactory
+}; // Ren3dGlShaderVarFactory
 
 //
-// R3dGlShaderVarFactory
+// Ren3dGlShaderVarFactory
 // ==========================================================================
 
 
@@ -109,4 +109,4 @@ struct R3dGlShaderVarFactory
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_R3D_GL_SHADER_VAR_INCLUDED
+#endif // !BSTONE_DETAIL_REN_3D_GL_SHADER_VAR_INCLUDED

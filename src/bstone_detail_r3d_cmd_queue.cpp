@@ -41,42 +41,42 @@ namespace detail
 
 
 // ==========================================================================
-// R3dCmdQueueImpl
+// Ren3dCmdQueueImpl
 //
 
-R3dCmdQueueImpl::R3dCmdQueueImpl()
+Ren3dCmdQueueImpl::Ren3dCmdQueueImpl()
 	:
-	buffers_{R3dCmdBuffersFactory::create()}
+	buffers_{Ren3dCmdBuffersFactory::create()}
 {
 }
 
-R3dCmdQueueImpl::~R3dCmdQueueImpl() = default;
+Ren3dCmdQueueImpl::~Ren3dCmdQueueImpl() = default;
 
-int R3dCmdQueueImpl::get_count() const noexcept
+int Ren3dCmdQueueImpl::get_count() const noexcept
 {
 	return buffers_->get_count();
 }
 
-bstone::R3dCmdBufferPtr R3dCmdQueueImpl::enqueue(
-	const R3dCmdQueueEnqueueParam& param)
+bstone::Ren3dCmdBufferPtr Ren3dCmdQueueImpl::enqueue(
+	const Ren3dCmdQueueEnqueueParam& param)
 {
 	return buffers_->enqueue(param);
 }
 
-void R3dCmdQueueImpl::dequeue(
-	bstone::R3dCmdBufferPtr buffer)
+void Ren3dCmdQueueImpl::dequeue(
+	bstone::Ren3dCmdBufferPtr buffer)
 {
 	buffers_->dequeue(buffer);
 }
 
-bstone::R3dCmdBufferPtr R3dCmdQueueImpl::get(
+bstone::Ren3dCmdBufferPtr Ren3dCmdQueueImpl::get(
 	const int index)
 {
 	return buffers_->get(index);
 }
 
-void R3dCmdQueueImpl::validate_param(
-	const R3dCmdQueueEnqueueParam& param)
+void Ren3dCmdQueueImpl::validate_param(
+	const Ren3dCmdQueueEnqueueParam& param)
 {
 	if (param.initial_size_ < 0)
 	{
@@ -90,7 +90,7 @@ void R3dCmdQueueImpl::validate_param(
 }
 
 //
-// R3dCmdQueueImpl
+// Ren3dCmdQueueImpl
 // ==========================================================================
 
 
@@ -98,16 +98,16 @@ void R3dCmdQueueImpl::validate_param(
 
 
 // ==========================================================================
-// R3dCmdQueueFactory
+// Ren3dCmdQueueFactory
 //
 
-R3dCmdQueueUPtr R3dCmdQueueFactory::create()
+Ren3dCmdQueueUPtr Ren3dCmdQueueFactory::create()
 {
-	return std::make_unique<detail::R3dCmdQueueImpl>();
+	return std::make_unique<detail::Ren3dCmdQueueImpl>();
 }
 
 //
-// R3dCmdQueueFactory
+// Ren3dCmdQueueFactory
 // ==========================================================================
 
 

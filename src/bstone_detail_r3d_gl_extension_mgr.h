@@ -29,8 +29,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_DETAIL_R3D_GL_EXTENSION_MGR_INCLUDED
-#define BSTONE_DETAIL_R3D_GL_EXTENSION_MGR_INCLUDED
+#ifndef BSTONE_DETAIL_REN_3D_GL_EXTENSION_MGR_INCLUDED
+#define BSTONE_DETAIL_REN_3D_GL_EXTENSION_MGR_INCLUDED
 
 
 #include <memory>
@@ -43,7 +43,7 @@ namespace detail
 {
 
 
-enum class R3dGlExtensionId
+enum class Ren3dGlExtensionId
 {
 	// Virtual extensions.
 	//
@@ -84,17 +84,17 @@ enum class R3dGlExtensionId
 
 	// Item count.
 	count_,
-}; // R3dGlExtensionId
+}; // Ren3dGlExtensionId
 
 
-class R3dGlExtensionMgr
+class Ren3dGlExtensionMgr
 {
 protected:
-	R3dGlExtensionMgr() = default;
+	Ren3dGlExtensionMgr() = default;
 
 
 public:
-	virtual ~R3dGlExtensionMgr() = default;
+	virtual ~Ren3dGlExtensionMgr() = default;
 
 
 	virtual int get_count() const noexcept = 0;
@@ -104,28 +104,28 @@ public:
 
 
 	virtual void probe(
-		const R3dGlExtensionId extension_id) = 0;
+		const Ren3dGlExtensionId extension_id) = 0;
 
 
 	virtual bool has(
-		const R3dGlExtensionId extension_id) const noexcept = 0;
+		const Ren3dGlExtensionId extension_id) const noexcept = 0;
 
 	virtual bool operator[](
-		const R3dGlExtensionId extension_id) const noexcept = 0;
-}; // R3dGlExtensionMgr
+		const Ren3dGlExtensionId extension_id) const noexcept = 0;
+}; // Ren3dGlExtensionMgr
 
-using R3dGlExtensionMgrPtr = R3dGlExtensionMgr*;
-using R3dGlExtensionMgrUPtr = std::unique_ptr<R3dGlExtensionMgr>;
+using Ren3dGlExtensionMgrPtr = Ren3dGlExtensionMgr*;
+using Ren3dGlExtensionMgrUPtr = std::unique_ptr<Ren3dGlExtensionMgr>;
 
 
-struct R3dGlExtensionMgrFactory
+struct Ren3dGlExtensionMgrFactory
 {
-	static R3dGlExtensionMgrUPtr create();
-}; // R3dGlExtensionMgrFactory
+	static Ren3dGlExtensionMgrUPtr create();
+}; // Ren3dGlExtensionMgrFactory
 
 
 } // detail
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_R3D_GL_EXTENSION_MGR_INCLUDED
+#endif // !BSTONE_DETAIL_REN_3D_GL_EXTENSION_MGR_INCLUDED

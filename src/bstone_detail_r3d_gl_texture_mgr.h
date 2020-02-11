@@ -27,8 +27,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_DETAIL_R3D_GL_TEXTURE_MGR_INCLUDED
-#define BSTONE_DETAIL_R3D_GL_TEXTURE_MGR_INCLUDED
+#ifndef BSTONE_DETAIL_REN_3D_GL_TEXTURE_MGR_INCLUDED
+#define BSTONE_DETAIL_REN_3D_GL_TEXTURE_MGR_INCLUDED
 
 
 #include <memory>
@@ -43,77 +43,77 @@ namespace detail
 {
 
 
-class R3dGlContext;
-using R3dGlContextPtr = R3dGlContext*;
+class Ren3dGlContext;
+using Ren3dGlContextPtr = Ren3dGlContext*;
 
 
 // ==========================================================================
-// R3dGlTextureMgr
+// Ren3dGlTextureMgr
 //
 
-class R3dGlTextureMgr
+class Ren3dGlTextureMgr
 {
 protected:
-	R3dGlTextureMgr() = default;
+	Ren3dGlTextureMgr() = default;
 
 
 public:
-	virtual ~R3dGlTextureMgr() = default;
+	virtual ~Ren3dGlTextureMgr() = default;
 
 
-	virtual R3dGlContextPtr get_gl_context() const noexcept = 0;
+	virtual Ren3dGlContextPtr get_gl_context() const noexcept = 0;
 
 
-	virtual R3dTexture2dUPtr create(
-		const R3dTexture2dCreateParam& param) = 0;
+	virtual Ren3dTexture2dUPtr create(
+		const Ren3dTexture2dCreateParam& param) = 0;
 
 	virtual void notify_destroy(
-		const R3dTexture2dPtr texture_2d) noexcept = 0;
+		const Ren3dTexture2dPtr texture_2d) noexcept = 0;
 
 
 	virtual void set(
-		const R3dTexture2dPtr texture_2d) = 0;
+		const Ren3dTexture2dPtr texture_2d) = 0;
 
 
-	virtual R3dTexture2dPtr get_active() const noexcept = 0;
+	virtual Ren3dTexture2dPtr get_active() const noexcept = 0;
 
 	virtual void set_active(
-		const R3dTexture2dPtr texture_2d) = 0;
+		const Ren3dTexture2dPtr texture_2d) = 0;
 
 
-	virtual R3dTexture2dPtr get_current() const noexcept = 0;
+	virtual Ren3dTexture2dPtr get_current() const noexcept = 0;
 
 	virtual void set_current(
-		const R3dTexture2dPtr texture_2d) = 0;
+		const Ren3dTexture2dPtr texture_2d) = 0;
 
 
 	virtual void set_to_current() = 0;
 
 
 	virtual void update_current_sampler_state(
-		const R3dSamplerState& sampler_state) = 0;
-}; // R3dGlTextureMgr
+		const Ren3dSamplerState& sampler_state) = 0;
+}; // Ren3dGlTextureMgr
 
-using R3dGlTextureMgrPtr = R3dGlTextureMgr*;
-using R3dGlTextureMgrUPtr = std::unique_ptr<R3dGlTextureMgr>;
+using Ren3dGlTextureMgrPtr = Ren3dGlTextureMgr*;
+using Ren3dGlTextureMgrUPtr = std::unique_ptr<Ren3dGlTextureMgr>;
 
 //
-// R3dGlTextureMgr
+// Ren3dGlTextureMgr
 // ==========================================================================
 
 
 // ==========================================================================
-// R3dGlTextureMgrFactory
+// Ren3dGlTextureMgrFactory
 //
 
-struct R3dGlTextureMgrFactory
+struct Ren3dGlTextureMgrFactory
 {
-	static R3dGlTextureMgrUPtr create(
-		const R3dGlContextPtr gl_context);
-}; // R3dGlTextureMgrFactory
+	static Ren3dGlTextureMgrUPtr create(
+		const Ren3dGlContextPtr gl_context);
+}; // Ren3dGlTextureMgrFactory
 
 //
-// R3dGlTextureMgrFactory
+// Ren3dGlTextureMgrFactory
 // ==========================================================================
 
 
@@ -121,4 +121,4 @@ struct R3dGlTextureMgrFactory
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_R3D_GL_TEXTURE_MGR_INCLUDED
+#endif // !BSTONE_DETAIL_REN_3D_GL_TEXTURE_MGR_INCLUDED

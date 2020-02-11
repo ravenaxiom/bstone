@@ -27,8 +27,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_DETAIL_R3D_GL_CONTEXT_INCLUDED
-#define BSTONE_DETAIL_R3D_GL_CONTEXT_INCLUDED
+#ifndef BSTONE_DETAIL_REN_3D_GL_CONTEXT_INCLUDED
+#define BSTONE_DETAIL_REN_3D_GL_CONTEXT_INCLUDED
 
 
 #include <memory>
@@ -44,61 +44,61 @@ namespace detail
 {
 
 
-class R3dGlVao;
-using R3dGlVaoPtr = R3dGlVao*;
+class Ren3dGlVao;
+using Ren3dGlVaoPtr = Ren3dGlVao*;
 
-class R3dGlBufferMgr;
-using R3dGlBufferMgrPtr = R3dGlBufferMgr*;
+class Ren3dGlBufferMgr;
+using Ren3dGlBufferMgrPtr = Ren3dGlBufferMgr*;
 
-class R3dGlSamplerMgr;
-using R3dGlSamplerMgrPtr = R3dGlSamplerMgr*;
+class Ren3dGlSamplerMgr;
+using Ren3dGlSamplerMgrPtr = Ren3dGlSamplerMgr*;
 
-class R3dGlTextureMgr;
-using R3dGlTextureMgrPtr = R3dGlTextureMgr*;
+class Ren3dGlTextureMgr;
+using Ren3dGlTextureMgrPtr = Ren3dGlTextureMgr*;
 
-class R3dGlVaoMgr;
-using R3dGlVaoMgrPtr = R3dGlVaoMgr*;
+class Ren3dGlVaoMgr;
+using Ren3dGlVaoMgrPtr = Ren3dGlVaoMgr*;
 
-class R3dGlVertexInputMgr;
-using R3dGlVertexInputMgrPtr = R3dGlVertexInputMgr*;
+class Ren3dGlVertexInputMgr;
+using Ren3dGlVertexInputMgrPtr = Ren3dGlVertexInputMgr*;
 
-class R3dGlShaderMgr;
-using R3dGlShaderMgrPtr = R3dGlShaderMgr*;
+class Ren3dGlShaderMgr;
+using Ren3dGlShaderMgrPtr = Ren3dGlShaderMgr*;
 
-class R3dGlShaderStageMgr;
-using R3dGlShaderStageMgrPtr = R3dGlShaderStageMgr*;
+class Ren3dGlShaderStageMgr;
+using Ren3dGlShaderStageMgrPtr = Ren3dGlShaderStageMgr*;
 
 
 // =========================================================================
-// R3dGlContext
+// Ren3dGlContext
 //
 
-class R3dGlContext
+class Ren3dGlContext
 {
 public:
-	R3dGlContext() = default;
+	Ren3dGlContext() = default;
 
-	virtual ~R3dGlContext() = default;
-
-
-	virtual const R3dDeviceFeatures& get_device_features() const noexcept = 0;
-
-	virtual const R3dGlDeviceFeatures& get_gl_device_features() const noexcept = 0;
+	virtual ~Ren3dGlContext() = default;
 
 
-	virtual R3dGlBufferMgrPtr buffer_get_manager() const noexcept = 0;
+	virtual const Ren3dDeviceFeatures& get_device_features() const noexcept = 0;
 
-	virtual R3dGlSamplerMgrPtr sampler_get_manager() const noexcept = 0;
+	virtual const Ren3dGlDeviceFeatures& get_gl_device_features() const noexcept = 0;
 
-	virtual R3dGlTextureMgrPtr texture_get_manager() const noexcept = 0;
 
-	virtual R3dGlVaoMgrPtr vao_get_manager() const noexcept = 0;
+	virtual Ren3dGlBufferMgrPtr buffer_get_manager() const noexcept = 0;
 
-	virtual R3dGlVertexInputMgrPtr vertex_input_get_manager() const noexcept = 0;
+	virtual Ren3dGlSamplerMgrPtr sampler_get_manager() const noexcept = 0;
 
-	virtual R3dGlShaderMgrPtr shader_get_manager() const noexcept = 0;
+	virtual Ren3dGlTextureMgrPtr texture_get_manager() const noexcept = 0;
 
-	virtual R3dGlShaderStageMgrPtr shader_stage_get_manager() const noexcept = 0;
+	virtual Ren3dGlVaoMgrPtr vao_get_manager() const noexcept = 0;
+
+	virtual Ren3dGlVertexInputMgrPtr vertex_input_get_manager() const noexcept = 0;
+
+	virtual Ren3dGlShaderMgrPtr shader_get_manager() const noexcept = 0;
+
+	virtual Ren3dGlShaderStageMgrPtr shader_stage_get_manager() const noexcept = 0;
 
 
 	virtual void clear(
@@ -106,14 +106,14 @@ public:
 
 
 	virtual void viewport_set(
-		const R3dViewport& viewport) = 0;
+		const Ren3dViewport& viewport) = 0;
 
 
 	virtual void scissor_enable(
 		const bool is_enable) = 0;
 
 	virtual void scissor_set_box(
-		const R3dScissorBox& scissor_box) = 0;
+		const Ren3dScissorBox& scissor_box) = 0;
 
 
 	virtual void culling_enable(
@@ -131,34 +131,34 @@ public:
 		const bool is_enable) = 0;
 
 	virtual void blending_set_func(
-		const R3dBlendingFunc& func) = 0;
-}; // R3dGlContext
+		const Ren3dBlendingFunc& func) = 0;
+}; // Ren3dGlContext
 
 
-using R3dGlContextPtr = R3dGlContext*;
-using R3dGlContextUPtr = std::unique_ptr<R3dGlContext>;
+using Ren3dGlContextPtr = Ren3dGlContext*;
+using Ren3dGlContextUPtr = std::unique_ptr<Ren3dGlContext>;
 
 //
-// R3dGlContext
+// Ren3dGlContext
 // =========================================================================
 
 
 // =========================================================================
-// R3dGlContextFactory
+// Ren3dGlContextFactory
 //
 
 
-struct R3dGlContextFactory
+struct Ren3dGlContextFactory
 {
-	static R3dGlContextUPtr create(
-		const R3dKind renderer_kind,
-		const R3dDeviceFeatures& device_features,
-		const R3dGlDeviceFeatures& gl_device_features);
-}; // R3dGlContextFactory
+	static Ren3dGlContextUPtr create(
+		const Ren3dKind renderer_kind,
+		const Ren3dDeviceFeatures& device_features,
+		const Ren3dGlDeviceFeatures& gl_device_features);
+}; // Ren3dGlContextFactory
 
 
 //
-// R3dGlContextFactory
+// Ren3dGlContextFactory
 // =========================================================================
 
 
@@ -166,4 +166,4 @@ struct R3dGlContextFactory
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_R3D_GL_CONTEXT_INCLUDED
+#endif // !BSTONE_DETAIL_REN_3D_GL_CONTEXT_INCLUDED

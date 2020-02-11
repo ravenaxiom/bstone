@@ -27,8 +27,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_DETAIL_R3D_GL_VAO_INCLUDED
-#define BSTONE_DETAIL_R3D_GL_VAO_INCLUDED
+#ifndef BSTONE_DETAIL_REN_3D_GL_VAO_INCLUDED
+#define BSTONE_DETAIL_REN_3D_GL_VAO_INCLUDED
 
 
 #include <memory>
@@ -38,89 +38,89 @@ namespace bstone
 {
 
 
-class R3dBuffer;
-using R3dBufferPtr = R3dBuffer*;
+class Ren3dBuffer;
+using Ren3dBufferPtr = Ren3dBuffer*;
 
 
 namespace detail
 {
 
 
-class R3dGlVaoMgr;
-using R3dGlVaoMgrPtr = R3dGlVaoMgr*;
+class Ren3dGlVaoMgr;
+using Ren3dGlVaoMgrPtr = Ren3dGlVaoMgr*;
 
 
 // ==========================================================================
-// R3dGlVao
+// Ren3dGlVao
 //
 
-class R3dGlVao
+class Ren3dGlVao
 {
 protected:
-	R3dGlVao() = default;
+	Ren3dGlVao() = default;
 
 
 public:
-	virtual ~R3dGlVao() = default;
+	virtual ~Ren3dGlVao() = default;
 
 
 	virtual void bind() = 0;
 
 
 	virtual bool set_current_index_buffer(
-		const R3dBufferPtr index_buffer) = 0;
+		const Ren3dBufferPtr index_buffer) = 0;
 
 
 	virtual void enable_location(
 		const int location,
 		const bool is_enable) = 0;
-}; // R3dGlVao
+}; // Ren3dGlVao
 
-using R3dGlVaoPtr = R3dGlVao*;
-using R3dGlVaoUPtr = std::unique_ptr<R3dGlVao>;
+using Ren3dGlVaoPtr = Ren3dGlVao*;
+using Ren3dGlVaoUPtr = std::unique_ptr<Ren3dGlVao>;
 
 //
-// R3dGlVao
+// Ren3dGlVao
 // ==========================================================================
 
 
 // ==========================================================================
-// R3dGlVaoDeleter
+// Ren3dGlVaoDeleter
 //
 
-class R3dGlVaoDeleter
+class Ren3dGlVaoDeleter
 {
 public:
-	R3dGlVaoDeleter(
-		const R3dGlVaoMgrPtr gl_vao_manager);
+	Ren3dGlVaoDeleter(
+		const Ren3dGlVaoMgrPtr gl_vao_manager);
 
 	void operator()(
-		const R3dGlVaoPtr resource);
+		const Ren3dGlVaoPtr resource);
 
 
 private:
-	const R3dGlVaoMgrPtr gl_vao_manager_;
-}; // R3dGlVaoDeleter
+	const Ren3dGlVaoMgrPtr gl_vao_manager_;
+}; // Ren3dGlVaoDeleter
 
-using R3dGlVaoResource = std::unique_ptr<R3dGlVao, R3dGlVaoDeleter>;
+using Ren3dGlVaoResource = std::unique_ptr<Ren3dGlVao, Ren3dGlVaoDeleter>;
 
 //
-// R3dGlVaoDeleter
+// Ren3dGlVaoDeleter
 // ==========================================================================
 
 
 // ==========================================================================
-// R3dGlVaoFactory
+// Ren3dGlVaoFactory
 //
 
-struct R3dGlVaoFactory
+struct Ren3dGlVaoFactory
 {
-	static R3dGlVaoUPtr create(
-		const R3dGlVaoMgrPtr gl_vao_manager);
-}; // R3dGlVaoFactory
+	static Ren3dGlVaoUPtr create(
+		const Ren3dGlVaoMgrPtr gl_vao_manager);
+}; // Ren3dGlVaoFactory
 
 //
-// R3dGlVaoFactory
+// Ren3dGlVaoFactory
 // ==========================================================================
 
 
@@ -128,4 +128,4 @@ struct R3dGlVaoFactory
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_R3D_GL_VAO_INCLUDED
+#endif // !BSTONE_DETAIL_REN_3D_GL_VAO_INCLUDED

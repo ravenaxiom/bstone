@@ -27,8 +27,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_R3D_SHADER_INCLUDED
-#define BSTONE_R3D_SHADER_INCLUDED
+#ifndef BSTONE_REN_3D_SHADER_INCLUDED
+#define BSTONE_REN_3D_SHADER_INCLUDED
 
 
 #include <memory>
@@ -42,40 +42,40 @@ namespace bstone
 // Shader
 //
 
-enum class R3dShaderKind
+enum class Ren3dShaderKind
 {
 	none,
 	fragment,
 	vertex,
-}; // R3dShaderKind
+}; // Ren3dShaderKind
 
-struct R3dShaderSource
+struct Ren3dShaderSource
 {
 	const void* data_;
 	int size_;
 }; // Source
 
-struct R3dShaderCreateParam
+struct Ren3dShaderCreateParam
 {
-	R3dShaderKind kind_;
-	R3dShaderSource source_;
+	Ren3dShaderKind kind_;
+	Ren3dShaderSource source_;
 }; // CreateParam
 
-class R3dShader
+class Ren3dShader
 {
 protected:
-	R3dShader() = default;
+	Ren3dShader() = default;
 
 
 public:
-	virtual ~R3dShader() = default;
+	virtual ~Ren3dShader() = default;
 
 
-	virtual R3dShaderKind get_kind() const noexcept = 0;
-}; // R3dShader
+	virtual Ren3dShaderKind get_kind() const noexcept = 0;
+}; // Ren3dShader
 
-using R3dShaderPtr = R3dShader*;
-using R3dShaderUPtr = std::unique_ptr<R3dShader>;
+using Ren3dShaderPtr = Ren3dShader*;
+using Ren3dShaderUPtr = std::unique_ptr<Ren3dShader>;
 
 //
 // Shader
@@ -85,4 +85,4 @@ using R3dShaderUPtr = std::unique_ptr<R3dShader>;
 } // bstone
 
 
-#endif // !BSTONE_R3D_SHADER_INCLUDED
+#endif // !BSTONE_REN_3D_SHADER_INCLUDED

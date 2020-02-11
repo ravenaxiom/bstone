@@ -27,8 +27,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_R3D_SAMPLER_INCLUDED
-#define BSTONE_R3D_SAMPLER_INCLUDED
+#ifndef BSTONE_REN_3D_SAMPLER_INCLUDED
+#define BSTONE_REN_3D_SAMPLER_INCLUDED
 
 
 #include <memory>
@@ -41,58 +41,58 @@ namespace bstone
 
 
 // ==========================================================================
-// R3dSampler
+// Ren3dSampler
 //
 
-struct R3dSamplerState
+struct Ren3dSamplerState
 {
-	R3dFilterKind mag_filter_;
-	R3dFilterKind min_filter_;
+	Ren3dFilterKind mag_filter_;
+	Ren3dFilterKind min_filter_;
 
-	R3dMipmapMode mipmap_mode_;
+	Ren3dMipmapMode mipmap_mode_;
 
-	R3dAddressMode address_mode_u_;
-	R3dAddressMode address_mode_v_;
+	Ren3dAddressMode address_mode_u_;
+	Ren3dAddressMode address_mode_v_;
 
 	int anisotropy_;
-}; // R3dSamplerState
+}; // Ren3dSamplerState
 
-struct R3dSamplerCreateParam
+struct Ren3dSamplerCreateParam
 {
-	R3dSamplerState state_;
-}; // R3dSamplerCreateParam
+	Ren3dSamplerState state_;
+}; // Ren3dSamplerCreateParam
 
-struct R3dSamplerUpdateParam
+struct Ren3dSamplerUpdateParam
 {
-	R3dSamplerState state_;
-}; // R3dSamplerUpdateParam
+	Ren3dSamplerState state_;
+}; // Ren3dSamplerUpdateParam
 
 
-class R3dSampler
+class Ren3dSampler
 {
 protected:
-	R3dSampler() = default;
+	Ren3dSampler() = default;
 
 
 public:
-	virtual ~R3dSampler() = default;
+	virtual ~Ren3dSampler() = default;
 
 
 	virtual void update(
-		const R3dSamplerUpdateParam& param) = 0;
+		const Ren3dSamplerUpdateParam& param) = 0;
 
-	virtual const R3dSamplerState& get_state() const noexcept = 0;
-}; // R3dSampler
+	virtual const Ren3dSamplerState& get_state() const noexcept = 0;
+}; // Ren3dSampler
 
-using R3dSamplerPtr = R3dSampler*;
-using R3dSamplerUPtr = std::unique_ptr<R3dSampler>;
+using Ren3dSamplerPtr = Ren3dSampler*;
+using Ren3dSamplerUPtr = std::unique_ptr<Ren3dSampler>;
 
 //
-// R3dSampler
+// Ren3dSampler
 // ==========================================================================
 
 
 } // bstone
 
 
-#endif // !BSTONE_R3D_SAMPLER_INCLUDED
+#endif // !BSTONE_REN_3D_SAMPLER_INCLUDED

@@ -44,27 +44,27 @@ namespace bstone
 
 
 // ==========================================================================
-// R3dMgrImpl
+// Ren3dMgrImpl
 //
 
-class R3dMgrImpl :
-	public R3dMgr
+class Ren3dMgrImpl :
+	public Ren3dMgr
 {
 public:
-	R3dMgrImpl();
+	Ren3dMgrImpl();
 
-	R3dMgrImpl(
-		R3dMgrImpl&& rhs);
+	Ren3dMgrImpl(
+		Ren3dMgrImpl&& rhs);
 
-	~R3dMgrImpl() override;
+	~Ren3dMgrImpl() override;
 
 
-	R3dPtr renderer_initialize(
-		const R3dCreateParam& param) override;
+	Ren3dPtr renderer_initialize(
+		const Ren3dCreateParam& param) override;
 
 
 private:
-	detail::R3dGlUPtr gl_renderer_;
+	detail::Ren3dGlUPtr gl_renderer_;
 
 
 	void initialize();
@@ -72,80 +72,80 @@ private:
 	void uninitialize();
 
 	void uninitialize_renderers();
-}; // R3dMgrImpl
+}; // Ren3dMgrImpl
 
 //
-// R3dMgrImpl
+// Ren3dMgrImpl
 // ==========================================================================
 
 
 // ==========================================================================
-// R3dMgrImpl
+// Ren3dMgrImpl
 //
 
-R3dMgrImpl::R3dMgrImpl()
+Ren3dMgrImpl::Ren3dMgrImpl()
 	:
 	gl_renderer_{}
 {
 	initialize();
 }
 
-R3dMgrImpl::R3dMgrImpl(
-	R3dMgrImpl&& rhs)
+Ren3dMgrImpl::Ren3dMgrImpl(
+	Ren3dMgrImpl&& rhs)
 	:
 	gl_renderer_{std::move(rhs.gl_renderer_)}
 {
 }
 
-R3dMgrImpl::~R3dMgrImpl()
+Ren3dMgrImpl::~Ren3dMgrImpl()
 {
 	uninitialize();
 }
 
-void R3dMgrImpl::initialize()
+void Ren3dMgrImpl::initialize()
 {
-	detail::R3dGlUtils::load_library();
+	detail::Ren3dGlUtils::load_library();
 }
 
-void R3dMgrImpl::uninitialize()
+void Ren3dMgrImpl::uninitialize()
 {
 	uninitialize_renderers();
 
-	detail::R3dGlUtils::unload_library();
+	detail::Ren3dGlUtils::unload_library();
 }
 
-void R3dMgrImpl::uninitialize_renderers()
+void Ren3dMgrImpl::uninitialize_renderers()
 {
 	gl_renderer_ = nullptr;
 }
 
-R3dPtr R3dMgrImpl::renderer_initialize(
-	const R3dCreateParam& param)
+Ren3dPtr Ren3dMgrImpl::renderer_initialize(
+	const Ren3dCreateParam& param)
 {
 	uninitialize_renderers();
 
-	detail::R3dUtils::validate_initialize_param(param);
+	detail::Ren3dUtils::validate_initialize_param(param);
 
 	switch (param.renderer_kind_)
 	{
-#ifndef BSTONE_R3D_TEST_NO_GL
+#ifndef BSTONE_REN_3D_TEST_NO_GL
 
-#ifndef BSTONE_R3D_TEST_NO_GL_2_0
-		case R3dKind::gl_2_0:
-#endif // !BSTONE_R3D_TEST_NO_GL_2_0
+#ifndef BSTONE_REN_3D_TEST_NO_GL_2_0
+		case Ren3dKind::gl_2_0:
+#endif // !BSTONE_REN_3D_TEST_NO_GL_2_0
 
-#ifndef BSTONE_R3D_TEST_NO_GL_3_2_C
-		case R3dKind::gl_3_2_core:
-#endif // !BSTONE_R3D_TEST_NO_GL_3_2_C
+#ifndef BSTONE_REN_3D_TEST_NO_GL_3_2_C
+		case Ren3dKind::gl_3_2_core:
+#endif // !BSTONE_REN_3D_TEST_NO_GL_3_2_C
 
-#ifndef BSTONE_R3D_TEST_NO_GLES_2_0
-		case R3dKind::gles_2_0:
-#endif // !BSTONE_R3D_TEST_NO_GLES_2_0
+#ifndef BSTONE_REN_3D_TEST_NO_GLES_2_0
+		case Ren3dKind::gles_2_0:
+#endif // !BSTONE_REN_3D_TEST_NO_GLES_2_0
 
-			gl_renderer_ = std::make_unique<detail::R3dGl>(param);
+			gl_renderer_ = std::make_unique<detail::Ren3dGl>(param);
 
 			return gl_renderer_.get();
-#endif // BSTONE_R3D_TEST_NO_GL
+#endif // BSTONE_REN_3D_TEST_NO_GL
 
 		default:
 			throw Exception{"Unsupported renderer kind."};
@@ -153,21 +153,21 @@ R3dPtr R3dMgrImpl::renderer_initialize(
 }
 
 //
-// R3dMgrImpl
+// Ren3dMgrImpl
 // ==========================================================================
 
 
 // ==========================================================================
-// R3dMgrFactory
+// Ren3dMgrFactory
 //
 
-R3dMgrUPtr R3dMgrFactory::create()
+Ren3dMgrUPtr Ren3dMgrFactory::create()
 {
-	return std::make_unique<R3dMgrImpl>();
+	return std::make_unique<Ren3dMgrImpl>();
 }
 
 //
-// R3dMgrFactory
+// Ren3dMgrFactory
 // ==========================================================================
 
 

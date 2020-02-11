@@ -809,18 +809,18 @@ void vid_cfg_cl_read_is_widescreen()
 
 void vid_cfg_cl_read_renderer_filter_kind(
 	const std::string& value_string,
-	bstone::R3dFilterKind& filter_kind)
+	bstone::Ren3dFilterKind& filter_kind)
 {
 	if (false)
 	{
 	}
 	else if (value_string == ::vid_get_nearest_value_string())
 	{
-		filter_kind = bstone::R3dFilterKind::nearest;
+		filter_kind = bstone::Ren3dFilterKind::nearest;
 	}
 	else if (value_string == ::vid_get_linear_value_string())
 	{
-		filter_kind = bstone::R3dFilterKind::linear;
+		filter_kind = bstone::Ren3dFilterKind::linear;
 	}
 }
 
@@ -859,11 +859,11 @@ void vid_cfg_cl_read_hw_aa_kind()
 	}
 	else if (value_string == ::vid_get_none_value_string())
 	{
-		::vid_cfg_.aa_kind_ = bstone::R3dAaKind::none;
+		::vid_cfg_.aa_kind_ = bstone::Ren3dAaKind::none;
 	}
 	else if (value_string == ::vid_get_msaa_value_string())
 	{
-		::vid_cfg_.aa_kind_ = bstone::R3dAaKind::ms;
+		::vid_cfg_.aa_kind_ = bstone::Ren3dAaKind::ms;
 	}
 }
 
@@ -1095,14 +1095,14 @@ std::string vid_to_string(
 }
 
 const std::string& vid_to_string(
-	const bstone::R3dFilterKind filter_kind)
+	const bstone::Ren3dFilterKind filter_kind)
 {
 	switch (filter_kind)
 	{
-		case bstone::R3dFilterKind::nearest:
+		case bstone::Ren3dFilterKind::nearest:
 			return vid_get_nearest_value_string();
 
-		case bstone::R3dFilterKind::linear:
+		case bstone::Ren3dFilterKind::linear:
 			return vid_get_linear_value_string();
 
 		default:
@@ -1111,14 +1111,14 @@ const std::string& vid_to_string(
 }
 
 const std::string& vid_to_string(
-	const bstone::R3dAaKind aa_kind)
+	const bstone::Ren3dAaKind aa_kind)
 {
 	switch (aa_kind)
 	{
-		case bstone::R3dAaKind::ms:
+		case bstone::Ren3dAaKind::ms:
 			return vid_get_msaa_value_string();
 
-		case bstone::R3dAaKind::none:
+		case bstone::Ren3dAaKind::none:
 			return vid_get_none_value_string();
 
 		default:
@@ -1157,7 +1157,7 @@ const std::string& vid_to_string(
 }
 
 const std::string& vid_to_string(
-	const bstone::R3dKind renderer_kind)
+	const bstone::Ren3dKind renderer_kind)
 {
 	static const auto gl_2_0_string = std::string{"OpenGL 2.0"};
 	static const auto gl_3_2_core_string = std::string{"OpenGL 3.2 core"};
@@ -1165,13 +1165,13 @@ const std::string& vid_to_string(
 
 	switch (renderer_kind)
 	{
-		case bstone::R3dKind::gl_2_0:
+		case bstone::Ren3dKind::gl_2_0:
 			return gl_2_0_string;
 
-		case bstone::R3dKind::gl_3_2_core:
+		case bstone::Ren3dKind::gl_3_2_core:
 			return gl_3_2_core_string;
 
-		case bstone::R3dKind::gles_2_0:
+		case bstone::Ren3dKind::gles_2_0:
 			return gles_2_0_string;
 
 
@@ -2508,52 +2508,52 @@ double hw_3d_camera_near_distance = 0.0;
 double hw_3d_camera_far_distance = 0.0;
 
 
-bstone::R3dSamplerState hw_2d_ui_s_state_;
-bstone::R3dSamplerUPtr hw_2d_ui_s_;
+bstone::Ren3dSamplerState hw_2d_ui_s_state_;
+bstone::Ren3dSamplerUPtr hw_2d_ui_s_;
 
-bstone::R3dSamplerState hw_3d_wall_s_state_;
-bstone::R3dSamplerUPtr hw_3d_wall_s_;
+bstone::Ren3dSamplerState hw_3d_wall_s_state_;
+bstone::Ren3dSamplerUPtr hw_3d_wall_s_;
 
-bstone::R3dSamplerState hw_3d_sprite_s_state_;
-bstone::R3dSamplerUPtr hw_3d_sprite_s_;
+bstone::Ren3dSamplerState hw_3d_sprite_s_state_;
+bstone::Ren3dSamplerUPtr hw_3d_sprite_s_;
 
-bstone::R3dSamplerState hw_3d_player_weapon_s_state_;
-bstone::R3dSamplerUPtr hw_3d_player_weapon_s_;
+bstone::Ren3dSamplerState hw_3d_player_weapon_s_state_;
+bstone::Ren3dSamplerUPtr hw_3d_player_weapon_s_;
 
-bstone::R3dSamplerUPtr hw_fade_s_;
+bstone::Ren3dSamplerUPtr hw_fade_s_;
 
 
 Hw2dVbi hw_2d_vertices_;
 
-bstone::R3dDeviceFeatures hw_device_features_;
-bstone::R3dMgrUPtr hw_renderer_manager_;
-bstone::R3dPtr hw_renderer_ = nullptr;
+bstone::Ren3dDeviceFeatures hw_device_features_;
+bstone::Ren3dMgrUPtr hw_renderer_manager_;
+bstone::Ren3dPtr hw_renderer_ = nullptr;
 
 bstone::HwTextureMgrUPtr hw_texture_manager_;
 
 bstone::Rgba8Palette hw_palette_;
 bstone::Rgba8Palette hw_default_palette_;
 
-bstone::R3dCmdQueueUPtr hw_command_queue_;
-bstone::R3dCmdBufferPtr hw_common_command_buffer_;
-bstone::R3dCmdBufferPtr hw_2d_command_buffer_;
-bstone::R3dCmdBufferPtr hw_3d_command_buffer_;
+bstone::Ren3dCmdQueueUPtr hw_command_queue_;
+bstone::Ren3dCmdBufferPtr hw_common_command_buffer_;
+bstone::Ren3dCmdBufferPtr hw_2d_command_buffer_;
+bstone::Ren3dCmdBufferPtr hw_3d_command_buffer_;
 
-bstone::R3dTexture2dPtr hw_2d_ui_t2d_ = nullptr;
-bstone::R3dBufferUPtr hw_2d_ui_ib_;
-bstone::R3dBufferUPtr hw_2d_ui_vb_;
-bstone::R3dVertexInputUPtr hw_2d_ui_vi_;
+bstone::Ren3dTexture2dPtr hw_2d_ui_t2d_ = nullptr;
+bstone::Ren3dBufferUPtr hw_2d_ui_ib_;
+bstone::Ren3dBufferUPtr hw_2d_ui_vb_;
+bstone::Ren3dVertexInputUPtr hw_2d_ui_vi_;
 
-bstone::R3dTexture2dPtr hw_2d_black_t2d_1x1_ = nullptr;
-bstone::R3dTexture2dPtr hw_2d_white_t2d_1x1_ = nullptr;
+bstone::Ren3dTexture2dPtr hw_2d_black_t2d_1x1_ = nullptr;
+bstone::Ren3dTexture2dPtr hw_2d_white_t2d_1x1_ = nullptr;
 
-bstone::R3dBufferUPtr hw_2d_fillers_ib_;
-bstone::R3dBufferUPtr hw_2d_fillers_vb_;
-bstone::R3dVertexInputUPtr hw_2d_fillers_vi_;
+bstone::Ren3dBufferUPtr hw_2d_fillers_ib_;
+bstone::Ren3dBufferUPtr hw_2d_fillers_vb_;
+bstone::Ren3dVertexInputUPtr hw_2d_fillers_vi_;
 
 bool hw_2d_fade_is_enabled_ = false;
 HwVertexColor hw_2d_fade_color_ = bstone::Rgba8{};
-bstone::R3dTexture2dPtr hw_2d_fade_t2d_ = nullptr;
+bstone::Ren3dTexture2dPtr hw_2d_fade_t2d_ = nullptr;
 
 
 auto hw_3d_matrix_bs_to_r_ = glm::mat4{};
@@ -2562,17 +2562,17 @@ auto hw_3d_matrix_view_ = glm::mat4{};
 auto hw_3d_matrix_projection_ = glm::mat4{};
 
 
-bstone::R3dBufferUPtr hw_3d_flooring_ib_;
-bstone::R3dBufferUPtr hw_3d_flooring_vb_;
-bstone::R3dVertexInputUPtr hw_3d_flooring_vi_;
-bstone::R3dTexture2dPtr hw_3d_flooring_solid_t2d_ = nullptr;
-bstone::R3dTexture2dPtr hw_3d_flooring_textured_t2d_ = nullptr;
+bstone::Ren3dBufferUPtr hw_3d_flooring_ib_;
+bstone::Ren3dBufferUPtr hw_3d_flooring_vb_;
+bstone::Ren3dVertexInputUPtr hw_3d_flooring_vi_;
+bstone::Ren3dTexture2dPtr hw_3d_flooring_solid_t2d_ = nullptr;
+bstone::Ren3dTexture2dPtr hw_3d_flooring_textured_t2d_ = nullptr;
 
-bstone::R3dBufferUPtr hw_3d_ceiling_ib_;
-bstone::R3dBufferUPtr hw_3d_ceiling_vb_;
-bstone::R3dVertexInputUPtr hw_3d_ceiling_vi_;
-bstone::R3dTexture2dPtr hw_3d_ceiling_solid_t2d_ = nullptr;
-bstone::R3dTexture2dPtr hw_3d_ceiling_textured_t2d_ = nullptr;
+bstone::Ren3dBufferUPtr hw_3d_ceiling_ib_;
+bstone::Ren3dBufferUPtr hw_3d_ceiling_vb_;
+bstone::Ren3dVertexInputUPtr hw_3d_ceiling_vi_;
+bstone::Ren3dTexture2dPtr hw_3d_ceiling_solid_t2d_ = nullptr;
+bstone::Ren3dTexture2dPtr hw_3d_ceiling_textured_t2d_ = nullptr;
 
 
 auto hw_3d_player_angle_rad_ = double{};
@@ -2595,9 +2595,9 @@ Hw3dWallsToRenderList hw_3d_walls_to_render_;
 int hw_3d_wall_side_draw_item_count_ = 0;
 Hw3dWallSideDrawItems hw_3d_wall_side_draw_items_;
 
-bstone::R3dBufferUPtr hw_3d_wall_sides_ib_;
-bstone::R3dBufferUPtr hw_3d_wall_sides_vb_;
-bstone::R3dVertexInputUPtr hw_3d_wall_sides_vi_;
+bstone::Ren3dBufferUPtr hw_3d_wall_sides_ib_;
+bstone::Ren3dBufferUPtr hw_3d_wall_sides_vb_;
+bstone::Ren3dVertexInputUPtr hw_3d_wall_sides_vi_;
 
 Hw3dWallSideIndexBuffer hw_3d_wall_sides_ibi_;
 
@@ -2612,9 +2612,9 @@ Hw3dWallsToRenderList hw_3d_pushwalls_to_render_;
 int hw_3d_pushwall_side_draw_item_count_ = 0;
 Hw3dWallSideDrawItems hw_3d_pushwall_side_draw_items_;
 
-bstone::R3dBufferUPtr hw_3d_pushwall_sides_ib_;
-bstone::R3dBufferUPtr hw_3d_pushwall_sides_vb_;
-bstone::R3dVertexInputUPtr hw_3d_pushwall_sides_vi_;
+bstone::Ren3dBufferUPtr hw_3d_pushwall_sides_ib_;
+bstone::Ren3dBufferUPtr hw_3d_pushwall_sides_vb_;
+bstone::Ren3dVertexInputUPtr hw_3d_pushwall_sides_vi_;
 
 Hw3dWallSideIndexBuffer hw_3d_pushwall_sides_ibi_;
 Hw3dPushwallsVbi hw_3d_pushwalls_vbi_;
@@ -2629,9 +2629,9 @@ int hw_3d_door_last_xy_to_render_at_ = 0;
 Hw3dDoorsToRenderList hw_3d_doors_to_render_;
 Hw3dDoorDrawItems hw_3d_door_draw_items_;
 
-bstone::R3dBufferUPtr hw_3d_door_sides_ib_;
-bstone::R3dBufferUPtr hw_3d_door_sides_vb_;
-bstone::R3dVertexInputUPtr hw_3d_door_sides_vi_;
+bstone::Ren3dBufferUPtr hw_3d_door_sides_ib_;
+bstone::Ren3dBufferUPtr hw_3d_door_sides_vb_;
+bstone::Ren3dVertexInputUPtr hw_3d_door_sides_vi_;
 
 Hw3dDoorIndexBuffer hw_3d_door_sides_ibi_;
 Hw3dDoorsVbi hw_3d_doors_vbi_;
@@ -2648,49 +2648,49 @@ int hw_3d_sprites_draw_count_ = 0;
 Hw3dActorsToRenderList hw_3d_actors_to_render_;
 Hw3dSpritesDrawList hw_3d_sprites_draw_list_;
 
-bstone::R3dBufferUPtr hw_3d_sprites_ib_;
-bstone::R3dBufferUPtr hw_3d_sprites_vb_;
-bstone::R3dVertexInputUPtr hw_3d_sprites_vi_;
+bstone::Ren3dBufferUPtr hw_3d_sprites_ib_;
+bstone::Ren3dBufferUPtr hw_3d_sprites_vb_;
+bstone::Ren3dVertexInputUPtr hw_3d_sprites_vi_;
 
 Hw3dSpritesIndexBuffer hw_3d_sprites_ibi_;
 HwVbi hw_3d_sprites_vbi_;
 
 
-bstone::R3dBufferUPtr hw_3d_player_weapon_ib_;
-bstone::R3dBufferUPtr hw_3d_player_weapon_vb_;
-bstone::R3dVertexInputUPtr hw_3d_player_weapon_vi_;
+bstone::Ren3dBufferUPtr hw_3d_player_weapon_ib_;
+bstone::Ren3dBufferUPtr hw_3d_player_weapon_vb_;
+bstone::Ren3dVertexInputUPtr hw_3d_player_weapon_vi_;
 glm::mat4 hw_3d_player_weapon_model_matrix_;
 glm::mat4 hw_3d_player_weapon_view_matrix_;
 glm::mat4 hw_3d_player_weapon_projection_matrix_;
 
 
 bool hw_3d_fade_is_enabled_ = false;
-bstone::R3dBufferUPtr hw_3d_fade_ib_;
-bstone::R3dBufferUPtr hw_3d_fade_vb_;
-bstone::R3dVertexInputUPtr hw_3d_fade_vi_;
-bstone::R3dTexture2dPtr hw_3d_fade_t2d_ = nullptr;
+bstone::Ren3dBufferUPtr hw_3d_fade_ib_;
+bstone::Ren3dBufferUPtr hw_3d_fade_vb_;
+bstone::Ren3dVertexInputUPtr hw_3d_fade_vi_;
+bstone::Ren3dTexture2dPtr hw_3d_fade_t2d_ = nullptr;
 
 bool hw_3d_fizzle_fx_is_enabled_ = false;
 bool hw_3d_fizzle_fx_is_fading_ = false;
 int hw_3d_fizzle_fx_color_index_ = 0;
 float hw_3d_fizzle_fx_ratio_ = 0.0F;
 
-bstone::R3dShaderUPtr hw_shader_fragment_;
-bstone::R3dShaderUPtr hw_shader_vertex_;
-bstone::R3dShaderStageUPtr hw_shader_stage_;
+bstone::Ren3dShaderUPtr hw_shader_fragment_;
+bstone::Ren3dShaderUPtr hw_shader_vertex_;
+bstone::Ren3dShaderStageUPtr hw_shader_stage_;
 
-bstone::R3dShaderVarMat4Ptr hw_shader_var_model_mat_;
-bstone::R3dShaderVarMat4Ptr hw_shader_var_view_mat_;
-bstone::R3dShaderVarMat4Ptr hw_shader_var_projection_mat_;
+bstone::Ren3dShaderVarMat4Ptr hw_shader_var_model_mat_;
+bstone::Ren3dShaderVarMat4Ptr hw_shader_var_view_mat_;
+bstone::Ren3dShaderVarMat4Ptr hw_shader_var_projection_mat_;
 
-bstone::R3dShaderVarSampler2dPtr hw_shader_var_sampler_;
-bstone::R3dShaderVarInt32Ptr hw_shader_var_shading_mode_;
-bstone::R3dShaderVarFloat32Ptr hw_shader_var_shade_max_;
-bstone::R3dShaderVarFloat32Ptr hw_shader_var_normal_shade_;
-bstone::R3dShaderVarFloat32Ptr hw_shader_var_height_numerator_;
-bstone::R3dShaderVarFloat32Ptr hw_shader_var_extra_lighting_;
-bstone::R3dShaderVarVec2Ptr hw_shader_var_view_direction_;
-bstone::R3dShaderVarVec2Ptr hw_shader_var_view_position_;
+bstone::Ren3dShaderVarSampler2dPtr hw_shader_var_sampler_;
+bstone::Ren3dShaderVarInt32Ptr hw_shader_var_shading_mode_;
+bstone::Ren3dShaderVarFloat32Ptr hw_shader_var_shade_max_;
+bstone::Ren3dShaderVarFloat32Ptr hw_shader_var_normal_shade_;
+bstone::Ren3dShaderVarFloat32Ptr hw_shader_var_height_numerator_;
+bstone::Ren3dShaderVarFloat32Ptr hw_shader_var_extra_lighting_;
+bstone::Ren3dShaderVarVec2Ptr hw_shader_var_view_direction_;
+bstone::Ren3dShaderVarVec2Ptr hw_shader_var_view_position_;
 
 
 
@@ -2700,34 +2700,34 @@ void hw_3d_player_weapon_initialize();
 void hw_3d_player_weapon_model_matrix_update();
 
 
-const bstone::R3dVec2& hw_cast_glm_vec2(
+const bstone::Ren3dVec2& hw_cast_glm_vec2(
 	const glm::vec2& glm_vec2)
 {
-	return reinterpret_cast<const bstone::R3dVec2&>(glm_vec2);
+	return reinterpret_cast<const bstone::Ren3dVec2&>(glm_vec2);
 }
 
-const bstone::R3dVec4& hw_cast_glm_vec4(
+const bstone::Ren3dVec4& hw_cast_glm_vec4(
 	const glm::vec4& glm_vec4)
 {
-	return reinterpret_cast<const bstone::R3dVec4&>(glm_vec4);
+	return reinterpret_cast<const bstone::Ren3dVec4&>(glm_vec4);
 }
 
-const bstone::R3dMat4& hw_cast_glm_mat4(
+const bstone::Ren3dMat4& hw_cast_glm_mat4(
 	const glm::mat4& glm_mat4)
 {
-	return reinterpret_cast<const bstone::R3dMat4&>(glm_mat4);
+	return reinterpret_cast<const bstone::Ren3dMat4&>(glm_mat4);
 }
 
-bstone::R3dMipmapMode hw_config_texture_mipmap_filter_to_renderer(
-	const bstone::R3dFilterKind filter_kind)
+bstone::Ren3dMipmapMode hw_config_texture_mipmap_filter_to_renderer(
+	const bstone::Ren3dFilterKind filter_kind)
 {
 	switch (filter_kind)
 	{
-		case bstone::R3dFilterKind::nearest:
-			return bstone::R3dMipmapMode::nearest;
+		case bstone::Ren3dFilterKind::nearest:
+			return bstone::Ren3dMipmapMode::nearest;
 
-		case bstone::R3dFilterKind::linear:
-			return bstone::R3dMipmapMode::linear;
+		case bstone::Ren3dFilterKind::linear:
+			return bstone::Ren3dMipmapMode::linear;
 
 		default:
 			::Quit("Invalid mipmap mode.");
@@ -2737,13 +2737,13 @@ bstone::R3dMipmapMode hw_config_texture_mipmap_filter_to_renderer(
 int hw_config_texture_anisotropy_to_renderer(
 	const int value)
 {
-	if (value < bstone::R3dLimits::anisotropy_min_off)
+	if (value < bstone::Ren3dLimits::anisotropy_min_off)
 	{
-		return bstone::R3dLimits::anisotropy_min_off;
+		return bstone::Ren3dLimits::anisotropy_min_off;
 	}
-	else if (value > bstone::R3dLimits::anisotropy_max)
+	else if (value > bstone::Ren3dLimits::anisotropy_max)
 	{
-		return bstone::R3dLimits::anisotropy_max;
+		return bstone::Ren3dLimits::anisotropy_max;
 	}
 	else
 	{
@@ -2810,26 +2810,26 @@ HwVertexColor hw_vga_color_to_rgba_8(
 }
 
 void hw_sampler_destroy(
-	bstone::R3dSamplerUPtr& sampler)
+	bstone::Ren3dSamplerUPtr& sampler)
 {
 	sampler = nullptr;
 }
 
 void hw_index_buffer_destroy(
-	bstone::R3dBufferUPtr& index_buffer)
+	bstone::Ren3dBufferUPtr& index_buffer)
 {
 	index_buffer = nullptr;
 }
 
-bstone::R3dBufferUPtr hw_index_buffer_create(
-	const bstone::R3dBufferUsageKind usage_kind,
+bstone::Ren3dBufferUPtr hw_index_buffer_create(
+	const bstone::Ren3dBufferUsageKind usage_kind,
 	const int byte_depth,
 	const int index_count)
 {
 	const auto index_buffer_size = index_count * byte_depth;
 
-	auto param = bstone::R3dBufferCreateParam{};
-	param.kind_ = bstone::R3dBufferKind::index;
+	auto param = bstone::Ren3dBufferCreateParam{};
+	param.kind_ = bstone::Ren3dBufferKind::index;
 	param.usage_kind_ = usage_kind;
 	param.size_ = index_buffer_size;
 
@@ -2838,7 +2838,7 @@ bstone::R3dBufferUPtr hw_index_buffer_create(
 
 template<typename TIndex>
 void hw_index_buffer_update(
-	const bstone::R3dBufferUPtr& index_buffer,
+	const bstone::Ren3dBufferUPtr& index_buffer,
 	const int index_offset,
 	const int index_count,
 	const TIndex* const indices)
@@ -2847,7 +2847,7 @@ void hw_index_buffer_update(
 	const auto offset = index_offset * byte_depth;
 	const auto size = index_count * byte_depth;
 
-	auto param = bstone::R3dBufferUpdateParam{};
+	auto param = bstone::Ren3dBufferUpdateParam{};
 	param.offset_ = offset;
 	param.size_ = size;
 	param.data_ = indices;
@@ -2856,21 +2856,21 @@ void hw_index_buffer_update(
 }
 
 void hw_vertex_buffer_destroy(
-	bstone::R3dBufferUPtr& vertex_buffer)
+	bstone::Ren3dBufferUPtr& vertex_buffer)
 {
 	vertex_buffer = nullptr;
 }
 
 template<typename TVertex>
-bstone::R3dBufferUPtr hw_vertex_buffer_create(
-	const bstone::R3dBufferUsageKind usage_kind,
+bstone::Ren3dBufferUPtr hw_vertex_buffer_create(
+	const bstone::Ren3dBufferUsageKind usage_kind,
 	const int vertex_count)
 {
 	const auto vertex_size = static_cast<int>(sizeof(TVertex));
 	const auto vertex_buffer_size = vertex_count * vertex_size;
 
-	auto param = bstone::R3dBufferCreateParam{};
-	param.kind_ = bstone::R3dBufferKind::vertex;
+	auto param = bstone::Ren3dBufferCreateParam{};
+	param.kind_ = bstone::Ren3dBufferKind::vertex;
 	param.usage_kind_ = usage_kind;
 	param.size_ = vertex_buffer_size;
 
@@ -2879,7 +2879,7 @@ bstone::R3dBufferUPtr hw_vertex_buffer_create(
 
 template<typename TVertex>
 void hw_vertex_buffer_update(
-	const bstone::R3dBufferUPtr& vertex_buffer,
+	const bstone::Ren3dBufferUPtr& vertex_buffer,
 	const int vertex_offset,
 	const int vertex_count,
 	const TVertex* const vertices)
@@ -2888,7 +2888,7 @@ void hw_vertex_buffer_update(
 	const auto offset = vertex_offset * vertex_size;
 	const auto size = vertex_count * vertex_size;
 
-	auto param = bstone::R3dBufferUpdateParam{};
+	auto param = bstone::Ren3dBufferUpdateParam{};
 	param.offset_ = offset;
 	param.size_ = size;
 	param.data_ = vertices;
@@ -2897,13 +2897,13 @@ void hw_vertex_buffer_update(
 }
 
 void hw_vertex_input_destroy(
-	bstone::R3dVertexInputUPtr& vertex_input)
+	bstone::Ren3dVertexInputUPtr& vertex_input)
 {
 	vertex_input = nullptr;
 }
 
 void hw_texture_2d_destroy(
-	bstone::R3dTexture2dPtr& texture_2d)
+	bstone::Ren3dTexture2dPtr& texture_2d)
 {
 	texture_2d = nullptr;
 }
@@ -2916,19 +2916,19 @@ struct HwVertexInputAddAttributeDescription
 {
 	void operator()(
 		const int location,
-		const bstone::R3dVertexAttribFormat format,
+		const bstone::Ren3dVertexAttribFormat format,
 		const int offset,
 		const int stride,
 		const glm::vec4& default_value,
-		const bstone::R3dBufferUPtr& vertex_buffer,
-		bstone::R3dVertexAttributeDescriptions& attribute_descriptions) const
+		const bstone::Ren3dBufferUPtr& vertex_buffer,
+		bstone::Ren3dVertexAttribDescriptions& attribute_descriptions) const
 	{
 		attribute_descriptions.emplace_back();
 
 		auto& description = attribute_descriptions.back();
 		description.is_default_ = true;
 		description.location_ = location;
-		description.format_ = bstone::R3dVertexAttribFormat::none;
+		description.format_ = bstone::Ren3dVertexAttribFormat::none;
 		description.vertex_buffer_ = nullptr;
 		description.offset_ = -1;
 		description.stride_ = -1;
@@ -2942,12 +2942,12 @@ struct HwVertexInputAddAttributeDescription<TVertex, true>
 {
 	void operator()(
 		const int location,
-		const bstone::R3dVertexAttribFormat format,
+		const bstone::Ren3dVertexAttribFormat format,
 		const int offset,
 		const int stride,
 		const glm::vec4& default_value,
-		const bstone::R3dBufferUPtr& vertex_buffer,
-		bstone::R3dVertexAttributeDescriptions& attribute_descriptions) const
+		const bstone::Ren3dBufferUPtr& vertex_buffer,
+		bstone::Ren3dVertexAttribDescriptions& attribute_descriptions) const
 	{
 		attribute_descriptions.emplace_back();
 
@@ -2966,10 +2966,10 @@ template<
 	typename TVertex,
 	HwVertexAttributeLocationId TLocationId>
 void hw_vertex_input_add_attribute_description(
-	const bstone::R3dVertexAttribFormat format,
+	const bstone::Ren3dVertexAttribFormat format,
 	const glm::vec4& default_value,
-	const bstone::R3dBufferUPtr& vertex_buffer,
-	bstone::R3dVertexAttributeDescriptions& attribute_descriptions)
+	const bstone::Ren3dBufferUPtr& vertex_buffer,
+	bstone::Ren3dVertexAttribDescriptions& attribute_descriptions)
 {
 	const auto traits = HwVertexAttributeTraits<TVertex, TLocationId>{};
 	const auto add_attribute = HwVertexInputAddAttributeDescription<TVertex, traits.is_valid>{};
@@ -3004,32 +3004,32 @@ void hw_vertex_input_add_attribute_description(
 
 template<typename TVertex>
 void hw_vertex_input_create(
-	const bstone::R3dBufferUPtr& index_buffer,
-	const bstone::R3dBufferUPtr& vertex_buffer,
-	bstone::R3dVertexInputUPtr& vertex_input)
+	const bstone::Ren3dBufferUPtr& index_buffer,
+	const bstone::Ren3dBufferUPtr& vertex_buffer,
+	bstone::Ren3dVertexInputUPtr& vertex_input)
 {
-	auto param = bstone::R3dVertexInputCreateParam{};
+	auto param = bstone::Ren3dVertexInputCreateParam{};
 	param.index_buffer_ = index_buffer.get();
 
 	auto& descriptions = param.attribute_descriptions_;
 	descriptions.reserve(3);
 
 	::hw_vertex_input_add_attribute_description<TVertex, HwVertexAttributeLocationId::position>(
-		bstone::R3dVertexAttribFormat::rgb_32_sfloat,
+		bstone::Ren3dVertexAttribFormat::rgb_32_sfloat,
 		glm::vec4{},
 		vertex_buffer,
 		descriptions
 	);
 
 	::hw_vertex_input_add_attribute_description<TVertex, HwVertexAttributeLocationId::color>(
-		bstone::R3dVertexAttribFormat::rgba_8_unorm,
+		bstone::Ren3dVertexAttribFormat::rgba_8_unorm,
 		glm::vec4{1.0F, 1.0F, 1.0F, 1.0F},
 		vertex_buffer,
 		descriptions
 	);
 
 	::hw_vertex_input_add_attribute_description<TVertex, HwVertexAttributeLocationId::texture_coordinates>(
-		bstone::R3dVertexAttribFormat::rg_32_sfloat,
+		bstone::Ren3dVertexAttribFormat::rg_32_sfloat,
 		glm::vec4{},
 		vertex_buffer,
 		descriptions
@@ -3082,27 +3082,27 @@ void hw_ui_buffer_initialize()
 }
 
 void hw_shader_destroy(
-	bstone::R3dShaderUPtr& shader)
+	bstone::Ren3dShaderUPtr& shader)
 {
 	shader = nullptr;
 }
 
 void hw_shader_create(
-	const bstone::R3dShaderKind kind,
-	bstone::R3dShaderUPtr& shader)
+	const bstone::Ren3dShaderKind kind,
+	bstone::Ren3dShaderUPtr& shader)
 {
-	auto param = bstone::R3dShaderCreateParam{};
+	auto param = bstone::Ren3dShaderCreateParam{};
 	param.kind_ = kind;
 
 	const auto renderer_kind = ::hw_renderer_->get_kind();
 
 	switch (kind)
 	{
-		case bstone::R3dShaderKind::fragment:
+		case bstone::Ren3dShaderKind::fragment:
 			param.source_ = bstone::HwShaderRegistry::get_fragment(renderer_kind);
 			break;
 
-		case bstone::R3dShaderKind::vertex:
+		case bstone::Ren3dShaderKind::vertex:
 			param.source_ = bstone::HwShaderRegistry::get_vertex(renderer_kind);
 			break;
 
@@ -3120,7 +3120,7 @@ void hw_shader_fragment_destroy()
 
 void hw_shader_fragment_create()
 {
-	::hw_shader_create(bstone::R3dShaderKind::fragment, hw_shader_fragment_);
+	::hw_shader_create(bstone::Ren3dShaderKind::fragment, hw_shader_fragment_);
 }
 
 void hw_shader_vertex_destroy()
@@ -3130,7 +3130,7 @@ void hw_shader_vertex_destroy()
 
 void hw_shader_vertex_create()
 {
-	::hw_shader_create(bstone::R3dShaderKind::vertex, hw_shader_vertex_);
+	::hw_shader_create(bstone::Ren3dShaderKind::vertex, hw_shader_vertex_);
 }
 
 void hw_shader_stage_destroy()
@@ -3140,14 +3140,14 @@ void hw_shader_stage_destroy()
 
 void hw_shader_stage_create()
 {
-	static const auto input_bindings = bstone::R3dShaderStageInputBindings
+	static const auto input_bindings = bstone::Ren3dShaderStageInputBindings
 	{
 		{0, bstone::HwShaderRegistry::get_a_position_name()},
 		{1, bstone::HwShaderRegistry::get_a_color_name()},
 		{2, bstone::HwShaderRegistry::get_a_tx_coords_name()},
 	};
 
-	auto param = bstone::R3dShaderStageCreateParam{};
+	auto param = bstone::Ren3dShaderStageCreateParam{};
 	param.fragment_shader_ = hw_shader_fragment_.get();
 	param.vertex_shader_ = hw_shader_vertex_.get();
 	param.input_bindings_ = input_bindings;
@@ -3175,7 +3175,7 @@ struct HwProgramInitializeVarSampler2dTag{};
 
 void hw_program_initialize_var(
 	const std::string& name,
-	bstone::R3dShaderVarInt32Ptr& var,
+	bstone::Ren3dShaderVarInt32Ptr& var,
 	const HwProgramInitializeVarInt32Tag)
 {
 	var = ::hw_shader_stage_->find_var_int32(name);
@@ -3183,7 +3183,7 @@ void hw_program_initialize_var(
 
 void hw_program_initialize_var(
 	const std::string& name,
-	bstone::R3dShaderVarFloat32Ptr& var,
+	bstone::Ren3dShaderVarFloat32Ptr& var,
 	const HwProgramInitializeVarFloat32Tag)
 {
 	var = ::hw_shader_stage_->find_var_float32(name);
@@ -3191,7 +3191,7 @@ void hw_program_initialize_var(
 
 void hw_program_initialize_var(
 	const std::string& name,
-	bstone::R3dShaderVarVec2Ptr& var,
+	bstone::Ren3dShaderVarVec2Ptr& var,
 	const HwProgramInitializeVarVec2Tag)
 {
 	var = ::hw_shader_stage_->find_var_vec2(name);
@@ -3199,7 +3199,7 @@ void hw_program_initialize_var(
 
 void hw_program_initialize_var(
 	const std::string& name,
-	bstone::R3dShaderVarMat4Ptr& var,
+	bstone::Ren3dShaderVarMat4Ptr& var,
 	const HwProgramInitializeVarMat4Tag)
 {
 	var = ::hw_shader_stage_->find_var_mat4(name);
@@ -3207,7 +3207,7 @@ void hw_program_initialize_var(
 
 void hw_program_initialize_var(
 	const std::string& name,
-	bstone::R3dShaderVarSampler2dPtr& var,
+	bstone::Ren3dShaderVarSampler2dPtr& var,
 	const HwProgramInitializeVarSampler2dTag)
 {
 	var = hw_shader_stage_->find_var_sampler_2d(name);
@@ -3219,19 +3219,19 @@ void hw_program_initialize_var(
 	T*& var)
 {
 	using Tag = std::conditional_t<
-		std::is_same<T, bstone::R3dShaderVarInt32>::value,
+		std::is_same<T, bstone::Ren3dShaderVarInt32>::value,
 		HwProgramInitializeVarInt32Tag,
 		std::conditional_t<
-			std::is_same<T, bstone::R3dShaderVarFloat32>::value,
+			std::is_same<T, bstone::Ren3dShaderVarFloat32>::value,
 			HwProgramInitializeVarFloat32Tag,
 			std::conditional_t<
-				std::is_same<T, bstone::R3dShaderVarVec2>::value,
+				std::is_same<T, bstone::Ren3dShaderVarVec2>::value,
 				HwProgramInitializeVarVec2Tag,
 				std::conditional_t<
-					std::is_same<T, bstone::R3dShaderVarMat4>::value,
+					std::is_same<T, bstone::Ren3dShaderVarMat4>::value,
 					HwProgramInitializeVarMat4Tag,
 					std::conditional_t<
-						std::is_same<T, bstone::R3dShaderVarSampler2d>::value,
+						std::is_same<T, bstone::Ren3dShaderVarSampler2d>::value,
 						HwProgramInitializeVarSampler2dTag,
 						void
 					>
@@ -3465,19 +3465,19 @@ void hw_program_initialize()
 	::hw_program_initialize_vars();
 }
 
-bstone::R3dKind hw_get_renderer_kind(
+bstone::Ren3dKind hw_get_renderer_kind(
 	const bstone::RendererKind renderer_kind)
 {
 	switch (renderer_kind)
 	{
 		case bstone::RendererKind::gl_2_0:
-			return bstone::R3dKind::gl_2_0;
+			return bstone::Ren3dKind::gl_2_0;
 
 		case bstone::RendererKind::gl_3_2_core:
-			return bstone::R3dKind::gl_3_2_core;
+			return bstone::Ren3dKind::gl_3_2_core;
 
 		case bstone::RendererKind::gles_2_0:
-			return bstone::R3dKind::gles_2_0;
+			return bstone::Ren3dKind::gles_2_0;
 
 		default:
 			throw bstone::Exception{"Unsupported renderer kind."};
@@ -3519,7 +3519,7 @@ void hw_renderer_initialize()
 
 	// Initialization parameter.
 	//
-	auto param = bstone::R3dCreateParam{};
+	auto param = bstone::Ren3dCreateParam{};
 
 	param.aa_kind_ = ::vid_cfg_.aa_kind_;
 	param.aa_value_ = ::vid_cfg_.aa_degree_;
@@ -3545,7 +3545,7 @@ void hw_renderer_initialize()
 
 	param.window_.title_utf8_ = title;
 
-	using RendererKindList = std::vector<bstone::R3dKind>;
+	using RendererKindList = std::vector<bstone::Ren3dKind>;
 
 	auto renderer_kind_list = RendererKindList{};
 
@@ -3553,22 +3553,22 @@ void hw_renderer_initialize()
 
 	if (is_auto_detect)
 	{
-#ifndef BSTONE_R3D_TEST_NO_GL
+#ifndef BSTONE_REN_3D_TEST_NO_GL
 		renderer_kind_list =
 		{
-#ifndef BSTONE_R3D_TEST_NO_GL_3_2_C
-			bstone::R3dKind::gl_3_2_core,
-#endif // !BSTONE_R3D_TEST_NO_GL_3_2_C
+#ifndef BSTONE_REN_3D_TEST_NO_GL_3_2_C
+			bstone::Ren3dKind::gl_3_2_core,
+#endif // !BSTONE_REN_3D_TEST_NO_GL_3_2_C
 
-#ifndef BSTONE_R3D_TEST_NO_GL_2_0
-			bstone::R3dKind::gl_2_0,
-#endif // !BSTONE_R3D_TEST_NO_GL_2_0
+#ifndef BSTONE_REN_3D_TEST_NO_GL_2_0
+			bstone::Ren3dKind::gl_2_0,
+#endif // !BSTONE_REN_3D_TEST_NO_GL_2_0
 
-#ifndef BSTONE_R3D_TEST_NO_GLES_2_0
-			bstone::R3dKind::gles_2_0,
-#endif // !BSTONE_R3D_TEST_NO_GLES_2_0
+#ifndef BSTONE_REN_3D_TEST_NO_GLES_2_0
+			bstone::Ren3dKind::gles_2_0,
+#endif // !BSTONE_REN_3D_TEST_NO_GLES_2_0
 		};
-#endif // BSTONE_R3D_TEST_NO_GL
+#endif // BSTONE_REN_3D_TEST_NO_GL
 	}
 	else
 	{
@@ -3606,7 +3606,7 @@ void hw_2d_ui_ib_create()
 	::vid_log("Creating UI index buffer.");
 
 	::hw_2d_ui_ib_ = ::hw_index_buffer_create(
-		bstone::R3dBufferUsageKind::draw_static,
+		bstone::Ren3dBufferUsageKind::draw_static,
 		1,
 		::hw_2d_index_count_
 	);
@@ -3723,7 +3723,7 @@ void hw_2d_ui_vb_create()
 	::vid_log("Creating UI vertex buffer.");
 
 	::hw_2d_ui_vb_ = ::hw_vertex_buffer_create<HwVertex>(
-		bstone::R3dBufferUsageKind::draw_static,
+		bstone::Ren3dBufferUsageKind::draw_static,
 		::hw_2d_vertex_count_
 	);
 
@@ -3748,7 +3748,7 @@ void hw_2d_fillers_ib_create()
 	::vid_log("Creating 2D filler index buffer.");
 
 	::hw_2d_fillers_ib_ = ::hw_index_buffer_create(
-		bstone::R3dBufferUsageKind::draw_static,
+		bstone::Ren3dBufferUsageKind::draw_static,
 		1,
 		::hw_2d_fillers_index_count_
 	);
@@ -3805,7 +3805,7 @@ void hw_2d_fillers_vb_create()
 	::vid_log("Creating 2D filler vertex buffer.");
 
 	::hw_2d_fillers_vb_ = ::hw_vertex_buffer_create<HwVertex>(
-		bstone::R3dBufferUsageKind::draw_static,
+		bstone::Ren3dBufferUsageKind::draw_static,
 		::hw_2d_fillers_vertex_count_
 	);
 
@@ -4285,7 +4285,7 @@ void hw_3d_flooring_ib_create()
 
 	{
 		::hw_3d_flooring_ib_ = ::hw_index_buffer_create(
-			bstone::R3dBufferUsageKind::draw_static,
+			bstone::Ren3dBufferUsageKind::draw_static,
 			1,
 			index_count
 		);
@@ -4322,7 +4322,7 @@ void hw_3d_flooring_vb_create()
 
 	{
 		::hw_3d_flooring_vb_ = ::hw_vertex_buffer_create<Hw3dFlooringVertex>(
-			bstone::R3dBufferUsageKind::draw_static,
+			bstone::Ren3dBufferUsageKind::draw_static,
 			vertex_count
 		);
 	}
@@ -4442,7 +4442,7 @@ void hw_3d_ceiling_ib_create()
 
 	{
 		::hw_3d_ceiling_ib_ = ::hw_index_buffer_create(
-			bstone::R3dBufferUsageKind::draw_static,
+			bstone::Ren3dBufferUsageKind::draw_static,
 			1,
 			index_count
 		);
@@ -4479,7 +4479,7 @@ void hw_3d_ceiling_vb_create()
 
 	{
 		::hw_3d_ceiling_vb_ = ::hw_vertex_buffer_create<Hw3dCeilingVertex>(
-			bstone::R3dBufferUsageKind::draw_static,
+			bstone::Ren3dBufferUsageKind::draw_static,
 			vertex_count
 		);
 	}
@@ -4589,7 +4589,7 @@ void hw_3d_walls_ib_create()
 	const auto index_count = ::hw_3d_wall_side_count_ * ::hw_3d_indices_per_wall_side;
 
 	::hw_3d_wall_sides_ib_ = ::hw_index_buffer_create(
-		bstone::R3dBufferUsageKind::draw_streaming,
+		bstone::Ren3dBufferUsageKind::draw_streaming,
 		2,
 		index_count
 	);
@@ -4611,7 +4611,7 @@ void hw_3d_walls_vb_create()
 	const auto vertex_count = ::hw_3d_wall_side_count_ * ::hw_3d_vertices_per_wall_side;
 
 	::hw_3d_wall_sides_vb_ = ::hw_vertex_buffer_create<Hw3dWallVertex>(
-		bstone::R3dBufferUsageKind::draw_static,
+		bstone::Ren3dBufferUsageKind::draw_static,
 		vertex_count
 	);
 }
@@ -4683,7 +4683,7 @@ void hw_3d_pushwalls_ib_create()
 	const auto index_count = ::hw_3d_pushwall_side_count_ * ::hw_3d_indices_per_wall_side;
 
 	::hw_3d_pushwall_sides_ib_ = ::hw_index_buffer_create(
-		bstone::R3dBufferUsageKind::draw_streaming,
+		bstone::Ren3dBufferUsageKind::draw_streaming,
 		2,
 		index_count
 	);
@@ -4706,7 +4706,7 @@ void hw_3d_pushwalls_vb_create()
 	const auto vertex_count = ::hw_3d_pushwall_side_count_ * ::hw_3d_vertices_per_wall_side;
 
 	::hw_3d_pushwall_sides_vb_ = ::hw_vertex_buffer_create<Hw3dPushwallVertex>(
-		bstone::R3dBufferUsageKind::draw_dynamic,
+		bstone::Ren3dBufferUsageKind::draw_dynamic,
 		vertex_count
 	);
 }
@@ -4785,7 +4785,7 @@ void hw_3d_door_sides_ib_create()
 	const auto index_count = ::hw_3d_door_count_ * ::hw_3d_indices_per_door_side;
 
 	::hw_3d_door_sides_ib_ = ::hw_index_buffer_create(
-		bstone::R3dBufferUsageKind::draw_streaming,
+		bstone::Ren3dBufferUsageKind::draw_streaming,
 		2,
 		index_count
 	);
@@ -4810,7 +4810,7 @@ void hw_3d_door_sides_vb_create()
 	const auto vertex_count = ::hw_3d_door_count_ * ::hw_3d_indices_per_door_side;
 
 	::hw_3d_door_sides_vb_ = ::hw_vertex_buffer_create<Hw3dDoorVertex>(
-		bstone::R3dBufferUsageKind::draw_dynamic,
+		bstone::Ren3dBufferUsageKind::draw_dynamic,
 		vertex_count
 	);
 }
@@ -5063,12 +5063,12 @@ void hw_matrices_build()
 
 void hw_2d_sampler_ui_set_default_state()
 {
-	::hw_2d_ui_s_state_.min_filter_ = bstone::R3dFilterKind::nearest;
-	::hw_2d_ui_s_state_.mag_filter_ = bstone::R3dFilterKind::nearest;
-	::hw_2d_ui_s_state_.mipmap_mode_ = bstone::R3dMipmapMode::none;
-	::hw_2d_ui_s_state_.address_mode_u_ = bstone::R3dAddressMode::clamp;
-	::hw_2d_ui_s_state_.address_mode_v_ = bstone::R3dAddressMode::clamp;
-	::hw_2d_ui_s_state_.anisotropy_ = bstone::R3dLimits::anisotropy_min_off;
+	::hw_2d_ui_s_state_.min_filter_ = bstone::Ren3dFilterKind::nearest;
+	::hw_2d_ui_s_state_.mag_filter_ = bstone::Ren3dFilterKind::nearest;
+	::hw_2d_ui_s_state_.mipmap_mode_ = bstone::Ren3dMipmapMode::none;
+	::hw_2d_ui_s_state_.address_mode_u_ = bstone::Ren3dAddressMode::clamp;
+	::hw_2d_ui_s_state_.address_mode_v_ = bstone::Ren3dAddressMode::clamp;
+	::hw_2d_ui_s_state_.anisotropy_ = bstone::Ren3dLimits::anisotropy_min_off;
 }
 
 void hw_2d_sampler_ui_update_state()
@@ -5083,7 +5083,7 @@ void hw_2d_sampler_ui_update()
 
 	if (hw_2d_ui_s_ != nullptr)
 	{
-		auto param = bstone::R3dSamplerUpdateParam{};
+		auto param = bstone::Ren3dSamplerUpdateParam{};
 		param.state_ = ::hw_2d_ui_s_state_;
 		::hw_2d_ui_s_->update(param);
 	}
@@ -5100,7 +5100,7 @@ void hw_2d_sampler_ui_create()
 
 	::hw_2d_sampler_ui_update_state();
 
-	auto param = bstone::R3dSamplerCreateParam{};
+	auto param = bstone::Ren3dSamplerCreateParam{};
 	param.state_ = ::hw_2d_ui_s_state_;
 
 	::hw_2d_ui_s_ = ::hw_renderer_->sampler_create(param);
@@ -5108,12 +5108,12 @@ void hw_2d_sampler_ui_create()
 
 void hw_3d_sampler_sprite_set_default_state()
 {
-	::hw_3d_sprite_s_state_.min_filter_ = bstone::R3dFilterKind::nearest;
-	::hw_3d_sprite_s_state_.mag_filter_ = bstone::R3dFilterKind::nearest;
-	::hw_3d_sprite_s_state_.mipmap_mode_ = bstone::R3dMipmapMode::nearest;
-	::hw_3d_sprite_s_state_.address_mode_u_ = bstone::R3dAddressMode::clamp;
-	::hw_3d_sprite_s_state_.address_mode_v_ = bstone::R3dAddressMode::clamp;
-	::hw_3d_sprite_s_state_.anisotropy_ = bstone::R3dLimits::anisotropy_min_off;
+	::hw_3d_sprite_s_state_.min_filter_ = bstone::Ren3dFilterKind::nearest;
+	::hw_3d_sprite_s_state_.mag_filter_ = bstone::Ren3dFilterKind::nearest;
+	::hw_3d_sprite_s_state_.mipmap_mode_ = bstone::Ren3dMipmapMode::nearest;
+	::hw_3d_sprite_s_state_.address_mode_u_ = bstone::Ren3dAddressMode::clamp;
+	::hw_3d_sprite_s_state_.address_mode_v_ = bstone::Ren3dAddressMode::clamp;
+	::hw_3d_sprite_s_state_.anisotropy_ = bstone::Ren3dLimits::anisotropy_min_off;
 }
 
 void hw_3d_sampler_sprite_update_state()
@@ -5135,7 +5135,7 @@ void hw_3d_sampler_sprite_update()
 
 	if (::hw_3d_sprite_s_)
 	{
-		auto param = bstone::R3dSamplerUpdateParam{};
+		auto param = bstone::Ren3dSamplerUpdateParam{};
 		param.state_ = ::hw_3d_sprite_s_state_;
 		::hw_3d_sprite_s_->update(param);
 	}
@@ -5152,7 +5152,7 @@ void hw_3d_sampler_sprite_create()
 
 	::hw_3d_sampler_sprite_update_state();
 
-	auto param = bstone::R3dSamplerCreateParam{};
+	auto param = bstone::Ren3dSamplerCreateParam{};
 	param.state_ = ::hw_3d_sprite_s_state_;
 
 	::hw_3d_sprite_s_ = ::hw_renderer_->sampler_create(param);
@@ -5160,12 +5160,12 @@ void hw_3d_sampler_sprite_create()
 
 void hw_3d_sampler_wall_set_default_state()
 {
-	::hw_3d_wall_s_state_.min_filter_ = bstone::R3dFilterKind::nearest;
-	::hw_3d_wall_s_state_.mag_filter_ = bstone::R3dFilterKind::nearest;
-	::hw_3d_wall_s_state_.mipmap_mode_ = bstone::R3dMipmapMode::nearest;
-	::hw_3d_wall_s_state_.address_mode_u_ = bstone::R3dAddressMode::repeat;
-	::hw_3d_wall_s_state_.address_mode_v_ = bstone::R3dAddressMode::repeat;
-	::hw_3d_wall_s_state_.anisotropy_ = bstone::R3dLimits::anisotropy_min_off;
+	::hw_3d_wall_s_state_.min_filter_ = bstone::Ren3dFilterKind::nearest;
+	::hw_3d_wall_s_state_.mag_filter_ = bstone::Ren3dFilterKind::nearest;
+	::hw_3d_wall_s_state_.mipmap_mode_ = bstone::Ren3dMipmapMode::nearest;
+	::hw_3d_wall_s_state_.address_mode_u_ = bstone::Ren3dAddressMode::repeat;
+	::hw_3d_wall_s_state_.address_mode_v_ = bstone::Ren3dAddressMode::repeat;
+	::hw_3d_wall_s_state_.anisotropy_ = bstone::Ren3dLimits::anisotropy_min_off;
 }
 
 void hw_3d_sampler_wall_update_state()
@@ -5187,7 +5187,7 @@ void hw_3d_sampler_wall_update()
 
 	if (::hw_3d_wall_s_ != nullptr)
 	{
-		auto param = bstone::R3dSamplerUpdateParam{};
+		auto param = bstone::Ren3dSamplerUpdateParam{};
 		param.state_ = ::hw_3d_wall_s_state_;
 		::hw_3d_wall_s_->update(param);
 	}
@@ -5204,7 +5204,7 @@ void hw_3d_sampler_wall_create()
 
 	::hw_3d_sampler_wall_update_state();
 
-	auto param = bstone::R3dSamplerCreateParam{};
+	auto param = bstone::Ren3dSamplerCreateParam{};
 	param.state_ = ::hw_3d_wall_s_state_;
 
 	::hw_3d_wall_s_ = ::hw_renderer_->sampler_create(param);
@@ -5272,7 +5272,7 @@ void hw_3d_player_weapon_ib_create()
 	::vid_log("Creating player's weapon index buffer.");
 
 	::hw_3d_player_weapon_ib_ = ::hw_index_buffer_create(
-		bstone::R3dBufferUsageKind::draw_static,
+		bstone::Ren3dBufferUsageKind::draw_static,
 		1,
 		::hw_3d_indices_per_sprite
 	);
@@ -5306,7 +5306,7 @@ void hw_3d_player_weapon_vb_create()
 	::vid_log("Creating player's weapon vertex buffer.");
 
 	::hw_3d_player_weapon_vb_ = ::hw_vertex_buffer_create<Hw3dPlayerWeaponVertex>(
-		bstone::R3dBufferUsageKind::draw_static,
+		bstone::Ren3dBufferUsageKind::draw_static,
 		::hw_3d_vertices_per_sprite
 	);
 }
@@ -5380,12 +5380,12 @@ void hw_3d_player_weapon_projection_matrix_build()
 
 void hw_3d_player_weapon_sampler_set_default_state()
 {
-	::hw_3d_player_weapon_s_state_.min_filter_ = bstone::R3dFilterKind::nearest;
-	::hw_3d_player_weapon_s_state_.mag_filter_ = bstone::R3dFilterKind::nearest;
-	::hw_3d_player_weapon_s_state_.mipmap_mode_ = bstone::R3dMipmapMode::none;
-	::hw_3d_player_weapon_s_state_.address_mode_u_ = bstone::R3dAddressMode::clamp;
-	::hw_3d_player_weapon_s_state_.address_mode_v_ = bstone::R3dAddressMode::clamp;
-	::hw_3d_player_weapon_s_state_.anisotropy_ = bstone::R3dLimits::anisotropy_min_off;
+	::hw_3d_player_weapon_s_state_.min_filter_ = bstone::Ren3dFilterKind::nearest;
+	::hw_3d_player_weapon_s_state_.mag_filter_ = bstone::Ren3dFilterKind::nearest;
+	::hw_3d_player_weapon_s_state_.mipmap_mode_ = bstone::Ren3dMipmapMode::none;
+	::hw_3d_player_weapon_s_state_.address_mode_u_ = bstone::Ren3dAddressMode::clamp;
+	::hw_3d_player_weapon_s_state_.address_mode_v_ = bstone::Ren3dAddressMode::clamp;
+	::hw_3d_player_weapon_s_state_.anisotropy_ = bstone::Ren3dLimits::anisotropy_min_off;
 }
 
 void hw_3d_player_weapon_sampler_update_state()
@@ -5400,7 +5400,7 @@ void hw_3d_player_weapon_sampler_update()
 
 	if (::hw_3d_player_weapon_s_ != nullptr)
 	{
-		auto param = bstone::R3dSamplerUpdateParam{};
+		auto param = bstone::Ren3dSamplerUpdateParam{};
 		param.state_ = ::hw_3d_player_weapon_s_state_;
 		::hw_3d_player_weapon_s_->update(param);
 	}
@@ -5417,7 +5417,7 @@ void hw_3d_player_weapon_sampler_create()
 
 	::hw_3d_player_weapon_sampler_update_state();
 
-	auto param = bstone::R3dSamplerCreateParam{};
+	auto param = bstone::Ren3dSamplerCreateParam{};
 	param.state_ = ::hw_3d_player_weapon_s_state_;
 
 	::hw_3d_player_weapon_s_ = ::hw_renderer_->sampler_create(param);
@@ -5458,13 +5458,13 @@ void hw_fade_sampler_create()
 {
 	::vid_log("Creating fade sampler.");
 
-	auto param = bstone::R3dSamplerCreateParam{};
-	param.state_.min_filter_ = bstone::R3dFilterKind::nearest;
-	param.state_.mag_filter_ = bstone::R3dFilterKind::nearest;
-	param.state_.mipmap_mode_ = bstone::R3dMipmapMode::none;
-	param.state_.address_mode_u_ = bstone::R3dAddressMode::repeat;
-	param.state_.address_mode_v_ = bstone::R3dAddressMode::repeat;
-	param.state_.anisotropy_ = bstone::R3dLimits::anisotropy_min_off;
+	auto param = bstone::Ren3dSamplerCreateParam{};
+	param.state_.min_filter_ = bstone::Ren3dFilterKind::nearest;
+	param.state_.mag_filter_ = bstone::Ren3dFilterKind::nearest;
+	param.state_.mipmap_mode_ = bstone::Ren3dMipmapMode::none;
+	param.state_.address_mode_u_ = bstone::Ren3dAddressMode::repeat;
+	param.state_.address_mode_v_ = bstone::Ren3dAddressMode::repeat;
+	param.state_.anisotropy_ = bstone::Ren3dLimits::anisotropy_min_off;
 
 	::hw_fade_s_ = ::hw_renderer_->sampler_create(param);
 }
@@ -5504,7 +5504,7 @@ void hw_command_queue_create()
 {
 	::vid_log("Creating command queue.");
 
-	::hw_command_queue_ = bstone::R3dCmdQueueFactory::create();
+	::hw_command_queue_ = bstone::Ren3dCmdQueueFactory::create();
 }
 
 void hw_command_buffer_common_destroy()
@@ -5522,7 +5522,7 @@ void hw_command_buffer_common_create()
 {
 	::vid_log("Creating common command buffer.");
 
-	auto param = bstone::R3dCmdQueueEnqueueParam{};
+	auto param = bstone::Ren3dCmdQueueEnqueueParam{};
 	param.initial_size_ = ::hw_common_command_buffer_initial_size;
 	param.resize_delta_size_ = ::hw_common_command_buffer_resize_delta_size;
 
@@ -5544,7 +5544,7 @@ void hw_command_buffer_2d_create()
 {
 	::vid_log("Creating 2D command buffer.");
 
-	auto param = bstone::R3dCmdQueueEnqueueParam{};
+	auto param = bstone::Ren3dCmdQueueEnqueueParam{};
 	param.initial_size_ = ::hw_2d_command_buffer_initial_size;
 	param.resize_delta_size_ = ::hw_2d_command_buffer_resize_delta_size;
 
@@ -5566,7 +5566,7 @@ void hw_command_buffer_3d_create()
 {
 	::vid_log("Creating 3D command buffer.");
 
-	auto param = bstone::R3dCmdQueueEnqueueParam{};
+	auto param = bstone::Ren3dCmdQueueEnqueueParam{};
 	param.initial_size_ = ::hw_3d_command_buffer_initial_size;
 	param.resize_delta_size_ = ::hw_3d_command_buffer_resize_delta_size;
 
@@ -5602,7 +5602,7 @@ void hw_3d_fade_ib_create()
 	::vid_log("Creating 3D fade index buffer.");
 
 	::hw_3d_fade_ib_ = ::hw_index_buffer_create(
-		bstone::R3dBufferUsageKind::draw_static,
+		bstone::Ren3dBufferUsageKind::draw_static,
 		1,
 		6
 	);
@@ -5618,7 +5618,7 @@ void hw_3d_fade_vb_create()
 	::vid_log("Creating 3D fade vertex buffer.");
 
 	::hw_3d_fade_vb_ = ::hw_vertex_buffer_create<Hw3dFadeVertex>(
-		bstone::R3dBufferUsageKind::draw_static,
+		bstone::Ren3dBufferUsageKind::draw_static,
 		4
 	);
 }
@@ -6000,7 +6000,7 @@ void hw_screen_2d_refresh()
 			auto& command = *command_buffer->write_draw_indexed();
 			auto& param = command.param_;
 
-			param.primitive_topology_ = bstone::R3dPrimitiveTopology::triangle_list;
+			param.primitive_topology_ = bstone::Ren3dPrimitiveTopology::triangle_list;
 			param.vertex_count_ = count * hw_vertices_per_quad;
 			param.index_byte_depth_ = 1;
 			param.index_buffer_offset_ = 0;
@@ -6022,8 +6022,8 @@ void hw_screen_2d_refresh()
 			//
 			{
 				auto& blending_func = command_buffer->write_blending_func()->blending_func_;
-				blending_func.src_factor_ = bstone::R3dBlendingFactor::src_alpha;
-				blending_func.dst_factor_ = bstone::R3dBlendingFactor::one_minus_src_alpha;
+				blending_func.src_factor_ = bstone::Ren3dBlendingFactor::src_alpha;
+				blending_func.dst_factor_ = bstone::Ren3dBlendingFactor::one_minus_src_alpha;
 			}
 		}
 
@@ -6048,7 +6048,7 @@ void hw_screen_2d_refresh()
 			auto& command = *command_buffer->write_draw_indexed();
 			auto& param = command.param_;
 
-			param.primitive_topology_ = bstone::R3dPrimitiveTopology::triangle_list;
+			param.primitive_topology_ = bstone::Ren3dPrimitiveTopology::triangle_list;
 			param.vertex_count_ = hw_vertices_per_quad;
 			param.index_byte_depth_ = 1;
 			param.index_buffer_offset_ = 0;
@@ -6077,8 +6077,8 @@ void hw_screen_2d_refresh()
 		//
 		{
 			auto& blending_func = command_buffer->write_blending_func()->blending_func_;
-			blending_func.src_factor_ = bstone::R3dBlendingFactor::src_alpha;
-			blending_func.dst_factor_ = bstone::R3dBlendingFactor::one_minus_src_alpha;
+			blending_func.src_factor_ = bstone::Ren3dBlendingFactor::src_alpha;
+			blending_func.dst_factor_ = bstone::Ren3dBlendingFactor::one_minus_src_alpha;
 		}
 
 		// Set texture.
@@ -6115,7 +6115,7 @@ void hw_screen_2d_refresh()
 			auto& command = *command_buffer->write_draw_indexed();
 			auto& param = command.param_;
 
-			param.primitive_topology_ = bstone::R3dPrimitiveTopology::triangle_list;
+			param.primitive_topology_ = bstone::Ren3dPrimitiveTopology::triangle_list;
 			param.vertex_count_ = hw_vertices_per_quad;
 			param.index_byte_depth_ = 1;
 			param.index_buffer_offset_ = 0;
@@ -6315,7 +6315,7 @@ void hw_3d_walls_render()
 				auto& command = *command_buffer->write_draw_indexed();
 				auto& param = command.param_;
 
-				param.primitive_topology_ = bstone::R3dPrimitiveTopology::triangle_list;
+				param.primitive_topology_ = bstone::Ren3dPrimitiveTopology::triangle_list;
 				param.vertex_count_ = draw_quad_count * hw_vertices_per_quad;
 				param.index_byte_depth_ = 2;
 				param.index_buffer_offset_ = 0;
@@ -6459,7 +6459,7 @@ void hw_3d_pushwalls_render()
 				auto& command = *command_buffer->write_draw_indexed();
 				auto& param = command.param_;
 
-				param.primitive_topology_ = bstone::R3dPrimitiveTopology::triangle_list;
+				param.primitive_topology_ = bstone::Ren3dPrimitiveTopology::triangle_list;
 				param.vertex_count_ = draw_quad_count * hw_vertices_per_quad;
 				param.index_byte_depth_ = 2;
 				param.index_buffer_offset_ = 0;
@@ -6690,7 +6690,7 @@ void hw_3d_doors_render()
 				auto& command = *command_buffer->write_draw_indexed();
 				auto& param = command.param_;
 
-				param.primitive_topology_ = bstone::R3dPrimitiveTopology::triangle_list;
+				param.primitive_topology_ = bstone::Ren3dPrimitiveTopology::triangle_list;
 				param.vertex_count_ = draw_quad_count * hw_vertices_per_quad;
 				param.index_byte_depth_ = 2;
 				param.index_buffer_offset_ = 0;
@@ -7231,7 +7231,7 @@ void hw_3d_sprites_render()
 				auto& command = *command_buffer->write_draw_indexed();
 				auto& param = command.param_;
 
-				param.primitive_topology_ = bstone::R3dPrimitiveTopology::triangle_list;
+				param.primitive_topology_ = bstone::Ren3dPrimitiveTopology::triangle_list;
 				param.vertex_count_ = draw_quad_count * hw_vertices_per_quad;
 				param.index_byte_depth_ = 2;
 				param.index_buffer_offset_ = 0;
@@ -7484,7 +7484,7 @@ void hw_screen_3d_refresh()
 			auto& command = *command_buffer->write_draw_indexed();
 			auto& param = command.param_;
 
-			param.primitive_topology_ = bstone::R3dPrimitiveTopology::triangle_list;
+			param.primitive_topology_ = bstone::Ren3dPrimitiveTopology::triangle_list;
 			param.vertex_count_ = hw_vertices_per_quad;
 			param.index_byte_depth_ = 1;
 			param.index_buffer_offset_ = 0;
@@ -7516,7 +7516,7 @@ void hw_screen_3d_refresh()
 			auto& command = *command_buffer->write_draw_indexed();
 			auto& param = command.param_;
 
-			param.primitive_topology_ = bstone::R3dPrimitiveTopology::triangle_list;
+			param.primitive_topology_ = bstone::Ren3dPrimitiveTopology::triangle_list;
 			param.vertex_count_ = hw_vertices_per_quad;
 			param.index_byte_depth_ = 1;
 			param.index_buffer_offset_ = 0;
@@ -7639,8 +7639,8 @@ void hw_screen_3d_refresh()
 			//
 			{
 				auto& blending_func = command_buffer->write_blending_func()->blending_func_;
-				blending_func.src_factor_ = bstone::R3dBlendingFactor::src_alpha;
-				blending_func.dst_factor_ = bstone::R3dBlendingFactor::one_minus_src_alpha;
+				blending_func.src_factor_ = bstone::Ren3dBlendingFactor::src_alpha;
+				blending_func.dst_factor_ = bstone::Ren3dBlendingFactor::one_minus_src_alpha;
 			}
 
 			// Draw the weapon.
@@ -7649,7 +7649,7 @@ void hw_screen_3d_refresh()
 				auto& command = *command_buffer->write_draw_indexed();
 				auto& param = command.param_;
 
-				param.primitive_topology_ = bstone::R3dPrimitiveTopology::triangle_list;
+				param.primitive_topology_ = bstone::Ren3dPrimitiveTopology::triangle_list;
 				param.vertex_count_ = hw_vertices_per_quad;
 				param.index_byte_depth_ = 1;
 				param.index_buffer_offset_ = 0;
@@ -7696,8 +7696,8 @@ void hw_screen_3d_refresh()
 			//
 			{
 				auto& blending_func = command_buffer->write_blending_func()->blending_func_;
-				blending_func.src_factor_ = bstone::R3dBlendingFactor::src_alpha;
-				blending_func.dst_factor_ = bstone::R3dBlendingFactor::one_minus_src_alpha;
+				blending_func.src_factor_ = bstone::Ren3dBlendingFactor::src_alpha;
+				blending_func.dst_factor_ = bstone::Ren3dBlendingFactor::one_minus_src_alpha;
 			}
 
 			// Set texture.
@@ -7727,7 +7727,7 @@ void hw_screen_3d_refresh()
 				auto& command = *command_buffer->write_draw_indexed();
 				auto& param = command.param_;
 
-				param.primitive_topology_ = bstone::R3dPrimitiveTopology::triangle_list;
+				param.primitive_topology_ = bstone::Ren3dPrimitiveTopology::triangle_list;
 				param.vertex_count_ = hw_vertices_per_quad;
 				param.index_byte_depth_ = 1;
 				param.index_buffer_offset_ = 0;
@@ -9147,7 +9147,7 @@ void hw_sprites_ibi_initialize()
 	const auto index_count = ::hw_3d_max_sprites_indices;
 
 	::hw_3d_sprites_ib_ = ::hw_index_buffer_create(
-		bstone::R3dBufferUsageKind::draw_streaming,
+		bstone::Ren3dBufferUsageKind::draw_streaming,
 		2,
 		index_count
 	);
@@ -9169,7 +9169,7 @@ void hw_sprites_vb_initialize()
 	const auto vertex_count = ::hw_3d_max_sprites_vertices;
 
 	::hw_3d_sprites_vb_ = ::hw_vertex_buffer_create<Hw3dSpriteVertex>(
-		bstone::R3dBufferUsageKind::draw_streaming,
+		bstone::Ren3dBufferUsageKind::draw_streaming,
 		vertex_count
 	);
 
@@ -11628,7 +11628,7 @@ void hw_video_initialize()
 
 	::vid_log("Creating renderer manager.");
 
-	hw_renderer_manager_ = bstone::R3dMgrFactory::create();
+	hw_renderer_manager_ = bstone::Ren3dMgrFactory::create();
 
 	::vid_common_initialize();
 	::hw_dimensions_calculate();
@@ -12567,14 +12567,14 @@ void vid_import_ui_mask(
 }
 
 const std::string& vid_filter_to_string(
-	const bstone::R3dFilterKind filter)
+	const bstone::Ren3dFilterKind filter)
 {
 	switch (filter)
 	{
-		case bstone::R3dFilterKind::nearest:
+		case bstone::Ren3dFilterKind::nearest:
 			return vid_get_nearest_value_string();
 
-		case bstone::R3dFilterKind::linear:
+		case bstone::Ren3dFilterKind::linear:
 			return vid_get_linear_value_string();
 
 		default:
@@ -12684,11 +12684,11 @@ void vid_cfg_file_read_hw_2d_texture_filter(
 {
 	if (value_string == ::vid_get_nearest_value_string())
 	{
-		::vid_cfg_.d2_texture_filter_ = bstone::R3dFilterKind::nearest;
+		::vid_cfg_.d2_texture_filter_ = bstone::Ren3dFilterKind::nearest;
 	}
 	else if (value_string == ::vid_get_linear_value_string())
 	{
-		::vid_cfg_.d2_texture_filter_ = bstone::R3dFilterKind::linear;
+		::vid_cfg_.d2_texture_filter_ = bstone::Ren3dFilterKind::linear;
 	}
 }
 
@@ -12697,11 +12697,11 @@ void vid_cfg_file_read_hw_3d_texture_image_filter(
 {
 	if (value_string == ::vid_get_nearest_value_string())
 	{
-		::vid_cfg_.d3_texture_image_filter_ = bstone::R3dFilterKind::nearest;
+		::vid_cfg_.d3_texture_image_filter_ = bstone::Ren3dFilterKind::nearest;
 	}
 	else if (value_string == ::vid_get_linear_value_string())
 	{
-		::vid_cfg_.d3_texture_image_filter_ = bstone::R3dFilterKind::linear;
+		::vid_cfg_.d3_texture_image_filter_ = bstone::Ren3dFilterKind::linear;
 	}
 }
 
@@ -12710,11 +12710,11 @@ void vid_cfg_file_read_hw_3d_texture_mipmap_filter(
 {
 	if (value_string == ::vid_get_nearest_value_string())
 	{
-		::vid_cfg_.d3_texture_mipmap_filter_ = bstone::R3dFilterKind::nearest;
+		::vid_cfg_.d3_texture_mipmap_filter_ = bstone::Ren3dFilterKind::nearest;
 	}
 	else if (value_string == ::vid_get_linear_value_string())
 	{
-		::vid_cfg_.d3_texture_mipmap_filter_ = bstone::R3dFilterKind::linear;
+		::vid_cfg_.d3_texture_mipmap_filter_ = bstone::Ren3dFilterKind::linear;
 	}
 }
 
@@ -12734,11 +12734,11 @@ void vid_cfg_file_read_hw_aa_kind(
 {
 	if (value_string == ::vid_get_msaa_value_string())
 	{
-		::vid_cfg_.aa_kind_ = bstone::R3dAaKind::ms;
+		::vid_cfg_.aa_kind_ = bstone::Ren3dAaKind::ms;
 	}
 	else
 	{
-		::vid_cfg_.aa_kind_ = bstone::R3dAaKind::none;
+		::vid_cfg_.aa_kind_ = bstone::Ren3dAaKind::none;
 	}
 }
 
@@ -12857,7 +12857,7 @@ void vid_write_hw_aa_kind_configuration(
 {
 	switch (::vid_cfg_.aa_kind_)
 	{
-		case bstone::R3dAaKind::ms:
+		case bstone::Ren3dAaKind::ms:
 			::cfg_file_write_entry(
 				text_writer,
 				::vid_get_aa_kind_key_name(),
@@ -13074,15 +13074,15 @@ void vid_cfg_set_defaults()
 	::vid_cfg_.is_ui_stretched_ = false;
 	::vid_cfg_.is_widescreen_ = true;
 
-	::vid_cfg_.d2_texture_filter_ = bstone::R3dFilterKind::nearest;
+	::vid_cfg_.d2_texture_filter_ = bstone::Ren3dFilterKind::nearest;
 
-	::vid_cfg_.d3_texture_image_filter_ = bstone::R3dFilterKind::nearest;
-	::vid_cfg_.d3_texture_mipmap_filter_ = bstone::R3dFilterKind::nearest;
+	::vid_cfg_.d3_texture_image_filter_ = bstone::Ren3dFilterKind::nearest;
+	::vid_cfg_.d3_texture_mipmap_filter_ = bstone::Ren3dFilterKind::nearest;
 
-	::vid_cfg_.d3_texture_anisotropy_ = bstone::R3dLimits::anisotropy_min_off;
+	::vid_cfg_.d3_texture_anisotropy_ = bstone::Ren3dLimits::anisotropy_min_off;
 
-	::vid_cfg_.aa_kind_ = bstone::R3dAaKind::none;
-	::vid_cfg_.aa_degree_ = bstone::R3dLimits::aa_min_off;
+	::vid_cfg_.aa_kind_ = bstone::Ren3dAaKind::none;
+	::vid_cfg_.aa_degree_ = bstone::Ren3dLimits::aa_min_off;
 
 	::vid_cfg_.texture_upscale_kind_ = bstone::HwTextureMgrUpscaleFilterKind::none;
 	::vid_cfg_.texture_upscale_xbrz_degree_ = 0;
@@ -13692,11 +13692,11 @@ void vid_video_mode_apply_window_sw()
 	sw_calculate_dimensions();
 	vid_vanilla_raycaster_initialize();
 
-	auto param = bstone::R3dWindowSetModeParam{};
+	auto param = bstone::Ren3dWindowSetModeParam{};
 	param.is_windowed_ = vid_cfg_.is_windowed_;
 	param.width_ = vid_cfg_.windowed_width_;
 	param.height_ = vid_cfg_.windowed_height_;
-	bstone::detail::R3dUtils::window_set_mode(sw_window_.get(), param);
+	bstone::detail::Ren3dUtils::window_set_mode(sw_window_.get(), param);
 
 	vid_common_initialize();
 
@@ -13709,7 +13709,7 @@ void vid_video_mode_apply_window_hw()
 	hw_dimensions_calculate();
 	vid_vanilla_raycaster_initialize();
 
-	auto param = bstone::R3dWindowSetModeParam{};
+	auto param = bstone::Ren3dWindowSetModeParam{};
 	param.is_windowed_ = vid_cfg_.is_windowed_;
 	param.width_ = vid_dimensions_.window_width_;
 	param.height_ = vid_dimensions_.window_height_;
@@ -13793,7 +13793,7 @@ void vid_video_mode_apply(
 		(vid_cfg_.aa_kind_ != video_mode_cfg.aa_kind_ ||
 			vid_cfg_.aa_degree_ != video_mode_cfg.aa_degree_) &&
 		vid_is_hw_ &&
-		video_mode_cfg.aa_kind_ == bstone::R3dAaKind::ms &&
+		video_mode_cfg.aa_kind_ == bstone::Ren3dAaKind::ms &&
 		hw_device_features_.msaa_is_available_ &&
 		hw_device_features_.msaa_is_requires_restart_)
 	{

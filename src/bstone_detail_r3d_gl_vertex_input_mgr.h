@@ -27,8 +27,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_DETAIL_R3D_GL_VERTEX_INPUT_MGR_INCLUDED
-#define BSTONE_DETAIL_R3D_GL_VERTEX_INPUT_MGR_INCLUDED
+#ifndef BSTONE_DETAIL_REN_3D_GL_VERTEX_INPUT_MGR_INCLUDED
+#define BSTONE_DETAIL_REN_3D_GL_VERTEX_INPUT_MGR_INCLUDED
 
 
 #include <memory>
@@ -42,37 +42,37 @@ namespace detail
 {
 
 
-class R3dGlContext;
-using R3dGlContextPtr = R3dGlContext*;
+class Ren3dGlContext;
+using Ren3dGlContextPtr = Ren3dGlContext*;
 
 
 // ==========================================================================
-// R3dGlVertexInputMgr
+// Ren3dGlVertexInputMgr
 //
 
-class R3dGlVertexInputMgr
+class Ren3dGlVertexInputMgr
 {
 protected:
-	R3dGlVertexInputMgr() = default;
+	Ren3dGlVertexInputMgr() = default;
 
 
 public:
-	virtual ~R3dGlVertexInputMgr() = default;
+	virtual ~Ren3dGlVertexInputMgr() = default;
 
 
-	virtual R3dGlContextPtr get_gl_context() const noexcept = 0;
+	virtual Ren3dGlContextPtr get_gl_context() const noexcept = 0;
 
 
-	virtual R3dVertexInputUPtr create(
-		const R3dVertexInputCreateParam& param) = 0;
+	virtual Ren3dVertexInputUPtr create(
+		const Ren3dVertexInputCreateParam& param) = 0;
 
 	virtual void notify_destroy(
-		const R3dVertexInputPtr vertex_input) noexcept = 0;
+		const Ren3dVertexInputPtr vertex_input) noexcept = 0;
 
 	virtual void set(
-		const R3dVertexInputPtr vertex_input) = 0;
+		const Ren3dVertexInputPtr vertex_input) = 0;
 
-	virtual R3dBufferPtr get_current_index_buffer() const noexcept = 0;
+	virtual Ren3dBufferPtr get_current_index_buffer() const noexcept = 0;
 
 
 	virtual void enable_location(
@@ -82,28 +82,28 @@ public:
 	virtual void location_assign_begin() = 0;
 
 	virtual void location_assign_end() = 0;
-}; // R3dGlVertexInputMgr
+}; // Ren3dGlVertexInputMgr
 
-using R3dGlVertexInputMgrPtr = R3dGlVertexInputMgr*;
-using R3dGlVertexInputMgrUPtr = std::unique_ptr<R3dGlVertexInputMgr>;
+using Ren3dGlVertexInputMgrPtr = Ren3dGlVertexInputMgr*;
+using Ren3dGlVertexInputMgrUPtr = std::unique_ptr<Ren3dGlVertexInputMgr>;
 
 //
-// R3dGlVertexInputMgr
+// Ren3dGlVertexInputMgr
 // ==========================================================================
 
 
 // ==========================================================================
-// R3dGlVertexInputMgrFactory
+// Ren3dGlVertexInputMgrFactory
 //
 
-struct R3dGlVertexInputMgrFactory
+struct Ren3dGlVertexInputMgrFactory
 {
-	static R3dGlVertexInputMgrUPtr create(
-		const R3dGlContextPtr gl_context);
-}; // R3dGlVertexInputMgrFactory
+	static Ren3dGlVertexInputMgrUPtr create(
+		const Ren3dGlContextPtr gl_context);
+}; // Ren3dGlVertexInputMgrFactory
 
 //
-// R3dGlVertexInputMgrFactory
+// Ren3dGlVertexInputMgrFactory
 // ==========================================================================
 
 
@@ -111,4 +111,4 @@ struct R3dGlVertexInputMgrFactory
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_R3D_GL_VERTEX_INPUT_MGR_INCLUDED
+#endif // !BSTONE_DETAIL_REN_3D_GL_VERTEX_INPUT_MGR_INCLUDED

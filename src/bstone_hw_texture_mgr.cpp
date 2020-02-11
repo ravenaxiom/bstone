@@ -23,7 +23,7 @@ Free Software Foundation, Inc.,
 
 
 //
-// R3d texture manager (implementation).
+// 3D-renderer texture manager (implementation).
 //
 
 
@@ -233,7 +233,7 @@ class HwTextureMgrImpl final :
 {
 public:
 	HwTextureMgrImpl(
-		const R3dPtr renderer,
+		const Ren3dPtr renderer,
 		const SpriteCachePtr sprite_cache,
 		const MtTaskMgrPtr mt_task_manager);
 
@@ -265,14 +265,14 @@ public:
 	void wall_cache(
 		const int id) override;
 
-	R3dTexture2dPtr wall_get(
+	Ren3dTexture2dPtr wall_get(
 		const int id) const override;
 
 
 	void sprite_cache(
 		const int id) override;
 
-	R3dTexture2dPtr sprite_get(
+	Ren3dTexture2dPtr sprite_get(
 		const int id) const override;
 
 
@@ -285,7 +285,7 @@ public:
 
 	void ui_update() override;
 
-	R3dTexture2dPtr ui_get() const override;
+	Ren3dTexture2dPtr ui_get() const override;
 
 
 	void solid_1x1_destroy(
@@ -298,7 +298,7 @@ public:
 		const HwTextureMgrSolid1x1Id id,
 		const Rgba8 color) override;
 
-	R3dTexture2dPtr solid_1x1_get(
+	Ren3dTexture2dPtr solid_1x1_get(
 		const HwTextureMgrSolid1x1Id id) const override;
 
 
@@ -323,7 +323,7 @@ private:
 
 	struct Texture2dProperties
 	{
-		R3dPixelFormat image_pixel_format_;
+		Ren3dPixelFormat image_pixel_format_;
 
 		bool is_npot_;
 
@@ -353,7 +353,7 @@ private:
 	{
 		GenerationId generation_id_;
 		Texture2dProperties properties_;
-		R3dTexture2dUPtr texture_2d_;
+		Ren3dTexture2dUPtr texture_2d_;
 
 		Texture2dItem();
 
@@ -370,7 +370,7 @@ private:
 	{
 		Rgba8 color_;
 		Texture2dProperties properties_;
-		R3dTexture2dUPtr texture_2d_;
+		Ren3dTexture2dUPtr texture_2d_;
 
 
 		void clear();
@@ -379,7 +379,7 @@ private:
 	using Solid1x1Items = std::array<Solid1x1Item, static_cast<std::size_t>(HwTextureMgrSolid1x1Id::count_)>;
 
 
-	R3dPtr renderer_;
+	Ren3dPtr renderer_;
 	SpriteCachePtr sprite_cache_;
 	MtTaskMgrPtr mt_task_manager_;
 
@@ -397,8 +397,8 @@ private:
 
 	Texture2dItem ui_t2d_item_;
 
-	detail::R3dUtils::Rgba8Buffer mipmap_buffer_;
-	detail::R3dUtils::Rgba8Buffer upscale_buffer_;
+	detail::Ren3dUtils::Rgba8Buffer mipmap_buffer_;
+	detail::Ren3dUtils::Rgba8Buffer upscale_buffer_;
 
 	Solid1x1Items solid_1x1_items_;
 
@@ -450,7 +450,7 @@ private:
 	void uninitialize();
 
 	void initialize(
-		R3dPtr renderer,
+		Ren3dPtr renderer,
 		SpriteCachePtr sprite_cache);
 
 	void uninitialize_internal();
@@ -468,7 +468,7 @@ private:
 
 	void update_mipmaps(
 		const Texture2dProperties& properties,
-		const R3dTexture2dUPtr& texture_2d);
+		const Ren3dTexture2dUPtr& texture_2d);
 
 
 	void destroy_missing_sprite_texture();
@@ -489,13 +489,13 @@ private:
 
 
 	void initialize_internal(
-		R3dPtr renderer,
+		Ren3dPtr renderer,
 		SpriteCachePtr sprite_cache);
 
 	void cache_purge(
 		IdToTexture2dMap& map);
 
-	R3dTexture2dPtr get_texture_2d(
+	Ren3dTexture2dPtr get_texture_2d(
 		const ImageKind image_kind,
 		const int id,
 		const IdToTexture2dMap& map) const;
@@ -560,7 +560,7 @@ void HwTextureMgrImpl::Solid1x1Item::clear()
 }
 
 HwTextureMgrImpl::HwTextureMgrImpl(
-	const R3dPtr renderer,
+	const Ren3dPtr renderer,
 	const SpriteCachePtr sprite_cache,
 	const MtTaskMgrPtr mt_task_manager)
 	:
@@ -751,7 +751,7 @@ void HwTextureMgrImpl::wall_cache(
 	wall_map_[id] = std::move(texture_2d_item);
 }
 
-R3dTexture2dPtr HwTextureMgrImpl::wall_get(
+Ren3dTexture2dPtr HwTextureMgrImpl::wall_get(
 	const int id) const
 {
 	if (id < 0 || id >= max_walls)
@@ -785,7 +785,7 @@ void HwTextureMgrImpl::sprite_cache(
 	sprite_map_[id] = std::move(texture_2d_item);
 }
 
-R3dTexture2dPtr HwTextureMgrImpl::sprite_get(
+Ren3dTexture2dPtr HwTextureMgrImpl::sprite_get(
 	const int id) const
 {
 	if (id <= 0 || id >= max_sprites)
@@ -827,7 +827,7 @@ void HwTextureMgrImpl::ui_create(
 	}
 
 	auto param = Texture2dProperties{};
-	param.image_pixel_format_ = R3dPixelFormat::rgba_8_unorm;
+	param.image_pixel_format_ = Ren3dPixelFormat::rgba_8_unorm;
 	param.width_ = ::vga_ref_width;
 	param.height_ = ::vga_ref_height;
 	param.mipmap_count_ = 1;
@@ -846,7 +846,7 @@ void HwTextureMgrImpl::ui_update()
 	update_mipmaps(ui_t2d_item_.properties_, ui_t2d_item_.texture_2d_);
 }
 
-R3dTexture2dPtr HwTextureMgrImpl::ui_get() const
+Ren3dTexture2dPtr HwTextureMgrImpl::ui_get() const
 {
 	return ui_t2d_item_.texture_2d_.get();
 }
@@ -868,7 +868,7 @@ void HwTextureMgrImpl::solid_1x1_create(
 	const auto default_color = solid_1x1_get_default_color(id);
 
 	auto param = Texture2dProperties{};
-	param.image_pixel_format_ = bstone::R3dPixelFormat::rgba_8_unorm;
+	param.image_pixel_format_ = bstone::Ren3dPixelFormat::rgba_8_unorm;
 	param.width_ = 1;
 	param.height_ = 1;
 	param.mipmap_count_ = 1;
@@ -893,13 +893,13 @@ void HwTextureMgrImpl::solid_1x1_update(
 	auto& item = solid_1x1_items_[index];
 	item.color_ = color;
 
-	auto param = R3dTexture2dUpdateParam{};
+	auto param = Ren3dTexture2dUpdateParam{};
 	param.image_ = &item.color_;
 
 	item.texture_2d_->update(param);
 }
 
-R3dTexture2dPtr HwTextureMgrImpl::solid_1x1_get(
+Ren3dTexture2dPtr HwTextureMgrImpl::solid_1x1_get(
 	const HwTextureMgrSolid1x1Id id) const
 {
 	const auto index = solid_1x1_get_index(id);
@@ -915,7 +915,7 @@ R3dTexture2dPtr HwTextureMgrImpl::solid_1x1_get(
 }
 
 void HwTextureMgrImpl::initialize(
-	R3dPtr renderer,
+	Ren3dPtr renderer,
 	SpriteCachePtr sprite_cache)
 {
 	initialize_internal(renderer, sprite_cache);
@@ -1011,7 +1011,7 @@ void HwTextureMgrImpl::validate_image_pixel_format_texture_2d_properties(
 {
 	switch (properties.image_pixel_format_)
 	{
-		case R3dPixelFormat::rgba_8_unorm:
+		case Ren3dPixelFormat::rgba_8_unorm:
 			return;
 
 		default:
@@ -1037,7 +1037,7 @@ void HwTextureMgrImpl::validate_mipmap_texture_2d_properties(
 	const Texture2dProperties& properties)
 {
 	if (properties.mipmap_count_ <= 0 ||
-		properties.mipmap_count_ > R3dLimits::max_mipmap_count)
+		properties.mipmap_count_ > Ren3dLimits::max_mipmap_count)
 	{
 		throw Exception{"Mipmap count out of range."};
 	}
@@ -1142,8 +1142,8 @@ void HwTextureMgrImpl::set_common_texture_2d_properties(
 	auto actual_width = upscale_width;
 	auto actual_height = upscale_height;
 
-	const auto is_width_pot = detail::R3dUtils::is_pot_value(actual_width);
-	const auto is_height_pot = detail::R3dUtils::is_pot_value(actual_height);
+	const auto is_width_pot = detail::Ren3dUtils::is_pot_value(actual_width);
+	const auto is_height_pot = detail::Ren3dUtils::is_pot_value(actual_height);
 
 	const auto is_npot = (!is_width_pot || !is_height_pot);
 	const auto has_hw_npot = (!is_npot || (is_npot && device_features.npot_is_available_));
@@ -1155,10 +1155,10 @@ void HwTextureMgrImpl::set_common_texture_2d_properties(
 	}
 	else
 	{
-		actual_width = detail::R3dUtils::find_nearest_pot_value(actual_width);
+		actual_width = detail::Ren3dUtils::find_nearest_pot_value(actual_width);
 		actual_width = std::min(actual_width, device_features.texture_max_dimension_);
 
-		actual_height = detail::R3dUtils::find_nearest_pot_value(actual_height);
+		actual_height = detail::Ren3dUtils::find_nearest_pot_value(actual_height);
 		actual_height = std::min(actual_height, device_features.texture_max_dimension_);
 	}
 
@@ -1192,7 +1192,7 @@ void HwTextureMgrImpl::upscale_xbrz(
 
 	if (properties.indexed_pixels_)
 	{
-		auto param = detail::R3dUtils::IndexedToRgba8Param{};
+		auto param = detail::Ren3dUtils::IndexedToRgba8Param{};
 		param.width_ = properties.width_;
 		param.height_ = properties.height_;
 		param.indexed_is_column_major_ = properties.indexed_is_column_major_;
@@ -1201,11 +1201,11 @@ void HwTextureMgrImpl::upscale_xbrz(
 		param.indexed_alphas_ = properties.indexed_alphas_;
 		param.rgba_8_buffer_ = &mipmap_buffer_;
 
-		detail::R3dUtils::indexed_to_rgba_8(param);
+		detail::Ren3dUtils::indexed_to_rgba_8(param);
 	}
 	else if (properties.indexed_sprite_)
 	{
-		detail::R3dUtils::indexed_sprite_to_rgba_8_pot(
+		detail::Ren3dUtils::indexed_sprite_to_rgba_8_pot(
 			*properties.indexed_sprite_,
 			*properties.indexed_palette_,
 			mipmap_buffer_
@@ -1326,7 +1326,7 @@ HwTextureMgrImpl::Texture2dItem HwTextureMgrImpl::create_texture(
 
 	// Create texture object.
 	//
-	auto param = R3dTexture2dCreateParam{};
+	auto param = Ren3dTexture2dCreateParam{};
 	param.pixel_format_ = new_properties.image_pixel_format_;
 	param.width_ = new_properties.actual_width_;
 	param.height_ = new_properties.actual_height_;
@@ -1348,7 +1348,7 @@ HwTextureMgrImpl::Texture2dItem HwTextureMgrImpl::create_texture(
 
 void HwTextureMgrImpl::update_mipmaps(
 	const Texture2dProperties& properties,
-	const R3dTexture2dUPtr& texture_2d)
+	const Ren3dTexture2dUPtr& texture_2d)
 {
 	upscale(properties);
 
@@ -1394,7 +1394,7 @@ void HwTextureMgrImpl::update_mipmaps(
 	{
 		if (properties.is_npot_ && !npot_is_available)
 		{
-			detail::R3dUtils::rgba_8_npot_to_rgba_8_pot(
+			detail::Ren3dUtils::rgba_8_npot_to_rgba_8_pot(
 				properties.upscale_width_,
 				properties.upscale_height_,
 				properties.actual_width_,
@@ -1416,7 +1416,7 @@ void HwTextureMgrImpl::update_mipmaps(
 	{
 		if (properties.is_npot_ && !npot_is_available)
 		{
-			detail::R3dUtils::rgba_8_npot_to_rgba_8_pot(
+			detail::Ren3dUtils::rgba_8_npot_to_rgba_8_pot(
 				properties.width_,
 				properties.height_,
 				properties.actual_width_,
@@ -1436,7 +1436,7 @@ void HwTextureMgrImpl::update_mipmaps(
 	}
 	else if (properties.indexed_pixels_)
 	{
-		auto param = detail::R3dUtils::IndexedToRgba8Param{};
+		auto param = detail::Ren3dUtils::IndexedToRgba8Param{};
 
 		param.width_ = properties.width_;
 		param.height_ = properties.height_;
@@ -1448,11 +1448,11 @@ void HwTextureMgrImpl::update_mipmaps(
 		param.indexed_alphas_ = properties.indexed_alphas_;
 		param.rgba_8_buffer_ = &mipmap_buffer_;
 
-		detail::R3dUtils::indexed_to_rgba_8_pot(param);
+		detail::Ren3dUtils::indexed_to_rgba_8_pot(param);
 	}
 	else if (properties.indexed_sprite_)
 	{
-		detail::R3dUtils::indexed_sprite_to_rgba_8_pot(
+		detail::Ren3dUtils::indexed_sprite_to_rgba_8_pot(
 			*properties.indexed_sprite_,
 			*properties.indexed_palette_,
 			mipmap_buffer_
@@ -1475,7 +1475,7 @@ void HwTextureMgrImpl::update_mipmaps(
 	{
 		if (i_mipmap > 0)
 		{
-			detail::R3dUtils::build_mipmap(
+			detail::Ren3dUtils::build_mipmap(
 				mipmap_width,
 				mipmap_height,
 				texture_subbuffer_0,
@@ -1501,7 +1501,7 @@ void HwTextureMgrImpl::update_mipmaps(
 			std::swap(texture_subbuffer_0, texture_subbuffer_1);
 		}
 
-		auto param = R3dTexture2dUpdateParam{};
+		auto param = Ren3dTexture2dUpdateParam{};
 		param.mipmap_level_ = i_mipmap;
 		param.image_ = texture_subbuffer_0;
 
@@ -1529,11 +1529,11 @@ void HwTextureMgrImpl::create_missing_sprite_texture()
 	const auto rgba_8_image = reinterpret_cast<const Rgba8*>(raw_image.data());
 
 	auto param = Texture2dProperties{};
-	param.image_pixel_format_ = R3dPixelFormat::rgba_8_unorm;
+	param.image_pixel_format_ = Ren3dPixelFormat::rgba_8_unorm;
 	param.width_ = Sprite::dimension;
 	param.height_ = Sprite::dimension;
 	param.is_generate_mipmaps_ = true;
-	param.mipmap_count_ = detail::R3dUtils::calculate_mipmap_count(Sprite::dimension, Sprite::dimension);
+	param.mipmap_count_ = detail::Ren3dUtils::calculate_mipmap_count(Sprite::dimension, Sprite::dimension);
 	param.rgba_8_pixels_ = rgba_8_image;
 
 	auto texture_2d_item = create_texture(param);
@@ -1557,11 +1557,11 @@ void HwTextureMgrImpl::create_missing_wall_texture()
 	const auto rgba_8_image = reinterpret_cast<const Rgba8*>(raw_image.data());
 
 	auto param = Texture2dProperties{};
-	param.image_pixel_format_ = R3dPixelFormat::rgba_8_unorm;
+	param.image_pixel_format_ = Ren3dPixelFormat::rgba_8_unorm;
 	param.width_ = wall_dimension;
 	param.height_ = wall_dimension;
 	param.is_generate_mipmaps_ = true;
-	param.mipmap_count_ = detail::R3dUtils::calculate_mipmap_count(param.width_, param.height_);
+	param.mipmap_count_ = detail::Ren3dUtils::calculate_mipmap_count(param.width_, param.height_);
 	param.rgba_8_pixels_ = rgba_8_image;
 
 	auto texture_2d_item = create_texture(param);
@@ -1582,11 +1582,11 @@ HwTextureMgrImpl::Texture2dItem HwTextureMgrImpl::wall_create_texture(
 	}
 
 	auto param = Texture2dProperties{};
-	param.image_pixel_format_ = R3dPixelFormat::rgba_8_unorm;
+	param.image_pixel_format_ = Ren3dPixelFormat::rgba_8_unorm;
 	param.width_ = wall_dimension;
 	param.height_ = wall_dimension;
 	param.is_generate_mipmaps_ = true;
-	param.mipmap_count_ = detail::R3dUtils::calculate_mipmap_count(param.width_, param.height_);
+	param.mipmap_count_ = detail::Ren3dUtils::calculate_mipmap_count(param.width_, param.height_);
 	param.indexed_is_column_major_ = true;
 	param.indexed_pixels_ = indexed_pixels;
 	param.indexed_palette_ = &::vid_hw_get_default_palette();
@@ -1614,11 +1614,11 @@ HwTextureMgrImpl::Texture2dItem HwTextureMgrImpl::sprite_create_texture(
 	}
 
 	auto param = Texture2dProperties{};
-	param.image_pixel_format_ = R3dPixelFormat::rgba_8_unorm;
+	param.image_pixel_format_ = Ren3dPixelFormat::rgba_8_unorm;
 	param.width_ = Sprite::dimension;
 	param.height_ = Sprite::dimension;
 	param.is_generate_mipmaps_ = true;
-	param.mipmap_count_ = detail::R3dUtils::calculate_mipmap_count(param.width_, param.height_);
+	param.mipmap_count_ = detail::Ren3dUtils::calculate_mipmap_count(param.width_, param.height_);
 	param.indexed_sprite_ = sprite;
 	param.indexed_palette_ = &::vid_hw_get_default_palette();
 
@@ -1630,7 +1630,7 @@ HwTextureMgrImpl::Texture2dItem HwTextureMgrImpl::sprite_create_texture(
 }
 
 void HwTextureMgrImpl::initialize_internal(
-	R3dPtr renderer,
+	Ren3dPtr renderer,
 	SpriteCachePtr sprite_cache)
 {
 	if (!renderer)
@@ -1682,7 +1682,7 @@ void HwTextureMgrImpl::cache_purge(
 	}
 }
 
-R3dTexture2dPtr HwTextureMgrImpl::get_texture_2d(
+Ren3dTexture2dPtr HwTextureMgrImpl::get_texture_2d(
 	const ImageKind image_kind,
 	const int id,
 	const IdToTexture2dMap& map) const
@@ -1842,7 +1842,7 @@ int HwTextureMgrImpl::upscale_filter_clamp_factor(
 //
 
 HwTextureMgrUPtr HwTextureMgrFactory::create(
-	const R3dPtr renderer,
+	const Ren3dPtr renderer,
 	const SpriteCachePtr sprite_cache,
 	const MtTaskMgrPtr mt_task_manager)
 {

@@ -47,16 +47,16 @@ namespace detail
 
 
 // ==========================================================================
-// R3dUtils
+// Ren3dUtils
 //
 
-float R3dUtils::deg_to_rad(
+float Ren3dUtils::deg_to_rad(
 	const float angle_deg)
 {
 	return angle_deg * pi_over_180;
 }
 
-bool R3dUtils::is_pot_value(
+bool Ren3dUtils::is_pot_value(
 		const int value)
 {
 	const auto nearest_value = find_nearest_pot_value(value);
@@ -64,7 +64,7 @@ bool R3dUtils::is_pot_value(
 	return nearest_value == value;
 }
 
-int R3dUtils::find_nearest_pot_value(
+int Ren3dUtils::find_nearest_pot_value(
 	const int value)
 {
 	for (int i = 0; i < 32; ++i)
@@ -80,7 +80,7 @@ int R3dUtils::find_nearest_pot_value(
 	return 0;
 }
 
-int R3dUtils::calculate_mipmap_count(
+int Ren3dUtils::calculate_mipmap_count(
 	const int width,
 	const int height)
 {
@@ -105,8 +105,8 @@ int R3dUtils::calculate_mipmap_count(
 	return result;
 }
 
-SdlWindowUPtr R3dUtils::window_create(
-	const R3dUtilsCreateWindowParam& param)
+SdlWindowUPtr Ren3dUtils::window_create(
+	const Ren3dUtilsCreateWindowParam& param)
 {
 	const auto error_message_prefix = "Failed to create a window. ";
 
@@ -149,9 +149,9 @@ SdlWindowUPtr R3dUtils::window_create(
 	return sdl_window;
 }
 
-void R3dUtils::window_set_mode(
+void Ren3dUtils::window_set_mode(
 	SdlWindowPtr sdl_window,
-	const R3dWindowSetModeParam& param)
+	const Ren3dWindowSetModeParam& param)
 {
 	if (!sdl_window)
 	{
@@ -228,7 +228,7 @@ void R3dUtils::window_set_mode(
 	}
 }
 
-void R3dUtils::window_show(
+void Ren3dUtils::window_show(
 	SdlWindowPtr sdl_window,
 	const bool is_visible)
 {
@@ -247,7 +247,7 @@ void R3dUtils::window_show(
 	sdl_function(sdl_window);
 }
 
-void R3dUtils::window_set_title(
+void Ren3dUtils::window_set_title(
 	const SdlWindowPtr sdl_window,
 	const std::string& title_utf8)
 {
@@ -259,14 +259,14 @@ void R3dUtils::window_set_title(
 	::SDL_SetWindowTitle(sdl_window, title_utf8.c_str());
 }
 
-void R3dUtils::validate_initialize_param(
-	const R3dCreateParam& param)
+void Ren3dUtils::validate_initialize_param(
+	const Ren3dCreateParam& param)
 {
 	switch (param.renderer_kind_)
 	{
-	case R3dKind::gl_2_0:
-	case R3dKind::gl_3_2_core:
-	case R3dKind::gles_2_0:
+	case Ren3dKind::gl_2_0:
+	case Ren3dKind::gl_3_2_core:
+	case Ren3dKind::gles_2_0:
 		break;
 
 	default:
@@ -285,8 +285,8 @@ void R3dUtils::validate_initialize_param(
 
 	switch (param.aa_kind_)
 	{
-		case R3dAaKind::none:
-		case R3dAaKind::ms:
+		case Ren3dAaKind::none:
+		case Ren3dAaKind::ms:
 			break;
 
 		default:
@@ -294,14 +294,14 @@ void R3dUtils::validate_initialize_param(
 	}
 }
 
-void R3dUtils::validate_buffer_create_param(
-	const R3dBufferCreateParam& param)
+void Ren3dUtils::validate_buffer_create_param(
+	const Ren3dBufferCreateParam& param)
 {
 	switch (param.usage_kind_)
 	{
-		case R3dBufferUsageKind::draw_streaming:
-		case R3dBufferUsageKind::draw_static:
-		case R3dBufferUsageKind::draw_dynamic:
+		case Ren3dBufferUsageKind::draw_streaming:
+		case Ren3dBufferUsageKind::draw_static:
+		case Ren3dBufferUsageKind::draw_dynamic:
 			break;
 
 		default:
@@ -314,8 +314,8 @@ void R3dUtils::validate_buffer_create_param(
 	}
 }
 
-void R3dUtils::validate_buffer_update_param(
-	const R3dBufferUpdateParam& param)
+void Ren3dUtils::validate_buffer_update_param(
+	const Ren3dBufferUpdateParam& param)
 {
 	if (param.offset_ < 0)
 	{
@@ -333,14 +333,14 @@ void R3dUtils::validate_buffer_update_param(
 	}
 }
 
-void R3dUtils::vertex_input_validate_format(
-	const R3dVertexAttribFormat attribute_format)
+void Ren3dUtils::vertex_input_validate_format(
+	const Ren3dVertexAttribFormat attribute_format)
 {
 	switch (attribute_format)
 	{
-		case R3dVertexAttribFormat::rgba_8_unorm:
-		case R3dVertexAttribFormat::rg_32_sfloat:
-		case R3dVertexAttribFormat::rgb_32_sfloat:
+		case Ren3dVertexAttribFormat::rgba_8_unorm:
+		case Ren3dVertexAttribFormat::rg_32_sfloat:
+		case Ren3dVertexAttribFormat::rgb_32_sfloat:
 			return;
 
 		default:
@@ -348,9 +348,9 @@ void R3dUtils::vertex_input_validate_format(
 	}
 }
 
-void R3dUtils::vertex_input_validate_param(
+void Ren3dUtils::vertex_input_validate_param(
 	const int max_locations,
-	const R3dVertexInputCreateParam& param)
+	const Ren3dVertexInputCreateParam& param)
 {
 	if (max_locations < 0)
 	{
@@ -362,7 +362,7 @@ void R3dUtils::vertex_input_validate_param(
 		throw Exception{"Null index buffer."};
 	}
 
-	if (param.index_buffer_->get_kind() != R3dBufferKind::index)
+	if (param.index_buffer_->get_kind() != Ren3dBufferKind::index)
 	{
 		throw Exception{"Non-index buffer."};
 	}
@@ -416,7 +416,7 @@ void R3dUtils::vertex_input_validate_param(
 			throw Exception{"Null vertex buffer."};
 		}
 
-		if (attribute_description.vertex_buffer_->get_kind() != R3dBufferKind::vertex)
+		if (attribute_description.vertex_buffer_->get_kind() != Ren3dBufferKind::vertex)
 		{
 			throw Exception{"Non-vertex buffer."};
 		}
@@ -439,7 +439,7 @@ void R3dUtils::vertex_input_validate_param(
 	}
 }
 
-void R3dUtils::indexed_to_rgba_8(
+void Ren3dUtils::indexed_to_rgba_8(
 	const IndexedToRgba8Param& param)
 {
 	if (param.width_ <= 0)
@@ -487,7 +487,7 @@ void R3dUtils::indexed_to_rgba_8(
 	}
 }
 
-void R3dUtils::indexed_npot_to_rgba_8_pot(
+void Ren3dUtils::indexed_npot_to_rgba_8_pot(
 	const IndexedToRgba8Param& param)
 {
 	if (param.width_ <= 0)
@@ -545,7 +545,7 @@ void R3dUtils::indexed_npot_to_rgba_8_pot(
 	}
 }
 
-void R3dUtils::indexed_to_rgba_8_pot(
+void Ren3dUtils::indexed_to_rgba_8_pot(
 	const IndexedToRgba8Param& param)
 {
 	const auto is_npot = (
@@ -563,7 +563,7 @@ void R3dUtils::indexed_to_rgba_8_pot(
 	}
 }
 
-void R3dUtils::indexed_sprite_to_rgba_8_pot(
+void Ren3dUtils::indexed_sprite_to_rgba_8_pot(
 	const Sprite& indexed_sprite,
 	const Rgba8Palette& indexed_palette,
 	Rgba8Buffer& texture_buffer)
@@ -618,7 +618,7 @@ void R3dUtils::indexed_sprite_to_rgba_8_pot(
 	}
 }
 
-void R3dUtils::rgba_8_npot_to_rgba_8_pot(
+void Ren3dUtils::rgba_8_npot_to_rgba_8_pot(
 	const int width,
 	const int height,
 	const int actual_width,
@@ -681,7 +681,7 @@ void R3dUtils::rgba_8_npot_to_rgba_8_pot(
 	}
 }
 
-void R3dUtils::build_mipmap(
+void Ren3dUtils::build_mipmap(
 	const int previous_width,
 	const int previous_height,
 	const Rgba8CPtr src_colors,
@@ -754,8 +754,8 @@ void R3dUtils::build_mipmap(
 	}
 }
 
-void R3dUtils::create_window_validate_param(
-	const R3dUtilsCreateWindowParam& param)
+void Ren3dUtils::create_window_validate_param(
+	const Ren3dUtilsCreateWindowParam& param)
 {
 	if (param.window_.is_positioned_ && (param.window_.x_ < 0 || param.window_.y_ < 0))
 	{
@@ -768,8 +768,8 @@ void R3dUtils::create_window_validate_param(
 	}
 }
 
-void R3dUtils::create_window_set_gl_profile_and_version(
-	const R3dKind renderer_kind)
+void Ren3dUtils::create_window_set_gl_profile_and_version(
+	const Ren3dKind renderer_kind)
 {
 	auto sdl_profile_mask = 0;
 	auto sdl_version_major = 0;
@@ -777,19 +777,19 @@ void R3dUtils::create_window_set_gl_profile_and_version(
 
 	switch (renderer_kind)
 	{
-		case R3dKind::gl_2_0:
+		case Ren3dKind::gl_2_0:
 			sdl_profile_mask = SDL_GL_CONTEXT_PROFILE_COMPATIBILITY;
 			sdl_version_major = 2;
 			sdl_version_minor = 0;
 			break;
 
-		case R3dKind::gl_3_2_core:
+		case Ren3dKind::gl_3_2_core:
 			sdl_profile_mask = SDL_GL_CONTEXT_PROFILE_CORE;
 			sdl_version_major = 3;
 			sdl_version_minor = 2;
 			break;
 
-		case R3dKind::gles_2_0:
+		case Ren3dKind::gles_2_0:
 			sdl_profile_mask = SDL_GL_CONTEXT_PROFILE_ES;
 			sdl_version_major = 2;
 			sdl_version_minor = 0;
@@ -836,8 +836,8 @@ void R3dUtils::create_window_set_gl_profile_and_version(
 	}
 }
 
-void R3dUtils::create_window_set_gl_attributes(
-	const R3dUtilsCreateWindowParam& param)
+void Ren3dUtils::create_window_set_gl_attributes(
+	const Ren3dUtilsCreateWindowParam& param)
 {
 	::SDL_GL_ResetAttributes();
 
@@ -845,8 +845,8 @@ void R3dUtils::create_window_set_gl_attributes(
 
 	switch (param.aa_kind_)
 	{
-		case R3dAaKind::ms:
-			if (param.aa_value_ >= R3dLimits::aa_min_on)
+		case Ren3dAaKind::ms:
+			if (param.aa_value_ >= Ren3dLimits::aa_min_on)
 			{
 				sdl_result = ::SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
 
@@ -866,7 +866,7 @@ void R3dUtils::create_window_set_gl_attributes(
 			break;
 
 
-		case R3dAaKind::none:
+		case Ren3dAaKind::none:
 		default:
 			sdl_result = ::SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
 
@@ -948,8 +948,8 @@ void R3dUtils::create_window_set_gl_attributes(
 	create_window_set_gl_profile_and_version(param.renderer_kind_);
 }
 
-std::uint32_t R3dUtils::create_window_sdl_flags(
-	const R3dUtilsCreateWindowParam& param)
+std::uint32_t Ren3dUtils::create_window_sdl_flags(
+	const Ren3dUtilsCreateWindowParam& param)
 {
 	auto flags = Uint32{};
 
@@ -974,9 +974,9 @@ std::uint32_t R3dUtils::create_window_sdl_flags(
 
 	switch (param.renderer_kind_)
 	{
-		case R3dKind::gl_2_0:
-		case R3dKind::gl_3_2_core:
-		case R3dKind::gles_2_0:
+		case Ren3dKind::gl_2_0:
+		case Ren3dKind::gl_3_2_core:
+		case Ren3dKind::gles_2_0:
 			flags |= SDL_WINDOW_OPENGL;
 			break;
 
@@ -988,7 +988,7 @@ std::uint32_t R3dUtils::create_window_sdl_flags(
 }
 
 // Indexed (row major, has no alpha) -> RGBA
-void R3dUtils::indexed_to_rgba_8_rm_na(
+void Ren3dUtils::indexed_to_rgba_8_rm_na(
 	const IndexedToRgba8Param& param)
 {
 	auto src_pixels = param.indexed_pixels_;
@@ -1005,7 +1005,7 @@ void R3dUtils::indexed_to_rgba_8_rm_na(
 }
 
 // Indexed (row major, has alpha) -> RGBA
-void R3dUtils::indexed_to_rgba_8_rm_ha(
+void Ren3dUtils::indexed_to_rgba_8_rm_ha(
 	const IndexedToRgba8Param& param)
 {
 	auto src_pixels = param.indexed_pixels_;
@@ -1032,7 +1032,7 @@ void R3dUtils::indexed_to_rgba_8_rm_ha(
 }
 
 // Indexed (column major, has no alpha) -> RGBA
-void R3dUtils::indexed_to_rgba_8_cm_na(
+void Ren3dUtils::indexed_to_rgba_8_cm_na(
 	const IndexedToRgba8Param& param)
 {
 	const auto& src_palette = *param.indexed_palette_;
@@ -1053,7 +1053,7 @@ void R3dUtils::indexed_to_rgba_8_cm_na(
 }
 
 // Indexed (column major, has alpha) -> RGBA
-void R3dUtils::indexed_to_rgba_8_cm_ha(
+void Ren3dUtils::indexed_to_rgba_8_cm_ha(
 	const IndexedToRgba8Param& param)
 {
 	const auto& src_palette = *param.indexed_palette_;
@@ -1083,7 +1083,7 @@ void R3dUtils::indexed_to_rgba_8_cm_ha(
 }
 
 // Indexed (row major, has no alpha) -> RGBA POT
-void R3dUtils::indexed_npot_to_rgba_8_rm_na(
+void Ren3dUtils::indexed_npot_to_rgba_8_rm_na(
 	const IndexedToRgba8Param& param)
 {
 	const auto src_du_f = static_cast<double>(param.width_) / static_cast<double>(param.actual_width_);
@@ -1124,7 +1124,7 @@ void R3dUtils::indexed_npot_to_rgba_8_rm_na(
 }
 
 // Indexed (row major, has alpha) -> RGBA POT
-void R3dUtils::indexed_npot_to_rgba_8_rm_ha(
+void Ren3dUtils::indexed_npot_to_rgba_8_rm_ha(
 	const IndexedToRgba8Param& param)
 {
 	const auto src_du_f = static_cast<double>(param.width_) / static_cast<double>(param.actual_width_);
@@ -1174,7 +1174,7 @@ void R3dUtils::indexed_npot_to_rgba_8_rm_ha(
 }
 
 // Indexed (column major, has no alpha) -> RGBA POT
-void R3dUtils::indexed_npot_to_rgba_8_cm_na(
+void Ren3dUtils::indexed_npot_to_rgba_8_cm_na(
 	const IndexedToRgba8Param& param)
 {
 	const auto src_du_f = static_cast<double>(param.width_) / static_cast<double>(param.actual_width_);
@@ -1215,7 +1215,7 @@ void R3dUtils::indexed_npot_to_rgba_8_cm_na(
 }
 
 // Indexed (column major, has alpha) -> RGBA POT
-void R3dUtils::indexed_npot_to_rgba_8_cm_ha(
+void Ren3dUtils::indexed_npot_to_rgba_8_cm_ha(
 	const IndexedToRgba8Param& param)
 {
 	const auto src_du_f = static_cast<double>(param.width_) / static_cast<double>(param.actual_width_);
@@ -1264,7 +1264,7 @@ void R3dUtils::indexed_npot_to_rgba_8_cm_ha(
 	}
 }
 
-void R3dUtils::build_mipmap_1(
+void Ren3dUtils::build_mipmap_1(
 	const int previous_dimension,
 	const Rgba8CPtr src_colors,
 	const Rgba8Ptr dst_colors)
@@ -1286,7 +1286,7 @@ void R3dUtils::build_mipmap_1(
 }
 
 //
-// R3dUtils
+// Ren3dUtils
 // ==========================================================================
 
 

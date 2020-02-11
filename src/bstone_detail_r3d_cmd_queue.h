@@ -27,8 +27,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_DETAIL_R3D_COMMAND_QUEUE_INCLUDED
-#define BSTONE_DETAIL_R3D_COMMAND_QUEUE_INCLUDED
+#ifndef BSTONE_DETAIL_REN_3D_COMMAND_QUEUE_INCLUDED
+#define BSTONE_DETAIL_REN_3D_COMMAND_QUEUE_INCLUDED
 
 
 #include "bstone_detail_r3d_cmd_buffer.h"
@@ -42,43 +42,43 @@ namespace detail
 
 
 // ==========================================================================
-// R3dCmdQueueImpl
+// Ren3dCmdQueueImpl
 //
 
-class R3dCmdQueueImpl final :
-	public R3dCmdQueue
+class Ren3dCmdQueueImpl final :
+	public Ren3dCmdQueue
 {
 public:
-	R3dCmdQueueImpl();
+	Ren3dCmdQueueImpl();
 
-	~R3dCmdQueueImpl() override;
+	~Ren3dCmdQueueImpl() override;
 
 
 	int get_count() const noexcept override;
 
-	bstone::R3dCmdBufferPtr enqueue(
-		const R3dCmdQueueEnqueueParam& param) override;
+	bstone::Ren3dCmdBufferPtr enqueue(
+		const Ren3dCmdQueueEnqueueParam& param) override;
 
 	void dequeue(
-		bstone::R3dCmdBufferPtr buffer) override;
+		bstone::Ren3dCmdBufferPtr buffer) override;
 
-	bstone::R3dCmdBufferPtr get(
+	bstone::Ren3dCmdBufferPtr get(
 		const int index) override;
 
 
 private:
-	R3dCmdBuffersUPtr buffers_;
+	Ren3dCmdBuffersUPtr buffers_;
 
 
 	static void validate_param(
-		const R3dCmdQueueEnqueueParam& param);
-}; // R3dCmdQueueImpl
+		const Ren3dCmdQueueEnqueueParam& param);
+}; // Ren3dCmdQueueImpl
 
-using R3dCmdQueueImplPtr = R3dCmdQueueImpl*;
-using R3dCmdQueueImplUPtr = std::unique_ptr<R3dCmdQueueImpl>;
+using Ren3dCmdQueueImplPtr = Ren3dCmdQueueImpl*;
+using Ren3dCmdQueueImplUPtr = std::unique_ptr<Ren3dCmdQueueImpl>;
 
 //
-// R3dCmdQueueImpl
+// Ren3dCmdQueueImpl
 // ==========================================================================
 
 
@@ -86,4 +86,4 @@ using R3dCmdQueueImplUPtr = std::unique_ptr<R3dCmdQueueImpl>;
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_R3D_COMMAND_QUEUE_INCLUDED
+#endif // !BSTONE_DETAIL_REN_3D_COMMAND_QUEUE_INCLUDED

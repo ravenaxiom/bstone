@@ -27,8 +27,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_DETAIL_R3D_GL_SAMPLER_MGR_INCLUDED
-#define BSTONE_DETAIL_R3D_GL_SAMPLER_MGR_INCLUDED
+#ifndef BSTONE_DETAIL_REN_3D_GL_SAMPLER_MGR_INCLUDED
+#define BSTONE_DETAIL_REN_3D_GL_SAMPLER_MGR_INCLUDED
 
 
 #include <memory>
@@ -42,56 +42,56 @@ namespace detail
 {
 
 
-class R3dGlContext;
-using R3dGlContextPtr = R3dGlContext*;
+class Ren3dGlContext;
+using Ren3dGlContextPtr = Ren3dGlContext*;
 
 
 // ==========================================================================
-// R3dGlSamplerMgr
+// Ren3dGlSamplerMgr
 //
 
-class R3dGlSamplerMgr
+class Ren3dGlSamplerMgr
 {
 protected:
-	R3dGlSamplerMgr() = default;
+	Ren3dGlSamplerMgr() = default;
 
 
 public:
-	virtual ~R3dGlSamplerMgr() = default;
+	virtual ~Ren3dGlSamplerMgr() = default;
 
 
-	virtual R3dSamplerUPtr create(
-		const R3dSamplerCreateParam& param) = 0;
+	virtual Ren3dSamplerUPtr create(
+		const Ren3dSamplerCreateParam& param) = 0;
 
 	virtual void notify_destroy(
-		const R3dSamplerPtr sampler) noexcept = 0;
+		const Ren3dSamplerPtr sampler) noexcept = 0;
 
 	virtual void set(
-		const R3dSamplerPtr sampler) = 0;
+		const Ren3dSamplerPtr sampler) = 0;
 
-	virtual const R3dSamplerState& get_current_state() const noexcept = 0;
-}; // R3dGlSamplerMgr
+	virtual const Ren3dSamplerState& get_current_state() const noexcept = 0;
+}; // Ren3dGlSamplerMgr
 
-using R3dGlSamplerMgrPtr = R3dGlSamplerMgr*;
-using R3dGlSamplerMgrUPtr = std::unique_ptr<R3dGlSamplerMgr>;
+using Ren3dGlSamplerMgrPtr = Ren3dGlSamplerMgr*;
+using Ren3dGlSamplerMgrUPtr = std::unique_ptr<Ren3dGlSamplerMgr>;
 
 //
-// R3dGlSamplerMgr
+// Ren3dGlSamplerMgr
 // ==========================================================================
 
 
 // ==========================================================================
-// R3dGlSamplerMgrFactory
+// Ren3dGlSamplerMgrFactory
 //
 
-struct R3dGlSamplerMgrFactory
+struct Ren3dGlSamplerMgrFactory
 {
-	static R3dGlSamplerMgrUPtr create(
-		const R3dGlContextPtr gl_context);
-}; // R3dGlSamplerMgrFactory
+	static Ren3dGlSamplerMgrUPtr create(
+		const Ren3dGlContextPtr gl_context);
+}; // Ren3dGlSamplerMgrFactory
 
 //
-// R3dGlSamplerMgrFactory
+// Ren3dGlSamplerMgrFactory
 // ==========================================================================
 
 
@@ -99,4 +99,4 @@ struct R3dGlSamplerMgrFactory
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_R3D_GL_SAMPLER_MGR_INCLUDED
+#endif // !BSTONE_DETAIL_REN_3D_GL_SAMPLER_MGR_INCLUDED

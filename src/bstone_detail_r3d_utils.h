@@ -29,8 +29,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_DETAIL_R3D_UTILS_INCLUDED
-#define BSTONE_DETAIL_R3D_UTILS_INCLUDED
+#ifndef BSTONE_DETAIL_REN_3D_UTILS_INCLUDED
+#define BSTONE_DETAIL_REN_3D_UTILS_INCLUDED
 
 
 #include <string>
@@ -46,21 +46,21 @@ namespace detail
 {
 
 
-class R3dUtilsCreateWindowParam
+class Ren3dUtilsCreateWindowParam
 {
 public:
-	R3dKind renderer_kind_;
+	Ren3dKind renderer_kind_;
 
-	R3dCreateWindowParam window_;
+	Ren3dCreateWindowParam window_;
 
-	R3dAaKind aa_kind_;
+	Ren3dAaKind aa_kind_;
 	int aa_value_;
 
 	bool is_default_depth_buffer_disabled_;
-}; // R3dUtilsCreateWindowParam
+}; // Ren3dUtilsCreateWindowParam
 
 
-class R3dUtils
+class Ren3dUtils
 {
 public:
 	static constexpr float pi = static_cast<float>(3.14159265358979323846);
@@ -103,12 +103,12 @@ public:
 		const int height);
 
 	static SdlWindowUPtr window_create(
-		const R3dUtilsCreateWindowParam& param);
+		const Ren3dUtilsCreateWindowParam& param);
 
 
 	static void window_set_mode(
 		SdlWindowPtr sdl_window,
-		const R3dWindowSetModeParam& param);
+		const Ren3dWindowSetModeParam& param);
 
 	static void window_show(
 		SdlWindowPtr sdl_window,
@@ -120,23 +120,23 @@ public:
 
 
 	static void validate_initialize_param(
-		const R3dCreateParam& param);
+		const Ren3dCreateParam& param);
 
 
 	static void validate_buffer_update_param(
-		const R3dBufferUpdateParam& param);
+		const Ren3dBufferUpdateParam& param);
 
 
 	static void validate_buffer_create_param(
-		const R3dBufferCreateParam& param);
+		const Ren3dBufferCreateParam& param);
 
 
 	static void vertex_input_validate_format(
-		const R3dVertexAttribFormat attribute_format);
+		const Ren3dVertexAttribFormat attribute_format);
 
 	static void vertex_input_validate_param(
 		const int max_locations,
-		const R3dVertexInputCreateParam& param);
+		const Ren3dVertexInputCreateParam& param);
 
 
 	// Converts indexed opaque (MxN) or indexed transparent (MxN) to RGBA (MxN).
@@ -178,20 +178,20 @@ public:
 
 
 private:
-	R3dUtils();
+	Ren3dUtils();
 
 
 	static void create_window_validate_param(
-		const R3dUtilsCreateWindowParam& param);
+		const Ren3dUtilsCreateWindowParam& param);
 
 	static void create_window_set_gl_profile_and_version(
-		const R3dKind renderer_kind);
+		const Ren3dKind renderer_kind);
 
 	static void create_window_set_gl_attributes(
-		const R3dUtilsCreateWindowParam& param);
+		const Ren3dUtilsCreateWindowParam& param);
 
 	static std::uint32_t create_window_sdl_flags(
-		const R3dUtilsCreateWindowParam& param);
+		const Ren3dUtilsCreateWindowParam& param);
 
 
 	// Indexed (row major, has no alpha) -> RGBA
@@ -232,11 +232,11 @@ private:
 		const int previous_dimension,
 		const Rgba8CPtr src_colors,
 		const Rgba8Ptr dst_colors);
-}; // R3dUtils
+}; // Ren3dUtils
 
 
 } // detail
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_R3D_UTILS_INCLUDED
+#endif // !BSTONE_DETAIL_REN_3D_UTILS_INCLUDED

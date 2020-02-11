@@ -45,69 +45,69 @@ namespace detail
 
 
 // ==========================================================================
-// R3dGlShaderStageMgrImpl
+// Ren3dGlShaderStageMgrImpl
 //
 
-class R3dGlShaderStageMgrImpl final :
-	public R3dGlShaderStageMgr
+class Ren3dGlShaderStageMgrImpl final :
+	public Ren3dGlShaderStageMgr
 {
 public:
-	R3dGlShaderStageMgrImpl(
-		const R3dGlContextPtr gl_context);
+	Ren3dGlShaderStageMgrImpl(
+		const Ren3dGlContextPtr gl_context);
 
-	~R3dGlShaderStageMgrImpl() override;
-
-
-	R3dGlContextPtr get_gl_context() const noexcept override;
+	~Ren3dGlShaderStageMgrImpl() override;
 
 
-	R3dShaderStageUPtr create(
-		const R3dShaderStageCreateParam& param) override;
+	Ren3dGlContextPtr get_gl_context() const noexcept override;
+
+
+	Ren3dShaderStageUPtr create(
+		const Ren3dShaderStageCreateParam& param) override;
 
 	void notify_destroy(
-		const R3dShaderStagePtr shader_stage) noexcept override;
+		const Ren3dShaderStagePtr shader_stage) noexcept override;
 
 
 	void set(
-		const R3dShaderStagePtr shader_stage) override;
+		const Ren3dShaderStagePtr shader_stage) override;
 
 
-	R3dShaderStagePtr get_active() const noexcept override;
+	Ren3dShaderStagePtr get_active() const noexcept override;
 
 	void set_active(
-		const R3dShaderStagePtr shader_stage) override;
+		const Ren3dShaderStagePtr shader_stage) override;
 
 
-	R3dShaderStagePtr get_current() const noexcept override;
+	Ren3dShaderStagePtr get_current() const noexcept override;
 
 	void set_current(
-		const R3dShaderStagePtr shader_stage) override;
+		const Ren3dShaderStagePtr shader_stage) override;
 
 
 	void set_to_current() override;
 
 
 private:
-	const R3dGlContextPtr gl_context_;
+	const Ren3dGlContextPtr gl_context_;
 
-	R3dShaderStagePtr shader_stage_active_;
-	R3dShaderStagePtr shader_stage_current_;
-}; // R3dGlShaderStageMgrImpl
+	Ren3dShaderStagePtr shader_stage_active_;
+	Ren3dShaderStagePtr shader_stage_current_;
+}; // Ren3dGlShaderStageMgrImpl
 
-using R3dGlShaderStageMgrImplPtr = R3dGlShaderStageMgrImpl*;
-using R3dGlShaderStageMgrImplUPtr = std::unique_ptr<R3dGlShaderStageMgrImpl>;
+using Ren3dGlShaderStageMgrImplPtr = Ren3dGlShaderStageMgrImpl*;
+using Ren3dGlShaderStageMgrImplUPtr = std::unique_ptr<Ren3dGlShaderStageMgrImpl>;
 
 //
-// R3dGlShaderStageMgrImpl
+// Ren3dGlShaderStageMgrImpl
 // ==========================================================================
 
 
 // ==========================================================================
-// R3dGlShaderStageMgrImpl
+// Ren3dGlShaderStageMgrImpl
 //
 
-R3dGlShaderStageMgrImpl::R3dGlShaderStageMgrImpl(
-	const R3dGlContextPtr gl_context)
+Ren3dGlShaderStageMgrImpl::Ren3dGlShaderStageMgrImpl(
+	const Ren3dGlContextPtr gl_context)
 	:
 	gl_context_{gl_context},
 	shader_stage_active_{},
@@ -115,21 +115,21 @@ R3dGlShaderStageMgrImpl::R3dGlShaderStageMgrImpl(
 {
 }
 
-R3dGlShaderStageMgrImpl::~R3dGlShaderStageMgrImpl() = default;
+Ren3dGlShaderStageMgrImpl::~Ren3dGlShaderStageMgrImpl() = default;
 
-R3dGlContextPtr R3dGlShaderStageMgrImpl::get_gl_context() const noexcept
+Ren3dGlContextPtr Ren3dGlShaderStageMgrImpl::get_gl_context() const noexcept
 {
 	return gl_context_;
 }
 
-R3dShaderStageUPtr R3dGlShaderStageMgrImpl::create(
-	const R3dShaderStageCreateParam& param)
+Ren3dShaderStageUPtr Ren3dGlShaderStageMgrImpl::create(
+	const Ren3dShaderStageCreateParam& param)
 {
-	return R3dGlShaderStageFactory::create(this, param);
+	return Ren3dGlShaderStageFactory::create(this, param);
 }
 
-void R3dGlShaderStageMgrImpl::notify_destroy(
-	const R3dShaderStagePtr shader_stage) noexcept
+void Ren3dGlShaderStageMgrImpl::notify_destroy(
+	const Ren3dShaderStagePtr shader_stage) noexcept
 {
 	if (shader_stage == shader_stage_active_)
 	{
@@ -142,8 +142,8 @@ void R3dGlShaderStageMgrImpl::notify_destroy(
 	}
 }
 
-void R3dGlShaderStageMgrImpl::set(
-	const R3dShaderStagePtr shader_stage)
+void Ren3dGlShaderStageMgrImpl::set(
+	const Ren3dShaderStagePtr shader_stage)
 {
 	if (shader_stage == shader_stage_active_)
 	{
@@ -152,61 +152,61 @@ void R3dGlShaderStageMgrImpl::set(
 
 	if (shader_stage)
 	{
-		static_cast<R3dGlShaderStagePtr>(shader_stage)->set();
+		static_cast<Ren3dGlShaderStagePtr>(shader_stage)->set();
 	}
 	else
 	{
 		glUseProgram(0);
-		R3dGlError::ensure_debug();
+		Ren3dGlError::ensure_debug();
 
 		shader_stage_active_ = nullptr;
 	}
 }
 
-R3dShaderStagePtr R3dGlShaderStageMgrImpl::get_active() const noexcept
+Ren3dShaderStagePtr Ren3dGlShaderStageMgrImpl::get_active() const noexcept
 {
 	return shader_stage_active_;
 }
 
-void R3dGlShaderStageMgrImpl::set_active(
-	const R3dShaderStagePtr shader_stage)
+void Ren3dGlShaderStageMgrImpl::set_active(
+	const Ren3dShaderStagePtr shader_stage)
 {
 	shader_stage_active_ = shader_stage;
 }
 
-R3dShaderStagePtr R3dGlShaderStageMgrImpl::get_current() const noexcept
+Ren3dShaderStagePtr Ren3dGlShaderStageMgrImpl::get_current() const noexcept
 {
 	return shader_stage_current_;
 }
 
-void R3dGlShaderStageMgrImpl::set_current(
-	const R3dShaderStagePtr shader_stage)
+void Ren3dGlShaderStageMgrImpl::set_current(
+	const Ren3dShaderStagePtr shader_stage)
 {
 	shader_stage_current_ = shader_stage;
 }
 
-void R3dGlShaderStageMgrImpl::set_to_current()
+void Ren3dGlShaderStageMgrImpl::set_to_current()
 {
 	set(shader_stage_current_);
 }
 
 //
-// R3dGlShaderStageMgrImpl
+// Ren3dGlShaderStageMgrImpl
 // ==========================================================================
 
 
 // ==========================================================================
-// R3dGlShaderStageMgrFactory
+// Ren3dGlShaderStageMgrFactory
 //
 
-R3dGlShaderStageMgrUPtr R3dGlShaderStageMgrFactory::create(
-	const R3dGlContextPtr gl_context)
+Ren3dGlShaderStageMgrUPtr Ren3dGlShaderStageMgrFactory::create(
+	const Ren3dGlContextPtr gl_context)
 {
-	return std::make_unique<R3dGlShaderStageMgrImpl>(gl_context);
+	return std::make_unique<Ren3dGlShaderStageMgrImpl>(gl_context);
 }
 
 //
-// R3dGlShaderStageMgrFactory
+// Ren3dGlShaderStageMgrFactory
 // ==========================================================================
 
 

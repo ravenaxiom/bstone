@@ -27,8 +27,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_R3D_INCLUDED
-#define BSTONE_R3D_INCLUDED
+#ifndef BSTONE_REN_3D_INCLUDED
+#define BSTONE_REN_3D_INCLUDED
 
 
 #include <memory>
@@ -47,11 +47,11 @@ namespace bstone
 {
 
 
-class R3dCmdQueue;
-using R3dCmdQueuePtr = R3dCmdQueue*;
+class Ren3dCmdQueue;
+using Ren3dCmdQueuePtr = Ren3dCmdQueue*;
 
 
-struct R3dCreateWindowParam
+struct Ren3dCreateWindowParam
 {
 	bool is_visible_;
 	bool is_borderless_;
@@ -65,9 +65,9 @@ struct R3dCreateWindowParam
 	int height_;
 
 	std::string title_utf8_;
-}; // R3dCreateWindowParam
+}; // Ren3dCreateWindowParam
 
-struct R3dWindowSetModeParam
+struct Ren3dWindowSetModeParam
 {
 	bool is_windowed_;
 	bool is_positioned_;
@@ -77,23 +77,23 @@ struct R3dWindowSetModeParam
 
 	int width_;
 	int height_;
-}; // R3dWindowSetModeParam
+}; // Ren3dWindowSetModeParam
 
-struct R3dCreateParam
+struct Ren3dCreateParam
 {
-	R3dKind renderer_kind_;
-	R3dCreateWindowParam window_;
+	Ren3dKind renderer_kind_;
+	Ren3dCreateWindowParam window_;
 
-	R3dAaKind aa_kind_;
+	Ren3dAaKind aa_kind_;
 	int aa_value_;
 
 	bool is_vsync_;
-}; // R3dCreateParam
+}; // Ren3dCreateParam
 
-struct R3dDrawIndexedParam
+struct Ren3dDrawIndexedParam
 {
 	// Primitive topology.
-	R3dPrimitiveTopology primitive_topology_;
+	Ren3dPrimitiveTopology primitive_topology_;
 
 	// Vertex count.
 	int vertex_count_;
@@ -106,32 +106,32 @@ struct R3dDrawIndexedParam
 
 	// Number of the index to draw from.
 	int index_offset_;
-}; // R3dDrawIndexedParam
+}; // Ren3dDrawIndexedParam
 
 
-class R3d
+class Ren3d
 {
 protected:
-	R3d() = default;
+	Ren3d() = default;
 
-	virtual ~R3d() = default;
+	virtual ~Ren3d() = default;
 
 
 public:
-	virtual R3dKind get_kind() const noexcept = 0;
+	virtual Ren3dKind get_kind() const noexcept = 0;
 
 	virtual const std::string& get_name() const noexcept = 0;
 
 	virtual const std::string& get_description() const noexcept = 0;
 
 
-	virtual const R3dDeviceFeatures& device_get_features() const noexcept = 0;
+	virtual const Ren3dDeviceFeatures& device_get_features() const noexcept = 0;
 
-	virtual const R3dDeviceInfo& device_get_info() const noexcept = 0;
+	virtual const Ren3dDeviceInfo& device_get_info() const noexcept = 0;
 
 
 	virtual void window_set_mode(
-		const R3dWindowSetModeParam& param) = 0;
+		const Ren3dWindowSetModeParam& param) = 0;
 
 	virtual void window_set_title(
 		const std::string& title_utf8) = 0;
@@ -147,40 +147,40 @@ public:
 
 
 	virtual void aa_set(
-		const R3dAaKind aa_kind,
+		const Ren3dAaKind aa_kind,
 		const int aa_value) = 0;
 
 
 	virtual void present() = 0;
 
 
-	virtual R3dBufferUPtr buffer_create(
-		const R3dBufferCreateParam& param) = 0;
+	virtual Ren3dBufferUPtr buffer_create(
+		const Ren3dBufferCreateParam& param) = 0;
 
-	virtual R3dTexture2dUPtr texture_2d_create(
-		const R3dTexture2dCreateParam& param) = 0;
+	virtual Ren3dTexture2dUPtr texture_2d_create(
+		const Ren3dTexture2dCreateParam& param) = 0;
 
-	virtual R3dSamplerUPtr sampler_create(
-		const R3dSamplerCreateParam& param) = 0;
+	virtual Ren3dSamplerUPtr sampler_create(
+		const Ren3dSamplerCreateParam& param) = 0;
 
-	virtual R3dVertexInputUPtr vertex_input_create(
-		const R3dVertexInputCreateParam& param) = 0;
+	virtual Ren3dVertexInputUPtr vertex_input_create(
+		const Ren3dVertexInputCreateParam& param) = 0;
 
-	virtual R3dShaderUPtr shader_create(
-		const R3dShaderCreateParam& param) = 0;
+	virtual Ren3dShaderUPtr shader_create(
+		const Ren3dShaderCreateParam& param) = 0;
 
-	virtual R3dShaderStageUPtr shader_stage_create(
-		const R3dShaderStageCreateParam& param) = 0;
+	virtual Ren3dShaderStageUPtr shader_stage_create(
+		const Ren3dShaderStageCreateParam& param) = 0;
 
 
 	virtual void submit_commands(
-		const R3dCmdQueuePtr command_queue) = 0;
-}; // R3d
+		const Ren3dCmdQueuePtr command_queue) = 0;
+}; // Ren3d
 
-using R3dPtr = R3d*;
+using Ren3dPtr = Ren3d*;
 
 
 } // bstone
 
 
-#endif // !BSTONE_R3D_INCLUDED
+#endif // !BSTONE_REN_3D_INCLUDED

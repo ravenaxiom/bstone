@@ -29,8 +29,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_DETAIL_R3D_GL_ERROR_INCLUDED
-#define BSTONE_DETAIL_R3D_GL_ERROR_INCLUDED
+#ifndef BSTONE_DETAIL_REN_3D_GL_ERROR_INCLUDED
+#define BSTONE_DETAIL_REN_3D_GL_ERROR_INCLUDED
 
 
 namespace bstone
@@ -40,10 +40,10 @@ namespace detail
 
 
 // ==========================================================================
-// R3dGlError
+// Ren3dGlError
 //
 
-struct R3dGlError
+struct Ren3dGlError
 {
 	//
 	// Throws an exception on OpenGL error for any build.
@@ -54,10 +54,10 @@ struct R3dGlError
 	// Throws an exception on OpenGL error for debug build.
 	//
 	static void ensure_debug();
-}; // R3dGlError
+}; // Ren3dGlError
 
 //
-// R3dGlError
+// Ren3dGlError
 // ==========================================================================
 
 
@@ -65,4 +65,4 @@ struct R3dGlError
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_R3D_GL_ERROR_INCLUDED
+#endif // !BSTONE_DETAIL_REN_3D_GL_ERROR_INCLUDED

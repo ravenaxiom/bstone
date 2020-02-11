@@ -47,77 +47,77 @@ namespace detail
 
 
 // ==========================================================================
-// R3dGlTextureMgrImpl
+// Ren3dGlTextureMgrImpl
 //
 
-class R3dGlTextureMgrImpl final :
-	public R3dGlTextureMgr
+class Ren3dGlTextureMgrImpl final :
+	public Ren3dGlTextureMgr
 {
 public:
-	R3dGlTextureMgrImpl(
-		const R3dGlContextPtr gl_context);
+	Ren3dGlTextureMgrImpl(
+		const Ren3dGlContextPtr gl_context);
 
-	~R3dGlTextureMgrImpl() override;
-
-
-	R3dGlContextPtr get_gl_context() const noexcept override;
+	~Ren3dGlTextureMgrImpl() override;
 
 
-	R3dTexture2dUPtr create(
-		const R3dTexture2dCreateParam& param) override;
+	Ren3dGlContextPtr get_gl_context() const noexcept override;
+
+
+	Ren3dTexture2dUPtr create(
+		const Ren3dTexture2dCreateParam& param) override;
 
 
 	void notify_destroy(
-		const R3dTexture2dPtr texture_2d) noexcept override;
+		const Ren3dTexture2dPtr texture_2d) noexcept override;
 
 
 	void set(
-		const R3dTexture2dPtr texture_2d) override;
+		const Ren3dTexture2dPtr texture_2d) override;
 
 
-	R3dTexture2dPtr get_active() const noexcept override;
+	Ren3dTexture2dPtr get_active() const noexcept override;
 
 	void set_active(
-		const R3dTexture2dPtr texture_2d) override;
+		const Ren3dTexture2dPtr texture_2d) override;
 
 
-	R3dTexture2dPtr get_current() const noexcept override;
+	Ren3dTexture2dPtr get_current() const noexcept override;
 
 	void set_current(
-		const R3dTexture2dPtr texture_2d) override;
+		const Ren3dTexture2dPtr texture_2d) override;
 
 
 	void set_to_current() override;
 
 
 	void update_current_sampler_state(
-		const R3dSamplerState& sampler_state) override;
+		const Ren3dSamplerState& sampler_state) override;
 
 
 private:
-	const R3dGlContextPtr gl_context_;
+	const Ren3dGlContextPtr gl_context_;
 
-	R3dGlTexture2dPtr texture_2d_active_;
-	R3dGlTexture2dPtr texture_2d_current_;
+	Ren3dGlTexture2dPtr texture_2d_active_;
+	Ren3dGlTexture2dPtr texture_2d_current_;
 
 
 	void unbind();
-}; // R3dGlTextureMgrImpl
+}; // Ren3dGlTextureMgrImpl
 
-using R3dGlTextureMgrImplPtr = R3dGlTextureMgrImpl*;
-using R3dGlTextureMgrImplUPtr = std::unique_ptr<R3dGlTextureMgrImpl>;
+using Ren3dGlTextureMgrImplPtr = Ren3dGlTextureMgrImpl*;
+using Ren3dGlTextureMgrImplUPtr = std::unique_ptr<Ren3dGlTextureMgrImpl>;
 
 //
-// R3dGlTextureMgrImpl
+// Ren3dGlTextureMgrImpl
 // ==========================================================================
 
 
 // ==========================================================================
-// R3dGlTextureMgrImpl
+// Ren3dGlTextureMgrImpl
 //
 
-R3dGlTextureMgrImpl::R3dGlTextureMgrImpl(
-	const R3dGlContextPtr gl_context)
+Ren3dGlTextureMgrImpl::Ren3dGlTextureMgrImpl(
+	const Ren3dGlContextPtr gl_context)
 	:
 	gl_context_{gl_context},
 	texture_2d_active_{},
@@ -131,21 +131,21 @@ R3dGlTextureMgrImpl::R3dGlTextureMgrImpl(
 	unbind();
 }
 
-R3dGlTextureMgrImpl::~R3dGlTextureMgrImpl() = default;
+Ren3dGlTextureMgrImpl::~Ren3dGlTextureMgrImpl() = default;
 
-R3dGlContextPtr R3dGlTextureMgrImpl::get_gl_context() const noexcept
+Ren3dGlContextPtr Ren3dGlTextureMgrImpl::get_gl_context() const noexcept
 {
 	return gl_context_;
 }
 
-R3dTexture2dUPtr R3dGlTextureMgrImpl::create(
-	const R3dTexture2dCreateParam& param)
+Ren3dTexture2dUPtr Ren3dGlTextureMgrImpl::create(
+	const Ren3dTexture2dCreateParam& param)
 {
-	return R3dGlTexture2dFactory::create(this, param);
+	return Ren3dGlTexture2dFactory::create(this, param);
 }
 
-void R3dGlTextureMgrImpl::notify_destroy(
-	const R3dTexture2dPtr texture_2d) noexcept
+void Ren3dGlTextureMgrImpl::notify_destroy(
+	const Ren3dTexture2dPtr texture_2d) noexcept
 {
 	if (texture_2d == texture_2d_active_)
 	{
@@ -158,8 +158,8 @@ void R3dGlTextureMgrImpl::notify_destroy(
 	}
 }
 
-void R3dGlTextureMgrImpl::set(
-	const R3dTexture2dPtr texture_2d)
+void Ren3dGlTextureMgrImpl::set(
+	const Ren3dTexture2dPtr texture_2d)
 {
 	if (texture_2d == texture_2d_active_)
 	{
@@ -168,7 +168,7 @@ void R3dGlTextureMgrImpl::set(
 
 	if (texture_2d)
 	{
-		static_cast<R3dGlTexture2dPtr>(texture_2d)->set();
+		static_cast<Ren3dGlTexture2dPtr>(texture_2d)->set();
 	}
 	else
 	{
@@ -178,35 +178,35 @@ void R3dGlTextureMgrImpl::set(
 	}
 }
 
-R3dTexture2dPtr R3dGlTextureMgrImpl::get_active() const noexcept
+Ren3dTexture2dPtr Ren3dGlTextureMgrImpl::get_active() const noexcept
 {
 	return texture_2d_active_;
 }
 
-void R3dGlTextureMgrImpl::set_active(
-	const R3dTexture2dPtr texture_2d)
+void Ren3dGlTextureMgrImpl::set_active(
+	const Ren3dTexture2dPtr texture_2d)
 {
-	texture_2d_active_ = static_cast<R3dGlTexture2dPtr>(texture_2d);
+	texture_2d_active_ = static_cast<Ren3dGlTexture2dPtr>(texture_2d);
 }
 
-R3dTexture2dPtr R3dGlTextureMgrImpl::get_current() const noexcept
+Ren3dTexture2dPtr Ren3dGlTextureMgrImpl::get_current() const noexcept
 {
 	return texture_2d_current_;
 }
 
-void R3dGlTextureMgrImpl::set_current(
-	const R3dTexture2dPtr texture_2d)
+void Ren3dGlTextureMgrImpl::set_current(
+	const Ren3dTexture2dPtr texture_2d)
 {
-	texture_2d_current_ = static_cast<R3dGlTexture2dPtr>(texture_2d);
+	texture_2d_current_ = static_cast<Ren3dGlTexture2dPtr>(texture_2d);
 }
 
-void R3dGlTextureMgrImpl::set_to_current()
+void Ren3dGlTextureMgrImpl::set_to_current()
 {
 	set(texture_2d_current_);
 }
 
-void R3dGlTextureMgrImpl::update_current_sampler_state(
-	const R3dSamplerState& sampler_state)
+void Ren3dGlTextureMgrImpl::update_current_sampler_state(
+	const Ren3dSamplerState& sampler_state)
 {
 	if (!texture_2d_active_)
 	{
@@ -216,29 +216,29 @@ void R3dGlTextureMgrImpl::update_current_sampler_state(
 	texture_2d_active_->update_sampler_state(sampler_state);
 }
 
-void R3dGlTextureMgrImpl::unbind()
+void Ren3dGlTextureMgrImpl::unbind()
 {
 	glBindTexture(GL_TEXTURE_2D, 0);
-	R3dGlError::ensure_debug();
+	Ren3dGlError::ensure_debug();
 }
 
 //
-// R3dGlTextureMgrImpl
+// Ren3dGlTextureMgrImpl
 // ==========================================================================
 
 
 // ==========================================================================
-// R3dGlTextureMgrFactory
+// Ren3dGlTextureMgrFactory
 //
 
-R3dGlTextureMgrUPtr R3dGlTextureMgrFactory::create(
-	const R3dGlContextPtr gl_context)
+Ren3dGlTextureMgrUPtr Ren3dGlTextureMgrFactory::create(
+	const Ren3dGlContextPtr gl_context)
 {
-	return std::make_unique<R3dGlTextureMgrImpl>(gl_context);
+	return std::make_unique<Ren3dGlTextureMgrImpl>(gl_context);
 }
 
 //
-// R3dGlTextureMgrFactory
+// Ren3dGlTextureMgrFactory
 // ==========================================================================
 
 

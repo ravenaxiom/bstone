@@ -27,8 +27,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_R3D_TEXTURE_2D_INCLUDED
-#define BSTONE_R3D_TEXTURE_2D_INCLUDED
+#ifndef BSTONE_REN_3D_TEXTURE_2D_INCLUDED
+#define BSTONE_REN_3D_TEXTURE_2D_INCLUDED
 
 
 #include <memory>
@@ -41,52 +41,52 @@ namespace bstone
 
 
 // ==========================================================================
-// R3dTexture2d
+// Ren3dTexture2d
 //
 
-struct R3dTexture2dCreateParam
+struct Ren3dTexture2dCreateParam
 {
-	R3dPixelFormat pixel_format_;
+	Ren3dPixelFormat pixel_format_;
 
 	int width_;
 	int height_;
 
 	int mipmap_count_;
-}; // R3dTexture2dCreateParam
+}; // Ren3dTexture2dCreateParam
 
-struct R3dTexture2dUpdateParam
+struct Ren3dTexture2dUpdateParam
 {
 	int mipmap_level_;
 
 	const void* image_;
-}; // R3dTexture2dUpdateParam
+}; // Ren3dTexture2dUpdateParam
 
 
-class R3dTexture2d
+class Ren3dTexture2d
 {
 protected:
-	R3dTexture2d() = default;
+	Ren3dTexture2d() = default;
 
 
 public:
-	virtual ~R3dTexture2d() = default;
+	virtual ~Ren3dTexture2d() = default;
 
 
 	virtual void update(
-		const R3dTexture2dUpdateParam& param) = 0;
+		const Ren3dTexture2dUpdateParam& param) = 0;
 
 	virtual void generate_mipmaps() = 0;
-}; // R3dTexture2d
+}; // Ren3dTexture2d
 
-using R3dTexture2dPtr = R3dTexture2d*;
-using R3dTexture2dUPtr = std::unique_ptr<R3dTexture2d>;
+using Ren3dTexture2dPtr = Ren3dTexture2d*;
+using Ren3dTexture2dUPtr = std::unique_ptr<Ren3dTexture2d>;
 
 //
-// R3dTexture2d
+// Ren3dTexture2d
 // ==========================================================================
 
 
 } // bstone
 
 
-#endif // !BSTONE_R3D_TEXTURE_2D_INCLUDED
+#endif // !BSTONE_REN_3D_TEXTURE_2D_INCLUDED

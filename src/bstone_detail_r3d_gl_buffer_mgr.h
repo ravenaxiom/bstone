@@ -27,8 +27,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_DETAIL_R3D_GL_BUFFER_MGR_INCLUDED
-#define BSTONE_DETAIL_R3D_GL_BUFFER_MGR_INCLUDED
+#ifndef BSTONE_DETAIL_REN_3D_GL_BUFFER_MGR_INCLUDED
+#define BSTONE_DETAIL_REN_3D_GL_BUFFER_MGR_INCLUDED
 
 
 #include <memory>
@@ -42,63 +42,63 @@ namespace detail
 {
 
 
-class R3dGlContext;
-using R3dGlContextPtr = R3dGlContext*;
+class Ren3dGlContext;
+using Ren3dGlContextPtr = Ren3dGlContext*;
 
-class R3dGlVaoMgr;
-using R3dGlVaoMgrPtr = R3dGlVaoMgr*;
+class Ren3dGlVaoMgr;
+using Ren3dGlVaoMgrPtr = Ren3dGlVaoMgr*;
 
 
 // ==========================================================================
-// R3dGlBufferMgr
+// Ren3dGlBufferMgr
 //
 
-class R3dGlBufferMgr
+class Ren3dGlBufferMgr
 {
 protected:
-	R3dGlBufferMgr() = default;
+	Ren3dGlBufferMgr() = default;
 
 
 public:
-	virtual ~R3dGlBufferMgr() = default;
+	virtual ~Ren3dGlBufferMgr() = default;
 
 
-	virtual R3dGlContextPtr get_context() const noexcept = 0;
+	virtual Ren3dGlContextPtr get_context() const noexcept = 0;
 
 
-	virtual R3dBufferUPtr buffer_create(
-		const R3dBufferCreateParam& param) = 0;
+	virtual Ren3dBufferUPtr buffer_create(
+		const Ren3dBufferCreateParam& param) = 0;
 
 	virtual void buffer_notify_destroy(
-		const R3dBufferPtr buffer) noexcept = 0;
+		const Ren3dBufferPtr buffer) noexcept = 0;
 
 
 	virtual bool buffer_set_current(
-		const R3dBufferKind buffer_kind,
-		const R3dBufferPtr buffer) = 0;
-}; // R3dGlBufferMgr
+		const Ren3dBufferKind buffer_kind,
+		const Ren3dBufferPtr buffer) = 0;
+}; // Ren3dGlBufferMgr
 
-using R3dGlBufferMgrPtr = R3dGlBufferMgr*;
-using R3dGlBufferMgrUPtr = std::unique_ptr<R3dGlBufferMgr>;
+using Ren3dGlBufferMgrPtr = Ren3dGlBufferMgr*;
+using Ren3dGlBufferMgrUPtr = std::unique_ptr<Ren3dGlBufferMgr>;
 
 //
-// R3dGlBufferMgr
+// Ren3dGlBufferMgr
 // ==========================================================================
 
 
 // ==========================================================================
-// R3dGlBufferMgrFactory
+// Ren3dGlBufferMgrFactory
 //
 
-struct R3dGlBufferMgrFactory
+struct Ren3dGlBufferMgrFactory
 {
-	static R3dGlBufferMgrUPtr create(
-		const R3dGlContextPtr gl_context,
-		const R3dGlVaoMgrPtr gl_vao_manager);
-}; // R3dGlBufferMgrFactory
+	static Ren3dGlBufferMgrUPtr create(
+		const Ren3dGlContextPtr gl_context,
+		const Ren3dGlVaoMgrPtr gl_vao_manager);
+}; // Ren3dGlBufferMgrFactory
 
 //
-// R3dGlBufferMgrFactory
+// Ren3dGlBufferMgrFactory
 // ==========================================================================
 
 
@@ -106,4 +106,4 @@ struct R3dGlBufferMgrFactory
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_R3D_GL_BUFFER_MGR_INCLUDED
+#endif // !BSTONE_DETAIL_REN_3D_GL_BUFFER_MGR_INCLUDED

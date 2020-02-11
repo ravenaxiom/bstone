@@ -29,8 +29,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_DETAIL_R3D_GL_SHADER_STAGE_INCLUDED
-#define BSTONE_DETAIL_R3D_GL_SHADER_STAGE_INCLUDED
+#ifndef BSTONE_DETAIL_REN_3D_GL_SHADER_STAGE_INCLUDED
+#define BSTONE_DETAIL_REN_3D_GL_SHADER_STAGE_INCLUDED
 
 
 #include "bstone_r3d_shader_stage.h"
@@ -44,26 +44,26 @@ namespace detail
 {
 
 
-class R3dGlShaderStageMgr;
-using R3dGlShaderStageMgrPtr = R3dGlShaderStageMgr*;
+class Ren3dGlShaderStageMgr;
+using Ren3dGlShaderStageMgrPtr = Ren3dGlShaderStageMgr*;
 
 
 // ==========================================================================
-// R3dGlShaderStage
+// Ren3dGlShaderStage
 //
 
-class R3dGlShaderStage :
-	public R3dShaderStage
+class Ren3dGlShaderStage :
+	public Ren3dShaderStage
 {
 protected:
-	R3dGlShaderStage() = default;
+	Ren3dGlShaderStage() = default;
 
 
 public:
-	~R3dGlShaderStage() override = default;
+	~Ren3dGlShaderStage() override = default;
 
 
-	virtual R3dGlShaderStageMgrPtr get_manager() const noexcept = 0;
+	virtual Ren3dGlShaderStageMgrPtr get_manager() const noexcept = 0;
 
 
 	virtual void set() = 0;
@@ -73,29 +73,29 @@ public:
 	virtual void detach_vertex_shader() = 0;
 
 	virtual GLuint get_gl_name() const noexcept = 0;
-}; // R3dGlShaderStage
+}; // Ren3dGlShaderStage
 
-using R3dGlShaderStagePtr = R3dGlShaderStage*;
-using R3dGlShaderStageUPtr = std::unique_ptr<R3dGlShaderStage>;
+using Ren3dGlShaderStagePtr = Ren3dGlShaderStage*;
+using Ren3dGlShaderStageUPtr = std::unique_ptr<Ren3dGlShaderStage>;
 
 //
-// R3dGlShaderStage
+// Ren3dGlShaderStage
 // ==========================================================================
 
 
 // ==========================================================================
-// R3dGlShaderStageFactory
+// Ren3dGlShaderStageFactory
 //
 
-struct R3dGlShaderStageFactory
+struct Ren3dGlShaderStageFactory
 {
-	static R3dGlShaderStageUPtr create(
-		const R3dGlShaderStageMgrPtr gl_shader_stage_manager,
-		const R3dShaderStageCreateParam& param);
-}; // R3dGlShaderStageFactory
+	static Ren3dGlShaderStageUPtr create(
+		const Ren3dGlShaderStageMgrPtr gl_shader_stage_manager,
+		const Ren3dShaderStageCreateParam& param);
+}; // Ren3dGlShaderStageFactory
 
 //
-// R3dGlShaderStageFactory
+// Ren3dGlShaderStageFactory
 // ==========================================================================
 
 
@@ -103,4 +103,4 @@ struct R3dGlShaderStageFactory
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_R3D_GL_SHADER_STAGE_INCLUDED
+#endif // !BSTONE_DETAIL_REN_3D_GL_SHADER_STAGE_INCLUDED

@@ -63,12 +63,12 @@ namespace detail
 //
 
 class GlContextImpl final :
-	public R3dGlContext
+	public Ren3dGlContext
 {
 public:
 	GlContextImpl(
-		const R3dDeviceFeatures& device_features,
-		const R3dGlDeviceFeatures& gl_device_features);
+		const Ren3dDeviceFeatures& device_features,
+		const Ren3dGlDeviceFeatures& gl_device_features);
 
 	GlContextImpl(
 		const GlContextImpl& rhs) = delete;
@@ -76,38 +76,38 @@ public:
 	~GlContextImpl() override;
 
 
-	const R3dDeviceFeatures& get_device_features() const noexcept override;
+	const Ren3dDeviceFeatures& get_device_features() const noexcept override;
 
-	const R3dGlDeviceFeatures& get_gl_device_features() const noexcept override;
+	const Ren3dGlDeviceFeatures& get_gl_device_features() const noexcept override;
 
 
-	R3dGlBufferMgrPtr buffer_get_manager() const noexcept override;
+	Ren3dGlBufferMgrPtr buffer_get_manager() const noexcept override;
 
-	R3dGlSamplerMgrPtr sampler_get_manager() const noexcept override;
+	Ren3dGlSamplerMgrPtr sampler_get_manager() const noexcept override;
 
-	R3dGlTextureMgrPtr texture_get_manager() const noexcept override;
+	Ren3dGlTextureMgrPtr texture_get_manager() const noexcept override;
 
-	R3dGlVaoMgrPtr vao_get_manager() const noexcept override;
+	Ren3dGlVaoMgrPtr vao_get_manager() const noexcept override;
 
-	R3dGlVertexInputMgrPtr vertex_input_get_manager() const noexcept override;
+	Ren3dGlVertexInputMgrPtr vertex_input_get_manager() const noexcept override;
 
-	R3dGlShaderMgrPtr shader_get_manager() const noexcept override;
+	Ren3dGlShaderMgrPtr shader_get_manager() const noexcept override;
 
-	R3dGlShaderStageMgrPtr shader_stage_get_manager() const noexcept override;
+	Ren3dGlShaderStageMgrPtr shader_stage_get_manager() const noexcept override;
 
 
 	void clear(
 		const Rgba8& rgba_8) override;
 
 	void viewport_set(
-		const R3dViewport& viewport) override;
+		const Ren3dViewport& viewport) override;
 
 
 	void scissor_enable(
 		const bool is_enable) override;
 
 	void scissor_set_box(
-		const R3dScissorBox& scissor_box) override;
+		const Ren3dScissorBox& scissor_box) override;
 
 
 	void culling_enable(
@@ -125,37 +125,37 @@ public:
 		const bool is_enable) override;
 
 	void blending_set_func(
-		const R3dBlendingFunc& func) override;
+		const Ren3dBlendingFunc& func) override;
 
 
 private:
-	const R3dDeviceFeatures& device_features_;
-	const R3dGlDeviceFeatures& gl_device_features_;
+	const Ren3dDeviceFeatures& device_features_;
+	const Ren3dGlDeviceFeatures& gl_device_features_;
 
 	Rgba8 clear_color_;
 
-	R3dViewport viewport_;
+	Ren3dViewport viewport_;
 
 	bool scissor_is_enabled_;
-	R3dScissorBox scissor_box_;
+	Ren3dScissorBox scissor_box_;
 
 	bool culling_is_enabled_;
-	R3dCullingFace culling_face_;
-	R3dCullingMode culling_mode_;
+	Ren3dCullingFace culling_face_;
+	Ren3dCullingMode culling_mode_;
 
 	bool depth_is_test_enabled_;
 	bool depth_is_write_enabled_;
 
 	bool blending_is_enabled_;
-	R3dBlendingFunc blending_func_;
+	Ren3dBlendingFunc blending_func_;
 
-	GlVaoMgrUPtr vao_manager_;
-	R3dGlBufferMgrUPtr buffer_manager_;
-	R3dGlVertexInputMgrUPtr vertex_input_manager_;
-	R3dGlSamplerMgrUPtr sampler_manager_;
-	R3dGlTextureMgrUPtr texture_manager_;
-	R3dGlShaderMgrUPtr shader_manager_;
-	R3dGlShaderStageMgrUPtr shader_stage_manager_;
+	Ren3dGlVaoMgrUPtr vao_manager_;
+	Ren3dGlBufferMgrUPtr buffer_manager_;
+	Ren3dGlVertexInputMgrUPtr vertex_input_manager_;
+	Ren3dGlSamplerMgrUPtr sampler_manager_;
+	Ren3dGlTextureMgrUPtr texture_manager_;
+	Ren3dGlShaderMgrUPtr shader_manager_;
+	Ren3dGlShaderStageMgrUPtr shader_stage_manager_;
 
 
 	void initialize();
@@ -234,8 +234,8 @@ using GlContextImplUPtr = std::unique_ptr<GlContextImpl>;
 //
 
 GlContextImpl::GlContextImpl(
-	const R3dDeviceFeatures& device_features,
-	const R3dGlDeviceFeatures& gl_device_features)
+	const Ren3dDeviceFeatures& device_features,
+	const Ren3dGlDeviceFeatures& gl_device_features)
 	:
 	device_features_{device_features},
 	gl_device_features_{gl_device_features},
@@ -263,37 +263,37 @@ GlContextImpl::~GlContextImpl() = default;
 
 void GlContextImpl::initialize_vertex_arrays()
 {
-	vao_manager_ = GlVaoMgrFactory::create(this, device_features_, gl_device_features_);
+	vao_manager_ = Ren3dGlVaoMgrFactory::create(this, device_features_, gl_device_features_);
 }
 
 void GlContextImpl::initialize_buffers()
 {
-	buffer_manager_ = R3dGlBufferMgrFactory::create(this, vao_manager_.get());
+	buffer_manager_ = Ren3dGlBufferMgrFactory::create(this, vao_manager_.get());
 }
 
 void GlContextImpl::initialize_vertex_inputs()
 {
-	vertex_input_manager_ = R3dGlVertexInputMgrFactory::create(this);
+	vertex_input_manager_ = Ren3dGlVertexInputMgrFactory::create(this);
 }
 
 void GlContextImpl::initialize_samplers()
 {
-	sampler_manager_ = R3dGlSamplerMgrFactory::create(this);
+	sampler_manager_ = Ren3dGlSamplerMgrFactory::create(this);
 }
 
 void GlContextImpl::initialize_textures()
 {
-	texture_manager_ = R3dGlTextureMgrFactory::create(this);
+	texture_manager_ = Ren3dGlTextureMgrFactory::create(this);
 }
 
 void GlContextImpl::initialize_shaders()
 {
-	shader_manager_ = R3dGlShaderMgrFactory::create(this);
+	shader_manager_ = Ren3dGlShaderMgrFactory::create(this);
 }
 
 void GlContextImpl::initialize_shader_stages()
 {
-	shader_stage_manager_ = R3dGlShaderStageMgrFactory::create(this);
+	shader_stage_manager_ = Ren3dGlShaderStageMgrFactory::create(this);
 }
 
 void GlContextImpl::mipmap_set_max_quality()
@@ -303,13 +303,13 @@ void GlContextImpl::mipmap_set_max_quality()
 		return;
 	}
 
-	if (gl_device_features_.context_kind_ == R3dGlContextKind::core)
+	if (gl_device_features_.context_kind_ == Ren3dGlContextKind::core)
 	{
 		return;
 	}
 
 	glHint(GL_GENERATE_MIPMAP_HINT, GL_NICEST);
-	R3dGlError::ensure_debug();
+	Ren3dGlError::ensure_debug();
 }
 
 void GlContextImpl::initialize()
@@ -331,47 +331,47 @@ void GlContextImpl::initialize()
 	blending_set_defaults();
 }
 
-const R3dDeviceFeatures& GlContextImpl::get_device_features() const noexcept
+const Ren3dDeviceFeatures& GlContextImpl::get_device_features() const noexcept
 {
 	return device_features_;
 }
 
-const R3dGlDeviceFeatures& GlContextImpl::get_gl_device_features() const noexcept
+const Ren3dGlDeviceFeatures& GlContextImpl::get_gl_device_features() const noexcept
 {
 	return gl_device_features_;
 }
 
-R3dGlBufferMgrPtr GlContextImpl::buffer_get_manager() const noexcept
+Ren3dGlBufferMgrPtr GlContextImpl::buffer_get_manager() const noexcept
 {
 	return buffer_manager_.get();
 }
 
-R3dGlSamplerMgrPtr GlContextImpl::sampler_get_manager() const noexcept
+Ren3dGlSamplerMgrPtr GlContextImpl::sampler_get_manager() const noexcept
 {
 	return sampler_manager_.get();
 }
 
-R3dGlTextureMgrPtr GlContextImpl::texture_get_manager() const noexcept
+Ren3dGlTextureMgrPtr GlContextImpl::texture_get_manager() const noexcept
 {
 	return texture_manager_.get();
 }
 
-R3dGlVaoMgrPtr GlContextImpl::vao_get_manager() const noexcept
+Ren3dGlVaoMgrPtr GlContextImpl::vao_get_manager() const noexcept
 {
 	return vao_manager_.get();
 }
 
-R3dGlVertexInputMgrPtr GlContextImpl::vertex_input_get_manager() const noexcept
+Ren3dGlVertexInputMgrPtr GlContextImpl::vertex_input_get_manager() const noexcept
 {
 	return vertex_input_manager_.get();
 }
 
-R3dGlShaderMgrPtr GlContextImpl::shader_get_manager() const noexcept
+Ren3dGlShaderMgrPtr GlContextImpl::shader_get_manager() const noexcept
 {
 	return shader_manager_.get();
 }
 
-R3dGlShaderStageMgrPtr GlContextImpl::shader_stage_get_manager() const noexcept
+Ren3dGlShaderStageMgrPtr GlContextImpl::shader_stage_get_manager() const noexcept
 {
 	return shader_stage_manager_.get();
 }
@@ -389,7 +389,7 @@ void GlContextImpl::clear(
 }
 
 void GlContextImpl::viewport_set(
-	const R3dViewport& viewport)
+	const Ren3dViewport& viewport)
 {
 	if (viewport_.x_ != viewport.x_ ||
 		viewport_.y_ != viewport.y_ ||
@@ -423,7 +423,7 @@ void GlContextImpl::scissor_enable(
 }
 
 void GlContextImpl::scissor_set_box(
-	const R3dScissorBox& scissor_box)
+	const Ren3dScissorBox& scissor_box)
 {
 	if (scissor_box_.x_ != scissor_box.x_ ||
 		scissor_box_.y_ != scissor_box.y_ ||
@@ -477,7 +477,7 @@ void GlContextImpl::blending_enable(
 }
 
 void GlContextImpl::blending_set_func(
-	const R3dBlendingFunc& blending_func)
+	const Ren3dBlendingFunc& blending_func)
 {
 	if (blending_func_.src_factor_ != blending_func.src_factor_ ||
 		blending_func_.dst_factor_ != blending_func.dst_factor_)
@@ -496,13 +496,13 @@ void GlContextImpl::clear_set_color()
 		static_cast<float>(clear_color_.a_) / 255.0F
 	);
 
-	R3dGlError::ensure_debug();
+	Ren3dGlError::ensure_debug();
 }
 
 void GlContextImpl::clear()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	R3dGlError::ensure_debug();
+	Ren3dGlError::ensure_debug();
 }
 
 void GlContextImpl::clear_set_defaults()
@@ -513,12 +513,12 @@ void GlContextImpl::clear_set_defaults()
 
 void GlContextImpl::viewport_set_rect()
 {
-	R3dGlUtils::viewport_set_rect(viewport_);
+	Ren3dGlUtils::viewport_set_rect(viewport_);
 }
 
 void GlContextImpl::viewport_set_depth_range()
 {
-	R3dGlUtils::viewport_set_depth_range(viewport_, gl_device_features_);
+	Ren3dGlUtils::viewport_set_depth_range(viewport_, gl_device_features_);
 }
 
 void GlContextImpl::viewport_set_defaults()
@@ -536,12 +536,12 @@ void GlContextImpl::viewport_set_defaults()
 
 void GlContextImpl::scissor_enable()
 {
-	R3dGlUtils::scissor_enable(scissor_is_enabled_);
+	Ren3dGlUtils::scissor_enable(scissor_is_enabled_);
 }
 
 void GlContextImpl::scissor_set_box()
 {
-	R3dGlUtils::scissor_set_box(scissor_box_);
+	Ren3dGlUtils::scissor_set_box(scissor_box_);
 }
 
 void GlContextImpl::scissor_set_defaults()
@@ -558,17 +558,17 @@ void GlContextImpl::scissor_set_defaults()
 
 void GlContextImpl::culling_enable()
 {
-	R3dGlUtils::culling_enable(culling_is_enabled_);
+	Ren3dGlUtils::culling_enable(culling_is_enabled_);
 }
 
 void GlContextImpl::culling_set_face()
 {
-	R3dGlUtils::culling_set_face(culling_face_);
+	Ren3dGlUtils::culling_set_face(culling_face_);
 }
 
 void GlContextImpl::culling_set_mode()
 {
-	R3dGlUtils::culling_set_mode(culling_mode_);
+	Ren3dGlUtils::culling_set_mode(culling_mode_);
 }
 
 void GlContextImpl::culling_set_defaults()
@@ -576,21 +576,21 @@ void GlContextImpl::culling_set_defaults()
 	culling_is_enabled_ = false;
 	culling_enable();
 
-	culling_face_ = R3dCullingFace::counter_clockwise;
+	culling_face_ = Ren3dCullingFace::counter_clockwise;
 	culling_set_face();
 
-	culling_mode_ = R3dCullingMode::back;
+	culling_mode_ = Ren3dCullingMode::back;
 	culling_set_mode();
 }
 
 void GlContextImpl::depth_set_test()
 {
-	R3dGlUtils::depth_test_enable(depth_is_test_enabled_);
+	Ren3dGlUtils::depth_test_enable(depth_is_test_enabled_);
 }
 
 void GlContextImpl::depth_set_write()
 {
-	R3dGlUtils::depth_write_enable(depth_is_write_enabled_);
+	Ren3dGlUtils::depth_write_enable(depth_is_write_enabled_);
 }
 
 void GlContextImpl::depth_set_defaults()
@@ -604,12 +604,12 @@ void GlContextImpl::depth_set_defaults()
 
 void GlContextImpl::blending_enable()
 {
-	R3dGlUtils::blending_enable(blending_is_enabled_);
+	Ren3dGlUtils::blending_enable(blending_is_enabled_);
 }
 
 void GlContextImpl::blending_set_func()
 {
-	R3dGlUtils::blending_set_func(blending_func_);
+	Ren3dGlUtils::blending_set_func(blending_func_);
 }
 
 void GlContextImpl::blending_set_defaults()
@@ -617,8 +617,8 @@ void GlContextImpl::blending_set_defaults()
 	blending_is_enabled_ = false;
 	blending_enable();
 
-	blending_func_.src_factor_ = R3dBlendingFactor::src_alpha;
-	blending_func_.dst_factor_ = R3dBlendingFactor::one_minus_src_alpha;
+	blending_func_.src_factor_ = Ren3dBlendingFactor::src_alpha;
+	blending_func_.dst_factor_ = Ren3dBlendingFactor::one_minus_src_alpha;
 	blending_set_func();
 }
 
@@ -628,19 +628,19 @@ void GlContextImpl::blending_set_defaults()
 
 
 // =========================================================================
-// R3dGlContextFactory
+// Ren3dGlContextFactory
 //
 
-R3dGlContextUPtr R3dGlContextFactory::create(
-	const R3dKind renderer_kind,
-	const R3dDeviceFeatures& device_features,
-	const R3dGlDeviceFeatures& gl_device_features)
+Ren3dGlContextUPtr Ren3dGlContextFactory::create(
+	const Ren3dKind renderer_kind,
+	const Ren3dDeviceFeatures& device_features,
+	const Ren3dGlDeviceFeatures& gl_device_features)
 {
 	switch (renderer_kind)
 	{
-		case R3dKind::gl_2_0:
-		case R3dKind::gl_3_2_core:
-		case R3dKind::gles_2_0:
+		case Ren3dKind::gl_2_0:
+		case Ren3dKind::gl_3_2_core:
+		case Ren3dKind::gles_2_0:
 			return GlContextImplUPtr{new GlContextImpl{device_features, gl_device_features}};
 
 		default:
@@ -649,7 +649,7 @@ R3dGlContextUPtr R3dGlContextFactory::create(
 }
 
 //
-// R3dGlContextFactory
+// Ren3dGlContextFactory
 // =========================================================================
 
 

@@ -27,8 +27,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_R3D_BUFFER_INCLUDED
-#define BSTONE_R3D_BUFFER_INCLUDED
+#ifndef BSTONE_REN_3D_BUFFER_INCLUDED
+#define BSTONE_REN_3D_BUFFER_INCLUDED
 
 
 #include <memory>
@@ -39,17 +39,17 @@ namespace bstone
 
 
 // ==========================================================================
-// R3dBuffer
+// Ren3dBuffer
 //
 
-enum class R3dBufferKind
+enum class Ren3dBufferKind
 {
 	none,
 	index,
 	vertex,
-}; // R3dBufferKind
+}; // Ren3dBufferKind
 
-enum class R3dBufferUsageKind
+enum class Ren3dBufferUsageKind
 {
 	none,
 
@@ -61,52 +61,52 @@ enum class R3dBufferUsageKind
 
 	// Target - drawing; updates - often.
 	draw_dynamic,
-}; // R3dBufferUsageKind
+}; // Ren3dBufferUsageKind
 
-struct R3dBufferCreateParam
+struct Ren3dBufferCreateParam
 {
-	R3dBufferKind kind_;
-	R3dBufferUsageKind usage_kind_;
+	Ren3dBufferKind kind_;
+	Ren3dBufferUsageKind usage_kind_;
 	int size_;
-}; // R3dBufferCreateParam
+}; // Ren3dBufferCreateParam
 
-struct R3dBufferUpdateParam
+struct Ren3dBufferUpdateParam
 {
 	int offset_;
 	int size_;
 	const void* data_;
-}; // R3dBufferUpdateParam
+}; // Ren3dBufferUpdateParam
 
 
-class R3dBuffer
+class Ren3dBuffer
 {
 protected:
-	R3dBuffer() = default;
+	Ren3dBuffer() = default;
 
 
 public:
-	virtual ~R3dBuffer() = default;
+	virtual ~Ren3dBuffer() = default;
 
 
-	virtual R3dBufferKind get_kind() const noexcept = 0;
+	virtual Ren3dBufferKind get_kind() const noexcept = 0;
 
-	virtual R3dBufferUsageKind get_usage_kind() const noexcept = 0;
+	virtual Ren3dBufferUsageKind get_usage_kind() const noexcept = 0;
 
 	virtual int get_size() const noexcept = 0;
 
 	virtual void update(
-		const R3dBufferUpdateParam& param) = 0;
-}; // R3dBuffer
+		const Ren3dBufferUpdateParam& param) = 0;
+}; // Ren3dBuffer
 
-using R3dBufferPtr = R3dBuffer*;
-using R3dBufferUPtr = std::unique_ptr<R3dBuffer>;
+using Ren3dBufferPtr = Ren3dBuffer*;
+using Ren3dBufferUPtr = std::unique_ptr<Ren3dBuffer>;
 
 //
-// R3dBuffer
+// Ren3dBuffer
 // ==========================================================================
 
 
 } // bstone
 
 
-#endif // !BSTONE_R3D_BUFFER_INCLUDED
+#endif // !BSTONE_REN_3D_BUFFER_INCLUDED

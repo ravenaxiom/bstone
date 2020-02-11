@@ -29,8 +29,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_DETAIL_R3D_GL_SHADER_INCLUDED
-#define BSTONE_DETAIL_R3D_GL_SHADER_INCLUDED
+#ifndef BSTONE_DETAIL_REN_3D_GL_SHADER_INCLUDED
+#define BSTONE_DETAIL_REN_3D_GL_SHADER_INCLUDED
 
 
 #include "bstone_r3d_shader.h"
@@ -44,55 +44,55 @@ namespace detail
 {
 
 
-class R3dGlShaderMgr;
-using R3dGlShaderMgrPtr = R3dGlShaderMgr*;
+class Ren3dGlShaderMgr;
+using Ren3dGlShaderMgrPtr = Ren3dGlShaderMgr*;
 
-class R3dGlShaderStage;
-using R3dGlShaderStagePtr = R3dGlShaderStage*;
+class Ren3dGlShaderStage;
+using Ren3dGlShaderStagePtr = Ren3dGlShaderStage*;
 
 
 // ==========================================================================
-// R3dGlShader
+// Ren3dGlShader
 //
 
-class R3dGlShader :
-	public R3dShader
+class Ren3dGlShader :
+	public Ren3dShader
 {
 protected:
-	R3dGlShader() = default;
+	Ren3dGlShader() = default;
 
 
 public:
-	~R3dGlShader() override = default;
+	~Ren3dGlShader() override = default;
 
 
 	virtual GLuint get_gl_name() const noexcept = 0;
 
 	virtual void attach_to_shader_stage(
-		const R3dGlShaderStagePtr shader_stage) = 0;
-}; // R3dGlShader
+		const Ren3dGlShaderStagePtr shader_stage) = 0;
+}; // Ren3dGlShader
 
-using R3dGlShaderPtr = R3dGlShader*;
-using R3dGlShaderUPtr = std::unique_ptr<R3dGlShader>;
+using Ren3dGlShaderPtr = Ren3dGlShader*;
+using Ren3dGlShaderUPtr = std::unique_ptr<Ren3dGlShader>;
 
 //
-// R3dGlShader
+// Ren3dGlShader
 // ==========================================================================
 
 
 // ==========================================================================
-// R3dGlShaderFactory
+// Ren3dGlShaderFactory
 //
 
-struct R3dGlShaderFactory
+struct Ren3dGlShaderFactory
 {
-	static R3dGlShaderUPtr create(
-		const R3dGlShaderMgrPtr gl_shader_manager,
-		const R3dShaderCreateParam& param);
-}; // R3dGlShaderFactory
+	static Ren3dGlShaderUPtr create(
+		const Ren3dGlShaderMgrPtr gl_shader_manager,
+		const Ren3dShaderCreateParam& param);
+}; // Ren3dGlShaderFactory
 
 //
-// R3dGlShaderFactory
+// Ren3dGlShaderFactory
 // ==========================================================================
 
 
@@ -100,4 +100,4 @@ struct R3dGlShaderFactory
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_R3D_GL_SHADER_INCLUDED
+#endif // !BSTONE_DETAIL_REN_3D_GL_SHADER_INCLUDED

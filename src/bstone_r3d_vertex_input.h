@@ -27,8 +27,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_R3D_VERTEX_INPUT_INCLUDED
-#define BSTONE_R3D_VERTEX_INPUT_INCLUDED
+#ifndef BSTONE_REN_3D_VERTEX_INPUT_INCLUDED
+#define BSTONE_REN_3D_VERTEX_INPUT_INCLUDED
 
 
 #include <memory>
@@ -43,56 +43,56 @@ namespace bstone
 
 
 // ==========================================================================
-// R3dVertexInput
+// Ren3dVertexInput
 //
 
-enum class R3dVertexAttribFormat
+enum class Ren3dVertexAttribFormat
 {
 	none,
 	rgba_8_unorm,
 	rg_32_sfloat,
 	rgb_32_sfloat,
-}; // R3dVertexAttribFormat
+}; // Ren3dVertexAttribFormat
 
-struct R3dVertexAttributeDescription
+struct Ren3dVertexAttribDescription
 {
 	bool is_default_;
 	int location_;
-	R3dVertexAttribFormat format_;
-	R3dBufferPtr vertex_buffer_;
+	Ren3dVertexAttribFormat format_;
+	Ren3dBufferPtr vertex_buffer_;
 	int offset_;
 	int stride_;
-	R3dVec4 default_value_;
-}; // R3dVertexAttributeDescription
+	Ren3dVec4 default_value_;
+}; // Ren3dVertexAttribDescription
 
-using R3dVertexAttributeDescriptions = std::vector<R3dVertexAttributeDescription>;
+using Ren3dVertexAttribDescriptions = std::vector<Ren3dVertexAttribDescription>;
 
-struct R3dVertexInputCreateParam
+struct Ren3dVertexInputCreateParam
 {
-	R3dBufferPtr index_buffer_;
-	R3dVertexAttributeDescriptions attribute_descriptions_;
-}; // R3dVertexInputCreateParam
+	Ren3dBufferPtr index_buffer_;
+	Ren3dVertexAttribDescriptions attribute_descriptions_;
+}; // Ren3dVertexInputCreateParam
 
 
-class R3dVertexInput
+class Ren3dVertexInput
 {
 protected:
-	R3dVertexInput() = default;
+	Ren3dVertexInput() = default;
 
 
 public:
-	virtual ~R3dVertexInput() = default;
-}; // R3dVertexInput
+	virtual ~Ren3dVertexInput() = default;
+}; // Ren3dVertexInput
 
-using R3dVertexInputPtr = R3dVertexInput*;
-using R3dVertexInputUPtr = std::unique_ptr<R3dVertexInput>;
+using Ren3dVertexInputPtr = Ren3dVertexInput*;
+using Ren3dVertexInputUPtr = std::unique_ptr<Ren3dVertexInput>;
 
 //
-// R3dVertexInput
+// Ren3dVertexInput
 // ==========================================================================
 
 
 } // bstone
 
 
-#endif // !BSTONE_R3D_VERTEX_INPUT_INCLUDED
+#endif // !BSTONE_REN_3D_VERTEX_INPUT_INCLUDED

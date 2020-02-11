@@ -27,8 +27,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_DETAIL_R3D_GL_VAO_MGR_INCLUDED
-#define BSTONE_DETAIL_R3D_GL_VAO_MGR_INCLUDED
+#ifndef BSTONE_DETAIL_REN_3D_GL_VAO_MGR_INCLUDED
+#define BSTONE_DETAIL_REN_3D_GL_VAO_MGR_INCLUDED
 
 
 #include <memory>
@@ -38,84 +38,84 @@ namespace bstone
 {
 
 
-struct R3dDeviceFeatures;
+struct Ren3dDeviceFeatures;
 
-class R3dBuffer;
-using R3dBufferPtr = R3dBuffer*;
+class Ren3dBuffer;
+using Ren3dBufferPtr = Ren3dBuffer*;
 
 
 namespace detail
 {
 
 
-class R3dGlContext;
-using R3dGlContextPtr = R3dGlContext*;
+class Ren3dGlContext;
+using Ren3dGlContextPtr = Ren3dGlContext*;
 
-struct R3dGlDeviceFeatures;
+struct Ren3dGlDeviceFeatures;
 
-class R3dGlVao;
-using R3dGlVaoPtr = R3dGlVao*;
+class Ren3dGlVao;
+using Ren3dGlVaoPtr = Ren3dGlVao*;
 
 
 // ==========================================================================
-// R3dGlVaoMgr
+// Ren3dGlVaoMgr
 //
 
-class R3dGlVaoMgr
+class Ren3dGlVaoMgr
 {
 protected:
-	R3dGlVaoMgr() = default;
+	Ren3dGlVaoMgr() = default;
 
 
 public:
-	virtual ~R3dGlVaoMgr() = default;
+	virtual ~Ren3dGlVaoMgr() = default;
 
 
-	virtual R3dGlContextPtr get_context() const noexcept = 0;
+	virtual Ren3dGlContextPtr get_context() const noexcept = 0;
 
-	virtual R3dGlVaoPtr create() = 0;
+	virtual Ren3dGlVaoPtr create() = 0;
 
 	virtual void destroy(
-		const R3dGlVaoPtr vao) = 0;
+		const Ren3dGlVaoPtr vao) = 0;
 
 	virtual void push_current_set_default() = 0;
 
 	virtual void pop() = 0;
 
 	virtual void bind(
-		const R3dGlVaoPtr vao) = 0;
+		const Ren3dGlVaoPtr vao) = 0;
 
 	virtual bool set_current_index_buffer(
-		const R3dBufferPtr index_buffer) = 0;
+		const Ren3dBufferPtr index_buffer) = 0;
 
 
 	virtual void enable_location(
 		const int location,
 		const bool is_enable) = 0;
-}; // R3dGlVaoMgr
+}; // Ren3dGlVaoMgr
 
-using R3dGlVaoMgrPtr = R3dGlVaoMgr*;
-using GlVaoMgrUPtr = std::unique_ptr<R3dGlVaoMgr>;
+using Ren3dGlVaoMgrPtr = Ren3dGlVaoMgr*;
+using Ren3dGlVaoMgrUPtr = std::unique_ptr<Ren3dGlVaoMgr>;
 
 //
-// R3dGlVaoMgr
+// Ren3dGlVaoMgr
 // ==========================================================================
 
 
 // ==========================================================================
-// GlVaoMgrFactory
+// Ren3dGlVaoMgrFactory
 //
 
-struct GlVaoMgrFactory
+struct Ren3dGlVaoMgrFactory
 {
-	static GlVaoMgrUPtr create(
-		const R3dGlContextPtr gl_context,
-		const R3dDeviceFeatures& device_features,
-		const R3dGlDeviceFeatures& gl_device_features);
-}; // GlVaoMgrFactory
+	static Ren3dGlVaoMgrUPtr create(
+		const Ren3dGlContextPtr gl_context,
+		const Ren3dDeviceFeatures& device_features,
+		const Ren3dGlDeviceFeatures& gl_device_features);
+}; // Ren3dGlVaoMgrFactory
 
 //
-// GlVaoMgrFactory
+// Ren3dGlVaoMgrFactory
 // ==========================================================================
 
 
@@ -123,4 +123,4 @@ struct GlVaoMgrFactory
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_R3D_GL_VAO_MGR_INCLUDED
+#endif // !BSTONE_DETAIL_REN_3D_GL_VAO_MGR_INCLUDED

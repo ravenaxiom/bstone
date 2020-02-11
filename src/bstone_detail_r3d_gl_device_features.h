@@ -29,8 +29,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_DETAIL_R3D_GL_DEVICE_FEATURES_INCLUDED
-#define BSTONE_DETAIL_R3D_GL_DEVICE_FEATURES_INCLUDED
+#ifndef BSTONE_DETAIL_REN_3D_GL_DEVICE_FEATURES_INCLUDED
+#define BSTONE_DETAIL_REN_3D_GL_DEVICE_FEATURES_INCLUDED
 
 
 #include "bstone_detail_r3d_gl_context_kind.h"
@@ -42,9 +42,9 @@ namespace detail
 {
 
 
-struct R3dGlDeviceFeatures
+struct Ren3dGlDeviceFeatures
 {
-	R3dGlContextKind context_kind_;
+	Ren3dGlContextKind context_kind_;
 
 	bool mipmap_is_ext_;
 	bool framebuffer_is_available_;
@@ -53,11 +53,11 @@ struct R3dGlDeviceFeatures
 	bool buffer_storage_is_available_;
 	bool dsa_is_available_;
 	bool sso_is_available_;
-}; // R3dGlDeviceFeatures
+}; // Ren3dGlDeviceFeatures
 
 
 } // detail
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_R3D_GL_DEVICE_FEATURES_INCLUDED
+#endif // !BSTONE_DETAIL_REN_3D_GL_DEVICE_FEATURES_INCLUDED

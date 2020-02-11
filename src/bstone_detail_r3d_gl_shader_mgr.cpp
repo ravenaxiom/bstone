@@ -44,68 +44,68 @@ namespace detail
 
 
 // ==========================================================================
-// R3dGlShaderMgrImpl
+// Ren3dGlShaderMgrImpl
 //
 
-class R3dGlShaderMgrImpl final :
-	public R3dGlShaderMgr
+class Ren3dGlShaderMgrImpl final :
+	public Ren3dGlShaderMgr
 {
 public:
-	R3dGlShaderMgrImpl(
-		const R3dGlContextPtr gl_context);
+	Ren3dGlShaderMgrImpl(
+		const Ren3dGlContextPtr gl_context);
 
-	~R3dGlShaderMgrImpl() override;
+	~Ren3dGlShaderMgrImpl() override;
 
 
-	R3dShaderUPtr create(
-		const R3dShaderCreateParam& param) override;
+	Ren3dShaderUPtr create(
+		const Ren3dShaderCreateParam& param) override;
 
 	void notify_destroy(
-		const R3dShaderPtr shader) noexcept override;
+		const Ren3dShaderPtr shader) noexcept override;
 
 
 private:
-	const R3dGlContextPtr gl_context_;
+	const Ren3dGlContextPtr gl_context_;
 
 
 	void initialize();
-}; // R3dGlShaderMgrImpl
+}; // Ren3dGlShaderMgrImpl
 
-using R3dGlShaderMgrImplPtr = R3dGlShaderMgrImpl*;
-using R3dGlShaderMgrImplUPtr = std::unique_ptr<R3dGlShaderMgrImpl>;
+using Ren3dGlShaderMgrImplPtr = Ren3dGlShaderMgrImpl*;
+using Ren3dGlShaderMgrImplUPtr = std::unique_ptr<Ren3dGlShaderMgrImpl>;
 
 //
-// R3dGlShaderMgrImpl
+// Ren3dGlShaderMgrImpl
 // ==========================================================================
 
 
 // ==========================================================================
-// R3dGlShaderMgrImpl
+// Ren3dGlShaderMgrImpl
 //
 
-R3dGlShaderMgrImpl::R3dGlShaderMgrImpl(
-	const R3dGlContextPtr gl_context)
+Ren3dGlShaderMgrImpl::Ren3dGlShaderMgrImpl(
+	const Ren3dGlContextPtr gl_context)
 	:
 	gl_context_{gl_context}
 {
 	initialize();
 }
 
-R3dGlShaderMgrImpl::~R3dGlShaderMgrImpl() = default;
+Ren3dGlShaderMgrImpl::~Ren3dGlShaderMgrImpl() = default;
 
-R3dShaderUPtr R3dGlShaderMgrImpl::create(
-	const R3dShaderCreateParam& param)
+Ren3dShaderUPtr Ren3dGlShaderMgrImpl::create(
+	const Ren3dShaderCreateParam& param)
 {
-	return R3dGlShaderFactory::create(this, param);
+	return Ren3dGlShaderFactory::create(this, param);
 }
 
-void R3dGlShaderMgrImpl::notify_destroy(
-	const R3dShaderPtr shader) noexcept
+void Ren3dGlShaderMgrImpl::notify_destroy(
+	const Ren3dShaderPtr shader) noexcept
 {
 	static_cast<void>(shader);
 }
 
-void R3dGlShaderMgrImpl::initialize()
+void Ren3dGlShaderMgrImpl::initialize()
 {
 	if (!gl_context_)
 	{
@@ -114,22 +114,22 @@ void R3dGlShaderMgrImpl::initialize()
 }
 
 //
-// R3dGlShaderMgrImpl
+// Ren3dGlShaderMgrImpl
 // ==========================================================================
 
 
 // ==========================================================================
-// R3dGlShaderMgrFactory
+// Ren3dGlShaderMgrFactory
 //
 
-R3dGlShaderMgrUPtr R3dGlShaderMgrFactory::create(
-	const R3dGlContextPtr gl_context)
+Ren3dGlShaderMgrUPtr Ren3dGlShaderMgrFactory::create(
+	const Ren3dGlContextPtr gl_context)
 {
-	return std::make_unique<R3dGlShaderMgrImpl>(gl_context);
+	return std::make_unique<Ren3dGlShaderMgrImpl>(gl_context);
 }
 
 //
-// R3dGlShaderMgrFactory
+// Ren3dGlShaderMgrFactory
 // ==========================================================================
 
 

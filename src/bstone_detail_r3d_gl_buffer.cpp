@@ -89,24 +89,24 @@ struct GlBufferImplUpdateException :
 
 
 class GlBufferImpl final :
-	public R3dGlBuffer
+	public Ren3dGlBuffer
 {
 public:
 	GlBufferImpl(
-		const R3dGlBufferMgrPtr gl_buffer_manager,
-		const R3dBufferCreateParam& param);
+		const Ren3dGlBufferMgrPtr gl_buffer_manager,
+		const Ren3dBufferCreateParam& param);
 
 	~GlBufferImpl() override;
 
 
-	R3dBufferKind get_kind() const noexcept override;
+	Ren3dBufferKind get_kind() const noexcept override;
 
-	R3dBufferUsageKind get_usage_kind() const noexcept override;
+	Ren3dBufferUsageKind get_usage_kind() const noexcept override;
 
 	int get_size() const noexcept override;
 
 	void update(
-		const R3dBufferUpdateParam& param) override;
+		const Ren3dBufferUpdateParam& param) override;
 
 	void set(
 		const bool is_set) override;
@@ -118,28 +118,28 @@ private:
 
 	using BufferResource = UniqueResource<GLuint, resource_deleter>;
 
-	const R3dGlBufferMgrPtr gl_buffer_manager_;
-	const R3dGlDeviceFeatures& gl_device_features_;
-	const R3dGlVaoMgrPtr vao_manager_;
+	const Ren3dGlBufferMgrPtr gl_buffer_manager_;
+	const Ren3dGlDeviceFeatures& gl_device_features_;
+	const Ren3dGlVaoMgrPtr vao_manager_;
 
-	R3dBufferKind kind_;
-	R3dBufferUsageKind usage_kind_;
+	Ren3dBufferKind kind_;
+	Ren3dBufferUsageKind usage_kind_;
 	int size_;
 	BufferResource gl_resource_;
 	GLenum gl_target_;
 
 
 	void validate_param(
-		const R3dBufferCreateParam& param);
+		const Ren3dBufferCreateParam& param);
 
 	void validate_param(
-		const R3dBufferUpdateParam& param);
+		const Ren3dBufferUpdateParam& param);
 
 	static GLenum gl_get_target(
-		const R3dBufferKind kind);
+		const Ren3dBufferKind kind);
 
 	static GLenum gl_get_usage(
-		const R3dBufferUsageKind usage_kind);
+		const Ren3dBufferUsageKind usage_kind);
 }; // GlBufferImpl
 
 
@@ -155,8 +155,8 @@ using GlBufferImplUPtr = std::unique_ptr<GlBufferImpl>;
 //
 
 GlBufferImpl::GlBufferImpl(
-	const R3dGlBufferMgrPtr gl_buffer_manager,
-	const R3dBufferCreateParam& param)
+	const Ren3dGlBufferMgrPtr gl_buffer_manager,
+	const Ren3dBufferCreateParam& param)
 	:
 	gl_buffer_manager_{gl_buffer_manager},
 	gl_device_features_{gl_buffer_manager_->get_context()->get_gl_device_features()},
@@ -179,12 +179,12 @@ GlBufferImpl::GlBufferImpl(
 	if (gl_device_features_.dsa_is_available_)
 	{
 		glCreateBuffers(1, &gl_name);
-		R3dGlError::ensure_debug();
+		Ren3dGlError::ensure_debug();
 	}
 	else
 	{
 		glGenBuffers(1, &gl_name);
-		R3dGlError::ensure_debug();
+		Ren3dGlError::ensure_debug();
 	}
 
 	if (gl_name == 0)
@@ -204,11 +204,11 @@ GlBufferImpl::GlBufferImpl(
 		gl_device_features_.buffer_storage_is_available_)
 	{
 		glNamedBufferStorage(gl_resource_.get(), param.size_, nullptr, GL_DYNAMIC_STORAGE_BIT);
-		R3dGlError::ensure_debug();
+		Ren3dGlError::ensure_debug();
 	}
 	else
 	{
-		const auto is_index = (kind_ == R3dBufferKind::index);
+		const auto is_index = (kind_ == Ren3dBufferKind::index);
 
 		if (is_index)
 		{
@@ -218,7 +218,7 @@ GlBufferImpl::GlBufferImpl(
 		set(true);
 
 		glBufferData(gl_target_, param.size_, nullptr, gl_usage);
-		R3dGlError::ensure_debug();
+		Ren3dGlError::ensure_debug();
 
 		if (is_index)
 		{
@@ -232,12 +232,12 @@ GlBufferImpl::~GlBufferImpl()
 	gl_buffer_manager_->buffer_notify_destroy(this);
 }
 
-R3dBufferKind GlBufferImpl::get_kind() const noexcept
+Ren3dBufferKind GlBufferImpl::get_kind() const noexcept
 {
 	return kind_;
 }
 
-R3dBufferUsageKind GlBufferImpl::get_usage_kind() const noexcept
+Ren3dBufferUsageKind GlBufferImpl::get_usage_kind() const noexcept
 {
 	return usage_kind_;
 }
@@ -256,12 +256,12 @@ void GlBufferImpl::set(
 	if (gl_buffer_manager_->buffer_set_current(kind_, gl_buffer))
 	{
 		glBindBuffer(gl_target_, gl_resource);
-		R3dGlError::ensure_debug();
+		Ren3dGlError::ensure_debug();
 	}
 }
 
 void GlBufferImpl::update(
-	const R3dBufferUpdateParam& param)
+	const Ren3dBufferUpdateParam& param)
 {
 	validate_param(param);
 
@@ -279,11 +279,11 @@ void GlBufferImpl::update(
 			param.data_
 		);
 
-		R3dGlError::ensure_debug();
+		Ren3dGlError::ensure_debug();
 	}
 	else
 	{
-		const auto is_index = (kind_ == R3dBufferKind::index);
+		const auto is_index = (kind_ == Ren3dBufferKind::index);
 
 		if (is_index)
 		{
@@ -299,7 +299,7 @@ void GlBufferImpl::update(
 			param.data_
 		);
 
-		R3dGlError::ensure_debug();
+		Ren3dGlError::ensure_debug();
 
 		if (is_index)
 		{
@@ -312,16 +312,16 @@ void GlBufferImpl::resource_deleter(
 	const GLuint& gl_name) noexcept
 {
 	glDeleteBuffers(1, &gl_name);
-	R3dGlError::ensure_debug();
+	Ren3dGlError::ensure_debug();
 }
 
 void GlBufferImpl::validate_param(
-	const R3dBufferCreateParam& param)
+	const Ren3dBufferCreateParam& param)
 {
 	switch (param.kind_)
 	{
-		case R3dBufferKind::index:
-		case R3dBufferKind::vertex:
+		case Ren3dBufferKind::index:
+		case Ren3dBufferKind::vertex:
 			break;
 
 		default:
@@ -330,9 +330,9 @@ void GlBufferImpl::validate_param(
 
 	switch (param.usage_kind_)
 	{
-		case R3dBufferUsageKind::draw_streaming:
-		case R3dBufferUsageKind::draw_static:
-		case R3dBufferUsageKind::draw_dynamic:
+		case Ren3dBufferUsageKind::draw_streaming:
+		case Ren3dBufferUsageKind::draw_static:
+		case Ren3dBufferUsageKind::draw_dynamic:
 			break;
 
 		default:
@@ -346,7 +346,7 @@ void GlBufferImpl::validate_param(
 }
 
 void GlBufferImpl::validate_param(
-	const R3dBufferUpdateParam& param)
+	const Ren3dBufferUpdateParam& param)
 {
 	if (param.offset_ < 0)
 	{
@@ -380,14 +380,14 @@ void GlBufferImpl::validate_param(
 }
 
 GLenum GlBufferImpl::gl_get_target(
-	const R3dBufferKind kind)
+	const Ren3dBufferKind kind)
 {
 	switch (kind)
 	{
-		case R3dBufferKind::index:
+		case Ren3dBufferKind::index:
 			return GL_ELEMENT_ARRAY_BUFFER;
 
-		case R3dBufferKind::vertex:
+		case Ren3dBufferKind::vertex:
 			return GL_ARRAY_BUFFER;
 
 		default:
@@ -396,17 +396,17 @@ GLenum GlBufferImpl::gl_get_target(
 }
 
 GLenum GlBufferImpl::gl_get_usage(
-	const R3dBufferUsageKind usage_kind)
+	const Ren3dBufferUsageKind usage_kind)
 {
 	switch (usage_kind)
 	{
-		case R3dBufferUsageKind::draw_streaming:
+		case Ren3dBufferUsageKind::draw_streaming:
 			return GL_STREAM_DRAW;
 
-		case R3dBufferUsageKind::draw_static:
+		case Ren3dBufferUsageKind::draw_static:
 			return GL_STATIC_DRAW;
 
-		case R3dBufferUsageKind::draw_dynamic:
+		case Ren3dBufferUsageKind::draw_dynamic:
 			return GL_DYNAMIC_DRAW;
 
 		default:
@@ -420,18 +420,18 @@ GLenum GlBufferImpl::gl_get_usage(
 
 
 // =========================================================================
-// R3dGlBufferFactory
+// Ren3dGlBufferFactory
 //
 
-R3dGlBufferUPtr R3dGlBufferFactory::create(
-	const R3dGlBufferMgrPtr gl_buffer_manager,
-	const R3dBufferCreateParam& param)
+Ren3dGlBufferUPtr Ren3dGlBufferFactory::create(
+	const Ren3dGlBufferMgrPtr gl_buffer_manager,
+	const Ren3dBufferCreateParam& param)
 {
 	return std::make_unique<GlBufferImpl>(gl_buffer_manager, param);
 }
 
 //
-// R3dGlBufferFactory
+// Ren3dGlBufferFactory
 // =========================================================================
 
 

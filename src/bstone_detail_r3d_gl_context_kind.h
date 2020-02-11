@@ -29,8 +29,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_DETAIL_R3D_GL_CONTEXT_KIND_INCLUDED
-#define BSTONE_DETAIL_R3D_GL_CONTEXT_KIND_INCLUDED
+#ifndef BSTONE_DETAIL_REN_3D_GL_CONTEXT_KIND_INCLUDED
+#define BSTONE_DETAIL_REN_3D_GL_CONTEXT_KIND_INCLUDED
 
 
 namespace bstone
@@ -39,18 +39,18 @@ namespace detail
 {
 
 
-enum class R3dGlContextKind
+enum class Ren3dGlContextKind
 {
 	invalid,
 	none,
 	core,
 	compatibility,
 	es,
-}; // R3dGlContextKind
+}; // Ren3dGlContextKind
 
 
 } // detail
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_R3D_GL_CONTEXT_KIND_INCLUDED
+#endif // !BSTONE_DETAIL_REN_3D_GL_CONTEXT_KIND_INCLUDED

@@ -42,32 +42,32 @@ namespace detail
 
 
 // ==========================================================================
-// R3dCmdBufferImplInitException
+// Ren3dCmdBufferImplInitException
 //
 
-class R3dCmdBufferImplInitException :
+class Ren3dCmdBufferImplInitException :
 	public Exception
 {
 public:
-	explicit R3dCmdBufferImplInitException(
+	explicit Ren3dCmdBufferImplInitException(
 		const char* const message)
 		:
 		Exception{std::string{"[R3D_CMD_BUF_INIT] "} + message}
 	{
 	}
-}; // R3dCmdBufferImplInitException
+}; // Ren3dCmdBufferImplInitException
 
 //
-// R3dCmdBufferImplInitException
+// Ren3dCmdBufferImplInitException
 // ==========================================================================
 
 
 // ==========================================================================
-// R3dCmdBufferImpl
+// Ren3dCmdBufferImpl
 //
 
-R3dCmdBufferImpl::R3dCmdBufferImpl(
-	const R3dCmdQueueEnqueueParam& param)
+Ren3dCmdBufferImpl::Ren3dCmdBufferImpl(
+	const Ren3dCmdQueueEnqueueParam& param)
 	:
 	is_enabled_{},
 	is_reading_{},
@@ -87,25 +87,25 @@ R3dCmdBufferImpl::R3dCmdBufferImpl(
 	data_.resize(size_);
 }
 
-R3dCmdBufferImpl::~R3dCmdBufferImpl() = default;
+Ren3dCmdBufferImpl::~Ren3dCmdBufferImpl() = default;
 
-int R3dCmdBufferImpl::get_command_count() const noexcept
+int Ren3dCmdBufferImpl::get_command_count() const noexcept
 {
 	return command_count_;
 }
 
-bool R3dCmdBufferImpl::is_enabled() const noexcept
+bool Ren3dCmdBufferImpl::is_enabled() const noexcept
 {
 	return is_enabled_;
 }
 
-void R3dCmdBufferImpl::enable(
+void Ren3dCmdBufferImpl::enable(
 	const bool is_enabled)
 {
 	is_enabled_ = is_enabled;
 }
 
-void R3dCmdBufferImpl::write_begin()
+void Ren3dCmdBufferImpl::write_begin()
 {
 	if (is_reading_)
 	{
@@ -122,7 +122,7 @@ void R3dCmdBufferImpl::write_begin()
 	command_count_ = 0;
 }
 
-void R3dCmdBufferImpl::write_end()
+void Ren3dCmdBufferImpl::write_end()
 {
 	if (is_reading_)
 	{
@@ -137,107 +137,107 @@ void R3dCmdBufferImpl::write_end()
 	is_writing_ = false;
 }
 
-R3dCmdClear* R3dCmdBufferImpl::write_clear()
+Ren3dCmdClear* Ren3dCmdBufferImpl::write_clear()
 {
-	return write<R3dCmdClear>(R3dCmdId::clear);
+	return write<Ren3dCmdClear>(Ren3dCmdId::clear);
 }
 
-R3dCmdViewport* R3dCmdBufferImpl::write_viewport()
+Ren3dCmdViewport* Ren3dCmdBufferImpl::write_viewport()
 {
-	return write<R3dCmdViewport>(R3dCmdId::viewport);
+	return write<Ren3dCmdViewport>(Ren3dCmdId::viewport);
 }
 
-R3dCmdScissor* R3dCmdBufferImpl::write_scissor()
+Ren3dCmdScissor* Ren3dCmdBufferImpl::write_scissor()
 {
-	return write<R3dCmdScissor>(R3dCmdId::scissor);
+	return write<Ren3dCmdScissor>(Ren3dCmdId::scissor);
 }
 
-R3dCmdScissorBox* R3dCmdBufferImpl::write_scissor_box()
+Ren3dCmdScissorBox* Ren3dCmdBufferImpl::write_scissor_box()
 {
-	return write<R3dCmdScissorBox>(R3dCmdId::scissor_set_box);
+	return write<Ren3dCmdScissorBox>(Ren3dCmdId::scissor_set_box);
 }
 
-R3dCmdCulling* R3dCmdBufferImpl::write_culling()
+Ren3dCmdCulling* Ren3dCmdBufferImpl::write_culling()
 {
-	return write<R3dCmdCulling>(R3dCmdId::culling);
+	return write<Ren3dCmdCulling>(Ren3dCmdId::culling);
 }
 
-R3dCmdDepthTest* R3dCmdBufferImpl::write_depth_test()
+Ren3dCmdDepthTest* Ren3dCmdBufferImpl::write_depth_test()
 {
-	return write<R3dCmdDepthTest>(R3dCmdId::depth_set_test);
+	return write<Ren3dCmdDepthTest>(Ren3dCmdId::depth_set_test);
 }
 
-R3dCmdDepthWrite* R3dCmdBufferImpl::write_depth_write()
+Ren3dCmdDepthWrite* Ren3dCmdBufferImpl::write_depth_write()
 {
-	return write<R3dCmdDepthWrite>(R3dCmdId::depth_set_write);
+	return write<Ren3dCmdDepthWrite>(Ren3dCmdId::depth_set_write);
 }
 
-R3dCmdBlending* R3dCmdBufferImpl::write_blending()
+Ren3dCmdBlending* Ren3dCmdBufferImpl::write_blending()
 {
-	return write<R3dCmdBlending>(R3dCmdId::blending);
+	return write<Ren3dCmdBlending>(Ren3dCmdId::blending);
 }
 
-R3dCmdBlendingFunc* R3dCmdBufferImpl::write_blending_func()
+Ren3dCmdBlendingFunc* Ren3dCmdBufferImpl::write_blending_func()
 {
-	return write<R3dCmdBlendingFunc>(R3dCmdId::blending_func);
+	return write<Ren3dCmdBlendingFunc>(Ren3dCmdId::blending_func);
 }
 
-R3dCmdTexture* R3dCmdBufferImpl::write_texture()
+Ren3dCmdTexture* Ren3dCmdBufferImpl::write_texture()
 {
-	return write<R3dCmdTexture>(R3dCmdId::texture);
+	return write<Ren3dCmdTexture>(Ren3dCmdId::texture);
 }
 
-R3dCmdSampler* R3dCmdBufferImpl::write_sampler()
+Ren3dCmdSampler* Ren3dCmdBufferImpl::write_sampler()
 {
-	return write<R3dCmdSampler>(R3dCmdId::sampler);
+	return write<Ren3dCmdSampler>(Ren3dCmdId::sampler);
 }
 
-R3dCmdVertexInput* R3dCmdBufferImpl::write_vertex_input()
+Ren3dCmdVertexInput* Ren3dCmdBufferImpl::write_vertex_input()
 {
-	return write<R3dCmdVertexInput>(R3dCmdId::vertex_input);
+	return write<Ren3dCmdVertexInput>(Ren3dCmdId::vertex_input);
 }
 
-R3dCmdShaderStage* R3dCmdBufferImpl::write_shader_stage()
+Ren3dCmdShaderStage* Ren3dCmdBufferImpl::write_shader_stage()
 {
-	return write<R3dCmdShaderStage>(R3dCmdId::shader_stage);
+	return write<Ren3dCmdShaderStage>(Ren3dCmdId::shader_stage);
 }
 
-R3dCmdShaderVarInt32* R3dCmdBufferImpl::write_shader_var_int32()
+Ren3dCmdShaderVarInt32* Ren3dCmdBufferImpl::write_shader_var_int32()
 {
-	return write<R3dCmdShaderVarInt32>(R3dCmdId::shader_var_int32);
+	return write<Ren3dCmdShaderVarInt32>(Ren3dCmdId::shader_var_int32);
 }
 
-R3dCmdShaderVarFloat32* R3dCmdBufferImpl::write_shader_var_float32()
+Ren3dCmdShaderVarFloat32* Ren3dCmdBufferImpl::write_shader_var_float32()
 {
-	return write<R3dCmdShaderVarFloat32>(R3dCmdId::shader_var_float32);
+	return write<Ren3dCmdShaderVarFloat32>(Ren3dCmdId::shader_var_float32);
 }
 
-R3dCmdShaderVarVec2* R3dCmdBufferImpl::write_shader_var_vec2()
+Ren3dCmdShaderVarVec2* Ren3dCmdBufferImpl::write_shader_var_vec2()
 {
-	return write<R3dCmdShaderVarVec2>(R3dCmdId::shader_var_vec2);
+	return write<Ren3dCmdShaderVarVec2>(Ren3dCmdId::shader_var_vec2);
 }
 
-R3dCmdShaderVarVec4* R3dCmdBufferImpl::write_shader_var_vec4()
+Ren3dCmdShaderVarVec4* Ren3dCmdBufferImpl::write_shader_var_vec4()
 {
-	return write<R3dCmdShaderVarVec4>(R3dCmdId::shader_var_vec4);
+	return write<Ren3dCmdShaderVarVec4>(Ren3dCmdId::shader_var_vec4);
 }
 
-R3dCmdShaderVarMat4* R3dCmdBufferImpl::write_shader_var_mat4()
+Ren3dCmdShaderVarMat4* Ren3dCmdBufferImpl::write_shader_var_mat4()
 {
-	return write<R3dCmdShaderVarMat4>(R3dCmdId::shader_var_mat4);
+	return write<Ren3dCmdShaderVarMat4>(Ren3dCmdId::shader_var_mat4);
 }
 
-R3dCmdShaderVarSampler2d* R3dCmdBufferImpl::write_shader_var_sampler_2d()
+Ren3dCmdShaderVarSampler2d* Ren3dCmdBufferImpl::write_shader_var_sampler_2d()
 {
-	return write<R3dCmdShaderVarSampler2d>(R3dCmdId::shader_var_sampler_2d);
+	return write<Ren3dCmdShaderVarSampler2d>(Ren3dCmdId::shader_var_sampler_2d);
 }
 
-R3dCmdDrawIndexed* R3dCmdBufferImpl::write_draw_indexed()
+Ren3dCmdDrawIndexed* Ren3dCmdBufferImpl::write_draw_indexed()
 {
-	return write<R3dCmdDrawIndexed>(R3dCmdId::draw_indexed);
+	return write<Ren3dCmdDrawIndexed>(Ren3dCmdId::draw_indexed);
 }
 
-void R3dCmdBufferImpl::read_begin()
+void Ren3dCmdBufferImpl::read_begin()
 {
 	if (is_reading_)
 	{
@@ -253,7 +253,7 @@ void R3dCmdBufferImpl::read_begin()
 	read_offset_ = 0;
 }
 
-void R3dCmdBufferImpl::read_end()
+void Ren3dCmdBufferImpl::read_end()
 {
 	if (!is_reading_)
 	{
@@ -273,133 +273,133 @@ void R3dCmdBufferImpl::read_end()
 	is_reading_ = false;
 }
 
-R3dCmdId R3dCmdBufferImpl::read_command_id()
+Ren3dCmdId Ren3dCmdBufferImpl::read_command_id()
 {
-	const auto command_id = read<R3dCmdId>();
+	const auto command_id = read<Ren3dCmdId>();
 
 	if (!command_id)
 	{
-		return R3dCmdId::none;
+		return Ren3dCmdId::none;
 	}
 
 	return *command_id;
 }
 
-const R3dCmdClear* R3dCmdBufferImpl::read_clear()
+const Ren3dCmdClear* Ren3dCmdBufferImpl::read_clear()
 {
-	return read<R3dCmdClear>();
+	return read<Ren3dCmdClear>();
 }
 
-const R3dCmdViewport* R3dCmdBufferImpl::read_viewport()
+const Ren3dCmdViewport* Ren3dCmdBufferImpl::read_viewport()
 {
-	return read<R3dCmdViewport>();
+	return read<Ren3dCmdViewport>();
 }
 
-const R3dCmdScissor* R3dCmdBufferImpl::read_scissor()
+const Ren3dCmdScissor* Ren3dCmdBufferImpl::read_scissor()
 {
-	return read<R3dCmdScissor>();
+	return read<Ren3dCmdScissor>();
 }
 
-const R3dCmdScissorBox* R3dCmdBufferImpl::read_scissor_box()
+const Ren3dCmdScissorBox* Ren3dCmdBufferImpl::read_scissor_box()
 {
-	return read<R3dCmdScissorBox>();
+	return read<Ren3dCmdScissorBox>();
 }
 
-const R3dCmdCulling* R3dCmdBufferImpl::read_culling()
+const Ren3dCmdCulling* Ren3dCmdBufferImpl::read_culling()
 {
-	return read<R3dCmdCulling>();
+	return read<Ren3dCmdCulling>();
 }
 
-const R3dCmdDepthTest* R3dCmdBufferImpl::read_depth_test()
+const Ren3dCmdDepthTest* Ren3dCmdBufferImpl::read_depth_test()
 {
-	return read<R3dCmdDepthTest>();
+	return read<Ren3dCmdDepthTest>();
 }
 
-const R3dCmdDepthWrite* R3dCmdBufferImpl::read_depth_write()
+const Ren3dCmdDepthWrite* Ren3dCmdBufferImpl::read_depth_write()
 {
-	return read<R3dCmdDepthWrite>();
+	return read<Ren3dCmdDepthWrite>();
 }
 
-const R3dCmdBlending* R3dCmdBufferImpl::read_blending()
+const Ren3dCmdBlending* Ren3dCmdBufferImpl::read_blending()
 {
-	return read<R3dCmdBlending>();
+	return read<Ren3dCmdBlending>();
 }
 
-const R3dCmdBlendingFunc* R3dCmdBufferImpl::read_blending_func()
+const Ren3dCmdBlendingFunc* Ren3dCmdBufferImpl::read_blending_func()
 {
-	return read<R3dCmdBlendingFunc>();
+	return read<Ren3dCmdBlendingFunc>();
 }
 
-const R3dCmdTexture* R3dCmdBufferImpl::read_texture()
+const Ren3dCmdTexture* Ren3dCmdBufferImpl::read_texture()
 {
-	return read<R3dCmdTexture>();
+	return read<Ren3dCmdTexture>();
 }
 
-const R3dCmdSampler* R3dCmdBufferImpl::read_sampler()
+const Ren3dCmdSampler* Ren3dCmdBufferImpl::read_sampler()
 {
-	return read<R3dCmdSampler>();
+	return read<Ren3dCmdSampler>();
 }
 
-const R3dCmdVertexInput* R3dCmdBufferImpl::read_vertex_input()
+const Ren3dCmdVertexInput* Ren3dCmdBufferImpl::read_vertex_input()
 {
-	return read<R3dCmdVertexInput>();
+	return read<Ren3dCmdVertexInput>();
 }
 
-const R3dCmdShaderStage* R3dCmdBufferImpl::read_shader_stage()
+const Ren3dCmdShaderStage* Ren3dCmdBufferImpl::read_shader_stage()
 {
-	return read<R3dCmdShaderStage>();
+	return read<Ren3dCmdShaderStage>();
 }
 
-const R3dCmdShaderVarInt32* R3dCmdBufferImpl::read_shader_var_int32()
+const Ren3dCmdShaderVarInt32* Ren3dCmdBufferImpl::read_shader_var_int32()
 {
-	return read<R3dCmdShaderVarInt32>();
+	return read<Ren3dCmdShaderVarInt32>();
 }
 
-const R3dCmdShaderVarFloat32* R3dCmdBufferImpl::read_shader_var_float32()
+const Ren3dCmdShaderVarFloat32* Ren3dCmdBufferImpl::read_shader_var_float32()
 {
-	return read<R3dCmdShaderVarFloat32>();
+	return read<Ren3dCmdShaderVarFloat32>();
 }
 
-const R3dCmdShaderVarVec2* R3dCmdBufferImpl::read_shader_var_vec2()
+const Ren3dCmdShaderVarVec2* Ren3dCmdBufferImpl::read_shader_var_vec2()
 {
-	return read<R3dCmdShaderVarVec2>();
+	return read<Ren3dCmdShaderVarVec2>();
 }
 
-const R3dCmdShaderVarVec4* R3dCmdBufferImpl::read_shader_var_vec4()
+const Ren3dCmdShaderVarVec4* Ren3dCmdBufferImpl::read_shader_var_vec4()
 {
-	return read<R3dCmdShaderVarVec4>();
+	return read<Ren3dCmdShaderVarVec4>();
 }
 
-const R3dCmdShaderVarMat4* R3dCmdBufferImpl::read_shader_var_mat4()
+const Ren3dCmdShaderVarMat4* Ren3dCmdBufferImpl::read_shader_var_mat4()
 {
-	return read<R3dCmdShaderVarMat4>();
+	return read<Ren3dCmdShaderVarMat4>();
 }
 
-const R3dCmdShaderVarSampler2d* R3dCmdBufferImpl::read_shader_var_sampler_2d()
+const Ren3dCmdShaderVarSampler2d* Ren3dCmdBufferImpl::read_shader_var_sampler_2d()
 {
-	return read<R3dCmdShaderVarSampler2d>();
+	return read<Ren3dCmdShaderVarSampler2d>();
 }
 
-const R3dCmdDrawIndexed* R3dCmdBufferImpl::read_draw_indexed()
+const Ren3dCmdDrawIndexed* Ren3dCmdBufferImpl::read_draw_indexed()
 {
-	return read<R3dCmdDrawIndexed>();
+	return read<Ren3dCmdDrawIndexed>();
 }
 
-void R3dCmdBufferImpl::validate_param(
-	const R3dCmdQueueEnqueueParam& param)
+void Ren3dCmdBufferImpl::validate_param(
+	const Ren3dCmdQueueEnqueueParam& param)
 {
 	if (param.initial_size_ <= 0)
 	{
-		throw R3dCmdBufferImplInitException{"Initial size out of range."};
+		throw Ren3dCmdBufferImplInitException{"Initial size out of range."};
 	}
 
 	if (param.resize_delta_size_ < 0)
 	{
-		throw R3dCmdBufferImplInitException{"Resize delta out of range."};
+		throw Ren3dCmdBufferImplInitException{"Resize delta out of range."};
 	}
 }
 
-void R3dCmdBufferImpl::resize_if_necessary(
+void Ren3dCmdBufferImpl::resize_if_necessary(
 	const int dst_delta_size)
 {
 	if (dst_delta_size <= 0)
@@ -418,7 +418,7 @@ void R3dCmdBufferImpl::resize_if_necessary(
 }
 
 //
-// R3dCmdBufferImpl
+// Ren3dCmdBufferImpl
 // ==========================================================================
 
 

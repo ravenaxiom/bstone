@@ -27,8 +27,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_R3D_MGR_INCLUDED
-#define BSTONE_R3D_MGR_INCLUDED
+#ifndef BSTONE_REN_3D_MGR_INCLUDED
+#define BSTONE_REN_3D_MGR_INCLUDED
 
 
 #include "bstone_r3d.h"
@@ -38,31 +38,31 @@ namespace bstone
 {
 
 
-class R3dMgr
+class Ren3dMgr
 {
 protected:
-	R3dMgr() = default;
+	Ren3dMgr() = default;
 
 
 public:
-	virtual ~R3dMgr() = default;
+	virtual ~Ren3dMgr() = default;
 
 
-	virtual R3dPtr renderer_initialize(
-		const R3dCreateParam& param) = 0;
-}; // R3dMgr
+	virtual Ren3dPtr renderer_initialize(
+		const Ren3dCreateParam& param) = 0;
+}; // Ren3dMgr
 
-using R3dMgrUPtr = std::unique_ptr<R3dMgr>;
+using Ren3dMgrUPtr = std::unique_ptr<Ren3dMgr>;
 
 
-class R3dMgrFactory
+class Ren3dMgrFactory
 {
 public:
-	static R3dMgrUPtr create();
-}; // R3dMgrFactory
+	static Ren3dMgrUPtr create();
+}; // Ren3dMgrFactory
 
 
 } // bstone
 
 
-#endif // !BSTONE_R3D_MGR_INCLUDED
+#endif // !BSTONE_REN_3D_MGR_INCLUDED

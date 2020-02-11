@@ -29,8 +29,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_DETAIL_R3D_GL_SAMPLER_INCLUDED
-#define BSTONE_DETAIL_R3D_GL_SAMPLER_INCLUDED
+#ifndef BSTONE_DETAIL_REN_3D_GL_SAMPLER_INCLUDED
+#define BSTONE_DETAIL_REN_3D_GL_SAMPLER_INCLUDED
 
 
 #include "bstone_r3d_sampler.h"
@@ -42,49 +42,49 @@ namespace detail
 {
 
 
-class R3dGlContext;
-using R3dGlContextPtr = R3dGlContext*;
+class Ren3dGlContext;
+using Ren3dGlContextPtr = Ren3dGlContext*;
 
 
 // =========================================================================
-// R3dGlSampler
+// Ren3dGlSampler
 //
 
-class R3dGlSampler :
-	public R3dSampler
+class Ren3dGlSampler :
+	public Ren3dSampler
 {
 protected:
-	R3dGlSampler() = default;
+	Ren3dGlSampler() = default;
 
 
 public:
-	~R3dGlSampler() override = default;
+	~Ren3dGlSampler() override = default;
 
 
 	virtual void set() = 0;
-}; // R3dGlSampler
+}; // Ren3dGlSampler
 
-using R3dGlSamplerPtr = R3dGlSampler*;
-using R3dGlSamplerUPtr = std::unique_ptr<R3dGlSampler>;
+using Ren3dGlSamplerPtr = Ren3dGlSampler*;
+using Ren3dGlSamplerUPtr = std::unique_ptr<Ren3dGlSampler>;
 
 //
-// R3dGlSampler
+// Ren3dGlSampler
 // =========================================================================
 
 
 // =========================================================================
-// R3dGlSamplerFactory
+// Ren3dGlSamplerFactory
 //
 
-struct R3dGlSamplerFactory
+struct Ren3dGlSamplerFactory
 {
-	static R3dGlSamplerUPtr create(
-		R3dGlContextPtr gl_context,
-		const R3dSamplerCreateParam& param);
-}; // R3dGlSamplerFactory
+	static Ren3dGlSamplerUPtr create(
+		Ren3dGlContextPtr gl_context,
+		const Ren3dSamplerCreateParam& param);
+}; // Ren3dGlSamplerFactory
 
 //
-// R3dGlSamplerFactory
+// Ren3dGlSamplerFactory
 // =========================================================================
 
 
@@ -92,4 +92,4 @@ struct R3dGlSamplerFactory
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_R3D_GL_SAMPLER_INCLUDED
+#endif // !BSTONE_DETAIL_REN_3D_GL_SAMPLER_INCLUDED

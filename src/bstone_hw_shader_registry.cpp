@@ -152,18 +152,18 @@ const std::string& HwShaderRegistry::get_u_view_position_name()
 	return result;
 }
 
-const R3dShaderSource& HwShaderRegistry::get_fragment(
-	const R3dKind renderer_kind)
+const Ren3dShaderSource& HwShaderRegistry::get_fragment(
+	const Ren3dKind renderer_kind)
 {
 	switch (renderer_kind)
 	{
-		case R3dKind::gl_2_0:
+		case Ren3dKind::gl_2_0:
 			return get_fragment_gl_2();
 
-		case R3dKind::gl_3_2_core:
+		case Ren3dKind::gl_3_2_core:
 			return get_fragment_gl_3_2_core();
 
-		case R3dKind::gles_2_0:
+		case Ren3dKind::gles_2_0:
 			return get_fragment_gles_2_0();
 
 		default:
@@ -171,18 +171,18 @@ const R3dShaderSource& HwShaderRegistry::get_fragment(
 	}
 }
 
-const R3dShaderSource& HwShaderRegistry::get_vertex(
-	const R3dKind renderer_kind)
+const Ren3dShaderSource& HwShaderRegistry::get_vertex(
+	const Ren3dKind renderer_kind)
 {
 	switch (renderer_kind)
 	{
-		case R3dKind::gl_2_0:
+		case Ren3dKind::gl_2_0:
 			return get_vertex_gl_2();
 
-		case R3dKind::gl_3_2_core:
+		case Ren3dKind::gl_3_2_core:
 			return get_vertex_gl_3_2_core();
 
-		case R3dKind::gles_2_0:
+		case Ren3dKind::gles_2_0:
 			return get_vertex_gles_2_0();
 
 		default:
@@ -190,14 +190,14 @@ const R3dShaderSource& HwShaderRegistry::get_vertex(
 	}
 }
 
-const R3dShaderSource& HwShaderRegistry::get_empty()
+const Ren3dShaderSource& HwShaderRegistry::get_empty()
 {
-	static const auto result = R3dShaderSource{};
+	static const auto result = Ren3dShaderSource{};
 
 	return result;
 }
 
-const R3dShaderSource& HwShaderRegistry::get_fragment_gl_2()
+const Ren3dShaderSource& HwShaderRegistry::get_fragment_gl_2()
 {
 	static const auto source = std::string
 	{
@@ -297,7 +297,7 @@ void main()
 )FRAGMENT_SHADER"
 	};
 
-	static const auto result = R3dShaderSource
+	static const auto result = Ren3dShaderSource
 	{
 		source.c_str(),
 		static_cast<int>(source.size()),
@@ -306,7 +306,7 @@ void main()
 	return result;
 }
 
-const R3dShaderSource& HwShaderRegistry::get_vertex_gl_2()
+const Ren3dShaderSource& HwShaderRegistry::get_vertex_gl_2()
 {
 	static const auto source = std::string
 	{
@@ -342,7 +342,7 @@ void main()
 )VERTEX_SHADER"
 	};
 
-	static const auto result = R3dShaderSource
+	static const auto result = Ren3dShaderSource
 	{
 		source.c_str(),
 		static_cast<int>(source.size()),
@@ -351,7 +351,7 @@ void main()
 	return result;
 }
 
-const R3dShaderSource& HwShaderRegistry::get_fragment_gl_3_2_core()
+const Ren3dShaderSource& HwShaderRegistry::get_fragment_gl_3_2_core()
 {
 	static const auto source = std::string
 	{
@@ -454,7 +454,7 @@ void main()
 )FRAGMENT_SHADER"
 	};
 
-	static const auto result = R3dShaderSource
+	static const auto result = Ren3dShaderSource
 	{
 		source.c_str(),
 		static_cast<int>(source.size()),
@@ -463,7 +463,7 @@ void main()
 	return result;
 }
 
-const R3dShaderSource& HwShaderRegistry::get_vertex_gl_3_2_core()
+const Ren3dShaderSource& HwShaderRegistry::get_vertex_gl_3_2_core()
 {
 	static const auto source = std::string
 	{
@@ -499,7 +499,7 @@ void main()
 )VERTEX_SHADER"
 	};
 
-	static const auto result = R3dShaderSource
+	static const auto result = Ren3dShaderSource
 	{
 		source.c_str(),
 		static_cast<int>(source.size()),
@@ -508,7 +508,7 @@ void main()
 	return result;
 }
 
-const R3dShaderSource& HwShaderRegistry::get_fragment_gles_2_0()
+const Ren3dShaderSource& HwShaderRegistry::get_fragment_gles_2_0()
 {
 	static const auto source = std::string
 	{
@@ -610,7 +610,7 @@ void main()
 )FRAGMENT_SHADER"
 	};
 
-	static const auto result = R3dShaderSource
+	static const auto result = Ren3dShaderSource
 	{
 		source.c_str(),
 		static_cast<int>(source.size()),
@@ -619,7 +619,7 @@ void main()
 	return result;
 }
 
-const R3dShaderSource& HwShaderRegistry::get_vertex_gles_2_0()
+const Ren3dShaderSource& HwShaderRegistry::get_vertex_gles_2_0()
 {
 	static const auto source = std::string
 	{
@@ -655,7 +655,7 @@ void main()
 )VERTEX_SHADER"
 	};
 
-	static const auto result = R3dShaderSource
+	static const auto result = Ren3dShaderSource
 	{
 		source.c_str(),
 		static_cast<int>(source.size()),

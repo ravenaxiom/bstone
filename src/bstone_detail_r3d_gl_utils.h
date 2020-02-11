@@ -29,8 +29,8 @@ Free Software Foundation, Inc.,
 //
 
 
-#ifndef BSTONE_DETAIL_R3D_GL_UTILS_INCLUDED
-#define BSTONE_DETAIL_R3D_GL_UTILS_INCLUDED
+#ifndef BSTONE_DETAIL_REN_3D_GL_UTILS_INCLUDED
+#define BSTONE_DETAIL_REN_3D_GL_UTILS_INCLUDED
 
 
 #include <vector>
@@ -49,7 +49,7 @@ namespace detail
 {
 
 
-class R3dGlUtils
+class Ren3dGlUtils
 {
 public:
 	static void load_library();
@@ -71,7 +71,7 @@ public:
 
 
 	static void create_window_and_context(
-		const R3dUtilsCreateWindowParam& param,
+		const Ren3dUtilsCreateWindowParam& param,
 		SdlWindowUPtr& sdl_window,
 		SdlGlContextUPtr& sdl_gl_context);
 
@@ -82,7 +82,7 @@ public:
 		int& height);
 
 
-	static R3dGlContextKind context_get_kind();
+	static Ren3dGlContextKind context_get_kind();
 
 	static void context_get_version(
 		int& major_version,
@@ -90,9 +90,9 @@ public:
 
 
 	static void msaa_probe(
-		const R3dKind renderer_kind,
-		R3dDeviceFeatures& device_features,
-		R3dGlDeviceFeatures& gl_device_features);
+		const Ren3dKind renderer_kind,
+		Ren3dDeviceFeatures& device_features,
+		Ren3dGlDeviceFeatures& gl_device_features);
 
 	static int msaa_window_get_value();
 
@@ -101,59 +101,59 @@ public:
 
 	static int anisotropy_clamp_value(
 		const int anisotropy_value,
-		const R3dDeviceFeatures& device_features);
+		const Ren3dDeviceFeatures& device_features);
 
 	static void anisotropy_set_value(
 		const GLenum gl_target,
-		const R3dDeviceFeatures& device_features,
+		const Ren3dDeviceFeatures& device_features,
 		const int anisotropy_value);
 
 	static void anisotropy_probe(
-		R3dGlExtensionMgrPtr extension_manager,
-		R3dDeviceFeatures& device_features);
+		Ren3dGlExtensionMgrPtr extension_manager,
+		Ren3dDeviceFeatures& device_features);
 
 
 	static void npot_probe(
-		R3dGlExtensionMgrPtr extension_manager,
-		R3dDeviceFeatures& device_features);
+		Ren3dGlExtensionMgrPtr extension_manager,
+		Ren3dDeviceFeatures& device_features);
 
 
 	static void mipmap_probe(
-		R3dGlExtensionMgrPtr extension_manager,
-		R3dDeviceFeatures& device_features,
-		R3dGlDeviceFeatures& gl_device_features);
+		Ren3dGlExtensionMgrPtr extension_manager,
+		Ren3dDeviceFeatures& device_features,
+		Ren3dGlDeviceFeatures& gl_device_features);
 
 	static void mipmap_generate(
 		const GLenum gl_target,
-		const R3dDeviceFeatures& device_features,
-		const R3dGlDeviceFeatures& gl_device_features);
+		const Ren3dDeviceFeatures& device_features,
+		const Ren3dGlDeviceFeatures& gl_device_features);
 
 
 	static void framebuffer_probe(
-		R3dGlExtensionMgrPtr extension_manager,
-		R3dGlDeviceFeatures& gl_device_features);
+		Ren3dGlExtensionMgrPtr extension_manager,
+		Ren3dGlDeviceFeatures& gl_device_features);
 
 
 	static void sampler_probe(
-		R3dGlExtensionMgrPtr extension_manager,
-		R3dDeviceFeatures& device_features);
+		Ren3dGlExtensionMgrPtr extension_manager,
+		Ren3dDeviceFeatures& device_features);
 
 	static void sampler_set_anisotropy(
 		const GLenum gl_sampler,
-		const R3dDeviceFeatures& device_features,
+		const Ren3dDeviceFeatures& device_features,
 		const int anisotropy_value);
 
 
 	static void vertex_input_vao_probe(
-		R3dGlExtensionMgrPtr extension_manager,
-		R3dGlDeviceFeatures& gl_device_features);
+		Ren3dGlExtensionMgrPtr extension_manager,
+		Ren3dGlDeviceFeatures& gl_device_features);
 
 	static void vertex_input_probe_max_locations(
-		R3dDeviceFeatures& device_features);
+		Ren3dDeviceFeatures& device_features);
 
 
 	static void vsync_probe(
-		R3dDeviceFeatures& device_features);
+		Ren3dDeviceFeatures& device_features);
 
 	static bool vsync_get();
 
@@ -162,18 +162,18 @@ public:
 
 
 	static void buffer_storage_probe(
-		const R3dGlExtensionMgrPtr extension_manager,
-		R3dGlDeviceFeatures& gl_device_features);
+		const Ren3dGlExtensionMgrPtr extension_manager,
+		Ren3dGlDeviceFeatures& gl_device_features);
 
 
 	static void dsa_probe(
-		const R3dGlExtensionMgrPtr extension_manager,
-		R3dGlDeviceFeatures& gl_device_features);
+		const Ren3dGlExtensionMgrPtr extension_manager,
+		Ren3dGlDeviceFeatures& gl_device_features);
 
 
 	static void sso_probe(
-		const R3dGlExtensionMgrPtr extension_manager,
-		R3dGlDeviceFeatures& gl_device_features);
+		const Ren3dGlExtensionMgrPtr extension_manager,
+		Ren3dGlDeviceFeatures& gl_device_features);
 
 
 	static void swap_window(
@@ -181,28 +181,28 @@ public:
 
 
 	static void viewport_set_rect(
-		const R3dViewport& viewport);
+		const Ren3dViewport& viewport);
 
 	static void viewport_set_depth_range(
-		const R3dViewport& viewport,
-		const R3dGlDeviceFeatures& gl_device_features);
+		const Ren3dViewport& viewport,
+		const Ren3dGlDeviceFeatures& gl_device_features);
 
 
 	static void scissor_enable(
 		const bool is_enabled);
 
 	static void scissor_set_box(
-		const R3dScissorBox& scissor_box);
+		const Ren3dScissorBox& scissor_box);
 
 
 	static void culling_enable(
 		const bool is_enable);
 
 	static void culling_set_face(
-		const R3dCullingFace culling_face);
+		const Ren3dCullingFace culling_face);
 
 	static void culling_set_mode(
-		const R3dCullingMode culling_mode);
+		const Ren3dCullingMode culling_mode);
 
 
 	static void depth_test_enable(
@@ -216,16 +216,16 @@ public:
 		const bool is_enable);
 
 	static void blending_set_func(
-		const R3dBlendingFunc& blending_func);
+		const Ren3dBlendingFunc& blending_func);
 
 
 	static GLenum index_buffer_get_element_type_by_byte_depth(
 		const int byte_depth);
 
 	static void renderer_features_set(
-		R3dDeviceFeatures& device_features);
+		Ren3dDeviceFeatures& device_features);
 
-	static R3dDeviceInfo device_info_get();
+	static Ren3dDeviceInfo device_info_get();
 
 	static std::string get_log(
 		const bool is_shader,
@@ -233,35 +233,35 @@ public:
 
 
 	static GLenum filter_get_mag(
-		const R3dFilterKind mag_filter);
+		const Ren3dFilterKind mag_filter);
 
 	static GLenum filter_get_min(
-		const R3dFilterKind min_filter,
-		const R3dMipmapMode mipmap_mode);
+		const Ren3dFilterKind min_filter,
+		const Ren3dMipmapMode mipmap_mode);
 
 	static GLenum address_mode_get(
-		const R3dAddressMode address_mode);
+		const Ren3dAddressMode address_mode);
 
 	static GLenum texture_wrap_get_axis(
-		const R3dTextureAxis texture_axis);
+		const Ren3dTextureAxis texture_axis);
 
 
 private:
 	static GLenum blending_get_factor(
-		const R3dBlendingFactor factor);
+		const Ren3dBlendingFactor factor);
 
 	static int msaa_window_get_max(
-		const R3dKind renderer_kind);
+		const Ren3dKind renderer_kind);
 
 	static int msaa_fbo_get_max(
-		const R3dKind renderer_kind,
-		R3dDeviceFeatures& device_features,
-		R3dGlDeviceFeatures& gl_device_features);
-}; // R3dGlUtils
+		const Ren3dKind renderer_kind,
+		Ren3dDeviceFeatures& device_features,
+		Ren3dGlDeviceFeatures& gl_device_features);
+}; // Ren3dGlUtils
 
 
 } // detail
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_R3D_GL_UTILS_INCLUDED
+#endif // !BSTONE_DETAIL_REN_3D_GL_UTILS_INCLUDED

@@ -54,15 +54,15 @@ namespace detail
 //
 
 class GlSamplerImpl final :
-	public R3dGlSampler
+	public Ren3dGlSampler
 {
 public:
 	GlSamplerImpl(
-		R3dGlContextPtr gl_context,
-		const R3dSamplerCreateParam& param);
+		Ren3dGlContextPtr gl_context,
+		const Ren3dSamplerCreateParam& param);
 
 	GlSamplerImpl(
-		const R3dGlSampler& rhs) = delete;
+		const Ren3dGlSampler& rhs) = delete;
 
 	~GlSamplerImpl() override;
 
@@ -70,9 +70,9 @@ public:
 	void set() override;
 
 	void update(
-		const R3dSamplerUpdateParam& param) override;
+		const Ren3dSamplerUpdateParam& param) override;
 
-	const R3dSamplerState& get_state() const noexcept override;
+	const Ren3dSamplerState& get_state() const noexcept override;
 
 
 private:
@@ -82,9 +82,9 @@ private:
 	using SamplerResource = bstone::UniqueResource<GLuint, sampler_deleter>;
 
 
-	R3dGlContextPtr gl_context_;
+	Ren3dGlContextPtr gl_context_;
 
-	R3dSamplerState state_;
+	Ren3dSamplerState state_;
 	SamplerResource gl_resource_;
 
 
@@ -93,8 +93,8 @@ private:
 	void set_min_filter();
 
 	void set_address_mode(
-		const R3dTextureAxis texture_axis,
-		const R3dAddressMode address_mode);
+		const Ren3dTextureAxis texture_axis,
+		const Ren3dAddressMode address_mode);
 
 	void set_address_mode_u();
 
@@ -118,8 +118,8 @@ using GlSamplerImplUPtr = std::unique_ptr<GlSamplerImpl>;
 //
 
 GlSamplerImpl::GlSamplerImpl(
-	R3dGlContextPtr gl_context,
-	const R3dSamplerCreateParam& param)
+	Ren3dGlContextPtr gl_context,
+	const Ren3dSamplerCreateParam& param)
 	:
 	gl_context_{gl_context},
 	state_{}
@@ -141,12 +141,12 @@ GlSamplerImpl::GlSamplerImpl(
 		if (gl_device_features.dsa_is_available_)
 		{
 			glCreateSamplers(1, &gl_name);
-			R3dGlError::ensure_debug();
+			Ren3dGlError::ensure_debug();
 		}
 		else
 		{
 			glGenSamplers(1, &gl_name);
-			R3dGlError::ensure_debug();
+			Ren3dGlError::ensure_debug();
 		}
 
 		if (gl_name == 0)
@@ -170,11 +170,11 @@ void GlSamplerImpl::set()
 	}
 
 	glBindSampler(0, gl_resource_);
-	R3dGlError::ensure_debug();
+	Ren3dGlError::ensure_debug();
 }
 
 void GlSamplerImpl::update(
-	const R3dSamplerUpdateParam& param)
+	const Ren3dSamplerUpdateParam& param)
 {
 	auto is_modified = false;
 
@@ -281,7 +281,7 @@ void GlSamplerImpl::update(
 	}
 }
 
-const R3dSamplerState& GlSamplerImpl::get_state() const noexcept
+const Ren3dSamplerState& GlSamplerImpl::get_state() const noexcept
 {
 	return state_;
 }
@@ -290,49 +290,49 @@ void GlSamplerImpl::sampler_deleter(
 	const GLuint& resource) noexcept
 {
 	glDeleteSamplers(1, &resource);
-	R3dGlError::ensure_debug();
+	Ren3dGlError::ensure_debug();
 }
 
 void GlSamplerImpl::set_mag_filter()
 {
-	const auto gl_mag_filter = R3dGlUtils::filter_get_mag(state_.mag_filter_);
+	const auto gl_mag_filter = Ren3dGlUtils::filter_get_mag(state_.mag_filter_);
 
 	glSamplerParameteri(gl_resource_, GL_TEXTURE_MAG_FILTER, gl_mag_filter);
-	R3dGlError::ensure_debug();
+	Ren3dGlError::ensure_debug();
 }
 
 void GlSamplerImpl::set_min_filter()
 {
-	const auto gl_min_filter = R3dGlUtils::filter_get_min(state_.min_filter_, state_.mipmap_mode_);
+	const auto gl_min_filter = Ren3dGlUtils::filter_get_min(state_.min_filter_, state_.mipmap_mode_);
 
 	glSamplerParameteri(gl_resource_, GL_TEXTURE_MIN_FILTER, gl_min_filter);
-	R3dGlError::ensure_debug();
+	Ren3dGlError::ensure_debug();
 }
 
 void GlSamplerImpl::set_address_mode(
-	const R3dTextureAxis texture_axis,
-	const R3dAddressMode address_mode)
+	const Ren3dTextureAxis texture_axis,
+	const Ren3dAddressMode address_mode)
 {
-	const auto gl_wrap_axis = R3dGlUtils::texture_wrap_get_axis(texture_axis);
-	const auto gl_address_mode = R3dGlUtils::address_mode_get(address_mode);
+	const auto gl_wrap_axis = Ren3dGlUtils::texture_wrap_get_axis(texture_axis);
+	const auto gl_address_mode = Ren3dGlUtils::address_mode_get(address_mode);
 
 	glSamplerParameteri(gl_resource_, gl_wrap_axis, gl_address_mode);
-	R3dGlError::ensure_debug();
+	Ren3dGlError::ensure_debug();
 }
 
 void GlSamplerImpl::set_address_mode_u()
 {
-	set_address_mode(R3dTextureAxis::u, state_.address_mode_u_);
+	set_address_mode(Ren3dTextureAxis::u, state_.address_mode_u_);
 }
 
 void GlSamplerImpl::set_address_mode_v()
 {
-	set_address_mode(R3dTextureAxis::v, state_.address_mode_v_);
+	set_address_mode(Ren3dTextureAxis::v, state_.address_mode_v_);
 }
 
 void GlSamplerImpl::set_anisotropy()
 {
-	R3dGlUtils::sampler_set_anisotropy(
+	Ren3dGlUtils::sampler_set_anisotropy(
 		gl_resource_,
 		gl_context_->get_device_features(),
 		state_.anisotropy_
@@ -359,18 +359,18 @@ void GlSamplerImpl::set_initial_state()
 
 
 // =========================================================================
-// R3dGlSamplerFactory
+// Ren3dGlSamplerFactory
 //
 
-R3dGlSamplerUPtr R3dGlSamplerFactory::create(
-	R3dGlContextPtr gl_context,
-	const R3dSamplerCreateParam& param)
+Ren3dGlSamplerUPtr Ren3dGlSamplerFactory::create(
+	Ren3dGlContextPtr gl_context,
+	const Ren3dSamplerCreateParam& param)
 {
 	return std::make_unique<GlSamplerImpl>(gl_context, param);
 }
 
 //
-// R3dGlSamplerFactory
+// Ren3dGlSamplerFactory
 // =========================================================================
 
 

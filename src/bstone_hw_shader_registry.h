@@ -83,27 +83,27 @@ public:
 	static const std::string& get_u_view_position_name();
 
 
-	static const R3dShaderSource& get_fragment(
-		const R3dKind renderer_kind);
+	static const Ren3dShaderSource& get_fragment(
+		const Ren3dKind renderer_kind);
 
-	static const R3dShaderSource& get_vertex(
-		const R3dKind renderer_kind);
+	static const Ren3dShaderSource& get_vertex(
+		const Ren3dKind renderer_kind);
 
 
 private:
-	static const R3dShaderSource& get_empty();
+	static const Ren3dShaderSource& get_empty();
 
-	static const R3dShaderSource& get_fragment_gl_2();
+	static const Ren3dShaderSource& get_fragment_gl_2();
 
-	static const R3dShaderSource& get_vertex_gl_2();
+	static const Ren3dShaderSource& get_vertex_gl_2();
 
-	static const R3dShaderSource& get_fragment_gl_3_2_core();
+	static const Ren3dShaderSource& get_fragment_gl_3_2_core();
 
-	static const R3dShaderSource& get_vertex_gl_3_2_core();
+	static const Ren3dShaderSource& get_vertex_gl_3_2_core();
 
-	static const R3dShaderSource& get_fragment_gles_2_0();
+	static const Ren3dShaderSource& get_fragment_gles_2_0();
 
-	static const R3dShaderSource& get_vertex_gles_2_0();
+	static const Ren3dShaderSource& get_vertex_gles_2_0();
 }; // HwShaderRegistry
 
 

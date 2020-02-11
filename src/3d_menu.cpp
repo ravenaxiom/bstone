@@ -4858,13 +4858,13 @@ int menu_video_mode_aa_factor_adjust(
 {
 	auto current_aa_factor = aa_factor;
 
-	if (current_aa_factor < bstone::R3dLimits::aa_min_on)
+	if (current_aa_factor < bstone::Ren3dLimits::aa_min_on)
 	{
-		current_aa_factor = bstone::R3dLimits::aa_min_on;
+		current_aa_factor = bstone::Ren3dLimits::aa_min_on;
 	}
-	else if (current_aa_factor > bstone::R3dLimits::aa_max)
+	else if (current_aa_factor > bstone::Ren3dLimits::aa_max)
 	{
-		current_aa_factor = bstone::R3dLimits::aa_max;
+		current_aa_factor = bstone::Ren3dLimits::aa_max;
 	}
 
 	auto current_pow = 0;
@@ -4918,17 +4918,17 @@ std::string menu_video_mode_size_get_string(
 }
 
 const std::string& menu_video_mode_aa_kind_get_string(
-	const bstone::R3dAaKind aa_kind)
+	const bstone::Ren3dAaKind aa_kind)
 {
 	static const auto none_string = std::string{"NONE"};
 	static const auto msaa_string = std::string{"MSAA"};
 
 	switch (aa_kind)
 	{
-		case bstone::R3dAaKind::none:
+		case bstone::Ren3dAaKind::none:
 			return none_string;
 
-		case bstone::R3dAaKind::ms:
+		case bstone::Ren3dAaKind::ms:
 			return msaa_string;
 
 		default:
@@ -5239,26 +5239,26 @@ void video_menu_mode_window_aa_kind_carousel(
 {
 	switch (menu_video_mode_cfg_.aa_kind_)
 	{
-		case bstone::R3dAaKind::none:
+		case bstone::Ren3dAaKind::none:
 			if (is_left)
 			{
-				menu_video_mode_cfg_.aa_kind_ = bstone::R3dAaKind::ms;
+				menu_video_mode_cfg_.aa_kind_ = bstone::Ren3dAaKind::ms;
 			}
 			else if (is_right)
 			{
-				menu_video_mode_cfg_.aa_kind_ = bstone::R3dAaKind::ms;
+				menu_video_mode_cfg_.aa_kind_ = bstone::Ren3dAaKind::ms;
 			}
 
 			break;
 
-		case bstone::R3dAaKind::ms:
+		case bstone::Ren3dAaKind::ms:
 			if (is_left)
 			{
-				menu_video_mode_cfg_.aa_kind_ = bstone::R3dAaKind::none;
+				menu_video_mode_cfg_.aa_kind_ = bstone::Ren3dAaKind::none;
 			}
 			else if (is_right)
 			{
-				menu_video_mode_cfg_.aa_kind_ = bstone::R3dAaKind::none;
+				menu_video_mode_cfg_.aa_kind_ = bstone::Ren3dAaKind::none;
 			}
 
 			break;
@@ -5288,13 +5288,13 @@ void video_menu_mode_window_aa_factor_carousel(
 		aa_factor *= 2;
 	}
 
-	if (aa_factor < bstone::R3dLimits::aa_min_on)
+	if (aa_factor < bstone::Ren3dLimits::aa_min_on)
 	{
-		aa_factor = bstone::R3dLimits::aa_max;
+		aa_factor = bstone::Ren3dLimits::aa_max;
 	}
-	else if (aa_factor > bstone::R3dLimits::aa_max)
+	else if (aa_factor > bstone::Ren3dLimits::aa_max)
 	{
-		aa_factor = bstone::R3dLimits::aa_min_on;
+		aa_factor = bstone::Ren3dLimits::aa_min_on;
 	}
 
 	menu_video_mode_cfg_.aa_degree_ = aa_factor;
@@ -5364,17 +5364,17 @@ void video_menu_mode_routine(
 
 ///
 const std::string& texturing_filter_to_string(
-	const bstone::R3dFilterKind filter)
+	const bstone::Ren3dFilterKind filter)
 {
 	static const auto nearest_string = std::string{"NEAREST"};
 	static const auto linear_string = std::string{"LINEAR"};
 
 	switch (filter)
 	{
-		case bstone::R3dFilterKind::nearest:
+		case bstone::Ren3dFilterKind::nearest:
 			return nearest_string;
 
-		case bstone::R3dFilterKind::linear:
+		case bstone::Ren3dFilterKind::linear:
 			return linear_string;
 
 		default:
@@ -5387,13 +5387,13 @@ int texturing_anisotropy_to_pot(
 {
 	auto pot_anisotropy = anisotropy;
 
-	if (pot_anisotropy < bstone::R3dLimits::anisotropy_min_off)
+	if (pot_anisotropy < bstone::Ren3dLimits::anisotropy_min_off)
 	{
-		pot_anisotropy = bstone::R3dLimits::anisotropy_min_off;
+		pot_anisotropy = bstone::Ren3dLimits::anisotropy_min_off;
 	}
-	else if (pot_anisotropy > bstone::R3dLimits::anisotropy_max)
+	else if (pot_anisotropy > bstone::Ren3dLimits::anisotropy_max)
 	{
-		pot_anisotropy = bstone::R3dLimits::anisotropy_max;
+		pot_anisotropy = bstone::Ren3dLimits::anisotropy_max;
 	}
 
 	auto power = 0;
@@ -5511,7 +5511,7 @@ void texturing_draw_switch(
 				case static_cast<int>(TexturingMenuIndices::anisotropy):
 				{
 					const auto anisotropy_string = (
-						vid_cfg.d3_texture_anisotropy_ > bstone::R3dLimits::anisotropy_min_off ?
+						vid_cfg.d3_texture_anisotropy_ > bstone::Ren3dLimits::anisotropy_min_off ?
 						std::to_string(vid_cfg.d3_texture_anisotropy_) :
 						"OFF"
 					);
@@ -5634,14 +5634,14 @@ void texturing_anisotropy_carousel(
 		anisotropy *= 2;
 	}
 
-	if (anisotropy < bstone::R3dLimits::anisotropy_min_off)
+	if (anisotropy < bstone::Ren3dLimits::anisotropy_min_off)
 	{
-		anisotropy = bstone::R3dLimits::anisotropy_max;
+		anisotropy = bstone::Ren3dLimits::anisotropy_max;
 	}
 
-	if (anisotropy > bstone::R3dLimits::anisotropy_max)
+	if (anisotropy > bstone::Ren3dLimits::anisotropy_max)
 	{
-		anisotropy = bstone::R3dLimits::anisotropy_min_off;
+		anisotropy = bstone::Ren3dLimits::anisotropy_min_off;
 	}
 
 	vid_cfg.d3_texture_anisotropy_ = anisotropy;
@@ -5655,16 +5655,16 @@ void texturing_anisotropy_carousel(
 }
 
 void texturing_filter_carousel(
-	bstone::R3dFilterKind& filter)
+	bstone::Ren3dFilterKind& filter)
 {
 	switch (filter)
 	{
-		case bstone::R3dFilterKind::nearest:
-			filter = bstone::R3dFilterKind::linear;
+		case bstone::Ren3dFilterKind::nearest:
+			filter = bstone::Ren3dFilterKind::linear;
 			break;
 
-		case bstone::R3dFilterKind::linear:
-			filter = bstone::R3dFilterKind::nearest;
+		case bstone::Ren3dFilterKind::linear:
+			filter = bstone::Ren3dFilterKind::nearest;
 			break;
 
 		default:
