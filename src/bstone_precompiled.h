@@ -76,17 +76,22 @@ Free Software Foundation, Inc.,
 #include "bstone_endian.h"
 #include "bstone_exception.h"
 #include "bstone_logger.h"
+#include "bstone_sdl_types.h"
+#include "bstone_sha1.h"
+#include "bstone_stream.h"
+#include "bstone_string_helper.h"
+#include "bstone_mt_worker_manager.h"
+
+#include "bstone_extent_2d.h"
+#include "bstone_offset_2d.h"
+#include "bstone_rect_2d.h"
+
 #include "bstone_renderer.h"
 #include "bstone_renderer_3d.h"
 #include "bstone_renderer_3d_command_buffer.h"
 #include "bstone_renderer_3d_command_queue.h"
 #include "bstone_renderer_3d_command_tests.h"
 #include "bstone_renderer_limits.h"
-#include "bstone_sdl_types.h"
-#include "bstone_sha1.h"
-#include "bstone_stream.h"
-#include "bstone_string_helper.h"
-#include "bstone_mt_worker_manager.h"
 
 
 #endif // BSTONE_USE_PCH

@@ -105,10 +105,11 @@ Ren3dGl::Ren3dGl(
 	window_param.aa_kind_ = aa_kind_;
 	window_param.aa_value_ = aa_value_;
 
-	if (window_param.window_.width_ == 0 || window_param.window_.height_ == 0)
+	if (window_param.window_.rect_2d_.extent_.width_ == 0 ||
+		window_param.window_.rect_2d_.extent_.height_ == 0)
 	{
-		window_param.window_.width_ = 1;
-		window_param.window_.height_ = 1;
+		window_param.window_.rect_2d_.extent_.width_ = 1;
+		window_param.window_.rect_2d_.extent_.height_ = 1;
 	}
 
 	if (window_param.aa_kind_ == Ren3dAaKind::ms)
@@ -363,10 +364,12 @@ void Ren3dGl::window_set_mode(
 {
 	Ren3dUtils::window_set_mode(sdl_window_.get(), param);
 
-	const auto size_changed = (screen_width_ != param.width_ || screen_height_ != param.height_);
+	const auto size_changed = (
+		screen_width_ != param.rect_2d_.extent_.width_ ||
+		screen_height_ != param.rect_2d_.extent_.height_);
 
-	screen_width_ = param.width_;
-	screen_height_ = param.height_;
+	screen_width_ = param.rect_2d_.extent_.width_;
+	screen_height_ = param.rect_2d_.extent_.height_;
 
 	if (size_changed && gl_device_features_.framebuffer_is_available_)
 	{

@@ -3530,8 +3530,8 @@ void hw_renderer_initialize()
 	param.window_.is_visible_ = true;
 #endif // __vita__
 
-	param.window_.width_ = ::vid_dimensions_.window_width_;
-	param.window_.height_ = ::vid_dimensions_.window_height_;
+	param.window_.rect_2d_.extent_.width_ = ::vid_dimensions_.window_width_;
+	param.window_.rect_2d_.extent_.height_ = ::vid_dimensions_.window_height_;
 
 	if (!::vid_cfg_.is_windowed_)
 	{
@@ -3540,8 +3540,8 @@ void hw_renderer_initialize()
 	}
 
 	param.window_.is_positioned_ = ::vid_cfg_.is_positioned_;
-	param.window_.x_ = ::vid_cfg_.windowed_x_;
-	param.window_.y_ = ::vid_cfg_.windowed_y_;
+	param.window_.rect_2d_.offset_.x_ = ::vid_cfg_.windowed_x_;
+	param.window_.rect_2d_.offset_.y_ = ::vid_cfg_.windowed_y_;
 
 	param.window_.title_utf8_ = title;
 
@@ -13694,8 +13694,8 @@ void vid_video_mode_apply_window_sw()
 
 	auto param = bstone::Ren3dWindowSetModeParam{};
 	param.is_windowed_ = vid_cfg_.is_windowed_;
-	param.width_ = vid_cfg_.windowed_width_;
-	param.height_ = vid_cfg_.windowed_height_;
+	param.rect_2d_.extent_.width_ = vid_cfg_.windowed_width_;
+	param.rect_2d_.extent_.height_ = vid_cfg_.windowed_height_;
 	bstone::detail::Ren3dUtils::window_set_mode(sw_window_.get(), param);
 
 	vid_common_initialize();
@@ -13711,8 +13711,8 @@ void vid_video_mode_apply_window_hw()
 
 	auto param = bstone::Ren3dWindowSetModeParam{};
 	param.is_windowed_ = vid_cfg_.is_windowed_;
-	param.width_ = vid_dimensions_.window_width_;
-	param.height_ = vid_dimensions_.window_height_;
+	param.rect_2d_.extent_.width_ = vid_dimensions_.window_width_;
+	param.rect_2d_.extent_.height_ = vid_dimensions_.window_height_;
 	hw_renderer_->window_set_mode(param);
 
 	vid_common_initialize();

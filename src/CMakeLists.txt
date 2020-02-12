@@ -232,6 +232,10 @@ target_sources(
 		dosbox/pic.h
 		dosbox/setup.h
 
+		bstone_extent_2d.h
+		bstone_offset_2d.h
+		bstone_rect_2d.h
+
 		bstone_hw_shader_registry.h
 		bstone_hw_texture_mgr.h
 		bstone_missing_sprite_64x64_image.h
@@ -355,6 +359,10 @@ target_sources(
 		dosbox/dbopl.cpp
 
 		lib/xbrz/xbrz.cpp
+
+		bstone_extent_2d.cpp
+		bstone_offset_2d.cpp
+		bstone_rect_2d.cpp
 
 		bstone_hw_shader_registry.cpp
 		bstone_hw_texture_mgr.cpp

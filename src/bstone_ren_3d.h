@@ -34,6 +34,7 @@ Free Software Foundation, Inc.,
 #include <memory>
 #include <string>
 
+#include "bstone_rect_2d.h"
 #include "bstone_ren_3d_buffer.h"
 #include "bstone_ren_3d_texture_2d.h"
 #include "bstone_ren_3d_types.h"
@@ -58,11 +59,7 @@ struct Ren3dCreateWindowParam
 	bool is_fullscreen_desktop_;
 	bool is_positioned_;
 
-	int x_;
-	int y_;
-
-	int width_;
-	int height_;
+	Rect2d rect_2d_;
 
 	std::string title_utf8_;
 }; // Ren3dCreateWindowParam
@@ -72,11 +69,7 @@ struct Ren3dWindowSetModeParam
 	bool is_windowed_;
 	bool is_positioned_;
 
-	int x_;
-	int y_;
-
-	int width_;
-	int height_;
+	Rect2d rect_2d_;
 }; // Ren3dWindowSetModeParam
 
 struct Ren3dCreateParam

@@ -291,8 +291,8 @@ int Ren3dGlUtils::msaa_window_get_max(
 		auto window_param = Ren3dUtilsCreateWindowParam{};
 		window_param.renderer_kind_ = renderer_kind;
 		window_param.window_.is_borderless_ = true;
-		window_param.window_.width_ = 1;
-		window_param.window_.height_ = 1;
+		window_param.window_.rect_2d_.extent_.width_ = 1;
+		window_param.window_.rect_2d_.extent_.height_ = 1;
 		window_param.aa_kind_ = Ren3dAaKind::ms;
 
 		auto max_msaa = Ren3dLimits::aa_min_off;
@@ -350,8 +350,8 @@ int Ren3dGlUtils::msaa_fbo_get_max(
 		auto window_param = Ren3dUtilsCreateWindowParam{};
 		window_param.renderer_kind_ = renderer_kind;
 		window_param.window_.is_borderless_ = true;
-		window_param.window_.width_ = 1;
-		window_param.window_.height_ = 1;
+		window_param.window_.rect_2d_.extent_.width_ = 1;
+		window_param.window_.rect_2d_.extent_.height_ = 1;
 
 		auto sdl_window = SdlWindowUPtr{};
 		auto sdl_gl_context = SdlGlContextUPtr{};

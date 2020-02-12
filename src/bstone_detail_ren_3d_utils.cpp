@@ -117,14 +117,14 @@ SdlWindowUPtr Ren3dUtils::window_create(
 
 	const auto x = (
 		param.window_.is_positioned_ ?
-			param.window_.x_
+			param.window_.rect_2d_.offset_.x_
 			:
 			SDL_WINDOWPOS_CENTERED
 	);
 
 	const auto y = (
 		param.window_.is_positioned_ ?
-			param.window_.y_
+			param.window_.rect_2d_.offset_.y_
 			:
 			SDL_WINDOWPOS_CENTERED
 	);
@@ -133,8 +133,8 @@ SdlWindowUPtr Ren3dUtils::window_create(
 		param.window_.title_utf8_.c_str(),
 		x,
 		y,
-		param.window_.width_,
-		param.window_.height_,
+		param.window_.rect_2d_.extent_.width_,
+		param.window_.rect_2d_.extent_.height_,
 		sdl_flags
 	)};
 
@@ -158,12 +158,12 @@ void Ren3dUtils::window_set_mode(
 		throw Exception{"Null window."};
 	}
 
-	if (param.height_ <= 0)
+	if (param.rect_2d_.extent_.height_ <= 0)
 	{
 		throw Exception{"Height out of range."};
 	}
 
-	if (param.width_ <= 0)
+	if (param.rect_2d_.extent_.width_ <= 0)
 	{
 		throw Exception{"Width out of range."};
 	}
@@ -189,7 +189,9 @@ void Ren3dUtils::window_set_mode(
 		throw Exception{"Failed to get current window size."};
 	}
 
-	const auto is_size_changed = (current_width != param.width_ || current_height != param.height_);
+	const auto is_size_changed = (
+		current_width != param.rect_2d_.extent_.width_ ||
+		current_height != param.rect_2d_.extent_.height_);
 
 
 	//
@@ -212,12 +214,12 @@ void Ren3dUtils::window_set_mode(
 
 	if (is_size_changed && param.is_windowed_)
 	{
-		::SDL_SetWindowSize(sdl_window, param.width_, param.height_);
+		::SDL_SetWindowSize(sdl_window, param.rect_2d_.extent_.width_, param.rect_2d_.extent_.height_);
 
 		if (param.is_positioned_)
 		{
-			const auto x = std::max(param.x_, 0);
-			const auto y = std::max(param.y_, 0);
+			const auto x = std::max(param.rect_2d_.offset_.x_, 0);
+			const auto y = std::max(param.rect_2d_.offset_.y_, 0);
 
 			::SDL_SetWindowPosition(sdl_window, x, y);
 		}
@@ -273,12 +275,12 @@ void Ren3dUtils::validate_initialize_param(
 		throw Exception{"Unsupported renderer kind."};
 	}
 
-	if (param.window_.width_ <= 0)
+	if (param.window_.rect_2d_.extent_.width_ <= 0)
 	{
 		throw Exception{"Invalid window width."};
 	}
 
-	if (param.window_.height_ <= 0)
+	if (param.window_.rect_2d_.extent_.height_ <= 0)
 	{
 		throw Exception{"Invalid window height."};
 	}
@@ -757,12 +759,15 @@ void Ren3dUtils::build_mipmap(
 void Ren3dUtils::create_window_validate_param(
 	const Ren3dUtilsCreateWindowParam& param)
 {
-	if (param.window_.is_positioned_ && (param.window_.x_ < 0 || param.window_.y_ < 0))
+	if (param.window_.is_positioned_ && (
+		param.window_.rect_2d_.offset_.x_ < 0 ||
+			param.window_.rect_2d_.offset_.y_ < 0))
 	{
 		throw Exception{"Invalid position."};
 	}
 
-	if (param.window_.width_ <= 0 || param.window_.height_ <= 0)
+	if (param.window_.rect_2d_.extent_.width_ <= 0 ||
+		param.window_.rect_2d_.extent_.height_ <= 0)
 	{
 		throw Exception{"Invalid dimensions."};
 	}
