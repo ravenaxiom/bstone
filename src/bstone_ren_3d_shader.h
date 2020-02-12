@@ -39,7 +39,7 @@ namespace bstone
 
 
 // ==========================================================================
-// Shader
+// Ren3dShader
 //
 
 enum class Ren3dShaderKind
@@ -61,6 +61,7 @@ struct Ren3dCreateShaderParam
 	Ren3dShaderSource source_;
 }; // CreateParam
 
+
 class Ren3dShader
 {
 protected:
@@ -78,7 +79,7 @@ using Ren3dShaderPtr = Ren3dShader*;
 using Ren3dShaderUPtr = std::unique_ptr<Ren3dShader>;
 
 //
-// Shader
+// Ren3dShader
 // ==========================================================================
 
 

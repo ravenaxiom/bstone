@@ -1146,20 +1146,20 @@ void HwTextureMgrImpl::set_common_texture_2d_properties(
 	const auto is_height_pot = detail::Ren3dUtils::is_pot_value(actual_height);
 
 	const auto is_npot = (!is_width_pot || !is_height_pot);
-	const auto has_hw_npot = (!is_npot || (is_npot && device_features.npot_is_available_));
+	const auto has_hw_npot = (!is_npot || (is_npot && device_features.is_npot_available_));
 
 	if (has_hw_npot)
 	{
-		actual_width = std::min(actual_width, device_features.texture_max_dimension_);
-		actual_height = std::min(actual_height, device_features.texture_max_dimension_);
+		actual_width = std::min(actual_width, device_features.max_texture_dimension_);
+		actual_height = std::min(actual_height, device_features.max_texture_dimension_);
 	}
 	else
 	{
 		actual_width = detail::Ren3dUtils::find_nearest_pot_value(actual_width);
-		actual_width = std::min(actual_width, device_features.texture_max_dimension_);
+		actual_width = std::min(actual_width, device_features.max_texture_dimension_);
 
 		actual_height = detail::Ren3dUtils::find_nearest_pot_value(actual_height);
-		actual_height = std::min(actual_height, device_features.texture_max_dimension_);
+		actual_height = std::min(actual_height, device_features.max_texture_dimension_);
 	}
 
 	properties.upscale_width_ = upscale_width;
@@ -1358,7 +1358,7 @@ void HwTextureMgrImpl::update_mipmaps(
 
 	const auto& device_features = renderer_->get_device_features();
 
-	const auto npot_is_available = device_features.npot_is_available_;
+	const auto npot_is_available = device_features.is_npot_available_;
 
 	const auto max_subbuffer_size = properties.actual_width_ * properties.actual_height_;
 
@@ -1367,7 +1367,7 @@ void HwTextureMgrImpl::update_mipmaps(
 	const auto is_manual_mipmaps =
 		properties.is_generate_mipmaps_ &&
 		properties.mipmap_count_ > 1 &&
-		!device_features.mipmap_is_available_;
+		!device_features.is_mipmap_available_;
 
 	if (is_manual_mipmaps)
 	{
@@ -1466,7 +1466,7 @@ void HwTextureMgrImpl::update_mipmaps(
 
 	if (properties.is_generate_mipmaps_ &&
 		properties.mipmap_count_ > 1 &&
-		device_features.mipmap_is_available_)
+		device_features.is_mipmap_available_)
 	{
 		mipmap_count = 1;
 	}
@@ -1510,7 +1510,7 @@ void HwTextureMgrImpl::update_mipmaps(
 
 	if (properties.is_generate_mipmaps_ &&
 		properties.mipmap_count_ > 1 &&
-		device_features.mipmap_is_available_)
+		device_features.is_mipmap_available_)
 	{
 		texture_2d->generate_mipmaps();
 	}

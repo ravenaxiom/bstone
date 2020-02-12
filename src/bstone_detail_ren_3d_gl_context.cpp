@@ -298,7 +298,7 @@ void GlContextImpl::initialize_shader_stages()
 
 void GlContextImpl::mipmap_set_max_quality()
 {
-	if (!device_features_.mipmap_is_available_)
+	if (!device_features_.is_mipmap_available_)
 	{
 		return;
 	}

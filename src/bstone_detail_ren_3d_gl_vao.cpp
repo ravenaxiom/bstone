@@ -209,7 +209,7 @@ void GlVaoImpl::initialize_resource()
 
 void GlVaoImpl::initialize_locations()
 {
-	enabled_locations_.resize(device_features_.vertex_input_max_locations_);
+	enabled_locations_.resize(device_features_.max_vertex_input_locations_);
 }
 
 void GlVaoImpl::initialize()

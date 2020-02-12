@@ -134,7 +134,7 @@ GlSamplerImpl::GlSamplerImpl(
 
 	state_ = param.state_;
 
-	if (device_features.sampler_is_available_)
+	if (device_features.is_sampler_available_)
 	{
 		auto gl_name = GLuint{};
 

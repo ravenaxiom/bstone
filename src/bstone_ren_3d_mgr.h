@@ -38,6 +38,10 @@ namespace bstone
 {
 
 
+// ==========================================================================
+// Ren3dMgr
+//
+
 class Ren3dMgr
 {
 protected:
@@ -54,12 +58,23 @@ public:
 
 using Ren3dMgrUPtr = std::unique_ptr<Ren3dMgr>;
 
+//
+// Ren3dMgr
+// ==========================================================================
 
-class Ren3dMgrFactory
+
+// ==========================================================================
+// Ren3dMgrFactory
+//
+
+struct Ren3dMgrFactory
 {
-public:
 	static Ren3dMgrUPtr create();
 }; // Ren3dMgrFactory
+
+//
+// Ren3dMgrFactory
+// ==========================================================================
 
 
 } // bstone

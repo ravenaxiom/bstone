@@ -260,17 +260,17 @@ int Ren3dGlUtils::anisotropy_clamp_value(
 {
 	auto clamped_value = anisotropy_value;
 
-	if (clamped_value < Ren3dLimits::anisotropy_min_off)
+	if (clamped_value < Ren3dLimits::min_anisotropy_off)
 	{
-		clamped_value = Ren3dLimits::anisotropy_min_off;
+		clamped_value = Ren3dLimits::min_anisotropy_off;
 	}
-	else if (clamped_value < Ren3dLimits::anisotropy_min_on)
+	else if (clamped_value < Ren3dLimits::min_anisotropy_on)
 	{
-		clamped_value = Ren3dLimits::anisotropy_min_on;
+		clamped_value = Ren3dLimits::min_anisotropy_on;
 	}
-	else if (clamped_value > device_features.anisotropy_max_degree_)
+	else if (clamped_value > device_features.max_anisotropy_degree_)
 	{
-		clamped_value = device_features.anisotropy_max_degree_;
+		clamped_value = device_features.max_anisotropy_degree_;
 	}
 
 	return clamped_value;
@@ -295,9 +295,9 @@ int Ren3dGlUtils::msaa_window_get_max(
 		window_param.window_.rect_2d_.extent_.height_ = 1;
 		window_param.aa_kind_ = Ren3dAaKind::ms;
 
-		auto max_msaa = Ren3dLimits::aa_min_off;
+		auto max_msaa = Ren3dLimits::min_aa_off;
 
-		for (int i = Ren3dLimits::aa_min_on; i <= Ren3dLimits::aa_max; i *= 2)
+		for (int i = Ren3dLimits::min_aa_on; i <= Ren3dLimits::max_aa; i *= 2)
 		{
 			window_param.aa_value_ = i;
 
@@ -329,7 +329,7 @@ int Ren3dGlUtils::msaa_window_get_max(
 	}
 	catch (const Exception&)
 	{
-		return Ren3dLimits::aa_min_off;
+		return Ren3dLimits::min_aa_off;
 	}
 }
 
@@ -374,7 +374,7 @@ int Ren3dGlUtils::msaa_fbo_get_max(
 
 		if (!gl_device_features.framebuffer_is_available_)
 		{
-			return Ren3dLimits::aa_min_off;
+			return Ren3dLimits::min_aa_off;
 		}
 
 
@@ -389,7 +389,7 @@ int Ren3dGlUtils::msaa_fbo_get_max(
 	}
 	catch (const Exception&)
 	{
-		return Ren3dLimits::aa_min_off;
+		return Ren3dLimits::min_aa_off;
 	}
 }
 
@@ -398,21 +398,21 @@ void Ren3dGlUtils::msaa_probe(
 	Ren3dDeviceFeatures& device_features,
 	Ren3dGlDeviceFeatures& gl_device_features)
 {
-	device_features.msaa_is_available_ = false;
-	device_features.msaa_is_render_to_window_ = false;
-	device_features.msaa_is_requires_restart_ = false;
-	device_features.msaa_max_degree_ = Ren3dLimits::aa_min_off;
+	device_features.is_msaa_available_ = false;
+	device_features.is_msaa_render_to_window_ = false;
+	device_features.is_msaa_requires_restart_ = false;
+	device_features.max_msaa_degree_ = Ren3dLimits::min_aa_off;
 
 	const auto msaa_window_max = Ren3dGlUtils::msaa_window_get_max(
 		renderer_kind);
 
-	if (msaa_window_max >= Ren3dLimits::aa_min_on)
+	if (msaa_window_max >= Ren3dLimits::min_aa_on)
 	{
-		device_features.msaa_is_available_ = true;
+		device_features.is_msaa_available_ = true;
 
-		if (msaa_window_max > device_features.msaa_max_degree_)
+		if (msaa_window_max > device_features.max_msaa_degree_)
 		{
-			device_features.msaa_max_degree_ = msaa_window_max;
+			device_features.max_msaa_degree_ = msaa_window_max;
 		}
 	}
 
@@ -422,21 +422,21 @@ void Ren3dGlUtils::msaa_probe(
 		gl_device_features
 	);
 
-	if (msaa_fbo_max >= Ren3dLimits::aa_min_on)
+	if (msaa_fbo_max >= Ren3dLimits::min_aa_on)
 	{
-		device_features.msaa_is_available_ = true;
+		device_features.is_msaa_available_ = true;
 
-		if (msaa_fbo_max > device_features.msaa_max_degree_)
+		if (msaa_fbo_max > device_features.max_msaa_degree_)
 		{
-			device_features.msaa_max_degree_ = msaa_fbo_max;
+			device_features.max_msaa_degree_ = msaa_fbo_max;
 		}
 	}
 
-	if (msaa_window_max >= Ren3dLimits::aa_min_on &&
-		msaa_fbo_max < Ren3dLimits::aa_min_on)
+	if (msaa_window_max >= Ren3dLimits::min_aa_on &&
+		msaa_fbo_max < Ren3dLimits::min_aa_on)
 	{
-		device_features.msaa_is_render_to_window_ = true;
-		device_features.msaa_is_requires_restart_ = true;
+		device_features.is_msaa_render_to_window_ = true;
+		device_features.is_msaa_requires_restart_ = true;
 	}
 }
 
@@ -486,9 +486,9 @@ int Ren3dGlUtils::anisotropy_get_max_value()
 
 	Ren3dGlError::ensure_debug();
 
-	if (gl_max_value <= static_cast<GLfloat>(Ren3dLimits::anisotropy_min_off))
+	if (gl_max_value <= static_cast<GLfloat>(Ren3dLimits::min_anisotropy_off))
 	{
-		return Ren3dLimits::anisotropy_min_off;
+		return Ren3dLimits::min_anisotropy_off;
 	}
 
 	return static_cast<int>(gl_max_value);
@@ -499,7 +499,7 @@ void Ren3dGlUtils::anisotropy_set_value(
 	const Ren3dDeviceFeatures& device_features,
 	const int anisotropy_value)
 {
-	if (!device_features.anisotropy_is_available_)
+	if (!device_features.is_anisotropy_available_)
 	{
 		return;
 	}
@@ -516,29 +516,29 @@ void Ren3dGlUtils::anisotropy_probe(
 	Ren3dGlExtensionMgrPtr extension_manager,
 	Ren3dDeviceFeatures& device_features)
 {
-	device_features.anisotropy_is_available_ = false;
-	device_features.anisotropy_max_degree_ = Ren3dLimits::anisotropy_min_off;
+	device_features.is_anisotropy_available_ = false;
+	device_features.max_anisotropy_degree_ = Ren3dLimits::min_anisotropy_off;
 
 #ifndef BSTONE_REN_3D_TEST_NO_ANISOTROPY
-	if (!device_features.anisotropy_is_available_)
+	if (!device_features.is_anisotropy_available_)
 	{
 		extension_manager->probe(Ren3dGlExtensionId::arb_texture_filter_anisotropic);
 
-		device_features.anisotropy_is_available_ =
+		device_features.is_anisotropy_available_ =
 			extension_manager->has(Ren3dGlExtensionId::arb_texture_filter_anisotropic);
 	}
 
-	if (!device_features.anisotropy_is_available_)
+	if (!device_features.is_anisotropy_available_)
 	{
 		extension_manager->probe(Ren3dGlExtensionId::ext_texture_filter_anisotropic);
 
-		device_features.anisotropy_is_available_ =
+		device_features.is_anisotropy_available_ =
 			extension_manager->has(Ren3dGlExtensionId::ext_texture_filter_anisotropic);
 	}
 
-	if (device_features.anisotropy_is_available_)
+	if (device_features.is_anisotropy_available_)
 	{
-		device_features.anisotropy_max_degree_ = anisotropy_get_max_value();
+		device_features.max_anisotropy_degree_ = anisotropy_get_max_value();
 	}
 #endif // !BSTONE_REN_3D_TEST_NO_ANISOTROPY
 }
@@ -547,26 +547,26 @@ void Ren3dGlUtils::npot_probe(
 	Ren3dGlExtensionMgrPtr extension_manager,
 	Ren3dDeviceFeatures& device_features)
 {
-	device_features.npot_is_available_ = false;
+	device_features.is_npot_available_ = false;
 
 #ifndef BSTONE_REN_3D_TEST_POT_ONLY
-	if (!device_features.npot_is_available_)
+	if (!device_features.is_npot_available_)
 	{
 		extension_manager->probe(Ren3dGlExtensionId::arb_texture_non_power_of_two);
 
 		if (extension_manager->has(Ren3dGlExtensionId::arb_texture_non_power_of_two))
 		{
-			device_features.npot_is_available_ = true;
+			device_features.is_npot_available_ = true;
 		}
 	}
 
-	if (!device_features.npot_is_available_)
+	if (!device_features.is_npot_available_)
 	{
 		extension_manager->probe(Ren3dGlExtensionId::oes_texture_npot);
 
 		if (extension_manager->has(Ren3dGlExtensionId::oes_texture_npot))
 		{
-			device_features.npot_is_available_ = true;
+			device_features.is_npot_available_ = true;
 		}
 	}
 #endif //!BSTONE_REN_3D_TEST_POT_ONLY
@@ -577,32 +577,32 @@ void Ren3dGlUtils::mipmap_probe(
 	Ren3dDeviceFeatures& device_features,
 	Ren3dGlDeviceFeatures& gl_device_features)
 {
-	device_features.mipmap_is_available_ = false;
+	device_features.is_mipmap_available_ = false;
 	gl_device_features.mipmap_is_ext_ = false;
 
 #ifndef BSTONE_REN_3D_TEST_SW_MIPMAP
 	if (gl_device_features.context_kind_ == Ren3dGlContextKind::es)
 	{
-		device_features.mipmap_is_available_ = true;
+		device_features.is_mipmap_available_ = true;
 	}
 
-	if (!device_features.mipmap_is_available_)
+	if (!device_features.is_mipmap_available_)
 	{
 		extension_manager->probe(Ren3dGlExtensionId::arb_framebuffer_object);
 
 		if (extension_manager->has(Ren3dGlExtensionId::arb_framebuffer_object))
 		{
-			device_features.mipmap_is_available_ = true;
+			device_features.is_mipmap_available_ = true;
 		}
 	}
 
-	if (!device_features.mipmap_is_available_)
+	if (!device_features.is_mipmap_available_)
 	{
 		extension_manager->probe(Ren3dGlExtensionId::ext_framebuffer_object);
 
 		if (extension_manager->has(Ren3dGlExtensionId::ext_framebuffer_object))
 		{
-			device_features.mipmap_is_available_ = true;
+			device_features.is_mipmap_available_ = true;
 			gl_device_features.mipmap_is_ext_ = true;
 		}
 	}
@@ -614,7 +614,7 @@ void Ren3dGlUtils::mipmap_generate(
 	const Ren3dDeviceFeatures& device_features,
 	const Ren3dGlDeviceFeatures& gl_device_features)
 {
-	if (!device_features.mipmap_is_available_)
+	if (!device_features.is_mipmap_available_)
 	{
 		throw Exception{"Mipmap generation not available."};
 	}
@@ -675,14 +675,14 @@ void Ren3dGlUtils::sampler_probe(
 	Ren3dGlExtensionMgrPtr extension_manager,
 	Ren3dDeviceFeatures& device_features)
 {
-	device_features.sampler_is_available_ = false;
+	device_features.is_sampler_available_ = false;
 
 #ifndef BSTONE_REN_3D_TEST_SW_SAMPLER
 	extension_manager->probe(Ren3dGlExtensionId::arb_sampler_objects);
 
 	if (extension_manager->has(Ren3dGlExtensionId::arb_sampler_objects))
 	{
-		device_features.sampler_is_available_ = true;
+		device_features.is_sampler_available_ = true;
 	}
 #endif // !BSTONE_REN_3D_TEST_SW_SAMPLER
 }
@@ -692,8 +692,8 @@ void Ren3dGlUtils::sampler_set_anisotropy(
 	const Ren3dDeviceFeatures& device_features,
 	const int anisotropy_value)
 {
-	if (!device_features.sampler_is_available_ ||
-		!device_features.anisotropy_is_available_)
+	if (!device_features.is_sampler_available_ ||
+		!device_features.is_anisotropy_available_)
 	{
 		return;
 	}
@@ -730,11 +730,11 @@ void Ren3dGlUtils::vertex_input_probe_max_locations(
 	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &gl_count);
 	Ren3dGlError::ensure_debug();
 
-	device_features.vertex_input_max_locations_ = 0;
+	device_features.max_vertex_input_locations_ = 0;
 
 	if (gl_count > 0)
 	{
-		device_features.vertex_input_max_locations_ = gl_count;
+		device_features.max_vertex_input_locations_ = gl_count;
 	}
 }
 
@@ -748,8 +748,8 @@ void Ren3dGlUtils::vsync_probe(
 		throw Exception{"No OpenGL context."};
 	}
 
-	device_features.vsync_is_available_ = false;
-	device_features.vsync_is_requires_restart_ = false;
+	device_features.is_vsync_available_ = false;
+	device_features.is_vsync_requires_restart_ = false;
 
 #ifndef BSTONE_REN_3D_TEST_NO_SWAP_INTERVAL
 	const auto off_result = enable_vsync(false);
@@ -757,7 +757,7 @@ void Ren3dGlUtils::vsync_probe(
 
 	if (off_result && on_result)
 	{
-		device_features.vsync_is_available_ = true;
+		device_features.is_vsync_available_ = true;
 	}
 #endif // !BSTONE_REN_3D_TEST_NO_SWAP_INTERVAL
 }
@@ -1098,10 +1098,10 @@ void Ren3dGlUtils::renderer_features_set(
 
 	// Set the values.
 	//
-	device_features.texture_max_dimension_ = gl_texture_dimension;
+	device_features.max_texture_dimension_ = gl_texture_dimension;
 
-	device_features.viewport_max_width_ = gl_viewport_dimensions[0];
-	device_features.viewport_max_height_ = gl_viewport_dimensions[1];
+	device_features.max_viewport_width_ = gl_viewport_dimensions[0];
+	device_features.max_viewport_height_ = gl_viewport_dimensions[1];
 }
 
 Ren3dDeviceInfo Ren3dGlUtils::device_info_get()

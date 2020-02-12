@@ -79,7 +79,7 @@ private:
 	const Ren3dGlDeviceFeatures& gl_device_features_;
 
 	Ren3dGlBufferPtr index_buffer_;
-	Ren3dVertexAttribDescriptions attribute_descriptions_;
+	Ren3dVertexAttribDescrs attrib_descrs_;
 
 
 	Ren3dGlVaoResource gl_resource_;
@@ -91,13 +91,13 @@ private:
 		const Ren3dCreateVertexInputParam& param);
 
 	void assign_default_attribute(
-		const Ren3dVertexAttribDescription& attribute_description);
+		const Ren3dVertexAttribDescr& attribute_description);
 
 	void assign_regular_attribute(
-		const Ren3dVertexAttribDescription& attribute_description);
+		const Ren3dVertexAttribDescr& attribute_description);
 
 	void assign_attribute(
-		const Ren3dVertexAttribDescription& attribute_description);
+		const Ren3dVertexAttribDescr& attribute_description);
 
 	void bind_internal();
 }; // GlVertexInputImpl
@@ -123,7 +123,7 @@ GlVertexInputImpl::GlVertexInputImpl(
 	device_features_{vertex_input_manager->get_gl_context()->get_device_features()},
 	gl_device_features_{vertex_input_manager->get_gl_context()->get_gl_device_features()},
 	index_buffer_{},
-	attribute_descriptions_{},
+	attrib_descrs_{},
 	gl_resource_{nullptr, Ren3dGlVaoDeleter{vertex_input_manager->get_gl_context()->vao_get_manager()}}
 {
 	initialize(param);
@@ -145,7 +145,7 @@ void GlVertexInputImpl::bind()
 
 	if (gl_device_features_.vao_is_available_)
 	{
-		for (const auto& attribute_description : attribute_descriptions_)
+		for (const auto& attribute_description : attrib_descrs_)
 		{
 			if (attribute_description.is_default_)
 			{
@@ -171,7 +171,7 @@ void GlVertexInputImpl::initialize_vao()
 
 	if (gl_device_features_.vao_is_available_)
 	{
-		for (const auto& attribute_description : attribute_descriptions_)
+		for (const auto& attribute_description : attrib_descrs_)
 		{
 			if (!attribute_description.is_default_)
 			{
@@ -184,13 +184,13 @@ void GlVertexInputImpl::initialize_vao()
 void GlVertexInputImpl::initialize(
 	const Ren3dCreateVertexInputParam& param)
 {
-	const auto max_locations = device_features_.vertex_input_max_locations_;
+	const auto max_locations = device_features_.max_vertex_input_locations_;
 
 	Ren3dUtils::vertex_input_validate_param(max_locations, param);
 
 	const auto is_location_out_of_range = std::any_of(
-		param.attribute_descriptions_.cbegin(),
-		param.attribute_descriptions_.cend(),
+		param.attrib_descrs_.cbegin(),
+		param.attrib_descrs_.cend(),
 		[=](const auto& item)
 		{
 			return item.location_ < 0 || item.location_ >= max_locations;
@@ -203,13 +203,13 @@ void GlVertexInputImpl::initialize(
 	}
 
 	index_buffer_ = static_cast<Ren3dGlBufferPtr>(param.index_buffer_);
-	attribute_descriptions_ = param.attribute_descriptions_;
+	attrib_descrs_ = param.attrib_descrs_;
 
 	initialize_vao();
 }
 
 void GlVertexInputImpl::assign_default_attribute(
-	const Ren3dVertexAttribDescription& attribute_description)
+	const Ren3dVertexAttribDescr& attribute_description)
 {
 	glVertexAttrib4fv(
 		attribute_description.location_,
@@ -220,7 +220,7 @@ void GlVertexInputImpl::assign_default_attribute(
 }
 
 void GlVertexInputImpl::assign_regular_attribute(
-	const Ren3dVertexAttribDescription& attribute_description)
+	const Ren3dVertexAttribDescr& attribute_description)
 {
 	auto gl_component_count = GLint{};
 	auto gl_component_format = GLenum{};
@@ -273,7 +273,7 @@ void GlVertexInputImpl::assign_regular_attribute(
 }
 
 void GlVertexInputImpl::assign_attribute(
-	const Ren3dVertexAttribDescription& attribute_description)
+	const Ren3dVertexAttribDescr& attribute_description)
 {
 	if (attribute_description.is_default_)
 	{
@@ -292,7 +292,7 @@ void GlVertexInputImpl::bind_internal()
 
 	vertex_input_manager->location_assign_begin();
 
-	for (const auto& attribute_description : attribute_descriptions_)
+	for (const auto& attribute_description : attrib_descrs_)
 	{
 		assign_attribute(attribute_description);
 	}

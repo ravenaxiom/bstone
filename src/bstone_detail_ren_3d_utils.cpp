@@ -369,7 +369,7 @@ void Ren3dUtils::vertex_input_validate_param(
 		throw Exception{"Non-index buffer."};
 	}
 
-	const auto& attribute_descriptions = param.attribute_descriptions_;
+	const auto& attribute_descriptions = param.attrib_descrs_;
 
 	if (attribute_descriptions.empty())
 	{
@@ -851,7 +851,7 @@ void Ren3dUtils::create_window_set_gl_attributes(
 	switch (param.aa_kind_)
 	{
 		case Ren3dAaKind::ms:
-			if (param.aa_value_ >= Ren3dLimits::aa_min_on)
+			if (param.aa_value_ >= Ren3dLimits::min_aa_on)
 			{
 				sdl_result = ::SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
 

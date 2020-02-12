@@ -37,16 +37,16 @@ namespace bstone
 
 struct Ren3dLimits
 {
-	static constexpr auto anisotropy_min_off = 1;
-	static constexpr auto anisotropy_min_on = 2;
-	static constexpr auto anisotropy_max = 16;
+	static constexpr int min_anisotropy_off = 1;
+	static constexpr int min_anisotropy_on = 2;
+	static constexpr int max_anisotropy = 16;
 
-	static constexpr auto aa_min_off = 1;
-	static constexpr auto aa_min_on = 2;
-	static constexpr auto aa_max = 32;
+	static constexpr int min_aa_off = 1;
+	static constexpr int min_aa_on = 2;
+	static constexpr int max_aa = 32;
 
 
-	static constexpr auto max_mipmap_count = 31;
+	static constexpr int max_mipmap_count = 31;
 }; // Ren3dLimits
 
 

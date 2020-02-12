@@ -210,7 +210,7 @@ void Ren3dGlVertexInputMgrImpl::location_assign_end()
 
 	const auto& device_features = gl_context_->get_device_features();
 
-	for (int i = 0; i < device_features.vertex_input_max_locations_; ++i)
+	for (int i = 0; i < device_features.max_vertex_input_locations_; ++i)
 	{
 		enable_location(i, vertex_input_assigned_locations_[i]);
 	}
@@ -220,9 +220,9 @@ void Ren3dGlVertexInputMgrImpl::initialize_vertex_input_locations()
 {
 	const auto& device_features = gl_context_->get_device_features();
 
-	vertex_input_assigned_locations_.resize(device_features.vertex_input_max_locations_);
+	vertex_input_assigned_locations_.resize(device_features.max_vertex_input_locations_);
 
-	for (int i = 0; i < device_features.vertex_input_max_locations_; ++i)
+	for (int i = 0; i < device_features.max_vertex_input_locations_; ++i)
 	{
 		enable_location(i, false);
 	}

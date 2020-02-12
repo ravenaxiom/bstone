@@ -329,7 +329,7 @@ void GlTexture2dImpl::generate_mipmaps()
 		throw Exception{"Base mipmap."};
 	}
 
-	if (!device_features_.mipmap_is_available_)
+	if (!device_features_.is_mipmap_available_)
 	{
 		throw Exception{"Mipmap generation not available."};
 	}
@@ -526,20 +526,20 @@ void GlTexture2dImpl::set_address_mode_v()
 
 void GlTexture2dImpl::set_anisotropy()
 {
-	if (!device_features_.anisotropy_is_available_)
+	if (!device_features_.is_anisotropy_available_)
 	{
 		return;
 	}
 
 	auto anisotropy = sampler_state_.anisotropy_;
 
-	if (anisotropy < Ren3dLimits::anisotropy_min_off)
+	if (anisotropy < Ren3dLimits::min_anisotropy_off)
 	{
-		anisotropy = Ren3dLimits::anisotropy_min_off;
+		anisotropy = Ren3dLimits::min_anisotropy_off;
 	}
-	else if (anisotropy > device_features_.anisotropy_max_degree_)
+	else if (anisotropy > device_features_.max_anisotropy_degree_)
 	{
-		anisotropy = device_features_.anisotropy_max_degree_;
+		anisotropy = device_features_.max_anisotropy_degree_;
 	}
 
 	const auto gl_anisotropy = static_cast<GLfloat>(anisotropy);
@@ -672,7 +672,7 @@ void GlTexture2dImpl::set_sampler_state_defaults()
 	sampler_state_.address_mode_v_ = Ren3dAddressMode::clamp;
 	set_address_mode_v();
 
-	sampler_state_.anisotropy_ = Ren3dLimits::anisotropy_min_off;
+	sampler_state_.anisotropy_ = Ren3dLimits::min_anisotropy_off;
 	set_anisotropy();
 }
 

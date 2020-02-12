@@ -165,29 +165,29 @@ struct Ren3dClearParam
 
 struct Ren3dDeviceFeatures
 {
-	bool vsync_is_available_;
-	bool vsync_is_requires_restart_;
+	bool is_vsync_available_;
+	bool is_vsync_requires_restart_;
 
-	int texture_max_dimension_;
+	int max_texture_dimension_;
 
-	int viewport_max_width_;
-	int viewport_max_height_;
+	int max_viewport_width_;
+	int max_viewport_height_;
 
-	bool anisotropy_is_available_;
-	int anisotropy_max_degree_;
+	bool is_anisotropy_available_;
+	int max_anisotropy_degree_;
 
-	bool npot_is_available_;
+	bool is_npot_available_;
 
-	bool mipmap_is_available_;
+	bool is_mipmap_available_;
 
-	bool sampler_is_available_;
+	bool is_sampler_available_;
 
-	bool msaa_is_available_;
-	bool msaa_is_render_to_window_;
-	bool msaa_is_requires_restart_;
-	int msaa_max_degree_;
+	bool is_msaa_available_;
+	bool is_msaa_render_to_window_;
+	bool is_msaa_requires_restart_;
+	int max_msaa_degree_;
 
-	int vertex_input_max_locations_;
+	int max_vertex_input_locations_;
 }; // Ren3dDeviceFeatures
 
 //

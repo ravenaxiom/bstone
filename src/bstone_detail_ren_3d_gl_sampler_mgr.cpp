@@ -126,7 +126,7 @@ void Ren3dGlSamplerMgrImpl::notify_destroy(
 {
 	if (sampler_current_ == sampler)
 	{
-		if (device_features_.sampler_is_available_)
+		if (device_features_.is_sampler_available_)
 		{
 			sampler_current_ = nullptr;
 		}
@@ -168,7 +168,7 @@ void Ren3dGlSamplerMgrImpl::initialize_default_sampler()
 
 void Ren3dGlSamplerMgrImpl::set()
 {
-	if (device_features_.sampler_is_available_)
+	if (device_features_.is_sampler_available_)
 	{
 		sampler_current_->set();
 	}

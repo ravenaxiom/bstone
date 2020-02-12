@@ -85,7 +85,6 @@ public:
 }; // Ren3dShaderVar
 
 using Ren3dShaderVarPtr = Ren3dShaderVar*;
-using Ren3dShaderVarCPtr = const Ren3dShaderVar*;
 
 //
 // Ren3dShaderVar
@@ -111,7 +110,6 @@ public:
 }; // Ren3dShaderVarInt32
 
 using Ren3dShaderVarInt32Ptr = Ren3dShaderVarInt32*;
-using Ren3dShaderVarInt32CPtr = const Ren3dShaderVarInt32*;
 
 //
 // Ren3dShaderVarInt32
@@ -137,7 +135,6 @@ public:
 }; // Ren3dShaderVarFloat32
 
 using Ren3dShaderVarFloat32Ptr = Ren3dShaderVarFloat32*;
-using Ren3dShaderVarFloat32CPtr = const Ren3dShaderVarFloat32*;
 
 //
 // Ren3dShaderVarFloat32
@@ -163,7 +160,6 @@ public:
 }; // Ren3dShaderVarVec2
 
 using Ren3dShaderVarVec2Ptr = Ren3dShaderVarVec2*;
-using Ren3dShaderVarVec2CPtr = const Ren3dShaderVarVec2*;
 
 //
 // Ren3dShaderVarVec2
@@ -189,7 +185,6 @@ public:
 }; // Ren3dShaderVarVec4
 
 using Ren3dShaderVarVec4Ptr = Ren3dShaderVarVec4*;
-using Ren3dShaderVarVec4CPtr = const Ren3dShaderVarVec4*;
 
 //
 // Ren3dShaderVarVec4
@@ -215,7 +210,6 @@ public:
 }; // Ren3dShaderVarMat4
 
 using Ren3dShaderVarMat4Ptr = Ren3dShaderVarMat4*;
-using Ren3dShaderVarMat4CPtr = const Ren3dShaderVarMat4*;
 
 //
 // Ren3dShaderVarMat4
@@ -241,7 +235,6 @@ public:
 }; // Ren3dShaderVarSampler2d
 
 using Ren3dShaderVarSampler2dPtr = Ren3dShaderVarSampler2d*;
-using Ren3dShaderVarSampler2dCPtr = const Ren3dShaderVarSampler2d*;
 
 //
 // Ren3dShaderVarSampler2d

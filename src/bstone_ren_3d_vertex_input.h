@@ -54,7 +54,7 @@ enum class Ren3dVertexAttribFormat
 	rgb_32_sfloat,
 }; // Ren3dVertexAttribFormat
 
-struct Ren3dVertexAttribDescription
+struct Ren3dVertexAttribDescr
 {
 	bool is_default_;
 	int location_;
@@ -63,14 +63,14 @@ struct Ren3dVertexAttribDescription
 	int offset_;
 	int stride_;
 	Ren3dVec4 default_value_;
-}; // Ren3dVertexAttribDescription
+}; // Ren3dVertexAttribDescr
 
-using Ren3dVertexAttribDescriptions = std::vector<Ren3dVertexAttribDescription>;
+using Ren3dVertexAttribDescrs = std::vector<Ren3dVertexAttribDescr>;
 
 struct Ren3dCreateVertexInputParam
 {
 	Ren3dBufferPtr index_buffer_;
-	Ren3dVertexAttribDescriptions attribute_descriptions_;
+	Ren3dVertexAttribDescrs attrib_descrs_;
 }; // Ren3dCreateVertexInputParam
 
 

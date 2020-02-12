@@ -2737,13 +2737,13 @@ bstone::Ren3dMipmapMode hw_config_texture_mipmap_filter_to_renderer(
 int hw_config_texture_anisotropy_to_renderer(
 	const int value)
 {
-	if (value < bstone::Ren3dLimits::anisotropy_min_off)
+	if (value < bstone::Ren3dLimits::min_anisotropy_off)
 	{
-		return bstone::Ren3dLimits::anisotropy_min_off;
+		return bstone::Ren3dLimits::min_anisotropy_off;
 	}
-	else if (value > bstone::Ren3dLimits::anisotropy_max)
+	else if (value > bstone::Ren3dLimits::max_anisotropy)
 	{
-		return bstone::Ren3dLimits::anisotropy_max;
+		return bstone::Ren3dLimits::max_anisotropy;
 	}
 	else
 	{
@@ -2921,7 +2921,7 @@ struct HwVertexInputAddAttributeDescription
 		const int stride,
 		const glm::vec4& default_value,
 		const bstone::Ren3dBufferUPtr& vertex_buffer,
-		bstone::Ren3dVertexAttribDescriptions& attribute_descriptions) const
+		bstone::Ren3dVertexAttribDescrs& attribute_descriptions) const
 	{
 		attribute_descriptions.emplace_back();
 
@@ -2947,7 +2947,7 @@ struct HwVertexInputAddAttributeDescription<TVertex, true>
 		const int stride,
 		const glm::vec4& default_value,
 		const bstone::Ren3dBufferUPtr& vertex_buffer,
-		bstone::Ren3dVertexAttribDescriptions& attribute_descriptions) const
+		bstone::Ren3dVertexAttribDescrs& attribute_descriptions) const
 	{
 		attribute_descriptions.emplace_back();
 
@@ -2969,7 +2969,7 @@ void hw_vertex_input_add_attribute_description(
 	const bstone::Ren3dVertexAttribFormat format,
 	const glm::vec4& default_value,
 	const bstone::Ren3dBufferUPtr& vertex_buffer,
-	bstone::Ren3dVertexAttribDescriptions& attribute_descriptions)
+	bstone::Ren3dVertexAttribDescrs& attribute_descriptions)
 {
 	const auto traits = HwVertexAttributeTraits<TVertex, TLocationId>{};
 	const auto add_attribute = HwVertexInputAddAttributeDescription<TVertex, traits.is_valid>{};
@@ -3011,7 +3011,7 @@ void hw_vertex_input_create(
 	auto param = bstone::Ren3dCreateVertexInputParam{};
 	param.index_buffer_ = index_buffer.get();
 
-	auto& descriptions = param.attribute_descriptions_;
+	auto& descriptions = param.attrib_descrs_;
 	descriptions.reserve(3);
 
 	::hw_vertex_input_add_attribute_description<TVertex, HwVertexAttributeLocationId::position>(
@@ -3491,21 +3491,21 @@ void hw_renderer_device_log_features()
 	vid_log();
 	vid_log("Device features");
 	vid_log("===============");
-	vid_log("V-Sync: " + vid_to_string(device_features.vsync_is_available_));
-	vid_log("V-Sync requires restart: " + vid_to_string(device_features.vsync_is_requires_restart_));
-	vid_log("Texture max dimension: " + vid_to_string(device_features.texture_max_dimension_));
-	vid_log("Viewport max width: " + vid_to_string(device_features.viewport_max_width_));
-	vid_log("Viewport max height: " + vid_to_string(device_features.viewport_max_height_));
-	vid_log("Anisotropy: " + vid_to_string(device_features.anisotropy_is_available_));
-	vid_log("Anisotropy max degree: " + vid_to_string(device_features.anisotropy_max_degree_));
-	vid_log("Non-power-of-two textures: " + vid_to_string(device_features.npot_is_available_));
-	vid_log("Mipmap auto-generation: " + vid_to_string(device_features.mipmap_is_available_));
-	vid_log("Samplers: " + vid_to_string(device_features.mipmap_is_available_));
-	vid_log("MSAA: " + vid_to_string(device_features.msaa_is_available_));
-	vid_log("MSAA (render-to-window): " + vid_to_string(device_features.msaa_is_render_to_window_));
-	vid_log("MSAA requires restart: " + vid_to_string(device_features.msaa_is_requires_restart_));
-	vid_log("MSAA max degree: " + vid_to_string(device_features.msaa_max_degree_));
-	vid_log("Vertex input max locations: " + vid_to_string(device_features.vertex_input_max_locations_));
+	vid_log("V-Sync: " + vid_to_string(device_features.is_vsync_available_));
+	vid_log("V-Sync requires restart: " + vid_to_string(device_features.is_vsync_requires_restart_));
+	vid_log("Texture max dimension: " + vid_to_string(device_features.max_texture_dimension_));
+	vid_log("Viewport max width: " + vid_to_string(device_features.max_viewport_width_));
+	vid_log("Viewport max height: " + vid_to_string(device_features.max_viewport_height_));
+	vid_log("Anisotropy: " + vid_to_string(device_features.is_anisotropy_available_));
+	vid_log("Anisotropy max degree: " + vid_to_string(device_features.max_anisotropy_degree_));
+	vid_log("Non-power-of-two textures: " + vid_to_string(device_features.is_npot_available_));
+	vid_log("Mipmap auto-generation: " + vid_to_string(device_features.is_mipmap_available_));
+	vid_log("Samplers: " + vid_to_string(device_features.is_mipmap_available_));
+	vid_log("MSAA: " + vid_to_string(device_features.is_msaa_available_));
+	vid_log("MSAA (render-to-window): " + vid_to_string(device_features.is_msaa_render_to_window_));
+	vid_log("MSAA requires restart: " + vid_to_string(device_features.is_msaa_requires_restart_));
+	vid_log("MSAA max degree: " + vid_to_string(device_features.max_msaa_degree_));
+	vid_log("Vertex input max locations: " + vid_to_string(device_features.max_vertex_input_locations_));
 }
 
 void hw_renderer_initialize()
@@ -5068,7 +5068,7 @@ void hw_2d_sampler_ui_set_default_state()
 	::hw_2d_ui_s_state_.mipmap_mode_ = bstone::Ren3dMipmapMode::none;
 	::hw_2d_ui_s_state_.address_mode_u_ = bstone::Ren3dAddressMode::clamp;
 	::hw_2d_ui_s_state_.address_mode_v_ = bstone::Ren3dAddressMode::clamp;
-	::hw_2d_ui_s_state_.anisotropy_ = bstone::Ren3dLimits::anisotropy_min_off;
+	::hw_2d_ui_s_state_.anisotropy_ = bstone::Ren3dLimits::min_anisotropy_off;
 }
 
 void hw_2d_sampler_ui_update_state()
@@ -5113,7 +5113,7 @@ void hw_3d_sampler_sprite_set_default_state()
 	::hw_3d_sprite_s_state_.mipmap_mode_ = bstone::Ren3dMipmapMode::nearest;
 	::hw_3d_sprite_s_state_.address_mode_u_ = bstone::Ren3dAddressMode::clamp;
 	::hw_3d_sprite_s_state_.address_mode_v_ = bstone::Ren3dAddressMode::clamp;
-	::hw_3d_sprite_s_state_.anisotropy_ = bstone::Ren3dLimits::anisotropy_min_off;
+	::hw_3d_sprite_s_state_.anisotropy_ = bstone::Ren3dLimits::min_anisotropy_off;
 }
 
 void hw_3d_sampler_sprite_update_state()
@@ -5165,7 +5165,7 @@ void hw_3d_sampler_wall_set_default_state()
 	::hw_3d_wall_s_state_.mipmap_mode_ = bstone::Ren3dMipmapMode::nearest;
 	::hw_3d_wall_s_state_.address_mode_u_ = bstone::Ren3dAddressMode::repeat;
 	::hw_3d_wall_s_state_.address_mode_v_ = bstone::Ren3dAddressMode::repeat;
-	::hw_3d_wall_s_state_.anisotropy_ = bstone::Ren3dLimits::anisotropy_min_off;
+	::hw_3d_wall_s_state_.anisotropy_ = bstone::Ren3dLimits::min_anisotropy_off;
 }
 
 void hw_3d_sampler_wall_update_state()
@@ -5385,7 +5385,7 @@ void hw_3d_player_weapon_sampler_set_default_state()
 	::hw_3d_player_weapon_s_state_.mipmap_mode_ = bstone::Ren3dMipmapMode::none;
 	::hw_3d_player_weapon_s_state_.address_mode_u_ = bstone::Ren3dAddressMode::clamp;
 	::hw_3d_player_weapon_s_state_.address_mode_v_ = bstone::Ren3dAddressMode::clamp;
-	::hw_3d_player_weapon_s_state_.anisotropy_ = bstone::Ren3dLimits::anisotropy_min_off;
+	::hw_3d_player_weapon_s_state_.anisotropy_ = bstone::Ren3dLimits::min_anisotropy_off;
 }
 
 void hw_3d_player_weapon_sampler_update_state()
@@ -5464,7 +5464,7 @@ void hw_fade_sampler_create()
 	param.state_.mipmap_mode_ = bstone::Ren3dMipmapMode::none;
 	param.state_.address_mode_u_ = bstone::Ren3dAddressMode::repeat;
 	param.state_.address_mode_v_ = bstone::Ren3dAddressMode::repeat;
-	param.state_.anisotropy_ = bstone::Ren3dLimits::anisotropy_min_off;
+	param.state_.anisotropy_ = bstone::Ren3dLimits::min_anisotropy_off;
 
 	::hw_fade_s_ = ::hw_renderer_->create_sampler(param);
 }
@@ -13079,10 +13079,10 @@ void vid_cfg_set_defaults()
 	::vid_cfg_.d3_texture_image_filter_ = bstone::Ren3dFilterKind::nearest;
 	::vid_cfg_.d3_texture_mipmap_filter_ = bstone::Ren3dFilterKind::nearest;
 
-	::vid_cfg_.d3_texture_anisotropy_ = bstone::Ren3dLimits::anisotropy_min_off;
+	::vid_cfg_.d3_texture_anisotropy_ = bstone::Ren3dLimits::min_anisotropy_off;
 
 	::vid_cfg_.aa_kind_ = bstone::Ren3dAaKind::none;
-	::vid_cfg_.aa_degree_ = bstone::Ren3dLimits::aa_min_off;
+	::vid_cfg_.aa_degree_ = bstone::Ren3dLimits::min_aa_off;
 
 	::vid_cfg_.texture_upscale_kind_ = bstone::HwTextureMgrUpscaleFilterKind::none;
 	::vid_cfg_.texture_upscale_xbrz_degree_ = 0;
@@ -13782,8 +13782,8 @@ void vid_video_mode_apply(
 		vid_cfg_.is_vsync_ != video_mode_cfg.is_vsync_ &&
 		(!vid_is_hw_ ||
 			(vid_is_hw_ &&
-				hw_device_features_.vsync_is_available_ &&
-				hw_device_features_.vsync_is_requires_restart_)
+				hw_device_features_.is_vsync_available_ &&
+				hw_device_features_.is_vsync_requires_restart_)
 		))
 	{
 		is_restart = true;
@@ -13794,8 +13794,8 @@ void vid_video_mode_apply(
 			vid_cfg_.aa_degree_ != video_mode_cfg.aa_degree_) &&
 		vid_is_hw_ &&
 		video_mode_cfg.aa_kind_ == bstone::Ren3dAaKind::ms &&
-		hw_device_features_.msaa_is_available_ &&
-		hw_device_features_.msaa_is_requires_restart_)
+		hw_device_features_.is_msaa_available_ &&
+		hw_device_features_.is_msaa_requires_restart_)
 	{
 		is_restart = true;
 	}

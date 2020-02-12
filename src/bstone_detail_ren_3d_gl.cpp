@@ -114,24 +114,24 @@ Ren3dGl::Ren3dGl(
 
 	if (window_param.aa_kind_ == Ren3dAaKind::ms)
 	{
-		if (device_features_.msaa_is_available_)
+		if (device_features_.is_msaa_available_)
 		{
 			if (aa_value_ <= 0)
 			{
-				aa_value_ = device_features_.msaa_max_degree_;
+				aa_value_ = device_features_.max_msaa_degree_;
 			}
 
-			if (aa_value_ < Ren3dLimits::aa_min_off)
+			if (aa_value_ < Ren3dLimits::min_aa_off)
 			{
-				aa_value_ = Ren3dLimits::aa_min_off;
+				aa_value_ = Ren3dLimits::min_aa_off;
 			}
 
-			if (aa_value_ > device_features_.msaa_max_degree_)
+			if (aa_value_ > device_features_.max_msaa_degree_)
 			{
-				aa_value_ = device_features_.msaa_max_degree_;
+				aa_value_ = device_features_.max_msaa_degree_;
 			}
 
-			if (device_features_.msaa_is_render_to_window_)
+			if (device_features_.is_msaa_render_to_window_)
 			{
 				window_param.aa_value_ = aa_value_;
 			}
@@ -161,7 +161,7 @@ Ren3dGl::Ren3dGl(
 		throw Exception{"Failed to get screen size."};
 	}
 
-	if (aa_kind_ == Ren3dAaKind::ms && device_features_.msaa_is_render_to_window_)
+	if (aa_kind_ == Ren3dAaKind::ms && device_features_.is_msaa_render_to_window_)
 	{
 		aa_value_ = Ren3dGlUtils::msaa_window_get_value();
 	}
@@ -256,7 +256,7 @@ Ren3dGl::Ren3dGl(
 		gl_device_features_
 	);
 
-	if (device_features_.vertex_input_max_locations_ <= 0)
+	if (device_features_.max_vertex_input_locations_ <= 0)
 	{
 		throw Exception{"No vertex input locations."};
 	}
@@ -274,7 +274,7 @@ Ren3dGl::Ren3dGl(
 		gl_device_features_
 	);
 
-	if (device_features_.vsync_is_available_)
+	if (device_features_.is_vsync_available_)
 	{
 		static_cast<void>(Ren3dGlUtils::enable_vsync(param.is_vsync_));
 	}
@@ -392,7 +392,7 @@ void Ren3dGl::show_window(
 
 bool Ren3dGl::get_vsync() const noexcept
 {
-	if (!device_features_.vsync_is_available_)
+	if (!device_features_.is_vsync_available_)
 	{
 		return false;
 	}
@@ -403,12 +403,12 @@ bool Ren3dGl::get_vsync() const noexcept
 void Ren3dGl::enable_vsync(
 	const bool is_enabled)
 {
-	if (!device_features_.vsync_is_available_)
+	if (!device_features_.is_vsync_available_)
 	{
 		throw Exception{"Not available."};
 	}
 
-	if (device_features_.vsync_is_requires_restart_)
+	if (device_features_.is_vsync_requires_restart_)
 	{
 		throw Exception{"Requires restart."};
 	}
@@ -435,14 +435,14 @@ void Ren3dGl::set_anti_aliasing(
 
 	auto clamped_aa_value = aa_value;
 
-	if (clamped_aa_value < Ren3dLimits::aa_min_off)
+	if (clamped_aa_value < Ren3dLimits::min_aa_off)
 	{
-		clamped_aa_value = Ren3dLimits::aa_min_off;
+		clamped_aa_value = Ren3dLimits::min_aa_off;
 	}
 
-	if (clamped_aa_value > Ren3dLimits::aa_max)
+	if (clamped_aa_value > Ren3dLimits::max_aa)
 	{
-		clamped_aa_value = Ren3dLimits::aa_max;
+		clamped_aa_value = Ren3dLimits::max_aa;
 	}
 
 	switch (aa_kind)
@@ -686,17 +686,17 @@ void Ren3dGl::msaa_framebuffer_create()
 
 	if (aa_kind_ == Ren3dAaKind::none)
 	{
-		aa_degree = Ren3dLimits::aa_min_off;
+		aa_degree = Ren3dLimits::min_aa_off;
 	}
 
-	if (aa_degree < Ren3dLimits::aa_min_on)
+	if (aa_degree < Ren3dLimits::min_aa_on)
 	{
-		aa_degree = Ren3dLimits::aa_min_off;
+		aa_degree = Ren3dLimits::min_aa_off;
 	}
 
-	if (aa_degree > device_features_.msaa_max_degree_)
+	if (aa_degree > device_features_.max_msaa_degree_)
 	{
-		aa_degree = device_features_.msaa_max_degree_;
+		aa_degree = device_features_.max_msaa_degree_;
 	}
 
 	msaa_color_rb_create(screen_width_, screen_height_, aa_degree);
@@ -805,7 +805,7 @@ void Ren3dGl::aa_disable()
 void Ren3dGl::msaa_set(
 	const int aa_value)
 {
-	if (device_features_.msaa_is_requires_restart_)
+	if (device_features_.is_msaa_requires_restart_)
 	{
 		throw Exception{"Requires restart."};
 	}

@@ -64,7 +64,7 @@ public:
 		const Ren3dCmdQueueEnqueueParam& param) = 0;
 
 	virtual void dequeue(
-		Ren3dCmdBufferPtr set) = 0;
+		Ren3dCmdBufferPtr command_buffer) = 0;
 
 	virtual Ren3dCmdBufferPtr get(
 		const int index) = 0;
