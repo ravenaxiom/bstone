@@ -59,7 +59,7 @@ class GlSamplerImpl final :
 public:
 	GlSamplerImpl(
 		Ren3dGlContextPtr gl_context,
-		const Ren3dSamplerCreateParam& param);
+		const Ren3dCreateSamplerParam& param);
 
 	GlSamplerImpl(
 		const Ren3dGlSampler& rhs) = delete;
@@ -119,7 +119,7 @@ using GlSamplerImplUPtr = std::unique_ptr<GlSamplerImpl>;
 
 GlSamplerImpl::GlSamplerImpl(
 	Ren3dGlContextPtr gl_context,
-	const Ren3dSamplerCreateParam& param)
+	const Ren3dCreateSamplerParam& param)
 	:
 	gl_context_{gl_context},
 	state_{}
@@ -364,7 +364,7 @@ void GlSamplerImpl::set_initial_state()
 
 Ren3dGlSamplerUPtr Ren3dGlSamplerFactory::create(
 	Ren3dGlContextPtr gl_context,
-	const Ren3dSamplerCreateParam& param)
+	const Ren3dCreateSamplerParam& param)
 {
 	return std::make_unique<GlSamplerImpl>(gl_context, param);
 }

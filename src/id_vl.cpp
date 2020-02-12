@@ -2828,12 +2828,12 @@ bstone::Ren3dBufferUPtr hw_index_buffer_create(
 {
 	const auto index_buffer_size = index_count * byte_depth;
 
-	auto param = bstone::Ren3dBufferCreateParam{};
+	auto param = bstone::Ren3dCreateBufferParam{};
 	param.kind_ = bstone::Ren3dBufferKind::index;
 	param.usage_kind_ = usage_kind;
 	param.size_ = index_buffer_size;
 
-	return hw_renderer_->buffer_create(param);
+	return hw_renderer_->create_buffer(param);
 }
 
 template<typename TIndex>
@@ -2869,12 +2869,12 @@ bstone::Ren3dBufferUPtr hw_vertex_buffer_create(
 	const auto vertex_size = static_cast<int>(sizeof(TVertex));
 	const auto vertex_buffer_size = vertex_count * vertex_size;
 
-	auto param = bstone::Ren3dBufferCreateParam{};
+	auto param = bstone::Ren3dCreateBufferParam{};
 	param.kind_ = bstone::Ren3dBufferKind::vertex;
 	param.usage_kind_ = usage_kind;
 	param.size_ = vertex_buffer_size;
 
-	return hw_renderer_->buffer_create(param);
+	return hw_renderer_->create_buffer(param);
 }
 
 template<typename TVertex>
@@ -3008,7 +3008,7 @@ void hw_vertex_input_create(
 	const bstone::Ren3dBufferUPtr& vertex_buffer,
 	bstone::Ren3dVertexInputUPtr& vertex_input)
 {
-	auto param = bstone::Ren3dVertexInputCreateParam{};
+	auto param = bstone::Ren3dCreateVertexInputParam{};
 	param.index_buffer_ = index_buffer.get();
 
 	auto& descriptions = param.attribute_descriptions_;
@@ -3035,7 +3035,7 @@ void hw_vertex_input_create(
 		descriptions
 	);
 
-	vertex_input = hw_renderer_->vertex_input_create(param);
+	vertex_input = hw_renderer_->create_vertex_input(param);
 }
 
 void hw_3d_player_update_direction()
@@ -3091,7 +3091,7 @@ void hw_shader_create(
 	const bstone::Ren3dShaderKind kind,
 	bstone::Ren3dShaderUPtr& shader)
 {
-	auto param = bstone::Ren3dShaderCreateParam{};
+	auto param = bstone::Ren3dCreateShaderParam{};
 	param.kind_ = kind;
 
 	const auto renderer_kind = ::hw_renderer_->get_kind();
@@ -3110,7 +3110,7 @@ void hw_shader_create(
 			::Quit("Unsupported shader kind.");
 	}
 
-	shader = ::hw_renderer_->shader_create(param);
+	shader = ::hw_renderer_->create_shader(param);
 }
 
 void hw_shader_fragment_destroy()
@@ -3147,12 +3147,12 @@ void hw_shader_stage_create()
 		{2, bstone::HwShaderRegistry::get_a_tx_coords_name()},
 	};
 
-	auto param = bstone::Ren3dShaderStageCreateParam{};
+	auto param = bstone::Ren3dCreateShaderStageParam{};
 	param.fragment_shader_ = hw_shader_fragment_.get();
 	param.vertex_shader_ = hw_shader_vertex_.get();
 	param.input_bindings_ = input_bindings;
 
-	hw_shader_stage_ = hw_renderer_->shader_stage_create(param);
+	hw_shader_stage_ = hw_renderer_->create_shader_stage(param);
 }
 
 template<typename T>
@@ -3486,7 +3486,7 @@ bstone::Ren3dKind hw_get_renderer_kind(
 
 void hw_renderer_device_log_features()
 {
-	const auto& device_features = hw_renderer_->device_get_features();
+	const auto& device_features = hw_renderer_->get_device_features();
 
 	vid_log();
 	vid_log("Device features");
@@ -3536,14 +3536,14 @@ void hw_renderer_initialize()
 	if (!::vid_cfg_.is_windowed_)
 	{
 		param.window_.is_borderless_ = true;
-		param.window_.is_fullscreen_desktop_ = true;
+		param.window_.is_fake_fullscreen_ = true;
 	}
 
 	param.window_.is_positioned_ = ::vid_cfg_.is_positioned_;
 	param.window_.rect_2d_.offset_.x_ = ::vid_cfg_.windowed_x_;
 	param.window_.rect_2d_.offset_.y_ = ::vid_cfg_.windowed_y_;
 
-	param.window_.title_utf8_ = title;
+	param.window_.title_ = title;
 
 	using RendererKindList = std::vector<bstone::Ren3dKind>;
 
@@ -5100,10 +5100,10 @@ void hw_2d_sampler_ui_create()
 
 	::hw_2d_sampler_ui_update_state();
 
-	auto param = bstone::Ren3dSamplerCreateParam{};
+	auto param = bstone::Ren3dCreateSamplerParam{};
 	param.state_ = ::hw_2d_ui_s_state_;
 
-	::hw_2d_ui_s_ = ::hw_renderer_->sampler_create(param);
+	::hw_2d_ui_s_ = ::hw_renderer_->create_sampler(param);
 }
 
 void hw_3d_sampler_sprite_set_default_state()
@@ -5152,10 +5152,10 @@ void hw_3d_sampler_sprite_create()
 
 	::hw_3d_sampler_sprite_update_state();
 
-	auto param = bstone::Ren3dSamplerCreateParam{};
+	auto param = bstone::Ren3dCreateSamplerParam{};
 	param.state_ = ::hw_3d_sprite_s_state_;
 
-	::hw_3d_sprite_s_ = ::hw_renderer_->sampler_create(param);
+	::hw_3d_sprite_s_ = ::hw_renderer_->create_sampler(param);
 }
 
 void hw_3d_sampler_wall_set_default_state()
@@ -5204,10 +5204,10 @@ void hw_3d_sampler_wall_create()
 
 	::hw_3d_sampler_wall_update_state();
 
-	auto param = bstone::Ren3dSamplerCreateParam{};
+	auto param = bstone::Ren3dCreateSamplerParam{};
 	param.state_ = ::hw_3d_wall_s_state_;
 
-	::hw_3d_wall_s_ = ::hw_renderer_->sampler_create(param);
+	::hw_3d_wall_s_ = ::hw_renderer_->create_sampler(param);
 }
 
 void hw_3d_player_weapon_vb_update()
@@ -5417,10 +5417,10 @@ void hw_3d_player_weapon_sampler_create()
 
 	::hw_3d_player_weapon_sampler_update_state();
 
-	auto param = bstone::Ren3dSamplerCreateParam{};
+	auto param = bstone::Ren3dCreateSamplerParam{};
 	param.state_ = ::hw_3d_player_weapon_s_state_;
 
-	::hw_3d_player_weapon_s_ = ::hw_renderer_->sampler_create(param);
+	::hw_3d_player_weapon_s_ = ::hw_renderer_->create_sampler(param);
 }
 
 void hw_3d_player_weapon_uninitialize()
@@ -5458,7 +5458,7 @@ void hw_fade_sampler_create()
 {
 	::vid_log("Creating fade sampler.");
 
-	auto param = bstone::Ren3dSamplerCreateParam{};
+	auto param = bstone::Ren3dCreateSamplerParam{};
 	param.state_.min_filter_ = bstone::Ren3dFilterKind::nearest;
 	param.state_.mag_filter_ = bstone::Ren3dFilterKind::nearest;
 	param.state_.mipmap_mode_ = bstone::Ren3dMipmapMode::none;
@@ -5466,7 +5466,7 @@ void hw_fade_sampler_create()
 	param.state_.address_mode_v_ = bstone::Ren3dAddressMode::repeat;
 	param.state_.anisotropy_ = bstone::Ren3dLimits::anisotropy_min_off;
 
-	::hw_fade_s_ = ::hw_renderer_->sampler_create(param);
+	::hw_fade_s_ = ::hw_renderer_->create_sampler(param);
 }
 
 void hw_samplers_set_default_states()
@@ -11650,15 +11650,15 @@ void hw_video_initialize()
 	::hw_matrices_build();
 	::hw_samplers_initialize();
 
-	::hw_device_features_ = ::hw_renderer_->device_get_features();
+	::hw_device_features_ = ::hw_renderer_->get_device_features();
 
 	::vid_is_hw_ = true;
 
 	hw_texture_upscale_apply();
 
 	const auto window_title = ::vid_get_window_title_for_renderer();
-	::hw_renderer_->window_set_title(window_title);
-	::hw_renderer_->window_show(true);
+	::hw_renderer_->set_window_title(window_title);
+	::hw_renderer_->show_window(true);
 
 	::in_grab_mouse(true);
 }
@@ -13692,11 +13692,11 @@ void vid_video_mode_apply_window_sw()
 	sw_calculate_dimensions();
 	vid_vanilla_raycaster_initialize();
 
-	auto param = bstone::Ren3dWindowSetModeParam{};
+	auto param = bstone::Ren3dSetWindowModeParam{};
 	param.is_windowed_ = vid_cfg_.is_windowed_;
 	param.rect_2d_.extent_.width_ = vid_cfg_.windowed_width_;
 	param.rect_2d_.extent_.height_ = vid_cfg_.windowed_height_;
-	bstone::detail::Ren3dUtils::window_set_mode(sw_window_.get(), param);
+	bstone::detail::Ren3dUtils::set_window_mode(sw_window_.get(), param);
 
 	vid_common_initialize();
 
@@ -13709,11 +13709,11 @@ void vid_video_mode_apply_window_hw()
 	hw_dimensions_calculate();
 	vid_vanilla_raycaster_initialize();
 
-	auto param = bstone::Ren3dWindowSetModeParam{};
+	auto param = bstone::Ren3dSetWindowModeParam{};
 	param.is_windowed_ = vid_cfg_.is_windowed_;
 	param.rect_2d_.extent_.width_ = vid_dimensions_.window_width_;
 	param.rect_2d_.extent_.height_ = vid_dimensions_.window_height_;
-	hw_renderer_->window_set_mode(param);
+	hw_renderer_->set_window_mode(param);
 
 	vid_common_initialize();
 
@@ -13743,7 +13743,7 @@ void vid_video_mode_apply_window()
 
 void vid_video_mode_apply_vsync_hw()
 {
-	hw_renderer_->vsync_set(vid_cfg_.is_vsync_);
+	hw_renderer_->enable_vsync(vid_cfg_.is_vsync_);
 }
 
 void vid_video_mode_apply_vsync()
@@ -13756,7 +13756,7 @@ void vid_video_mode_apply_vsync()
 
 void vid_video_mode_apply_msaa_hw()
 {
-	hw_renderer_->aa_set(vid_cfg_.aa_kind_, vid_cfg_.aa_degree_);
+	hw_renderer_->set_anti_aliasing(vid_cfg_.aa_kind_, vid_cfg_.aa_degree_);
 }
 
 void vid_video_mode_apply_msaa()

@@ -80,7 +80,7 @@ struct Ren3dGlSamplerFactory
 {
 	static Ren3dGlSamplerUPtr create(
 		Ren3dGlContextPtr gl_context,
-		const Ren3dSamplerCreateParam& param);
+		const Ren3dCreateSamplerParam& param);
 }; // Ren3dGlSamplerFactory
 
 //

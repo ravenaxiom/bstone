@@ -106,15 +106,15 @@ public:
 		const Ren3dUtilsCreateWindowParam& param);
 
 
-	static void window_set_mode(
+	static void set_window_mode(
 		SdlWindowPtr sdl_window,
-		const Ren3dWindowSetModeParam& param);
+		const Ren3dSetWindowModeParam& param);
 
-	static void window_show(
+	static void show_window(
 		SdlWindowPtr sdl_window,
 		const bool is_visible);
 
-	static void window_set_title(
+	static void set_window_title(
 		const SdlWindowPtr sdl_window,
 		const std::string& title_utf8);
 
@@ -128,7 +128,7 @@ public:
 
 
 	static void validate_buffer_create_param(
-		const Ren3dBufferCreateParam& param);
+		const Ren3dCreateBufferParam& param);
 
 
 	static void vertex_input_validate_format(
@@ -136,7 +136,7 @@ public:
 
 	static void vertex_input_validate_param(
 		const int max_locations,
-		const Ren3dVertexInputCreateParam& param);
+		const Ren3dCreateVertexInputParam& param);
 
 
 	// Converts indexed opaque (MxN) or indexed transparent (MxN) to RGBA (MxN).

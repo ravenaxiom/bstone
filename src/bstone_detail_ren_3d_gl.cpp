@@ -276,7 +276,7 @@ Ren3dGl::Ren3dGl(
 
 	if (device_features_.vsync_is_available_)
 	{
-		static_cast<void>(Ren3dGlUtils::vsync_set(param.is_vsync_));
+		static_cast<void>(Ren3dGlUtils::enable_vsync(param.is_vsync_));
 	}
 
 	framebuffers_create();
@@ -349,20 +349,20 @@ void Ren3dGl::set_name_and_description()
 	}
 }
 
-const Ren3dDeviceFeatures& Ren3dGl::device_get_features() const noexcept
+const Ren3dDeviceFeatures& Ren3dGl::get_device_features() const noexcept
 {
 	return device_features_;
 }
 
-const Ren3dDeviceInfo& Ren3dGl::device_get_info() const noexcept
+const Ren3dDeviceInfo& Ren3dGl::get_device_info() const noexcept
 {
 	return device_info_;
 }
 
-void Ren3dGl::window_set_mode(
-	const Ren3dWindowSetModeParam& param)
+void Ren3dGl::set_window_mode(
+	const Ren3dSetWindowModeParam& param)
 {
-	Ren3dUtils::window_set_mode(sdl_window_.get(), param);
+	Ren3dUtils::set_window_mode(sdl_window_.get(), param);
 
 	const auto size_changed = (
 		screen_width_ != param.rect_2d_.extent_.width_ ||
@@ -378,29 +378,29 @@ void Ren3dGl::window_set_mode(
 	}
 }
 
-void Ren3dGl::window_set_title(
+void Ren3dGl::set_window_title(
 	const std::string& title_utf8)
 {
-	Ren3dUtils::window_set_title(sdl_window_.get(), title_utf8);
+	Ren3dUtils::set_window_title(sdl_window_.get(), title_utf8);
 }
 
-void Ren3dGl::window_show(
+void Ren3dGl::show_window(
 	const bool is_visible)
 {
-	Ren3dUtils::window_show(sdl_window_.get(), is_visible);
+	Ren3dUtils::show_window(sdl_window_.get(), is_visible);
 }
 
-bool Ren3dGl::vsync_get() const noexcept
+bool Ren3dGl::get_vsync() const noexcept
 {
 	if (!device_features_.vsync_is_available_)
 	{
 		return false;
 	}
 
-	return Ren3dGlUtils::vsync_get();
+	return Ren3dGlUtils::get_vsync();
 }
 
-void Ren3dGl::vsync_set(
+void Ren3dGl::enable_vsync(
 	const bool is_enabled)
 {
 	if (!device_features_.vsync_is_available_)
@@ -413,13 +413,13 @@ void Ren3dGl::vsync_set(
 		throw Exception{"Requires restart."};
 	}
 
-	if (!Ren3dGlUtils::vsync_set(is_enabled))
+	if (!Ren3dGlUtils::enable_vsync(is_enabled))
 	{
 		throw Exception{"Not supported."};
 	}
 }
 
-void Ren3dGl::aa_set(
+void Ren3dGl::set_anti_aliasing(
 	const Ren3dAaKind aa_kind,
 	const int aa_value)
 {
@@ -471,38 +471,38 @@ void Ren3dGl::present()
 	framebuffers_bind();
 }
 
-Ren3dBufferUPtr Ren3dGl::buffer_create(
-	const Ren3dBufferCreateParam& param)
+Ren3dBufferUPtr Ren3dGl::create_buffer(
+	const Ren3dCreateBufferParam& param)
 {
-	return gl_context_->buffer_get_manager()->buffer_create(param);
+	return gl_context_->buffer_get_manager()->create_buffer(param);
 }
 
-Ren3dVertexInputUPtr Ren3dGl::vertex_input_create(
-	const Ren3dVertexInputCreateParam& param)
+Ren3dVertexInputUPtr Ren3dGl::create_vertex_input(
+	const Ren3dCreateVertexInputParam& param)
 {
 	return gl_context_->vertex_input_get_manager()->create(param);
 }
 
-Ren3dShaderUPtr Ren3dGl::shader_create(
-	const Ren3dShaderCreateParam& param)
+Ren3dShaderUPtr Ren3dGl::create_shader(
+	const Ren3dCreateShaderParam& param)
 {
 	return gl_context_->shader_get_manager()->create(param);
 }
 
-Ren3dShaderStageUPtr Ren3dGl::shader_stage_create(
-	const Ren3dShaderStageCreateParam& param)
+Ren3dShaderStageUPtr Ren3dGl::create_shader_stage(
+	const Ren3dCreateShaderStageParam& param)
 {
 	return gl_context_->shader_stage_get_manager()->create(param);
 }
 
-Ren3dTexture2dUPtr Ren3dGl::texture_2d_create(
-	const Ren3dTexture2dCreateParam& param)
+Ren3dTexture2dUPtr Ren3dGl::create_texture_2d(
+	const Ren3dCreateTexture2dParam& param)
 {
 	return gl_context_->texture_get_manager()->create(param);
 }
 
-Ren3dSamplerUPtr Ren3dGl::sampler_create(
-	const Ren3dSamplerCreateParam& param)
+Ren3dSamplerUPtr Ren3dGl::create_sampler(
+	const Ren3dCreateSamplerParam& param)
 {
 	return gl_context_->sampler_get_manager()->create(param);
 }

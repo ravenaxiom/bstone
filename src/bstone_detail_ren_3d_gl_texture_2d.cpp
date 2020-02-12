@@ -62,7 +62,7 @@ class GlTexture2dImpl final :
 public:
 	GlTexture2dImpl(
 		const Ren3dGlTextureMgrPtr gl_texture_manager,
-		const Ren3dTexture2dCreateParam& param);
+		const Ren3dCreateTexture2dParam& param);
 
 	~GlTexture2dImpl() override;
 
@@ -98,7 +98,7 @@ private:
 
 
 	void validate(
-		const Ren3dTexture2dCreateParam& param);
+		const Ren3dCreateTexture2dParam& param);
 
 	void validate(
 		const Ren3dTexture2dUpdateParam& param);
@@ -150,7 +150,7 @@ using GlTexture2dImplUPtr = std::unique_ptr<GlTexture2dImpl>;
 
 GlTexture2dImpl::GlTexture2dImpl(
 	const Ren3dGlTextureMgrPtr gl_texture_manager,
-	const Ren3dTexture2dCreateParam& param)
+	const Ren3dCreateTexture2dParam& param)
 	:
 	gl_texture_manager_{gl_texture_manager},
 	device_features_{gl_texture_manager_->get_gl_context()->get_device_features()},
@@ -358,7 +358,7 @@ void GlTexture2dImpl::texture_resource_deleter(
 }
 
 void GlTexture2dImpl::validate(
-	const Ren3dTexture2dCreateParam& param)
+	const Ren3dCreateTexture2dParam& param)
 {
 	switch (param.pixel_format_)
 	{
@@ -687,7 +687,7 @@ void GlTexture2dImpl::set_sampler_state_defaults()
 
 Ren3dGlTexture2dUPtr Ren3dGlTexture2dFactory::create(
 	const Ren3dGlTextureMgrPtr gl_texture_manager,
-	const Ren3dTexture2dCreateParam& param)
+	const Ren3dCreateTexture2dParam& param)
 {
 	return std::make_unique<GlTexture2dImpl>(gl_texture_manager, param);
 }

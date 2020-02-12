@@ -1120,7 +1120,7 @@ void HwTextureMgrImpl::validate_texture_2d_properties(
 void HwTextureMgrImpl::set_common_texture_2d_properties(
 	Texture2dProperties& properties)
 {
-	const auto& device_features = renderer_->device_get_features();
+	const auto& device_features = renderer_->get_device_features();
 
 	auto upscale_width = properties.width_;
 	auto upscale_height = properties.height_;
@@ -1326,13 +1326,13 @@ HwTextureMgrImpl::Texture2dItem HwTextureMgrImpl::create_texture(
 
 	// Create texture object.
 	//
-	auto param = Ren3dTexture2dCreateParam{};
+	auto param = Ren3dCreateTexture2dParam{};
 	param.pixel_format_ = new_properties.image_pixel_format_;
 	param.width_ = new_properties.actual_width_;
 	param.height_ = new_properties.actual_height_;
 	param.mipmap_count_ = new_properties.mipmap_count_;
 
-	auto texture_2d = renderer_->texture_2d_create(param);
+	auto texture_2d = renderer_->create_texture_2d(param);
 
 	update_mipmaps(new_properties, texture_2d);
 
@@ -1356,7 +1356,7 @@ void HwTextureMgrImpl::update_mipmaps(
 		properties.upscale_width_ != properties.width_ &&
 		properties.upscale_height_ != properties.height_);
 
-	const auto& device_features = renderer_->device_get_features();
+	const auto& device_features = renderer_->get_device_features();
 
 	const auto npot_is_available = device_features.npot_is_available_;
 

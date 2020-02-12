@@ -44,7 +44,7 @@ namespace bstone
 // Ren3dTexture2d
 //
 
-struct Ren3dTexture2dCreateParam
+struct Ren3dCreateTexture2dParam
 {
 	Ren3dPixelFormat pixel_format_;
 
@@ -52,7 +52,7 @@ struct Ren3dTexture2dCreateParam
 	int height_;
 
 	int mipmap_count_;
-}; // Ren3dTexture2dCreateParam
+}; // Ren3dCreateTexture2dParam
 
 struct Ren3dTexture2dUpdateParam
 {

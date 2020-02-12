@@ -91,7 +91,7 @@ struct Ren3dGlShaderStageFactory
 {
 	static Ren3dGlShaderStageUPtr create(
 		const Ren3dGlShaderStageMgrPtr gl_shader_stage_manager,
-		const Ren3dShaderStageCreateParam& param);
+		const Ren3dCreateShaderStageParam& param);
 }; // Ren3dGlShaderStageFactory
 
 //

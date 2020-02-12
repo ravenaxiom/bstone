@@ -56,21 +56,21 @@ struct Ren3dCreateWindowParam
 {
 	bool is_visible_;
 	bool is_borderless_;
-	bool is_fullscreen_desktop_;
+	bool is_fake_fullscreen_;
 	bool is_positioned_;
 
 	Rect2d rect_2d_;
 
-	std::string title_utf8_;
+	std::string title_;
 }; // Ren3dCreateWindowParam
 
-struct Ren3dWindowSetModeParam
+struct Ren3dSetWindowModeParam
 {
 	bool is_windowed_;
 	bool is_positioned_;
 
 	Rect2d rect_2d_;
-}; // Ren3dWindowSetModeParam
+}; // Ren3dSetWindowModeParam
 
 struct Ren3dCreateParam
 {
@@ -118,28 +118,28 @@ public:
 	virtual const std::string& get_description() const noexcept = 0;
 
 
-	virtual const Ren3dDeviceFeatures& device_get_features() const noexcept = 0;
+	virtual const Ren3dDeviceFeatures& get_device_features() const noexcept = 0;
 
-	virtual const Ren3dDeviceInfo& device_get_info() const noexcept = 0;
+	virtual const Ren3dDeviceInfo& get_device_info() const noexcept = 0;
 
 
-	virtual void window_set_mode(
-		const Ren3dWindowSetModeParam& param) = 0;
+	virtual void set_window_mode(
+		const Ren3dSetWindowModeParam& param) = 0;
 
-	virtual void window_set_title(
-		const std::string& title_utf8) = 0;
+	virtual void set_window_title(
+		const std::string& title) = 0;
 
-	virtual void window_show(
+	virtual void show_window(
 		const bool is_visible) = 0;
 
 
-	virtual bool vsync_get() const noexcept = 0;
+	virtual bool get_vsync() const noexcept = 0;
 
-	virtual void vsync_set(
+	virtual void enable_vsync(
 		const bool is_enabled) = 0;
 
 
-	virtual void aa_set(
+	virtual void set_anti_aliasing(
 		const Ren3dAaKind aa_kind,
 		const int aa_value) = 0;
 
@@ -147,23 +147,23 @@ public:
 	virtual void present() = 0;
 
 
-	virtual Ren3dBufferUPtr buffer_create(
-		const Ren3dBufferCreateParam& param) = 0;
+	virtual Ren3dBufferUPtr create_buffer(
+		const Ren3dCreateBufferParam& param) = 0;
 
-	virtual Ren3dTexture2dUPtr texture_2d_create(
-		const Ren3dTexture2dCreateParam& param) = 0;
+	virtual Ren3dTexture2dUPtr create_texture_2d(
+		const Ren3dCreateTexture2dParam& param) = 0;
 
-	virtual Ren3dSamplerUPtr sampler_create(
-		const Ren3dSamplerCreateParam& param) = 0;
+	virtual Ren3dSamplerUPtr create_sampler(
+		const Ren3dCreateSamplerParam& param) = 0;
 
-	virtual Ren3dVertexInputUPtr vertex_input_create(
-		const Ren3dVertexInputCreateParam& param) = 0;
+	virtual Ren3dVertexInputUPtr create_vertex_input(
+		const Ren3dCreateVertexInputParam& param) = 0;
 
-	virtual Ren3dShaderUPtr shader_create(
-		const Ren3dShaderCreateParam& param) = 0;
+	virtual Ren3dShaderUPtr create_shader(
+		const Ren3dCreateShaderParam& param) = 0;
 
-	virtual Ren3dShaderStageUPtr shader_stage_create(
-		const Ren3dShaderStageCreateParam& param) = 0;
+	virtual Ren3dShaderStageUPtr create_shader_stage(
+		const Ren3dCreateShaderStageParam& param) = 0;
 
 
 	virtual void submit_commands(

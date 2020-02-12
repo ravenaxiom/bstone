@@ -86,7 +86,7 @@ struct Ren3dGlTexture2dFactory
 {
 	static Ren3dGlTexture2dUPtr create(
 		const Ren3dGlTextureMgrPtr gl_texture_manager,
-		const Ren3dTexture2dCreateParam& param);
+		const Ren3dCreateTexture2dParam& param);
 }; // Ren3dGlTexture2dFactory
 
 //

@@ -66,8 +66,8 @@ public:
 	virtual Ren3dGlContextPtr get_context() const noexcept = 0;
 
 
-	virtual Ren3dBufferUPtr buffer_create(
-		const Ren3dBufferCreateParam& param) = 0;
+	virtual Ren3dBufferUPtr create_buffer(
+		const Ren3dCreateBufferParam& param) = 0;
 
 	virtual void buffer_notify_destroy(
 		const Ren3dBufferPtr buffer) noexcept = 0;

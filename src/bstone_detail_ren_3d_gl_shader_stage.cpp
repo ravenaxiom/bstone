@@ -61,7 +61,7 @@ class GlShaderStageImpl final :
 public:
 	GlShaderStageImpl(
 		const Ren3dGlShaderStageMgrPtr gl_shader_stage_manager,
-		const Ren3dShaderStageCreateParam& param);
+		const Ren3dCreateShaderStageParam& param);
 
 	~GlShaderStageImpl() override;
 
@@ -128,7 +128,7 @@ private:
 		const Ren3dShaderStageInputBindings& input_bindings);
 
 	void validate_param(
-		const Ren3dShaderStageCreateParam& param);
+		const Ren3dCreateShaderStageParam& param);
 
 	void set_input_bindings(
 		const GLuint gl_name,
@@ -206,7 +206,7 @@ using GlShaderStageImplUPtr = std::unique_ptr<GlShaderStageImpl>;
 
 GlShaderStageImpl::GlShaderStageImpl(
 	const Ren3dGlShaderStageMgrPtr gl_shader_stage_manager,
-	const Ren3dShaderStageCreateParam& param)
+	const Ren3dCreateShaderStageParam& param)
 	:
 	gl_shader_stage_manager_{gl_shader_stage_manager},
 	fragment_shader_{},
@@ -471,7 +471,7 @@ void GlShaderStageImpl::validate_input_bindings(
 }
 
 void GlShaderStageImpl::validate_param(
-	const Ren3dShaderStageCreateParam& param)
+	const Ren3dCreateShaderStageParam& param)
 {
 	validate_shader(Ren3dShaderKind::fragment, param.fragment_shader_);
 	validate_shader(Ren3dShaderKind::vertex, param.vertex_shader_);
@@ -709,7 +709,7 @@ void GlShaderStageImpl::check_input_bindings(
 
 Ren3dGlShaderStageUPtr Ren3dGlShaderStageFactory::create(
 	const Ren3dGlShaderStageMgrPtr gl_shader_stage_manager,
-	const Ren3dShaderStageCreateParam& param)
+	const Ren3dCreateShaderStageParam& param)
 {
 	return std::make_unique<GlShaderStageImpl>(gl_shader_stage_manager, param);
 }

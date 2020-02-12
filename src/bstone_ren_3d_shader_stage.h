@@ -57,12 +57,12 @@ struct Ren3dShaderStageInputBinding
 using Ren3dShaderStageInputBindings = std::vector<Ren3dShaderStageInputBinding>;
 
 
-struct Ren3dShaderStageCreateParam
+struct Ren3dCreateShaderStageParam
 {
 	Ren3dShaderPtr fragment_shader_;
 	Ren3dShaderPtr vertex_shader_;
 	Ren3dShaderStageInputBindings input_bindings_;
-}; // Ren3dShaderStageCreateParam
+}; // Ren3dCreateShaderStageParam
 
 
 class Ren3dShaderStage

@@ -55,7 +55,7 @@ struct Ren3dShaderSource
 	int size_;
 }; // Source
 
-struct Ren3dShaderCreateParam
+struct Ren3dCreateShaderParam
 {
 	Ren3dShaderKind kind_;
 	Ren3dShaderSource source_;

@@ -94,7 +94,7 @@ class GlBufferImpl final :
 public:
 	GlBufferImpl(
 		const Ren3dGlBufferMgrPtr gl_buffer_manager,
-		const Ren3dBufferCreateParam& param);
+		const Ren3dCreateBufferParam& param);
 
 	~GlBufferImpl() override;
 
@@ -130,7 +130,7 @@ private:
 
 
 	void validate_param(
-		const Ren3dBufferCreateParam& param);
+		const Ren3dCreateBufferParam& param);
 
 	void validate_param(
 		const Ren3dBufferUpdateParam& param);
@@ -156,7 +156,7 @@ using GlBufferImplUPtr = std::unique_ptr<GlBufferImpl>;
 
 GlBufferImpl::GlBufferImpl(
 	const Ren3dGlBufferMgrPtr gl_buffer_manager,
-	const Ren3dBufferCreateParam& param)
+	const Ren3dCreateBufferParam& param)
 	:
 	gl_buffer_manager_{gl_buffer_manager},
 	gl_device_features_{gl_buffer_manager_->get_context()->get_gl_device_features()},
@@ -316,7 +316,7 @@ void GlBufferImpl::resource_deleter(
 }
 
 void GlBufferImpl::validate_param(
-	const Ren3dBufferCreateParam& param)
+	const Ren3dCreateBufferParam& param)
 {
 	switch (param.kind_)
 	{
@@ -425,7 +425,7 @@ GLenum GlBufferImpl::gl_get_usage(
 
 Ren3dGlBufferUPtr Ren3dGlBufferFactory::create(
 	const Ren3dGlBufferMgrPtr gl_buffer_manager,
-	const Ren3dBufferCreateParam& param)
+	const Ren3dCreateBufferParam& param)
 {
 	return std::make_unique<GlBufferImpl>(gl_buffer_manager, param);
 }

@@ -752,8 +752,8 @@ void Ren3dGlUtils::vsync_probe(
 	device_features.vsync_is_requires_restart_ = false;
 
 #ifndef BSTONE_REN_3D_TEST_NO_SWAP_INTERVAL
-	const auto off_result = vsync_set(false);
-	const auto on_result = vsync_set(true);
+	const auto off_result = enable_vsync(false);
+	const auto on_result = enable_vsync(true);
 
 	if (off_result && on_result)
 	{
@@ -762,7 +762,7 @@ void Ren3dGlUtils::vsync_probe(
 #endif // !BSTONE_REN_3D_TEST_NO_SWAP_INTERVAL
 }
 
-bool Ren3dGlUtils::vsync_get()
+bool Ren3dGlUtils::get_vsync()
 {
 	const auto sdl_result = ::SDL_GL_GetSwapInterval();
 
@@ -780,7 +780,7 @@ bool Ren3dGlUtils::vsync_get()
 	}
 }
 
-bool Ren3dGlUtils::vsync_set(
+bool Ren3dGlUtils::enable_vsync(
 	const bool is_enabled)
 {
 	const auto sdl_result = ::SDL_GL_SetSwapInterval(is_enabled);

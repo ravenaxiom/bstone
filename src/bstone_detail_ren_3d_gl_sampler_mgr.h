@@ -61,7 +61,7 @@ public:
 
 
 	virtual Ren3dSamplerUPtr create(
-		const Ren3dSamplerCreateParam& param) = 0;
+		const Ren3dCreateSamplerParam& param) = 0;
 
 	virtual void notify_destroy(
 		const Ren3dSamplerPtr sampler) noexcept = 0;

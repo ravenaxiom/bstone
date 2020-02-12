@@ -62,7 +62,7 @@ class GlVertexInputImpl final :
 public:
 	GlVertexInputImpl(
 		const Ren3dGlVertexInputMgrPtr vertex_input_manager,
-		const Ren3dVertexInputCreateParam& param);
+		const Ren3dCreateVertexInputParam& param);
 
 	~GlVertexInputImpl() override;
 
@@ -88,7 +88,7 @@ private:
 	void initialize_vao();
 
 	void initialize(
-		const Ren3dVertexInputCreateParam& param);
+		const Ren3dCreateVertexInputParam& param);
 
 	void assign_default_attribute(
 		const Ren3dVertexAttribDescription& attribute_description);
@@ -116,7 +116,7 @@ using GlVertexInputImplUPtr = std::unique_ptr<GlVertexInputImpl>;
 
 GlVertexInputImpl::GlVertexInputImpl(
 	const Ren3dGlVertexInputMgrPtr vertex_input_manager,
-	const Ren3dVertexInputCreateParam& param)
+	const Ren3dCreateVertexInputParam& param)
 	:
 	vertex_input_manager_{vertex_input_manager},
 	vao_manager_{vertex_input_manager->get_gl_context()->vao_get_manager()},
@@ -182,7 +182,7 @@ void GlVertexInputImpl::initialize_vao()
 }
 
 void GlVertexInputImpl::initialize(
-	const Ren3dVertexInputCreateParam& param)
+	const Ren3dCreateVertexInputParam& param)
 {
 	const auto max_locations = device_features_.vertex_input_max_locations_;
 
@@ -311,7 +311,7 @@ void GlVertexInputImpl::bind_internal()
 
 Ren3dGlVertexInputUPtr Ren3dGlVertexInputFactory::create(
 	const Ren3dGlVertexInputMgrPtr vertex_input_manager,
-	const Ren3dVertexInputCreateParam& param)
+	const Ren3dCreateVertexInputParam& param)
 {
 	return std::make_unique<GlVertexInputImpl>(vertex_input_manager, param);
 }

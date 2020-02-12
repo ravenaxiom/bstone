@@ -58,7 +58,7 @@ class GlShaderImpl final :
 public:
 	GlShaderImpl(
 		const Ren3dGlShaderMgrPtr gl_shader_manager,
-		const Ren3dShaderCreateParam& param);
+		const Ren3dCreateShaderParam& param);
 
 	~GlShaderImpl() override;
 
@@ -87,13 +87,13 @@ private:
 
 
 	void initialize(
-		const Ren3dShaderCreateParam& param);
+		const Ren3dCreateShaderParam& param);
 
 	GLenum get_gl_kind(
 		const Ren3dShaderKind kind);
 
 	void validate_param(
-		const Ren3dShaderCreateParam& param);
+		const Ren3dCreateShaderParam& param);
 }; // GlShaderImpl
 
 using GlShaderImplPtr = GlShaderImpl*;
@@ -110,7 +110,7 @@ using GlShaderImplUPtr = std::unique_ptr<GlShaderImpl>;
 
 GlShaderImpl::GlShaderImpl(
 	const Ren3dGlShaderMgrPtr gl_shader_manager,
-	const Ren3dShaderCreateParam& param)
+	const Ren3dCreateShaderParam& param)
 	:
 	gl_shader_manager_{gl_shader_manager},
 	kind_{},
@@ -156,7 +156,7 @@ void GlShaderImpl::shader_resource_deleter(
 }
 
 void GlShaderImpl::initialize(
-	const Ren3dShaderCreateParam& param)
+	const Ren3dCreateShaderParam& param)
 {
 	validate_param(param);
 
@@ -236,7 +236,7 @@ GLenum GlShaderImpl::get_gl_kind(
 }
 
 void GlShaderImpl::validate_param(
-	const Ren3dShaderCreateParam& param)
+	const Ren3dCreateShaderParam& param)
 {
 	switch (param.kind_)
 	{
@@ -270,7 +270,7 @@ void GlShaderImpl::validate_param(
 
 Ren3dGlShaderUPtr Ren3dGlShaderFactory::create(
 	const Ren3dGlShaderMgrPtr gl_shader_manager,
-	const Ren3dShaderCreateParam& param)
+	const Ren3dCreateShaderParam& param)
 {
 	return std::make_unique<GlShaderImpl>(gl_shader_manager, param);
 }

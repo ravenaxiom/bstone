@@ -57,10 +57,10 @@ struct Ren3dSamplerState
 	int anisotropy_;
 }; // Ren3dSamplerState
 
-struct Ren3dSamplerCreateParam
+struct Ren3dCreateSamplerParam
 {
 	Ren3dSamplerState state_;
-}; // Ren3dSamplerCreateParam
+}; // Ren3dCreateSamplerParam
 
 struct Ren3dSamplerUpdateParam
 {

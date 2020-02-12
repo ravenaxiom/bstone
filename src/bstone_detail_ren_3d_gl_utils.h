@@ -155,9 +155,9 @@ public:
 	static void vsync_probe(
 		Ren3dDeviceFeatures& device_features);
 
-	static bool vsync_get();
+	static bool get_vsync();
 
-	static bool vsync_set(
+	static bool enable_vsync(
 		const bool is_enabled);
 
 

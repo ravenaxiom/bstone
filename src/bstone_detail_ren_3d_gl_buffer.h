@@ -82,7 +82,7 @@ struct Ren3dGlBufferFactory
 {
 	static Ren3dGlBufferUPtr create(
 		const Ren3dGlBufferMgrPtr gl_buffer_manager,
-		const Ren3dBufferCreateParam& param);
+		const Ren3dCreateBufferParam& param);
 }; // Ren3dGlBufferFactory
 
 //

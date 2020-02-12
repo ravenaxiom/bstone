@@ -64,7 +64,7 @@ public:
 
 
 	virtual Ren3dVertexInputUPtr create(
-		const Ren3dVertexInputCreateParam& param) = 0;
+		const Ren3dCreateVertexInputParam& param) = 0;
 
 	virtual void notify_destroy(
 		const Ren3dVertexInputPtr vertex_input) noexcept = 0;

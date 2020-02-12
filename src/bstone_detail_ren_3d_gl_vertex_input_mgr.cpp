@@ -62,7 +62,7 @@ public:
 
 
 	Ren3dVertexInputUPtr create(
-		const Ren3dVertexInputCreateParam& param) override;
+		const Ren3dCreateVertexInputParam& param) override;
 
 	void notify_destroy(
 		const Ren3dVertexInputPtr vertex_input) noexcept override;
@@ -131,7 +131,7 @@ Ren3dGlContextPtr Ren3dGlVertexInputMgrImpl::get_gl_context() const noexcept
 }
 
 Ren3dVertexInputUPtr Ren3dGlVertexInputMgrImpl::create(
-	const Ren3dVertexInputCreateParam& param)
+	const Ren3dCreateVertexInputParam& param)
 {
 	return Ren3dGlVertexInputFactory::create(this, param);
 }

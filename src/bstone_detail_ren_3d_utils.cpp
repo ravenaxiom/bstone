@@ -130,7 +130,7 @@ SdlWindowUPtr Ren3dUtils::window_create(
 	);
 
 	auto sdl_window = SdlWindowUPtr{::SDL_CreateWindow(
-		param.window_.title_utf8_.c_str(),
+		param.window_.title_.c_str(),
 		x,
 		y,
 		param.window_.rect_2d_.extent_.width_,
@@ -149,9 +149,9 @@ SdlWindowUPtr Ren3dUtils::window_create(
 	return sdl_window;
 }
 
-void Ren3dUtils::window_set_mode(
+void Ren3dUtils::set_window_mode(
 	SdlWindowPtr sdl_window,
-	const Ren3dWindowSetModeParam& param)
+	const Ren3dSetWindowModeParam& param)
 {
 	if (!sdl_window)
 	{
@@ -230,7 +230,7 @@ void Ren3dUtils::window_set_mode(
 	}
 }
 
-void Ren3dUtils::window_show(
+void Ren3dUtils::show_window(
 	SdlWindowPtr sdl_window,
 	const bool is_visible)
 {
@@ -249,7 +249,7 @@ void Ren3dUtils::window_show(
 	sdl_function(sdl_window);
 }
 
-void Ren3dUtils::window_set_title(
+void Ren3dUtils::set_window_title(
 	const SdlWindowPtr sdl_window,
 	const std::string& title_utf8)
 {
@@ -297,7 +297,7 @@ void Ren3dUtils::validate_initialize_param(
 }
 
 void Ren3dUtils::validate_buffer_create_param(
-	const Ren3dBufferCreateParam& param)
+	const Ren3dCreateBufferParam& param)
 {
 	switch (param.usage_kind_)
 	{
@@ -352,7 +352,7 @@ void Ren3dUtils::vertex_input_validate_format(
 
 void Ren3dUtils::vertex_input_validate_param(
 	const int max_locations,
-	const Ren3dVertexInputCreateParam& param)
+	const Ren3dCreateVertexInputParam& param)
 {
 	if (max_locations < 0)
 	{
@@ -967,7 +967,7 @@ std::uint32_t Ren3dUtils::create_window_sdl_flags(
 		flags |= SDL_WINDOW_HIDDEN;
 	}
 
-	if (param.window_.is_fullscreen_desktop_)
+	if (param.window_.is_fake_fullscreen_)
 	{
 		flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 	}

@@ -65,7 +65,7 @@ public:
 
 
 	virtual Ren3dTexture2dUPtr create(
-		const Ren3dTexture2dCreateParam& param) = 0;
+		const Ren3dCreateTexture2dParam& param) = 0;
 
 	virtual void notify_destroy(
 		const Ren3dTexture2dPtr texture_2d) noexcept = 0;

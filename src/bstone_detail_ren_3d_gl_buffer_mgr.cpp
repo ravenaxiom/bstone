@@ -102,8 +102,8 @@ public:
 	Ren3dGlContextPtr get_context() const noexcept override;
 
 
-	Ren3dBufferUPtr buffer_create(
-		const Ren3dBufferCreateParam& param) override;
+	Ren3dBufferUPtr create_buffer(
+		const Ren3dCreateBufferParam& param) override;
 
 	void buffer_notify_destroy(
 		const Ren3dBufferPtr buffer) noexcept override;
@@ -159,8 +159,8 @@ Ren3dGlContextPtr Ren3dGlBufferMgrImpl::get_context() const noexcept
 	return gl_context_;
 }
 
-Ren3dBufferUPtr Ren3dGlBufferMgrImpl::buffer_create(
-	const Ren3dBufferCreateParam& param)
+Ren3dBufferUPtr Ren3dGlBufferMgrImpl::create_buffer(
+	const Ren3dCreateBufferParam& param)
 {
 	return Ren3dGlBufferFactory::create(this, param);
 }

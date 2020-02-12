@@ -64,7 +64,7 @@ public:
 
 
 	virtual Ren3dShaderStageUPtr create(
-		const Ren3dShaderStageCreateParam& param) = 0;
+		const Ren3dCreateShaderStageParam& param) = 0;
 
 
 	virtual void notify_destroy(

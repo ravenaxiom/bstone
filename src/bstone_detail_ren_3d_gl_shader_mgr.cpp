@@ -58,7 +58,7 @@ public:
 
 
 	Ren3dShaderUPtr create(
-		const Ren3dShaderCreateParam& param) override;
+		const Ren3dCreateShaderParam& param) override;
 
 	void notify_destroy(
 		const Ren3dShaderPtr shader) noexcept override;
@@ -94,7 +94,7 @@ Ren3dGlShaderMgrImpl::Ren3dGlShaderMgrImpl(
 Ren3dGlShaderMgrImpl::~Ren3dGlShaderMgrImpl() = default;
 
 Ren3dShaderUPtr Ren3dGlShaderMgrImpl::create(
-	const Ren3dShaderCreateParam& param)
+	const Ren3dCreateShaderParam& param)
 {
 	return Ren3dGlShaderFactory::create(this, param);
 }

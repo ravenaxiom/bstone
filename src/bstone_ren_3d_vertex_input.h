@@ -67,11 +67,11 @@ struct Ren3dVertexAttribDescription
 
 using Ren3dVertexAttribDescriptions = std::vector<Ren3dVertexAttribDescription>;
 
-struct Ren3dVertexInputCreateParam
+struct Ren3dCreateVertexInputParam
 {
 	Ren3dBufferPtr index_buffer_;
 	Ren3dVertexAttribDescriptions attribute_descriptions_;
-}; // Ren3dVertexInputCreateParam
+}; // Ren3dCreateVertexInputParam
 
 
 class Ren3dVertexInput

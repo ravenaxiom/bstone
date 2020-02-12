@@ -64,7 +64,7 @@ public:
 
 
 	Ren3dTexture2dUPtr create(
-		const Ren3dTexture2dCreateParam& param) override;
+		const Ren3dCreateTexture2dParam& param) override;
 
 
 	void notify_destroy(
@@ -139,7 +139,7 @@ Ren3dGlContextPtr Ren3dGlTextureMgrImpl::get_gl_context() const noexcept
 }
 
 Ren3dTexture2dUPtr Ren3dGlTextureMgrImpl::create(
-	const Ren3dTexture2dCreateParam& param)
+	const Ren3dCreateTexture2dParam& param)
 {
 	return Ren3dGlTexture2dFactory::create(this, param);
 }

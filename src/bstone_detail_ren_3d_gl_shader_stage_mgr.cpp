@@ -62,7 +62,7 @@ public:
 
 
 	Ren3dShaderStageUPtr create(
-		const Ren3dShaderStageCreateParam& param) override;
+		const Ren3dCreateShaderStageParam& param) override;
 
 	void notify_destroy(
 		const Ren3dShaderStagePtr shader_stage) noexcept override;
@@ -123,7 +123,7 @@ Ren3dGlContextPtr Ren3dGlShaderStageMgrImpl::get_gl_context() const noexcept
 }
 
 Ren3dShaderStageUPtr Ren3dGlShaderStageMgrImpl::create(
-	const Ren3dShaderStageCreateParam& param)
+	const Ren3dCreateShaderStageParam& param)
 {
 	return Ren3dGlShaderStageFactory::create(this, param);
 }

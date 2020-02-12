@@ -82,7 +82,7 @@ struct Ren3dGlVertexInputFactory
 {
 	static Ren3dGlVertexInputUPtr create(
 		const Ren3dGlVertexInputMgrPtr vertex_input_manager,
-		const Ren3dVertexInputCreateParam& param);
+		const Ren3dCreateVertexInputParam& param);
 }; // Ren3dGlVertexInputFactory
 
 //

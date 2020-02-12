@@ -72,28 +72,28 @@ public:
 	const std::string& get_description() const noexcept override;
 
 
-	const Ren3dDeviceFeatures& device_get_features() const noexcept override;
+	const Ren3dDeviceFeatures& get_device_features() const noexcept override;
 
-	const Ren3dDeviceInfo& device_get_info() const noexcept override;
+	const Ren3dDeviceInfo& get_device_info() const noexcept override;
 
 
-	void window_set_mode(
-		const Ren3dWindowSetModeParam& param) override;
+	void set_window_mode(
+		const Ren3dSetWindowModeParam& param) override;
 
-	void window_set_title(
+	void set_window_title(
 		const std::string& title_utf8) override;
 
-	void window_show(
+	void show_window(
 		const bool is_visible) override;
 
 
-	bool vsync_get() const noexcept override;
+	bool get_vsync() const noexcept override;
 
-	void vsync_set(
+	void enable_vsync(
 		const bool is_enabled) override;
 
 
-	void aa_set(
+	void set_anti_aliasing(
 		const Ren3dAaKind aa_kind,
 		const int aa_value) override;
 
@@ -101,23 +101,23 @@ public:
 	void present() override;
 
 
-	Ren3dBufferUPtr buffer_create(
-		const Ren3dBufferCreateParam& param) override;
+	Ren3dBufferUPtr create_buffer(
+		const Ren3dCreateBufferParam& param) override;
 
-	Ren3dTexture2dUPtr texture_2d_create(
-		const Ren3dTexture2dCreateParam& param) override;
+	Ren3dTexture2dUPtr create_texture_2d(
+		const Ren3dCreateTexture2dParam& param) override;
 
-	Ren3dSamplerUPtr sampler_create(
-		const Ren3dSamplerCreateParam& param) override;
+	Ren3dSamplerUPtr create_sampler(
+		const Ren3dCreateSamplerParam& param) override;
 
-	Ren3dVertexInputUPtr vertex_input_create(
-		const Ren3dVertexInputCreateParam& param) override;
+	Ren3dVertexInputUPtr create_vertex_input(
+		const Ren3dCreateVertexInputParam& param) override;
 
-	Ren3dShaderUPtr shader_create(
-		const Ren3dShaderCreateParam& param) override;
+	Ren3dShaderUPtr create_shader(
+		const Ren3dCreateShaderParam& param) override;
 
-	Ren3dShaderStageUPtr shader_stage_create(
-		const Ren3dShaderStageCreateParam& param) override;
+	Ren3dShaderStageUPtr create_shader_stage(
+		const Ren3dCreateShaderStageParam& param) override;
 
 
 	void submit_commands(

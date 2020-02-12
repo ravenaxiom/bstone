@@ -61,7 +61,7 @@ public:
 
 
 	virtual Ren3dShaderUPtr create(
-		const Ren3dShaderCreateParam& param) = 0;
+		const Ren3dCreateShaderParam& param) = 0;
 
 	virtual void notify_destroy(
 		const Ren3dShaderPtr shader) noexcept = 0;

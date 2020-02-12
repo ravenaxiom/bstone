@@ -88,7 +88,7 @@ struct Ren3dGlShaderFactory
 {
 	static Ren3dGlShaderUPtr create(
 		const Ren3dGlShaderMgrPtr gl_shader_manager,
-		const Ren3dShaderCreateParam& param);
+		const Ren3dCreateShaderParam& param);
 }; // Ren3dGlShaderFactory
 
 //

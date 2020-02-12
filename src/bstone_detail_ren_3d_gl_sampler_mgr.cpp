@@ -59,7 +59,7 @@ public:
 
 
 	Ren3dSamplerUPtr create(
-		const Ren3dSamplerCreateParam& param) override;
+		const Ren3dCreateSamplerParam& param) override;
 
 	void notify_destroy(
 		const Ren3dSamplerPtr sampler) noexcept override;
@@ -116,7 +116,7 @@ Ren3dGlSamplerMgrImpl::Ren3dGlSamplerMgrImpl(
 Ren3dGlSamplerMgrImpl::~Ren3dGlSamplerMgrImpl() = default;
 
 Ren3dSamplerUPtr Ren3dGlSamplerMgrImpl::create(
-	const Ren3dSamplerCreateParam& param)
+	const Ren3dCreateSamplerParam& param)
 {
 	return Ren3dGlSamplerFactory::create(gl_context_, param);
 }
@@ -161,7 +161,7 @@ const Ren3dSamplerState& Ren3dGlSamplerMgrImpl::get_current_state() const noexce
 
 void Ren3dGlSamplerMgrImpl::initialize_default_sampler()
 {
-	const auto param = Ren3dSamplerCreateParam{};
+	const auto param = Ren3dCreateSamplerParam{};
 
 	sampler_default_ = Ren3dGlSamplerFactory::create(gl_context_, param);
 }

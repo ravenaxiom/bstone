@@ -63,12 +63,12 @@ enum class Ren3dBufferUsageKind
 	draw_dynamic,
 }; // Ren3dBufferUsageKind
 
-struct Ren3dBufferCreateParam
+struct Ren3dCreateBufferParam
 {
 	Ren3dBufferKind kind_;
 	Ren3dBufferUsageKind usage_kind_;
 	int size_;
-}; // Ren3dBufferCreateParam
+}; // Ren3dCreateBufferParam
 
 struct Ren3dBufferUpdateParam
 {
