@@ -2847,7 +2847,7 @@ void hw_index_buffer_update(
 	const auto offset = index_offset * byte_depth;
 	const auto size = index_count * byte_depth;
 
-	auto param = bstone::Ren3dBufferUpdateParam{};
+	auto param = bstone::Ren3dUpdateBufferParam{};
 	param.offset_ = offset;
 	param.size_ = size;
 	param.data_ = indices;
@@ -2888,7 +2888,7 @@ void hw_vertex_buffer_update(
 	const auto offset = vertex_offset * vertex_size;
 	const auto size = vertex_count * vertex_size;
 
-	auto param = bstone::Ren3dBufferUpdateParam{};
+	auto param = bstone::Ren3dUpdateBufferParam{};
 	param.offset_ = offset;
 	param.size_ = size;
 	param.data_ = vertices;
@@ -5773,7 +5773,7 @@ void hw_screen_common_refresh()
 
 	command_buffer->enable(true);
 
-	command_buffer->write_begin();
+	command_buffer->begin_write();
 
 	// Build commands.
 	//
@@ -5782,8 +5782,8 @@ void hw_screen_common_refresh()
 	//
 	{
 		static const auto clear_color = bstone::Rgba8{};
-		auto& shader_stage = *command_buffer->write_clear();
-		shader_stage.param_.color_ = clear_color;
+		auto& clear = *command_buffer->write_clear();
+		clear.clear_.color_ = clear_color;
 	}
 
 	// Set shader's 2D sampler.
@@ -5792,7 +5792,7 @@ void hw_screen_common_refresh()
 	{
 		hw_sampler_var_.set_is_modified(false);
 
-		auto command = command_buffer->write_shader_var_sampler_2d();
+		auto command = command_buffer->write_set_sampler_2d_uniform();
 		command->var_ = hw_shader_var_sampler_;
 		command->value_ = hw_sampler_var_;
 	}
@@ -5800,7 +5800,7 @@ void hw_screen_common_refresh()
 	// Set shader stage.
 	//
 	{
-		auto& shader_stage = command_buffer->write_shader_stage()->shader_stage_;
+		auto& shader_stage = command_buffer->write_set_shader_stage()->shader_stage_;
 		shader_stage = hw_shader_stage_.get();
 	}
 
@@ -5810,7 +5810,7 @@ void hw_screen_common_refresh()
 	{
 		::hw_shading_mode_.set_is_modified(false);
 
-		auto& command = *command_buffer->write_shader_var_int32();
+		auto& command = *command_buffer->write_set_int32_uniform();
 		command.var_ = ::hw_shader_var_shading_mode_;
 		command.value_ = ::hw_shading_mode_;
 	}
@@ -5821,7 +5821,7 @@ void hw_screen_common_refresh()
 	{
 		::hw_bs_shade_max_.set_is_modified(false);
 
-		auto& command = *command_buffer->write_shader_var_float32();
+		auto& command = *command_buffer->write_set_float32_uniform();
 		command.var_ = ::hw_shader_var_shade_max_;
 		command.value_ = static_cast<float>(::hw_bs_shade_max_);
 	}
@@ -5832,7 +5832,7 @@ void hw_screen_common_refresh()
 	{
 		::hw_bs_normal_shade_.set_is_modified(false);
 
-		auto& command = *command_buffer->write_shader_var_float32();
+		auto& command = *command_buffer->write_set_float32_uniform();
 		command.var_ = ::hw_shader_var_normal_shade_;
 		command.value_ = static_cast<float>(::hw_bs_normal_shade_);
 	}
@@ -5843,7 +5843,7 @@ void hw_screen_common_refresh()
 	{
 		::hw_bs_height_numerator_.set_is_modified(false);
 
-		auto& command = *command_buffer->write_shader_var_float32();
+		auto& command = *command_buffer->write_set_float32_uniform();
 		command.var_ = ::hw_shader_var_height_numerator_;
 		command.value_ = bstone::FixedPoint{::hw_bs_height_numerator_}.to_float();
 	}
@@ -5854,7 +5854,7 @@ void hw_screen_common_refresh()
 	{
 		::hw_bs_lighting_.set_is_modified(false);
 
-		auto& command = *command_buffer->write_shader_var_float32();
+		auto& command = *command_buffer->write_set_float32_uniform();
 		command.var_ = ::hw_shader_var_extra_lighting_;
 		command.value_ = static_cast<float>(::hw_bs_lighting_);
 	}
@@ -5865,7 +5865,7 @@ void hw_screen_common_refresh()
 	{
 		::hw_bs_view_direction_.set_is_modified(false);
 
-		auto& command = *command_buffer->write_shader_var_vec2();
+		auto& command = *command_buffer->write_set_vec2_uniform();
 		command.var_ = ::hw_shader_var_view_direction_;
 		command.value_ = hw_cast_glm_vec2(hw_bs_view_direction_);
 	}
@@ -5876,14 +5876,14 @@ void hw_screen_common_refresh()
 	{
 		::hw_bs_view_position_.set_is_modified(false);
 
-		auto& command = *command_buffer->write_shader_var_vec2();
+		auto& command = *command_buffer->write_set_vec2_uniform();
 		command.var_ = ::hw_shader_var_view_position_;
 		command.value_ = hw_cast_glm_vec2(hw_bs_view_position_);
 	}
 
 	// Finalize.
 	//
-	command_buffer->write_end();
+	command_buffer->end_write();
 }
 
 void hw_screen_2d_refresh()
@@ -5906,7 +5906,7 @@ void hw_screen_2d_refresh()
 
 	command_buffer->enable(true);
 
-	command_buffer->write_begin();
+	command_buffer->begin_write();
 
 	// Build commands.
 	//
@@ -5914,21 +5914,21 @@ void hw_screen_2d_refresh()
 	// Disable back-face culling.
 	//
 	{
-		auto& command = *command_buffer->write_culling();
+		auto& command = *command_buffer->write_enable_culling();
 		command.is_enable_ = false;
 	}
 
 	// Disable depth test.
 	//
 	{
-		auto& command = *command_buffer->write_depth_test();
+		auto& command = *command_buffer->write_enable_depth_test();
 		command.is_enable_ = false;
 	}
 
 	// Set viewport.
 	//
 	{
-		auto& viewport = command_buffer->write_viewport()->viewport_;
+		auto& viewport = command_buffer->write_set_viewport()->viewport_;
 		viewport.x_ = ::vid_dimensions_.window_viewport_left_width_;
 		viewport.y_ = ::vid_dimensions_.window_viewport_bottom_height_;
 		viewport.width_ = ::vid_dimensions_.screen_width_;
@@ -5940,14 +5940,14 @@ void hw_screen_2d_refresh()
 	// Set sampler.
 	//
 	{
-		auto& command = *command_buffer->write_sampler();
+		auto& command = *command_buffer->write_set_sampler();
 		command.sampler_ = hw_2d_ui_s_.get();
 	}
 
 	// Set model matrix.
 	//
 	{
-		auto& command = *command_buffer->write_shader_var_mat4();
+		auto& command = *command_buffer->write_set_mat4_uniform();
 		command.var_ = ::hw_shader_var_model_mat_;
 		command.value_ = hw_cast_glm_mat4(hw_2d_matrix_model_);
 	}
@@ -5955,7 +5955,7 @@ void hw_screen_2d_refresh()
 	// Set view matrix.
 	//
 	{
-		auto& command = *command_buffer->write_shader_var_mat4();
+		auto& command = *command_buffer->write_set_mat4_uniform();
 		command.var_ = ::hw_shader_var_view_mat_;
 		command.value_ = hw_cast_glm_mat4(hw_2d_matrix_view_);
 	}
@@ -5963,7 +5963,7 @@ void hw_screen_2d_refresh()
 	// Set projection matrix.
 	//
 	{
-		auto& command = *command_buffer->write_shader_var_mat4();
+		auto& command = *command_buffer->write_set_mat4_uniform();
 		command.var_ = ::hw_shader_var_projection_mat_;
 		command.value_ = hw_cast_glm_mat4(hw_2d_matrix_projection_);
 	}
@@ -5973,12 +5973,12 @@ void hw_screen_2d_refresh()
 	if (!::vid_cfg_.is_ui_stretched_)
 	{
 		{
-			auto& command = *command_buffer->write_texture();
+			auto& command = *command_buffer->write_set_texture();
 			command.texture_2d_ = (vid_is_movie ? hw_2d_black_t2d_1x1_ : hw_2d_white_t2d_1x1_);
 		}
 
 		{
-			auto& command = *command_buffer->write_vertex_input();
+			auto& command = *command_buffer->write_set_vertex_input();
 			command.vertex_input_ = hw_2d_fillers_vi_.get();
 		}
 
@@ -5998,7 +5998,7 @@ void hw_screen_2d_refresh()
 			}
 
 			auto& command = *command_buffer->write_draw_indexed();
-			auto& param = command.param_;
+			auto& param = command.draw_indexed_;
 
 			param.primitive_topology_ = bstone::Ren3dPrimitiveTopology::triangle_list;
 			param.vertex_count_ = count * hw_vertices_per_quad;
@@ -6014,26 +6014,26 @@ void hw_screen_2d_refresh()
 		if (::vid_is_hud)
 		{
 			{
-				auto& command = *command_buffer->write_blending();
+				auto& command = *command_buffer->write_enable_blending();
 				command.is_enable_ = true;
 			}
 
 			// Set blending function.
 			//
 			{
-				auto& blending_func = command_buffer->write_blending_func()->blending_func_;
+				auto& blending_func = command_buffer->write_set_blending_func()->blending_func_;
 				blending_func.src_factor_ = bstone::Ren3dBlendingFactor::src_alpha;
 				blending_func.dst_factor_ = bstone::Ren3dBlendingFactor::one_minus_src_alpha;
 			}
 		}
 
 		{
-			auto& command = *command_buffer->write_texture();
+			auto& command = *command_buffer->write_set_texture();
 			command.texture_2d_ = ::hw_2d_ui_t2d_;
 		}
 
 		{
-			auto& command = *command_buffer->write_vertex_input();
+			auto& command = *command_buffer->write_set_vertex_input();
 			command.vertex_input_ = hw_2d_ui_vi_.get();
 		}
 
@@ -6046,7 +6046,7 @@ void hw_screen_2d_refresh()
 			);
 
 			auto& command = *command_buffer->write_draw_indexed();
-			auto& param = command.param_;
+			auto& param = command.draw_indexed_;
 
 			param.primitive_topology_ = bstone::Ren3dPrimitiveTopology::triangle_list;
 			param.vertex_count_ = hw_vertices_per_quad;
@@ -6057,7 +6057,7 @@ void hw_screen_2d_refresh()
 
 		if (::vid_is_hud)
 		{
-			auto& command = *command_buffer->write_blending();
+			auto& command = *command_buffer->write_enable_blending();
 			command.is_enable_ = false;
 		}
 	}
@@ -6069,14 +6069,14 @@ void hw_screen_2d_refresh()
 		// Enable blending.
 		//
 		{
-			auto& command = *command_buffer->write_blending();
+			auto& command = *command_buffer->write_enable_blending();
 			command.is_enable_ = true;
 		}
 
 		// Set blending function.
 		//
 		{
-			auto& blending_func = command_buffer->write_blending_func()->blending_func_;
+			auto& blending_func = command_buffer->write_set_blending_func()->blending_func_;
 			blending_func.src_factor_ = bstone::Ren3dBlendingFactor::src_alpha;
 			blending_func.dst_factor_ = bstone::Ren3dBlendingFactor::one_minus_src_alpha;
 		}
@@ -6084,21 +6084,21 @@ void hw_screen_2d_refresh()
 		// Set texture.
 		//
 		{
-			auto& command = *command_buffer->write_texture();
+			auto& command = *command_buffer->write_set_texture();
 			command.texture_2d_ = ::hw_2d_fade_t2d_;
 		}
 
 		// Set sampler.
 		//
 		{
-			auto& command = *command_buffer->write_sampler();
+			auto& command = *command_buffer->write_set_sampler();
 			command.sampler_ = hw_fade_s_.get();
 		}
 
 		// Set vertex input.
 		//
 		{
-			auto& command = *command_buffer->write_vertex_input();
+			auto& command = *command_buffer->write_set_vertex_input();
 			command.vertex_input_ = hw_2d_ui_vi_.get();
 		}
 
@@ -6113,7 +6113,7 @@ void hw_screen_2d_refresh()
 			);
 
 			auto& command = *command_buffer->write_draw_indexed();
-			auto& param = command.param_;
+			auto& param = command.draw_indexed_;
 
 			param.primitive_topology_ = bstone::Ren3dPrimitiveTopology::triangle_list;
 			param.vertex_count_ = hw_vertices_per_quad;
@@ -6125,14 +6125,14 @@ void hw_screen_2d_refresh()
 		// Disable blending.
 		//
 		{
-			auto& command = *command_buffer->write_blending();
+			auto& command = *command_buffer->write_enable_blending();
 			command.is_enable_ = false;
 		}
 	}
 
 	// Finalize.
 	//
-	command_buffer->write_end();
+	command_buffer->end_write();
 }
 
 bool hw_3d_dbg_is_tile_vertex_visible(
@@ -6302,18 +6302,18 @@ void hw_3d_walls_render()
 		{
 			{
 				const auto texture_2d = hw_texture_manager_->wall_get(last_texture_id);
-				auto& command = *command_buffer->write_texture();
+				auto& command = *command_buffer->write_set_texture();
 				command.texture_2d_ = texture_2d;
 			}
 
 			{
-				auto& command = *command_buffer->write_vertex_input();
+				auto& command = *command_buffer->write_set_vertex_input();
 				command.vertex_input_ = hw_3d_wall_sides_vi_.get();
 			}
 
 			{
 				auto& command = *command_buffer->write_draw_indexed();
-				auto& param = command.param_;
+				auto& param = command.draw_indexed_;
 
 				param.primitive_topology_ = bstone::Ren3dPrimitiveTopology::triangle_list;
 				param.vertex_count_ = draw_quad_count * hw_vertices_per_quad;
@@ -6446,18 +6446,18 @@ void hw_3d_pushwalls_render()
 		{
 			{
 				const auto texture_2d = hw_texture_manager_->wall_get(last_texture_id);
-				auto& command = *command_buffer->write_texture();
+				auto& command = *command_buffer->write_set_texture();
 				command.texture_2d_ = texture_2d;
 			}
 
 			{
-				auto& command = *command_buffer->write_vertex_input();
+				auto& command = *command_buffer->write_set_vertex_input();
 				command.vertex_input_ = hw_3d_pushwall_sides_vi_.get();
 			}
 
 			{
 				auto& command = *command_buffer->write_draw_indexed();
-				auto& param = command.param_;
+				auto& param = command.draw_indexed_;
 
 				param.primitive_topology_ = bstone::Ren3dPrimitiveTopology::triangle_list;
 				param.vertex_count_ = draw_quad_count * hw_vertices_per_quad;
@@ -6677,18 +6677,18 @@ void hw_3d_doors_render()
 		{
 			{
 				const auto texture_2d = hw_texture_manager_->wall_get(last_texture_id);
-				auto& command = *command_buffer->write_texture();
+				auto& command = *command_buffer->write_set_texture();
 				command.texture_2d_ = texture_2d;
 			}
 
 			{
-				auto& command = *command_buffer->write_vertex_input();
+				auto& command = *command_buffer->write_set_vertex_input();
 				command.vertex_input_ = hw_3d_door_sides_vi_.get();
 			}
 
 			{
 				auto& command = *command_buffer->write_draw_indexed();
-				auto& param = command.param_;
+				auto& param = command.draw_indexed_;
 
 				param.primitive_topology_ = bstone::Ren3dPrimitiveTopology::triangle_list;
 				param.vertex_count_ = draw_quad_count * hw_vertices_per_quad;
@@ -7116,14 +7116,14 @@ void hw_3d_sprites_render()
 	// Disable depth write.
 	//
 	{
-		auto& command = *command_buffer->write_depth_write();
+		auto& command = *command_buffer->write_enable_depth_write();
 		command.is_enable_ = false;
 	}
 
 	// Enable blending.
 	//
 	{
-		auto& command = *command_buffer->write_blending();
+		auto& command = *command_buffer->write_enable_blending();
 		command.is_enable_ = true;
 	}
 
@@ -7205,7 +7205,7 @@ void hw_3d_sprites_render()
 				{
 					::hw_bs_lighting_.set_is_modified(false);
 
-					auto& command = *command_buffer->write_shader_var_float32();
+					auto& command = *command_buffer->write_set_float32_uniform();
 					command.var_ = ::hw_shader_var_extra_lighting_;
 					command.value_ = static_cast<float>(::hw_bs_lighting_);
 				}
@@ -7218,18 +7218,18 @@ void hw_3d_sprites_render()
 				current_texture_id.set_is_modified(false);
 				const auto texture_2d = hw_texture_manager_->sprite_get(current_texture_id);
 
-				auto& command = *command_buffer->write_texture();
+				auto& command = *command_buffer->write_set_texture();
 				command.texture_2d_ = texture_2d;
 			}
 
 			{
-				auto& command = *command_buffer->write_vertex_input();
+				auto& command = *command_buffer->write_set_vertex_input();
 				command.vertex_input_ = hw_3d_sprites_vi_.get();
 			}
 
 			{
 				auto& command = *command_buffer->write_draw_indexed();
-				auto& param = command.param_;
+				auto& param = command.draw_indexed_;
 
 				param.primitive_topology_ = bstone::Ren3dPrimitiveTopology::triangle_list;
 				param.vertex_count_ = draw_quad_count * hw_vertices_per_quad;
@@ -7245,14 +7245,14 @@ void hw_3d_sprites_render()
 	// Enable depth write.
 	//
 	{
-		auto& command = *command_buffer->write_depth_write();
+		auto& command = *command_buffer->write_enable_depth_write();
 		command.is_enable_ = true;
 	}
 
 	// Disable blending.
 	//
 	{
-		auto& command = *command_buffer->write_blending();
+		auto& command = *command_buffer->write_enable_blending();
 		command.is_enable_ = false;
 	}
 
@@ -7353,12 +7353,12 @@ void hw_screen_3d_refresh()
 
 	command_buffer->enable(true);
 
-	command_buffer->write_begin();
+	command_buffer->begin_write();
 
 	// Set viewport.
 	//
 	{
-		auto& viewport = command_buffer->write_viewport()->viewport_;
+		auto& viewport = command_buffer->write_set_viewport()->viewport_;
 		viewport.x_ = ::vid_dimensions_.screen_viewport_left_width_;
 		viewport.y_ = ::vid_dimensions_.window_viewport_bottom_height_ + ::vid_dimensions_.screen_viewport_bottom_height_;
 		viewport.width_ = ::vid_dimensions_.screen_viewport_width_;
@@ -7370,28 +7370,28 @@ void hw_screen_3d_refresh()
 	// Enable back-face culling.
 	//
 	{
-		auto& command = *command_buffer->write_culling();
+		auto& command = *command_buffer->write_enable_culling();
 		command.is_enable_ = true;
 	}
 
 	// Enable depth test.
 	//
 	{
-		auto& command = *command_buffer->write_depth_test();
+		auto& command = *command_buffer->write_enable_depth_test();
 		command.is_enable_ = true;
 	}
 
 	// Enable depth write.
 	//
 	{
-		auto& command = *command_buffer->write_depth_write();
+		auto& command = *command_buffer->write_enable_depth_write();
 		command.is_enable_ = true;
 	}
 
 	// Set model matrix.
 	//
 	{
-		auto& command = *command_buffer->write_shader_var_mat4();
+		auto& command = *command_buffer->write_set_mat4_uniform();
 		command.var_ = ::hw_shader_var_model_mat_;
 		command.value_ = hw_cast_glm_mat4(hw_3d_matrix_model_);
 	}
@@ -7399,7 +7399,7 @@ void hw_screen_3d_refresh()
 	// Set view matrix.
 	//
 	{
-		auto& command = *command_buffer->write_shader_var_mat4();
+		auto& command = *command_buffer->write_set_mat4_uniform();
 		command.var_ = ::hw_shader_var_view_mat_;
 		command.value_ = hw_cast_glm_mat4(hw_3d_matrix_view_);
 	}
@@ -7407,7 +7407,7 @@ void hw_screen_3d_refresh()
 	// Set projection matrix.
 	//
 	{
-		auto& command = *command_buffer->write_shader_var_mat4();
+		auto& command = *command_buffer->write_set_mat4_uniform();
 		command.var_ = ::hw_shader_var_projection_mat_;
 		command.value_ = hw_cast_glm_mat4(hw_3d_matrix_projection_);
 	}
@@ -7415,7 +7415,7 @@ void hw_screen_3d_refresh()
 	// Set sampler.
 	//
 	{
-		auto& command = *command_buffer->write_sampler();
+		auto& command = *command_buffer->write_set_sampler();
 		command.sampler_ = hw_3d_wall_s_.get();
 	}
 
@@ -7428,7 +7428,7 @@ void hw_screen_3d_refresh()
 		{
 			::hw_shading_mode_.set_is_modified(false);
 
-			auto& command = *command_buffer->write_shader_var_int32();
+			auto& command = *command_buffer->write_set_int32_uniform();
 			command.var_ = ::hw_shader_var_shading_mode_;
 			command.value_ = ::hw_shading_mode_;
 		}
@@ -7445,7 +7445,7 @@ void hw_screen_3d_refresh()
 	// Set sampler.
 	//
 	{
-		auto& command = *command_buffer->write_sampler();
+		auto& command = *command_buffer->write_set_sampler();
 		command.sampler_ = hw_3d_sprite_s_.get();
 	}
 
@@ -7456,7 +7456,7 @@ void hw_screen_3d_refresh()
 	// Set sampler.
 	//
 	{
-		auto& command = *command_buffer->write_sampler();
+		auto& command = *command_buffer->write_set_sampler();
 		command.sampler_ = hw_3d_wall_s_.get();
 	}
 
@@ -7471,18 +7471,18 @@ void hw_screen_3d_refresh()
 		);
 
 		{
-			auto& command = *command_buffer->write_texture();
+			auto& command = *command_buffer->write_set_texture();
 			command.texture_2d_ = texture_2d;
 		}
 
 		{
-			auto& command = *command_buffer->write_vertex_input();
+			auto& command = *command_buffer->write_set_vertex_input();
 			command.vertex_input_ = hw_3d_flooring_vi_.get();
 		}
 
 		{
 			auto& command = *command_buffer->write_draw_indexed();
-			auto& param = command.param_;
+			auto& param = command.draw_indexed_;
 
 			param.primitive_topology_ = bstone::Ren3dPrimitiveTopology::triangle_list;
 			param.vertex_count_ = hw_vertices_per_quad;
@@ -7503,18 +7503,18 @@ void hw_screen_3d_refresh()
 		);
 
 		{
-			auto& command = *command_buffer->write_texture();
+			auto& command = *command_buffer->write_set_texture();
 			command.texture_2d_ = texture_2d;
 		}
 
 		{
-			auto& command = *command_buffer->write_vertex_input();
+			auto& command = *command_buffer->write_set_vertex_input();
 			command.vertex_input_ = hw_3d_ceiling_vi_.get();
 		}
 
 		{
 			auto& command = *command_buffer->write_draw_indexed();
-			auto& param = command.param_;
+			auto& param = command.draw_indexed_;
 
 			param.primitive_topology_ = bstone::Ren3dPrimitiveTopology::triangle_list;
 			param.vertex_count_ = hw_vertices_per_quad;
@@ -7527,7 +7527,7 @@ void hw_screen_3d_refresh()
 	// Set sampler.
 	//
 	{
-		auto& command = *command_buffer->write_sampler();
+		auto& command = *command_buffer->write_set_sampler();
 		command.sampler_ = hw_3d_sprite_s_.get();
 	}
 
@@ -7538,14 +7538,14 @@ void hw_screen_3d_refresh()
 	// Disable back-face culling.
 	//
 	{
-		auto& command = *command_buffer->write_culling();
+		auto& command = *command_buffer->write_enable_culling();
 		command.is_enable_ = false;
 	}
 
 	// Disable depth test.
 	//
 	{
-		auto& command = *command_buffer->write_depth_test();
+		auto& command = *command_buffer->write_enable_depth_test();
 		command.is_enable_ = false;
 	}
 
@@ -7559,7 +7559,7 @@ void hw_screen_3d_refresh()
 		{
 			::hw_shading_mode_.set_is_modified(false);
 
-			auto& command = *command_buffer->write_shader_var_int32();
+			auto& command = *command_buffer->write_set_int32_uniform();
 			command.var_ = ::hw_shader_var_shading_mode_;
 			command.value_ = ::hw_shading_mode_;
 		}
@@ -7576,7 +7576,7 @@ void hw_screen_3d_refresh()
 			// Set projection matrix.
 			//
 			{
-				auto& command = *command_buffer->write_shader_var_mat4();
+				auto& command = *command_buffer->write_set_mat4_uniform();
 				command.var_ = ::hw_shader_var_projection_mat_;
 				command.value_ = hw_cast_glm_mat4(hw_3d_player_weapon_projection_matrix_);
 			}
@@ -7594,7 +7594,7 @@ void hw_screen_3d_refresh()
 			// Set model matrix.
 			//
 			{
-				auto& command = *command_buffer->write_shader_var_mat4();
+				auto& command = *command_buffer->write_set_mat4_uniform();
 				command.var_ = ::hw_shader_var_model_mat_;
 				command.value_ = hw_cast_glm_mat4(hw_3d_player_weapon_model_matrix_);
 			}
@@ -7602,7 +7602,7 @@ void hw_screen_3d_refresh()
 			// Set view matrix.
 			//
 			{
-				auto& command = *command_buffer->write_shader_var_mat4();
+				auto& command = *command_buffer->write_set_mat4_uniform();
 				command.var_ = ::hw_shader_var_view_mat_;
 				command.value_ = hw_cast_glm_mat4(hw_3d_player_weapon_view_matrix_);
 			}
@@ -7610,35 +7610,35 @@ void hw_screen_3d_refresh()
 			// Set texture.
 			//
 			{
-				auto& command = *command_buffer->write_texture();
+				auto& command = *command_buffer->write_set_texture();
 				command.texture_2d_ = player_weapon_texture;
 			}
 
 			// Set sampler.
 			//
 			{
-				auto& command = *command_buffer->write_sampler();
+				auto& command = *command_buffer->write_set_sampler();
 				command.sampler_ = hw_3d_player_weapon_s_.get();
 			}
 
 			// Set vertex input.
 			//
 			{
-				auto& command = *command_buffer->write_vertex_input();
+				auto& command = *command_buffer->write_set_vertex_input();
 				command.vertex_input_ = hw_3d_player_weapon_vi_.get();
 			}
 
 			// Enable blending.
 			//
 			{
-				auto& command = *command_buffer->write_blending();
+				auto& command = *command_buffer->write_enable_blending();
 				command.is_enable_ = true;
 			}
 
 			// Set blending function.
 			//
 			{
-				auto& blending_func = command_buffer->write_blending_func()->blending_func_;
+				auto& blending_func = command_buffer->write_set_blending_func()->blending_func_;
 				blending_func.src_factor_ = bstone::Ren3dBlendingFactor::src_alpha;
 				blending_func.dst_factor_ = bstone::Ren3dBlendingFactor::one_minus_src_alpha;
 			}
@@ -7647,7 +7647,7 @@ void hw_screen_3d_refresh()
 			//
 			{
 				auto& command = *command_buffer->write_draw_indexed();
-				auto& param = command.param_;
+				auto& param = command.draw_indexed_;
 
 				param.primitive_topology_ = bstone::Ren3dPrimitiveTopology::triangle_list;
 				param.vertex_count_ = hw_vertices_per_quad;
@@ -7659,7 +7659,7 @@ void hw_screen_3d_refresh()
 			// Disable blending.
 			//
 			{
-				auto& command = *command_buffer->write_blending();
+				auto& command = *command_buffer->write_enable_blending();
 				command.is_enable_ = false;
 			}
 		}
@@ -7672,7 +7672,7 @@ void hw_screen_3d_refresh()
 			// Set model matrix.
 			//
 			{
-				auto& command = *command_buffer->write_shader_var_mat4();
+				auto& command = *command_buffer->write_set_mat4_uniform();
 				command.var_ = ::hw_shader_var_model_mat_;
 				command.value_ = hw_cast_glm_mat4(glm::identity<glm::mat4>());
 			}
@@ -7680,7 +7680,7 @@ void hw_screen_3d_refresh()
 			// Set view matrix.
 			//
 			{
-				auto& command = *command_buffer->write_shader_var_mat4();
+				auto& command = *command_buffer->write_set_mat4_uniform();
 				command.var_ = ::hw_shader_var_view_mat_;
 				command.value_ = hw_cast_glm_mat4(glm::identity<glm::mat4>());
 			}
@@ -7688,14 +7688,14 @@ void hw_screen_3d_refresh()
 			// Enable blending.
 			//
 			{
-				auto& command = *command_buffer->write_blending();
+				auto& command = *command_buffer->write_enable_blending();
 				command.is_enable_ = true;
 			}
 
 			// Set blending function.
 			//
 			{
-				auto& blending_func = command_buffer->write_blending_func()->blending_func_;
+				auto& blending_func = command_buffer->write_set_blending_func()->blending_func_;
 				blending_func.src_factor_ = bstone::Ren3dBlendingFactor::src_alpha;
 				blending_func.dst_factor_ = bstone::Ren3dBlendingFactor::one_minus_src_alpha;
 			}
@@ -7703,21 +7703,21 @@ void hw_screen_3d_refresh()
 			// Set texture.
 			//
 			{
-				auto& command = *command_buffer->write_texture();
+				auto& command = *command_buffer->write_set_texture();
 				command.texture_2d_ = ::hw_3d_fade_t2d_;
 			}
 
 			// Set sampler.
 			//
 			{
-				auto& command = *command_buffer->write_sampler();
+				auto& command = *command_buffer->write_set_sampler();
 				command.sampler_ = hw_fade_s_.get();
 			}
 
 			// Set vertex input.
 			//
 			{
-				auto& command = *command_buffer->write_vertex_input();
+				auto& command = *command_buffer->write_set_vertex_input();
 				command.vertex_input_ = hw_3d_fade_vi_.get();
 			}
 
@@ -7725,7 +7725,7 @@ void hw_screen_3d_refresh()
 			//
 			{
 				auto& command = *command_buffer->write_draw_indexed();
-				auto& param = command.param_;
+				auto& param = command.draw_indexed_;
 
 				param.primitive_topology_ = bstone::Ren3dPrimitiveTopology::triangle_list;
 				param.vertex_count_ = hw_vertices_per_quad;
@@ -7737,7 +7737,7 @@ void hw_screen_3d_refresh()
 			// Disable blending.
 			//
 			{
-				auto& command = *command_buffer->write_blending();
+				auto& command = *command_buffer->write_enable_blending();
 				command.is_enable_ = false;
 			}
 		}
@@ -7745,7 +7745,7 @@ void hw_screen_3d_refresh()
 
 	// Finalize.
 	//
-	command_buffer->write_end();
+	command_buffer->end_write();
 }
 
 void hw_screen_refresh()

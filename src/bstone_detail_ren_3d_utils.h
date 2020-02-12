@@ -124,7 +124,7 @@ public:
 
 
 	static void validate_buffer_update_param(
-		const Ren3dBufferUpdateParam& param);
+		const Ren3dUpdateBufferParam& param);
 
 
 	static void validate_buffer_create_param(

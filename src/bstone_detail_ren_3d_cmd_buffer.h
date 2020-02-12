@@ -54,7 +54,7 @@ public:
 	~Ren3dCmdBufferImpl() override;
 
 
-	int get_command_count() const noexcept override;
+	int get_count() const noexcept override;
 
 
 	bool is_enabled() const noexcept override;
@@ -63,78 +63,78 @@ public:
 		const bool is_enabled) override;
 
 
-	void write_begin() override;
+	void begin_write() override;
 
-	void write_end() override;
+	void end_write() override;
 
-	Ren3dCmdClear* write_clear() override;
+	Ren3dClearCmd* write_clear() override;
 
-	Ren3dCmdViewport* write_viewport() override;
+	Ren3dSetViewportCmd* write_set_viewport() override;
 
-	Ren3dCmdScissor* write_scissor() override;
-	Ren3dCmdScissorBox* write_scissor_box() override;
+	Ren3dEnableScissorCmd* write_enable_scissor() override;
+	Ren3dSetScissorBoxCmd* write_set_scissor_box() override;
 
-	Ren3dCmdCulling* write_culling() override;
+	Ren3dEnableCullingCmd* write_enable_culling() override;
 
-	Ren3dCmdDepthTest* write_depth_test() override;
-	Ren3dCmdDepthWrite* write_depth_write() override;
+	Ren3dEnableDepthTestCmd* write_enable_depth_test() override;
+	Ren3dEnableDepthWriteCmd* write_enable_depth_write() override;
 
-	Ren3dCmdBlending* write_blending() override;
-	Ren3dCmdBlendingFunc* write_blending_func() override;
+	Ren3dEnableBlendingCmd* write_enable_blending() override;
+	Ren3dSetBlendingFuncCmd* write_set_blending_func() override;
 
-	Ren3dCmdTexture* write_texture() override;
-	Ren3dCmdSampler* write_sampler() override;
+	Ren3dSetTextureCmd* write_set_texture() override;
+	Ren3dSetSamplerCmd* write_set_sampler() override;
 
-	Ren3dCmdVertexInput* write_vertex_input() override;
+	Ren3dSetVertexInputCmd* write_set_vertex_input() override;
 
-	Ren3dCmdShaderStage* write_shader_stage() override;
+	Ren3dSetShaderStageCmd* write_set_shader_stage() override;
 
-	Ren3dCmdShaderVarInt32* write_shader_var_int32() override;
-	Ren3dCmdShaderVarFloat32* write_shader_var_float32() override;
-	Ren3dCmdShaderVarVec2* write_shader_var_vec2() override;
-	Ren3dCmdShaderVarVec4* write_shader_var_vec4() override;
-	Ren3dCmdShaderVarMat4* write_shader_var_mat4() override;
-	Ren3dCmdShaderVarSampler2d* write_shader_var_sampler_2d() override;
+	Ren3dSetInt32UniformCmd* write_set_int32_uniform() override;
+	Ren3dSetFloat32UniformCmd* write_set_float32_uniform() override;
+	Ren3dSetVec2UniformCmd* write_set_vec2_uniform() override;
+	Ren3dSetVec4UniformCmd* write_set_vec4_uniform() override;
+	Ren3dSetMat4UniformCmd* write_set_mat4_uniform() override;
+	Ren3dSetSampler2dUniformCmd* write_set_sampler_2d_uniform() override;
 
-	Ren3dCmdDrawIndexed* write_draw_indexed() override;
+	Ren3dDrawIndexedCmd* write_draw_indexed() override;
 
 
-	void read_begin() override;
+	void begin_read() override;
 
-	void read_end() override;
+	void end_read() override;
 
 	Ren3dCmdId read_command_id() override;
 
-	const Ren3dCmdClear* read_clear() override;
+	const Ren3dClearCmd* read_clear() override;
 
-	const Ren3dCmdViewport* read_viewport() override;
+	const Ren3dSetViewportCmd* read_set_viewport() override;
 
-	const Ren3dCmdScissor* read_scissor() override;
-	const Ren3dCmdScissorBox* read_scissor_box() override;
+	const Ren3dEnableScissorCmd* read_enable_scissor() override;
+	const Ren3dSetScissorBoxCmd* read_set_scissor_box() override;
 
-	const Ren3dCmdCulling* read_culling() override;
+	const Ren3dEnableCullingCmd* read_enable_culling() override;
 
-	const Ren3dCmdDepthTest* read_depth_test() override;
-	const Ren3dCmdDepthWrite* read_depth_write() override;
+	const Ren3dEnableDepthTestCmd* read_enable_depth_test() override;
+	const Ren3dEnableDepthWriteCmd* read_enable_depth_write() override;
 
-	const Ren3dCmdBlending* read_blending() override;
-	const Ren3dCmdBlendingFunc* read_blending_func() override;
+	const Ren3dEnableBlendingCmd* read_enable_blending() override;
+	const Ren3dSetBlendingFuncCmd* read_set_blending_func() override;
 
-	const Ren3dCmdTexture* read_texture() override;
-	const Ren3dCmdSampler* read_sampler() override;
+	const Ren3dSetTextureCmd* read_set_texture() override;
+	const Ren3dSetSamplerCmd* read_set_sampler() override;
 
-	const Ren3dCmdVertexInput* read_vertex_input() override;
+	const Ren3dSetVertexInputCmd* read_set_vertex_input() override;
 
-	const Ren3dCmdShaderStage* read_shader_stage() override;
+	const Ren3dSetShaderStageCmd* read_set_shader_stage() override;
 
-	const Ren3dCmdShaderVarInt32* read_shader_var_int32() override;
-	const Ren3dCmdShaderVarFloat32* read_shader_var_float32() override;
-	const Ren3dCmdShaderVarVec2* read_shader_var_vec2() override;
-	const Ren3dCmdShaderVarVec4* read_shader_var_vec4() override;
-	const Ren3dCmdShaderVarMat4* read_shader_var_mat4() override;
-	const Ren3dCmdShaderVarSampler2d* read_shader_var_sampler_2d() override;
+	const Ren3dSetInt32UniformCmd* read_set_int32_uniform() override;
+	const Ren3dSetFloat32UniformCmd* read_set_float32_uniform() override;
+	const Ren3dSetVec2UniformCmd* read_set_vec2_uniform() override;
+	const Ren3dSetVec4UniformCmd* read_set_vec4_uniform() override;
+	const Ren3dSetMat4UniformCmd* read_set_mat4_uniform() override;
+	const Ren3dSetSampler2dUniformCmd* read_set_sampler_2d_uniform() override;
 
-	const Ren3dCmdDrawIndexed* read_draw_indexed() override;
+	const Ren3dDrawIndexedCmd* read_draw_indexed() override;
 
 
 private:

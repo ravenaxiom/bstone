@@ -829,87 +829,87 @@ void Ren3dGl::msaa_set(
 }
 
 void Ren3dGl::command_execute_clear(
-	const Ren3dCmdClear& command)
+	const Ren3dClearCmd& command)
 {
-	gl_context_->clear(command.param_.color_);
+	gl_context_->clear(command.clear_.color_);
 }
 
 void Ren3dGl::command_execute_culling(
-	const Ren3dCmdCulling& command)
+	const Ren3dEnableCullingCmd& command)
 {
 	gl_context_->culling_enable(command.is_enable_);
 }
 
 void Ren3dGl::command_execute_depth_test(
-	const Ren3dCmdDepthTest& command)
+	const Ren3dEnableDepthTestCmd& command)
 {
 	gl_context_->depth_test_enable(command.is_enable_);
 }
 
 void Ren3dGl::command_execute_depth_write(
-	const Ren3dCmdDepthWrite& command)
+	const Ren3dEnableDepthWriteCmd& command)
 {
 	gl_context_->depth_write_enable(command.is_enable_);
 }
 
 void Ren3dGl::command_execute_viewport(
-	const Ren3dCmdViewport& command)
+	const Ren3dSetViewportCmd& command)
 {
 	gl_context_->viewport_set(command.viewport_);
 }
 
 void Ren3dGl::command_execute_blending(
-	const Ren3dCmdBlending& command)
+	const Ren3dEnableBlendingCmd& command)
 {
 	gl_context_->blending_enable(command.is_enable_);
 }
 
 void Ren3dGl::command_execute_blending_func(
-	const Ren3dCmdBlendingFunc& command)
+	const Ren3dSetBlendingFuncCmd& command)
 {
 	gl_context_->blending_set_func(command.blending_func_);
 }
 
 void Ren3dGl::command_execute_scissor(
-	const Ren3dCmdScissor& command)
+	const Ren3dEnableScissorCmd& command)
 {
 	gl_context_->scissor_enable(command.is_enable_);
 }
 
 void Ren3dGl::command_execute_scissor_box(
-	const Ren3dCmdScissorBox& command)
+	const Ren3dSetScissorBoxCmd& command)
 {
 	gl_context_->scissor_set_box(command.scissor_box_);
 }
 
 void Ren3dGl::command_execute_texture(
-	const Ren3dCmdTexture& command)
+	const Ren3dSetTextureCmd& command)
 {
 	gl_context_->texture_get_manager()->set_current(command.texture_2d_);
 	gl_context_->texture_get_manager()->set(command.texture_2d_);
 }
 
 void Ren3dGl::command_execute_sampler(
-	const Ren3dCmdSampler& command)
+	const Ren3dSetSamplerCmd& command)
 {
 	gl_context_->sampler_get_manager()->set(command.sampler_);
 }
 
 void Ren3dGl::command_execute_vertex_input(
-	const Ren3dCmdVertexInput& command)
+	const Ren3dSetVertexInputCmd& command)
 {
 	gl_context_->vertex_input_get_manager()->set(command.vertex_input_);
 }
 
 void Ren3dGl::command_execute_shader_stage(
-	const Ren3dCmdShaderStage& command)
+	const Ren3dSetShaderStageCmd& command)
 {
 	gl_context_->shader_stage_get_manager()->set_current(command.shader_stage_);
 	gl_context_->shader_stage_get_manager()->set(command.shader_stage_);
 }
 
 void Ren3dGl::command_execute_shader_var_int32(
-	const Ren3dCmdShaderVarInt32& command)
+	const Ren3dSetInt32UniformCmd& command)
 {
 	if (!command.var_)
 	{
@@ -920,7 +920,7 @@ void Ren3dGl::command_execute_shader_var_int32(
 }
 
 void Ren3dGl::command_execute_shader_var_float32(
-	const Ren3dCmdShaderVarFloat32& command)
+	const Ren3dSetFloat32UniformCmd& command)
 {
 	if (!command.var_)
 	{
@@ -931,7 +931,7 @@ void Ren3dGl::command_execute_shader_var_float32(
 }
 
 void Ren3dGl::command_execute_shader_var_vec2(
-	const Ren3dCmdShaderVarVec2& command)
+	const Ren3dSetVec2UniformCmd& command)
 {
 	if (!command.var_)
 	{
@@ -942,7 +942,7 @@ void Ren3dGl::command_execute_shader_var_vec2(
 }
 
 void Ren3dGl::command_execute_shader_var_vec4(
-	const Ren3dCmdShaderVarVec4& command)
+	const Ren3dSetVec4UniformCmd& command)
 {
 	if (!command.var_)
 	{
@@ -953,7 +953,7 @@ void Ren3dGl::command_execute_shader_var_vec4(
 }
 
 void Ren3dGl::command_execute_shader_var_mat4(
-	const Ren3dCmdShaderVarMat4& command)
+	const Ren3dSetMat4UniformCmd& command)
 {
 	if (!command.var_)
 	{
@@ -964,7 +964,7 @@ void Ren3dGl::command_execute_shader_var_mat4(
 }
 
 void Ren3dGl::command_execute_shader_var_sampler_2d(
-	const Ren3dCmdShaderVarSampler2d& command)
+	const Ren3dSetSampler2dUniformCmd& command)
 {
 	if (!command.var_)
 	{
@@ -975,9 +975,9 @@ void Ren3dGl::command_execute_shader_var_sampler_2d(
 }
 
 void Ren3dGl::command_execute_draw_indexed(
-	const Ren3dCmdDrawIndexed& command)
+	const Ren3dDrawIndexedCmd& command)
 {
-	const auto& param = command.param_;
+	const auto& param = command.draw_indexed_;
 
 	auto gl_primitive_topology = GLenum{};
 
@@ -1080,9 +1080,9 @@ void Ren3dGl::submit_commands(
 			continue;
 		}
 
-		const auto command_count = command_buffer->get_command_count();
+		const auto command_count = command_buffer->get_count();
 
-		command_buffer->read_begin();
+		command_buffer->begin_read();
 
 		for (int j = 0; j < command_count; ++j)
 		{
@@ -1095,75 +1095,75 @@ void Ren3dGl::submit_commands(
 				break;
 
 			case Ren3dCmdId::culling:
-				command_execute_culling(*command_buffer->read_culling());
+				command_execute_culling(*command_buffer->read_enable_culling());
 				break;
 
 			case Ren3dCmdId::depth_set_test:
-				command_execute_depth_test(*command_buffer->read_depth_test());
+				command_execute_depth_test(*command_buffer->read_enable_depth_test());
 				break;
 
 			case Ren3dCmdId::depth_set_write:
-				command_execute_depth_write(*command_buffer->read_depth_write());
+				command_execute_depth_write(*command_buffer->read_enable_depth_write());
 				break;
 
 			case Ren3dCmdId::viewport:
-				command_execute_viewport(*command_buffer->read_viewport());
+				command_execute_viewport(*command_buffer->read_set_viewport());
 				break;
 
 			case Ren3dCmdId::scissor:
-				command_execute_scissor(*command_buffer->read_scissor());
+				command_execute_scissor(*command_buffer->read_enable_scissor());
 				break;
 
 			case Ren3dCmdId::scissor_set_box:
-				command_execute_scissor_box(*command_buffer->read_scissor_box());
+				command_execute_scissor_box(*command_buffer->read_set_scissor_box());
 				break;
 
 			case Ren3dCmdId::blending:
-				command_execute_blending(*command_buffer->read_blending());
+				command_execute_blending(*command_buffer->read_enable_blending());
 				break;
 
 			case Ren3dCmdId::blending_func:
-				command_execute_blending_func(*command_buffer->read_blending_func());
+				command_execute_blending_func(*command_buffer->read_set_blending_func());
 				break;
 
 			case Ren3dCmdId::texture:
-				command_execute_texture(*command_buffer->read_texture());
+				command_execute_texture(*command_buffer->read_set_texture());
 				break;
 
 			case Ren3dCmdId::sampler:
-				command_execute_sampler(*command_buffer->read_sampler());
+				command_execute_sampler(*command_buffer->read_set_sampler());
 				break;
 
 			case Ren3dCmdId::vertex_input:
-				command_execute_vertex_input(*command_buffer->read_vertex_input());
+				command_execute_vertex_input(*command_buffer->read_set_vertex_input());
 				break;
 
 			case Ren3dCmdId::shader_stage:
-				command_execute_shader_stage(*command_buffer->read_shader_stage());
+				command_execute_shader_stage(*command_buffer->read_set_shader_stage());
 				break;
 
 			case Ren3dCmdId::shader_var_int32:
-				command_execute_shader_var_int32(*command_buffer->read_shader_var_int32());
+				command_execute_shader_var_int32(*command_buffer->read_set_int32_uniform());
 				break;
 
 			case Ren3dCmdId::shader_var_float32:
-				command_execute_shader_var_float32(*command_buffer->read_shader_var_float32());
+				command_execute_shader_var_float32(*command_buffer->read_set_float32_uniform());
 				break;
 
 			case Ren3dCmdId::shader_var_vec2:
-				command_execute_shader_var_vec2(*command_buffer->read_shader_var_vec2());
+				command_execute_shader_var_vec2(*command_buffer->read_set_vec2_uniform());
 				break;
 
 			case Ren3dCmdId::shader_var_vec4:
-				command_execute_shader_var_vec4(*command_buffer->read_shader_var_vec4());
+				command_execute_shader_var_vec4(*command_buffer->read_set_vec4_uniform());
 				break;
 
 			case Ren3dCmdId::shader_var_mat4:
-				command_execute_shader_var_mat4(*command_buffer->read_shader_var_mat4());
+				command_execute_shader_var_mat4(*command_buffer->read_set_mat4_uniform());
 				break;
 
 			case Ren3dCmdId::shader_var_sampler_2d:
-				command_execute_shader_var_sampler_2d(*command_buffer->read_shader_var_sampler_2d());
+				command_execute_shader_var_sampler_2d(*command_buffer->read_set_sampler_2d_uniform());
 				break;
 
 			case Ren3dCmdId::draw_indexed:
@@ -1175,7 +1175,7 @@ void Ren3dGl::submit_commands(
 			}
 		}
 
-		command_buffer->read_end();
+		command_buffer->end_read();
 	}
 }
 

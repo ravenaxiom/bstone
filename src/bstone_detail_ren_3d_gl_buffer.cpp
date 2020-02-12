@@ -106,7 +106,7 @@ public:
 	int get_size() const noexcept override;
 
 	void update(
-		const Ren3dBufferUpdateParam& param) override;
+		const Ren3dUpdateBufferParam& param) override;
 
 	void set(
 		const bool is_set) override;
@@ -133,7 +133,7 @@ private:
 		const Ren3dCreateBufferParam& param);
 
 	void validate_param(
-		const Ren3dBufferUpdateParam& param);
+		const Ren3dUpdateBufferParam& param);
 
 	static GLenum gl_get_target(
 		const Ren3dBufferKind kind);
@@ -261,7 +261,7 @@ void GlBufferImpl::set(
 }
 
 void GlBufferImpl::update(
-	const Ren3dBufferUpdateParam& param)
+	const Ren3dUpdateBufferParam& param)
 {
 	validate_param(param);
 
@@ -346,7 +346,7 @@ void GlBufferImpl::validate_param(
 }
 
 void GlBufferImpl::validate_param(
-	const Ren3dBufferUpdateParam& param)
+	const Ren3dUpdateBufferParam& param)
 {
 	if (param.offset_ < 0)
 	{

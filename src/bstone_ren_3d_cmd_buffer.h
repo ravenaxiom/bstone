@@ -75,111 +75,111 @@ enum class Ren3dCmdId
 }; // Ren3dCmdId
 
 
-struct Ren3dCmdClear
+struct Ren3dClearCmd
 {
-	Ren3dClearParam param_;
-}; // Ren3dCmdClear
+	Ren3dClearParam clear_;
+}; // Ren3dClearCmd
 
-struct Ren3dCmdViewport
+struct Ren3dSetViewportCmd
 {
 	Ren3dViewport viewport_;
-}; // Ren3dCmdViewport
+}; // Ren3dSetViewportCmd
 
-struct Ren3dCmdScissor
+struct Ren3dEnableScissorCmd
 {
 	bool is_enable_;
-}; // Ren3dCmdScissor
+}; // Ren3dEnableScissorCmd
 
-struct Ren3dCmdScissorBox
+struct Ren3dSetScissorBoxCmd
 {
 	Ren3dScissorBox scissor_box_;
-}; // Ren3dCmdScissorBox
+}; // Ren3dSetScissorBoxCmd
 
-struct Ren3dCmdCulling
+struct Ren3dEnableCullingCmd
 {
 	bool is_enable_;
-}; // Ren3dCmdCulling
+}; // Ren3dEnableCullingCmd
 
-struct Ren3dCmdBlending
+struct Ren3dEnableBlendingCmd
 {
 	bool is_enable_;
-}; // Ren3dCmdBlending
+}; // Ren3dEnableBlendingCmd
 
-struct Ren3dCmdBlendingFunc
+struct Ren3dSetBlendingFuncCmd
 {
 	Ren3dBlendingFunc blending_func_;
-}; // Ren3dCmdBlendingFunc
+}; // Ren3dSetBlendingFuncCmd
 
-struct Ren3dCmdDepthTest
+struct Ren3dEnableDepthTestCmd
 {
 	bool is_enable_;
-}; // Ren3dCmdDepthTest
+}; // Ren3dEnableDepthTestCmd
 
-struct Ren3dCmdDepthWrite
+struct Ren3dEnableDepthWriteCmd
 {
 	bool is_enable_;
-}; // Ren3dCmdDepthWrite
+}; // Ren3dEnableDepthWriteCmd
 
-struct Ren3dCmdTexture
+struct Ren3dSetTextureCmd
 {
 	Ren3dTexture2dPtr texture_2d_;
-}; // Ren3dCmdTexture
+}; // Ren3dSetTextureCmd
 
-struct Ren3dCmdSampler
+struct Ren3dSetSamplerCmd
 {
 	Ren3dSamplerPtr sampler_;
-}; // Ren3dCmdSampler
+}; // Ren3dSetSamplerCmd
 
-struct Ren3dCmdVertexInput
+struct Ren3dSetVertexInputCmd
 {
 	Ren3dVertexInputPtr vertex_input_;
-}; // Ren3dCmdVertexInput
+}; // Ren3dSetVertexInputCmd
 
-struct Ren3dCmdShaderStage
+struct Ren3dSetShaderStageCmd
 {
 	Ren3dShaderStagePtr shader_stage_;
-}; // Ren3dCmdShaderStage
+}; // Ren3dSetShaderStageCmd
 
-struct Ren3dCmdShaderVarInt32
+struct Ren3dSetInt32UniformCmd
 {
 	Ren3dShaderVarInt32Ptr var_;
 	int value_;
-}; // Ren3dCmdShaderVarInt32
+}; // Ren3dSetInt32UniformCmd
 
-struct Ren3dCmdShaderVarFloat32
+struct Ren3dSetFloat32UniformCmd
 {
 	Ren3dShaderVarFloat32Ptr var_;
 	float value_;
-}; // Ren3dCmdShaderVarFloat32
+}; // Ren3dSetFloat32UniformCmd
 
-struct Ren3dCmdShaderVarVec2
+struct Ren3dSetVec2UniformCmd
 {
 	Ren3dShaderVarVec2Ptr var_;
 	Ren3dVec2 value_;
-}; // Ren3dCmdShaderVarVec2
+}; // Ren3dSetVec2UniformCmd
 
-struct Ren3dCmdShaderVarVec4
+struct Ren3dSetVec4UniformCmd
 {
 	Ren3dShaderVarVec4Ptr var_;
 	Ren3dVec4 value_;
-}; // Ren3dCmdShaderVarVec4
+}; // Ren3dSetVec4UniformCmd
 
-struct Ren3dCmdShaderVarMat4
+struct Ren3dSetMat4UniformCmd
 {
 	Ren3dShaderVarMat4Ptr var_;
 	Ren3dMat4 value_;
-}; // Ren3dCmdShaderVarMat4
+}; // Ren3dSetMat4UniformCmd
 
-struct Ren3dCmdShaderVarSampler2d
+struct Ren3dSetSampler2dUniformCmd
 {
 	Ren3dShaderVarSampler2dPtr var_;
 	int value_;
-}; // Ren3dCmdShaderVarSampler2d
+}; // Ren3dSetSampler2dUniformCmd
 
-struct Ren3dCmdDrawIndexed
+struct Ren3dDrawIndexedCmd
 {
-	Ren3dDrawIndexedParam param_;
-}; // Ren3dCmdDrawIndexed
+	Ren3dDrawIndexedParam draw_indexed_;
+}; // Ren3dDrawIndexedCmd
 
 
 // ==========================================================================
@@ -195,7 +195,7 @@ protected:
 
 
 public:
-	virtual int get_command_count() const noexcept = 0;
+	virtual int get_count() const noexcept = 0;
 
 
 	virtual bool is_enabled() const noexcept = 0;
@@ -204,78 +204,78 @@ public:
 		const bool is_enabled) = 0;
 
 
-	virtual void write_begin() = 0;
+	virtual void begin_write() = 0;
 
-	virtual void write_end() = 0;
+	virtual void end_write() = 0;
 
-	virtual Ren3dCmdClear* write_clear() = 0;
+	virtual Ren3dClearCmd* write_clear() = 0;
 
-	virtual Ren3dCmdViewport* write_viewport() = 0;
+	virtual Ren3dSetViewportCmd* write_set_viewport() = 0;
 
-	virtual Ren3dCmdScissor* write_scissor() = 0;
-	virtual Ren3dCmdScissorBox* write_scissor_box() = 0;
+	virtual Ren3dEnableScissorCmd* write_enable_scissor() = 0;
+	virtual Ren3dSetScissorBoxCmd* write_set_scissor_box() = 0;
 
-	virtual Ren3dCmdCulling* write_culling() = 0;
+	virtual Ren3dEnableCullingCmd* write_enable_culling() = 0;
 
-	virtual Ren3dCmdDepthTest* write_depth_test() = 0;
-	virtual Ren3dCmdDepthWrite* write_depth_write() = 0;
+	virtual Ren3dEnableDepthTestCmd* write_enable_depth_test() = 0;
+	virtual Ren3dEnableDepthWriteCmd* write_enable_depth_write() = 0;
 
-	virtual Ren3dCmdBlending* write_blending() = 0;
-	virtual Ren3dCmdBlendingFunc* write_blending_func() = 0;
+	virtual Ren3dEnableBlendingCmd* write_enable_blending() = 0;
+	virtual Ren3dSetBlendingFuncCmd* write_set_blending_func() = 0;
 
-	virtual Ren3dCmdTexture* write_texture() = 0;
-	virtual Ren3dCmdSampler* write_sampler() = 0;
+	virtual Ren3dSetTextureCmd* write_set_texture() = 0;
+	virtual Ren3dSetSamplerCmd* write_set_sampler() = 0;
 
-	virtual Ren3dCmdVertexInput* write_vertex_input() = 0;
+	virtual Ren3dSetVertexInputCmd* write_set_vertex_input() = 0;
 
-	virtual Ren3dCmdShaderStage* write_shader_stage() = 0;
+	virtual Ren3dSetShaderStageCmd* write_set_shader_stage() = 0;
 
-	virtual Ren3dCmdShaderVarInt32* write_shader_var_int32() = 0;
-	virtual Ren3dCmdShaderVarFloat32* write_shader_var_float32() = 0;
-	virtual Ren3dCmdShaderVarVec2* write_shader_var_vec2() = 0;
-	virtual Ren3dCmdShaderVarVec4* write_shader_var_vec4() = 0;
-	virtual Ren3dCmdShaderVarMat4* write_shader_var_mat4() = 0;
-	virtual Ren3dCmdShaderVarSampler2d* write_shader_var_sampler_2d() = 0;
+	virtual Ren3dSetInt32UniformCmd* write_set_int32_uniform() = 0;
+	virtual Ren3dSetFloat32UniformCmd* write_set_float32_uniform() = 0;
+	virtual Ren3dSetVec2UniformCmd* write_set_vec2_uniform() = 0;
+	virtual Ren3dSetVec4UniformCmd* write_set_vec4_uniform() = 0;
+	virtual Ren3dSetMat4UniformCmd* write_set_mat4_uniform() = 0;
+	virtual Ren3dSetSampler2dUniformCmd* write_set_sampler_2d_uniform() = 0;
 
-	virtual Ren3dCmdDrawIndexed* write_draw_indexed() = 0;
+	virtual Ren3dDrawIndexedCmd* write_draw_indexed() = 0;
 
 
-	virtual void read_begin() = 0;
+	virtual void begin_read() = 0;
 
-	virtual void read_end() = 0;
+	virtual void end_read() = 0;
 
 	virtual Ren3dCmdId read_command_id() = 0;
 
-	virtual const Ren3dCmdClear* read_clear() = 0;
+	virtual const Ren3dClearCmd* read_clear() = 0;
 
-	virtual const Ren3dCmdViewport* read_viewport() = 0;
+	virtual const Ren3dSetViewportCmd* read_set_viewport() = 0;
 
-	virtual const Ren3dCmdScissor* read_scissor() = 0;
-	virtual const Ren3dCmdScissorBox* read_scissor_box() = 0;
+	virtual const Ren3dEnableScissorCmd* read_enable_scissor() = 0;
+	virtual const Ren3dSetScissorBoxCmd* read_set_scissor_box() = 0;
 
-	virtual const Ren3dCmdCulling* read_culling() = 0;
+	virtual const Ren3dEnableCullingCmd* read_enable_culling() = 0;
 
-	virtual const Ren3dCmdDepthTest* read_depth_test() = 0;
-	virtual const Ren3dCmdDepthWrite* read_depth_write() = 0;
+	virtual const Ren3dEnableDepthTestCmd* read_enable_depth_test() = 0;
+	virtual const Ren3dEnableDepthWriteCmd* read_enable_depth_write() = 0;
 
-	virtual const Ren3dCmdBlending* read_blending() = 0;
-	virtual const Ren3dCmdBlendingFunc* read_blending_func() = 0;
+	virtual const Ren3dEnableBlendingCmd* read_enable_blending() = 0;
+	virtual const Ren3dSetBlendingFuncCmd* read_set_blending_func() = 0;
 
-	virtual const Ren3dCmdTexture* read_texture() = 0;
-	virtual const Ren3dCmdSampler* read_sampler() = 0;
+	virtual const Ren3dSetTextureCmd* read_set_texture() = 0;
+	virtual const Ren3dSetSamplerCmd* read_set_sampler() = 0;
 
-	virtual const Ren3dCmdVertexInput* read_vertex_input() = 0;
+	virtual const Ren3dSetVertexInputCmd* read_set_vertex_input() = 0;
 
-	virtual const Ren3dCmdShaderStage* read_shader_stage() = 0;
+	virtual const Ren3dSetShaderStageCmd* read_set_shader_stage() = 0;
 
-	virtual const Ren3dCmdShaderVarInt32* read_shader_var_int32() = 0;
-	virtual const Ren3dCmdShaderVarFloat32* read_shader_var_float32() = 0;
-	virtual const Ren3dCmdShaderVarVec2* read_shader_var_vec2() = 0;
-	virtual const Ren3dCmdShaderVarVec4* read_shader_var_vec4() = 0;
-	virtual const Ren3dCmdShaderVarMat4* read_shader_var_mat4() = 0;
-	virtual const Ren3dCmdShaderVarSampler2d* read_shader_var_sampler_2d() = 0;
+	virtual const Ren3dSetInt32UniformCmd* read_set_int32_uniform() = 0;
+	virtual const Ren3dSetFloat32UniformCmd* read_set_float32_uniform() = 0;
+	virtual const Ren3dSetVec2UniformCmd* read_set_vec2_uniform() = 0;
+	virtual const Ren3dSetVec4UniformCmd* read_set_vec4_uniform() = 0;
+	virtual const Ren3dSetMat4UniformCmd* read_set_mat4_uniform() = 0;
+	virtual const Ren3dSetSampler2dUniformCmd* read_set_sampler_2d_uniform() = 0;
 
-	virtual const Ren3dCmdDrawIndexed* read_draw_indexed() = 0;
+	virtual const Ren3dDrawIndexedCmd* read_draw_indexed() = 0;
 }; // Ren3dCmdBuffer
 
 using Ren3dCmdBufferPtr = Ren3dCmdBuffer*;

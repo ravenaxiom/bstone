@@ -232,64 +232,64 @@ private:
 
 
 	void command_execute_clear(
-		const Ren3dCmdClear& command);
+		const Ren3dClearCmd& command);
 
 	void command_execute_culling(
-		const Ren3dCmdCulling& command);
+		const Ren3dEnableCullingCmd& command);
 
 	void command_execute_depth_test(
-		const Ren3dCmdDepthTest& command);
+		const Ren3dEnableDepthTestCmd& command);
 
 	void command_execute_depth_write(
-		const Ren3dCmdDepthWrite& command);
+		const Ren3dEnableDepthWriteCmd& command);
 
 	void command_execute_blending(
-		const Ren3dCmdBlending& command);
+		const Ren3dEnableBlendingCmd& command);
 
 	void command_execute_blending_func(
-		const Ren3dCmdBlendingFunc& command);
+		const Ren3dSetBlendingFuncCmd& command);
 
 	void command_execute_viewport(
-		const Ren3dCmdViewport& command);
+		const Ren3dSetViewportCmd& command);
 
 	void command_execute_scissor(
-		const Ren3dCmdScissor& command);
+		const Ren3dEnableScissorCmd& command);
 
 	void command_execute_scissor_box(
-		const Ren3dCmdScissorBox& command);
+		const Ren3dSetScissorBoxCmd& command);
 
 	void command_execute_texture(
-		const Ren3dCmdTexture& command);
+		const Ren3dSetTextureCmd& command);
 
 	void command_execute_sampler(
-		const Ren3dCmdSampler& command);
+		const Ren3dSetSamplerCmd& command);
 
 	void command_execute_vertex_input(
-		const Ren3dCmdVertexInput& command);
+		const Ren3dSetVertexInputCmd& command);
 
 	void command_execute_shader_stage(
-		const Ren3dCmdShaderStage& command);
+		const Ren3dSetShaderStageCmd& command);
 
 	void command_execute_shader_var_int32(
-		const Ren3dCmdShaderVarInt32& command);
+		const Ren3dSetInt32UniformCmd& command);
 
 	void command_execute_shader_var_float32(
-		const Ren3dCmdShaderVarFloat32& command);
+		const Ren3dSetFloat32UniformCmd& command);
 
 	void command_execute_shader_var_vec2(
-		const Ren3dCmdShaderVarVec2& command);
+		const Ren3dSetVec2UniformCmd& command);
 
 	void command_execute_shader_var_vec4(
-		const Ren3dCmdShaderVarVec4& command);
+		const Ren3dSetVec4UniformCmd& command);
 
 	void command_execute_shader_var_mat4(
-		const Ren3dCmdShaderVarMat4& command);
+		const Ren3dSetMat4UniformCmd& command);
 
 	void command_execute_shader_var_sampler_2d(
-		const Ren3dCmdShaderVarSampler2d& command);
+		const Ren3dSetSampler2dUniformCmd& command);
 
 	void command_execute_draw_indexed(
-		const Ren3dCmdDrawIndexed& command);
+		const Ren3dDrawIndexedCmd& command);
 }; // Ren3dGl
 
 

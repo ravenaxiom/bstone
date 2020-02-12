@@ -317,7 +317,7 @@ void Ren3dUtils::validate_buffer_create_param(
 }
 
 void Ren3dUtils::validate_buffer_update_param(
-	const Ren3dBufferUpdateParam& param)
+	const Ren3dUpdateBufferParam& param)
 {
 	if (param.offset_ < 0)
 	{

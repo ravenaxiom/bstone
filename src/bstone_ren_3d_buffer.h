@@ -70,12 +70,12 @@ struct Ren3dCreateBufferParam
 	int size_;
 }; // Ren3dCreateBufferParam
 
-struct Ren3dBufferUpdateParam
+struct Ren3dUpdateBufferParam
 {
 	int offset_;
 	int size_;
 	const void* data_;
-}; // Ren3dBufferUpdateParam
+}; // Ren3dUpdateBufferParam
 
 
 class Ren3dBuffer
@@ -95,7 +95,7 @@ public:
 	virtual int get_size() const noexcept = 0;
 
 	virtual void update(
-		const Ren3dBufferUpdateParam& param) = 0;
+		const Ren3dUpdateBufferParam& param) = 0;
 }; // Ren3dBuffer
 
 using Ren3dBufferPtr = Ren3dBuffer*;

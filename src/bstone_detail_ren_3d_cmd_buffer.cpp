@@ -89,7 +89,7 @@ Ren3dCmdBufferImpl::Ren3dCmdBufferImpl(
 
 Ren3dCmdBufferImpl::~Ren3dCmdBufferImpl() = default;
 
-int Ren3dCmdBufferImpl::get_command_count() const noexcept
+int Ren3dCmdBufferImpl::get_count() const noexcept
 {
 	return command_count_;
 }
@@ -105,7 +105,7 @@ void Ren3dCmdBufferImpl::enable(
 	is_enabled_ = is_enabled;
 }
 
-void Ren3dCmdBufferImpl::write_begin()
+void Ren3dCmdBufferImpl::begin_write()
 {
 	if (is_reading_)
 	{
@@ -122,7 +122,7 @@ void Ren3dCmdBufferImpl::write_begin()
 	command_count_ = 0;
 }
 
-void Ren3dCmdBufferImpl::write_end()
+void Ren3dCmdBufferImpl::end_write()
 {
 	if (is_reading_)
 	{
@@ -137,107 +137,107 @@ void Ren3dCmdBufferImpl::write_end()
 	is_writing_ = false;
 }
 
-Ren3dCmdClear* Ren3dCmdBufferImpl::write_clear()
+Ren3dClearCmd* Ren3dCmdBufferImpl::write_clear()
 {
-	return write<Ren3dCmdClear>(Ren3dCmdId::clear);
+	return write<Ren3dClearCmd>(Ren3dCmdId::clear);
 }
 
-Ren3dCmdViewport* Ren3dCmdBufferImpl::write_viewport()
+Ren3dSetViewportCmd* Ren3dCmdBufferImpl::write_set_viewport()
 {
-	return write<Ren3dCmdViewport>(Ren3dCmdId::viewport);
+	return write<Ren3dSetViewportCmd>(Ren3dCmdId::viewport);
 }
 
-Ren3dCmdScissor* Ren3dCmdBufferImpl::write_scissor()
+Ren3dEnableScissorCmd* Ren3dCmdBufferImpl::write_enable_scissor()
 {
-	return write<Ren3dCmdScissor>(Ren3dCmdId::scissor);
+	return write<Ren3dEnableScissorCmd>(Ren3dCmdId::scissor);
 }
 
-Ren3dCmdScissorBox* Ren3dCmdBufferImpl::write_scissor_box()
+Ren3dSetScissorBoxCmd* Ren3dCmdBufferImpl::write_set_scissor_box()
 {
-	return write<Ren3dCmdScissorBox>(Ren3dCmdId::scissor_set_box);
+	return write<Ren3dSetScissorBoxCmd>(Ren3dCmdId::scissor_set_box);
 }
 
-Ren3dCmdCulling* Ren3dCmdBufferImpl::write_culling()
+Ren3dEnableCullingCmd* Ren3dCmdBufferImpl::write_enable_culling()
 {
-	return write<Ren3dCmdCulling>(Ren3dCmdId::culling);
+	return write<Ren3dEnableCullingCmd>(Ren3dCmdId::culling);
 }
 
-Ren3dCmdDepthTest* Ren3dCmdBufferImpl::write_depth_test()
+Ren3dEnableDepthTestCmd* Ren3dCmdBufferImpl::write_enable_depth_test()
 {
-	return write<Ren3dCmdDepthTest>(Ren3dCmdId::depth_set_test);
+	return write<Ren3dEnableDepthTestCmd>(Ren3dCmdId::depth_set_test);
 }
 
-Ren3dCmdDepthWrite* Ren3dCmdBufferImpl::write_depth_write()
+Ren3dEnableDepthWriteCmd* Ren3dCmdBufferImpl::write_enable_depth_write()
 {
-	return write<Ren3dCmdDepthWrite>(Ren3dCmdId::depth_set_write);
+	return write<Ren3dEnableDepthWriteCmd>(Ren3dCmdId::depth_set_write);
 }
 
-Ren3dCmdBlending* Ren3dCmdBufferImpl::write_blending()
+Ren3dEnableBlendingCmd* Ren3dCmdBufferImpl::write_enable_blending()
 {
-	return write<Ren3dCmdBlending>(Ren3dCmdId::blending);
+	return write<Ren3dEnableBlendingCmd>(Ren3dCmdId::blending);
 }
 
-Ren3dCmdBlendingFunc* Ren3dCmdBufferImpl::write_blending_func()
+Ren3dSetBlendingFuncCmd* Ren3dCmdBufferImpl::write_set_blending_func()
 {
-	return write<Ren3dCmdBlendingFunc>(Ren3dCmdId::blending_func);
+	return write<Ren3dSetBlendingFuncCmd>(Ren3dCmdId::blending_func);
 }
 
-Ren3dCmdTexture* Ren3dCmdBufferImpl::write_texture()
+Ren3dSetTextureCmd* Ren3dCmdBufferImpl::write_set_texture()
 {
-	return write<Ren3dCmdTexture>(Ren3dCmdId::texture);
+	return write<Ren3dSetTextureCmd>(Ren3dCmdId::texture);
 }
 
-Ren3dCmdSampler* Ren3dCmdBufferImpl::write_sampler()
+Ren3dSetSamplerCmd* Ren3dCmdBufferImpl::write_set_sampler()
 {
-	return write<Ren3dCmdSampler>(Ren3dCmdId::sampler);
+	return write<Ren3dSetSamplerCmd>(Ren3dCmdId::sampler);
 }
 
-Ren3dCmdVertexInput* Ren3dCmdBufferImpl::write_vertex_input()
+Ren3dSetVertexInputCmd* Ren3dCmdBufferImpl::write_set_vertex_input()
 {
-	return write<Ren3dCmdVertexInput>(Ren3dCmdId::vertex_input);
+	return write<Ren3dSetVertexInputCmd>(Ren3dCmdId::vertex_input);
 }
 
-Ren3dCmdShaderStage* Ren3dCmdBufferImpl::write_shader_stage()
+Ren3dSetShaderStageCmd* Ren3dCmdBufferImpl::write_set_shader_stage()
 {
-	return write<Ren3dCmdShaderStage>(Ren3dCmdId::shader_stage);
+	return write<Ren3dSetShaderStageCmd>(Ren3dCmdId::shader_stage);
 }
 
-Ren3dCmdShaderVarInt32* Ren3dCmdBufferImpl::write_shader_var_int32()
+Ren3dSetInt32UniformCmd* Ren3dCmdBufferImpl::write_set_int32_uniform()
 {
-	return write<Ren3dCmdShaderVarInt32>(Ren3dCmdId::shader_var_int32);
+	return write<Ren3dSetInt32UniformCmd>(Ren3dCmdId::shader_var_int32);
 }
 
-Ren3dCmdShaderVarFloat32* Ren3dCmdBufferImpl::write_shader_var_float32()
+Ren3dSetFloat32UniformCmd* Ren3dCmdBufferImpl::write_set_float32_uniform()
 {
-	return write<Ren3dCmdShaderVarFloat32>(Ren3dCmdId::shader_var_float32);
+	return write<Ren3dSetFloat32UniformCmd>(Ren3dCmdId::shader_var_float32);
 }
 
-Ren3dCmdShaderVarVec2* Ren3dCmdBufferImpl::write_shader_var_vec2()
+Ren3dSetVec2UniformCmd* Ren3dCmdBufferImpl::write_set_vec2_uniform()
 {
-	return write<Ren3dCmdShaderVarVec2>(Ren3dCmdId::shader_var_vec2);
+	return write<Ren3dSetVec2UniformCmd>(Ren3dCmdId::shader_var_vec2);
 }
 
-Ren3dCmdShaderVarVec4* Ren3dCmdBufferImpl::write_shader_var_vec4()
+Ren3dSetVec4UniformCmd* Ren3dCmdBufferImpl::write_set_vec4_uniform()
 {
-	return write<Ren3dCmdShaderVarVec4>(Ren3dCmdId::shader_var_vec4);
+	return write<Ren3dSetVec4UniformCmd>(Ren3dCmdId::shader_var_vec4);
 }
 
-Ren3dCmdShaderVarMat4* Ren3dCmdBufferImpl::write_shader_var_mat4()
+Ren3dSetMat4UniformCmd* Ren3dCmdBufferImpl::write_set_mat4_uniform()
 {
-	return write<Ren3dCmdShaderVarMat4>(Ren3dCmdId::shader_var_mat4);
+	return write<Ren3dSetMat4UniformCmd>(Ren3dCmdId::shader_var_mat4);
 }
 
-Ren3dCmdShaderVarSampler2d* Ren3dCmdBufferImpl::write_shader_var_sampler_2d()
+Ren3dSetSampler2dUniformCmd* Ren3dCmdBufferImpl::write_set_sampler_2d_uniform()
 {
-	return write<Ren3dCmdShaderVarSampler2d>(Ren3dCmdId::shader_var_sampler_2d);
+	return write<Ren3dSetSampler2dUniformCmd>(Ren3dCmdId::shader_var_sampler_2d);
 }
 
-Ren3dCmdDrawIndexed* Ren3dCmdBufferImpl::write_draw_indexed()
+Ren3dDrawIndexedCmd* Ren3dCmdBufferImpl::write_draw_indexed()
 {
-	return write<Ren3dCmdDrawIndexed>(Ren3dCmdId::draw_indexed);
+	return write<Ren3dDrawIndexedCmd>(Ren3dCmdId::draw_indexed);
 }
 
-void Ren3dCmdBufferImpl::read_begin()
+void Ren3dCmdBufferImpl::begin_read()
 {
 	if (is_reading_)
 	{
@@ -253,7 +253,7 @@ void Ren3dCmdBufferImpl::read_begin()
 	read_offset_ = 0;
 }
 
-void Ren3dCmdBufferImpl::read_end()
+void Ren3dCmdBufferImpl::end_read()
 {
 	if (!is_reading_)
 	{
@@ -285,104 +285,104 @@ Ren3dCmdId Ren3dCmdBufferImpl::read_command_id()
 	return *command_id;
 }
 
-const Ren3dCmdClear* Ren3dCmdBufferImpl::read_clear()
+const Ren3dClearCmd* Ren3dCmdBufferImpl::read_clear()
 {
-	return read<Ren3dCmdClear>();
+	return read<Ren3dClearCmd>();
 }
 
-const Ren3dCmdViewport* Ren3dCmdBufferImpl::read_viewport()
+const Ren3dSetViewportCmd* Ren3dCmdBufferImpl::read_set_viewport()
 {
-	return read<Ren3dCmdViewport>();
+	return read<Ren3dSetViewportCmd>();
 }
 
-const Ren3dCmdScissor* Ren3dCmdBufferImpl::read_scissor()
+const Ren3dEnableScissorCmd* Ren3dCmdBufferImpl::read_enable_scissor()
 {
-	return read<Ren3dCmdScissor>();
+	return read<Ren3dEnableScissorCmd>();
 }
 
-const Ren3dCmdScissorBox* Ren3dCmdBufferImpl::read_scissor_box()
+const Ren3dSetScissorBoxCmd* Ren3dCmdBufferImpl::read_set_scissor_box()
 {
-	return read<Ren3dCmdScissorBox>();
+	return read<Ren3dSetScissorBoxCmd>();
 }
 
-const Ren3dCmdCulling* Ren3dCmdBufferImpl::read_culling()
+const Ren3dEnableCullingCmd* Ren3dCmdBufferImpl::read_enable_culling()
 {
-	return read<Ren3dCmdCulling>();
+	return read<Ren3dEnableCullingCmd>();
 }
 
-const Ren3dCmdDepthTest* Ren3dCmdBufferImpl::read_depth_test()
+const Ren3dEnableDepthTestCmd* Ren3dCmdBufferImpl::read_enable_depth_test()
 {
-	return read<Ren3dCmdDepthTest>();
+	return read<Ren3dEnableDepthTestCmd>();
 }
 
-const Ren3dCmdDepthWrite* Ren3dCmdBufferImpl::read_depth_write()
+const Ren3dEnableDepthWriteCmd* Ren3dCmdBufferImpl::read_enable_depth_write()
 {
-	return read<Ren3dCmdDepthWrite>();
+	return read<Ren3dEnableDepthWriteCmd>();
 }
 
-const Ren3dCmdBlending* Ren3dCmdBufferImpl::read_blending()
+const Ren3dEnableBlendingCmd* Ren3dCmdBufferImpl::read_enable_blending()
 {
-	return read<Ren3dCmdBlending>();
+	return read<Ren3dEnableBlendingCmd>();
 }
 
-const Ren3dCmdBlendingFunc* Ren3dCmdBufferImpl::read_blending_func()
+const Ren3dSetBlendingFuncCmd* Ren3dCmdBufferImpl::read_set_blending_func()
 {
-	return read<Ren3dCmdBlendingFunc>();
+	return read<Ren3dSetBlendingFuncCmd>();
 }
 
-const Ren3dCmdTexture* Ren3dCmdBufferImpl::read_texture()
+const Ren3dSetTextureCmd* Ren3dCmdBufferImpl::read_set_texture()
 {
-	return read<Ren3dCmdTexture>();
+	return read<Ren3dSetTextureCmd>();
 }
 
-const Ren3dCmdSampler* Ren3dCmdBufferImpl::read_sampler()
+const Ren3dSetSamplerCmd* Ren3dCmdBufferImpl::read_set_sampler()
 {
-	return read<Ren3dCmdSampler>();
+	return read<Ren3dSetSamplerCmd>();
 }
 
-const Ren3dCmdVertexInput* Ren3dCmdBufferImpl::read_vertex_input()
+const Ren3dSetVertexInputCmd* Ren3dCmdBufferImpl::read_set_vertex_input()
 {
-	return read<Ren3dCmdVertexInput>();
+	return read<Ren3dSetVertexInputCmd>();
 }
 
-const Ren3dCmdShaderStage* Ren3dCmdBufferImpl::read_shader_stage()
+const Ren3dSetShaderStageCmd* Ren3dCmdBufferImpl::read_set_shader_stage()
 {
-	return read<Ren3dCmdShaderStage>();
+	return read<Ren3dSetShaderStageCmd>();
 }
 
-const Ren3dCmdShaderVarInt32* Ren3dCmdBufferImpl::read_shader_var_int32()
+const Ren3dSetInt32UniformCmd* Ren3dCmdBufferImpl::read_set_int32_uniform()
 {
-	return read<Ren3dCmdShaderVarInt32>();
+	return read<Ren3dSetInt32UniformCmd>();
 }
 
-const Ren3dCmdShaderVarFloat32* Ren3dCmdBufferImpl::read_shader_var_float32()
+const Ren3dSetFloat32UniformCmd* Ren3dCmdBufferImpl::read_set_float32_uniform()
 {
-	return read<Ren3dCmdShaderVarFloat32>();
+	return read<Ren3dSetFloat32UniformCmd>();
 }
 
-const Ren3dCmdShaderVarVec2* Ren3dCmdBufferImpl::read_shader_var_vec2()
+const Ren3dSetVec2UniformCmd* Ren3dCmdBufferImpl::read_set_vec2_uniform()
 {
-	return read<Ren3dCmdShaderVarVec2>();
+	return read<Ren3dSetVec2UniformCmd>();
 }
 
-const Ren3dCmdShaderVarVec4* Ren3dCmdBufferImpl::read_shader_var_vec4()
+const Ren3dSetVec4UniformCmd* Ren3dCmdBufferImpl::read_set_vec4_uniform()
 {
-	return read<Ren3dCmdShaderVarVec4>();
+	return read<Ren3dSetVec4UniformCmd>();
 }
 
-const Ren3dCmdShaderVarMat4* Ren3dCmdBufferImpl::read_shader_var_mat4()
+const Ren3dSetMat4UniformCmd* Ren3dCmdBufferImpl::read_set_mat4_uniform()
 {
-	return read<Ren3dCmdShaderVarMat4>();
+	return read<Ren3dSetMat4UniformCmd>();
 }
 
-const Ren3dCmdShaderVarSampler2d* Ren3dCmdBufferImpl::read_shader_var_sampler_2d()
+const Ren3dSetSampler2dUniformCmd* Ren3dCmdBufferImpl::read_set_sampler_2d_uniform()
 {
-	return read<Ren3dCmdShaderVarSampler2d>();
+	return read<Ren3dSetSampler2dUniformCmd>();
 }
 
-const Ren3dCmdDrawIndexed* Ren3dCmdBufferImpl::read_draw_indexed()
+const Ren3dDrawIndexedCmd* Ren3dCmdBufferImpl::read_draw_indexed()
 {
-	return read<Ren3dCmdDrawIndexed>();
+	return read<Ren3dDrawIndexedCmd>();
 }
 
 void Ren3dCmdBufferImpl::validate_param(
