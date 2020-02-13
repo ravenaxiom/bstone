@@ -42,12 +42,6 @@ namespace bstone
 // Ren3dCmdQueue
 //
 
-struct Ren3dCmdQueueEnqueueParam
-{
-	int initial_size_;
-	int resize_delta_size_;
-}; // Ren3dCmdQueueEnqueueParam
-
 class Ren3dCmdQueue
 {
 protected:
@@ -61,7 +55,7 @@ public:
 	virtual int get_count() const noexcept = 0;
 
 	virtual Ren3dCmdBufferPtr enqueue(
-		const Ren3dCmdQueueEnqueueParam& param) = 0;
+		const Ren3dCreateCmdBufferParam& param) = 0;
 
 	virtual void dequeue(
 		Ren3dCmdBufferPtr command_buffer) = 0;

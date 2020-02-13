@@ -28,7 +28,8 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_precompiled.h"
-#include "bstone_detail_ren_3d_cmd_buffer.h"
+
+#include "bstone_ren_3d_cmd_buffer.h"
 
 #include <algorithm>
 
@@ -52,7 +53,7 @@ public:
 	explicit Ren3dCmdBufferImplInitException(
 		const char* const message)
 		:
-		Exception{std::string{"[R3D_CMD_BUF_INIT] "} + message}
+		Exception{std::string{"[REN_3D_CMD_BUF_INIT] "} + message}
 	{
 	}
 }; // Ren3dCmdBufferImplInitException
@@ -63,11 +64,248 @@ public:
 
 
 // ==========================================================================
+// Ren3dCmdBufferImplReadException
+//
+
+class Ren3dCmdBufferImplReadException :
+	public Exception
+{
+public:
+	explicit Ren3dCmdBufferImplReadException(
+		const char* const message)
+		:
+		Exception{std::string{"[REN_3D_CMD_BUF_READ] "} +message}
+	{
+	}
+}; // Ren3dCmdBufferImplReadException
+
+//
+// Ren3dCmdBufferImplReadException
+// ==========================================================================
+
+
+// ==========================================================================
+// Ren3dCmdBufferImplWriteException
+//
+
+class Ren3dCmdBufferImplWriteException :
+	public Exception
+{
+public:
+	explicit Ren3dCmdBufferImplWriteException(
+		const char* const message)
+		:
+		Exception{std::string{"[REN_3D_CMD_BUF_WRITE] "} +message}
+	{
+	}
+}; // Ren3dCmdBufferImplWriteException
+
+//
+// Ren3dCmdBufferImplWriteException
+// ==========================================================================
+
+
+// ==========================================================================
+// Ren3dCmdBufferImpl
+//
+
+class Ren3dCmdBufferImpl final :
+	public Ren3dCmdBuffer
+{
+public:
+	Ren3dCmdBufferImpl(
+		const Ren3dCreateCmdBufferParam& param);
+
+	~Ren3dCmdBufferImpl() override;
+
+
+	int get_count() const noexcept override;
+
+
+	bool is_enabled() const noexcept override;
+
+	void enable(
+		const bool is_enabled) override;
+
+
+	void begin_write() override;
+
+	void end_write() override;
+
+	Ren3dClearCmd* write_clear() override;
+
+	Ren3dSetViewportCmd* write_set_viewport() override;
+
+	Ren3dEnableScissorCmd* write_enable_scissor() override;
+	Ren3dSetScissorBoxCmd* write_set_scissor_box() override;
+
+	Ren3dEnableCullingCmd* write_enable_culling() override;
+
+	Ren3dEnableDepthTestCmd* write_enable_depth_test() override;
+	Ren3dEnableDepthWriteCmd* write_enable_depth_write() override;
+
+	Ren3dEnableBlendingCmd* write_enable_blending() override;
+	Ren3dSetBlendingFuncCmd* write_set_blending_func() override;
+
+	Ren3dSetTextureCmd* write_set_texture() override;
+	Ren3dSetSamplerCmd* write_set_sampler() override;
+
+	Ren3dSetVertexInputCmd* write_set_vertex_input() override;
+
+	Ren3dSetShaderStageCmd* write_set_shader_stage() override;
+
+	Ren3dSetInt32UniformCmd* write_set_int32_uniform() override;
+	Ren3dSetFloat32UniformCmd* write_set_float32_uniform() override;
+	Ren3dSetVec2UniformCmd* write_set_vec2_uniform() override;
+	Ren3dSetVec4UniformCmd* write_set_vec4_uniform() override;
+	Ren3dSetMat4UniformCmd* write_set_mat4_uniform() override;
+	Ren3dSetSampler2dUniformCmd* write_set_sampler_2d_uniform() override;
+
+	Ren3dDrawIndexedCmd* write_draw_indexed() override;
+
+
+	void begin_read() override;
+
+	void end_read() override;
+
+	Ren3dCmdId read_command_id() override;
+
+	const Ren3dClearCmd* read_clear() override;
+
+	const Ren3dSetViewportCmd* read_set_viewport() override;
+
+	const Ren3dEnableScissorCmd* read_enable_scissor() override;
+	const Ren3dSetScissorBoxCmd* read_set_scissor_box() override;
+
+	const Ren3dEnableCullingCmd* read_enable_culling() override;
+
+	const Ren3dEnableDepthTestCmd* read_enable_depth_test() override;
+	const Ren3dEnableDepthWriteCmd* read_enable_depth_write() override;
+
+	const Ren3dEnableBlendingCmd* read_enable_blending() override;
+	const Ren3dSetBlendingFuncCmd* read_set_blending_func() override;
+
+	const Ren3dSetTextureCmd* read_set_texture() override;
+	const Ren3dSetSamplerCmd* read_set_sampler() override;
+
+	const Ren3dSetVertexInputCmd* read_set_vertex_input() override;
+
+	const Ren3dSetShaderStageCmd* read_set_shader_stage() override;
+
+	const Ren3dSetInt32UniformCmd* read_set_int32_uniform() override;
+	const Ren3dSetFloat32UniformCmd* read_set_float32_uniform() override;
+	const Ren3dSetVec2UniformCmd* read_set_vec2_uniform() override;
+	const Ren3dSetVec4UniformCmd* read_set_vec4_uniform() override;
+	const Ren3dSetMat4UniformCmd* read_set_mat4_uniform() override;
+	const Ren3dSetSampler2dUniformCmd* read_set_sampler_2d_uniform() override;
+
+	const Ren3dDrawIndexedCmd* read_draw_indexed() override;
+
+
+private:
+	static constexpr int get_min_initial_size()
+	{
+		return 4096;
+	}
+
+	static constexpr int get_min_resize_delta_size()
+	{
+		return 4096;
+	}
+
+	static constexpr int get_command_id_size()
+	{
+		return static_cast<int>(sizeof(Ren3dCmdId));
+	}
+
+
+	using Data = std::vector<std::uint8_t>;
+
+	bool is_enabled_;
+	bool is_reading_;
+	bool is_writing_;
+
+	int size_;
+	int write_offset_;
+	int read_offset_;
+	int resize_delta_size_;
+	int command_count_;
+
+	Data data_;
+
+
+	void validate_param(
+		const Ren3dCreateCmdBufferParam& param);
+
+	void resize_if_necessary(
+		const int dst_delta_size);
+
+	template<typename T>
+	T* write(
+		const Ren3dCmdId command_id)
+	{
+		if (is_reading_ || !is_writing_)
+		{
+			throw Ren3dCmdBufferImplWriteException("Invalid state.");
+		}
+
+		if (command_id == Ren3dCmdId::none)
+		{
+			throw Ren3dCmdBufferImplWriteException("Invalid command id.");
+		}
+
+		const auto command_size = static_cast<int>(sizeof(T));
+
+		const auto block_size = get_command_id_size() + command_size;
+
+		resize_if_necessary(block_size);
+
+		auto block = reinterpret_cast<Ren3dCmdId*>(&data_[write_offset_]);
+		*block = command_id;
+
+		write_offset_ += block_size;
+		++command_count_;
+
+		return reinterpret_cast<T*>(block + 1);
+	}
+
+	template<typename T>
+	const T* read()
+	{
+		if (!is_reading_ || is_writing_)
+		{
+			throw Ren3dCmdBufferImplReadException{"Invalid state."};
+		}
+
+		const auto command_size = static_cast<int>(sizeof(T));
+
+		if ((size_ - read_offset_) < command_size)
+		{
+			throw Ren3dCmdBufferImplReadException{"Data underflow."};
+		}
+
+		auto command = reinterpret_cast<const T*>(&data_[read_offset_]);
+
+		read_offset_ += command_size;
+
+		return command;
+	}
+}; // Ren3dCmdBufferImpl
+
+using Ren3dCmdBufferImplPtr = Ren3dCmdBufferImpl*;
+using Ren3dCmdBufferImplUPtr = std::unique_ptr<Ren3dCmdBufferImpl>;
+
+//
+// Ren3dCmdBufferImpl
+// ==========================================================================
+
+
+// ==========================================================================
 // Ren3dCmdBufferImpl
 //
 
 Ren3dCmdBufferImpl::Ren3dCmdBufferImpl(
-	const Ren3dCmdQueueEnqueueParam& param)
+	const Ren3dCreateCmdBufferParam& param)
 	:
 	is_enabled_{},
 	is_reading_{},
@@ -109,12 +347,12 @@ void Ren3dCmdBufferImpl::begin_write()
 {
 	if (is_reading_)
 	{
-		throw Exception{"Already reading."};
+		throw Ren3dCmdBufferImplWriteException{"Already reading."};
 	}
 
 	if (is_writing_)
 	{
-		throw Exception{"Already writing."};
+		throw Ren3dCmdBufferImplWriteException{"Already writing."};
 	}
 
 	is_writing_ = true;
@@ -126,12 +364,12 @@ void Ren3dCmdBufferImpl::end_write()
 {
 	if (is_reading_)
 	{
-		throw Exception{"Already reading."};
+		throw Ren3dCmdBufferImplWriteException{"Already reading."};
 	}
 
 	if (!is_writing_)
 	{
-		throw Exception{"Not writing."};
+		throw Ren3dCmdBufferImplWriteException{"Not writing."};
 	}
 
 	is_writing_ = false;
@@ -241,12 +479,12 @@ void Ren3dCmdBufferImpl::begin_read()
 {
 	if (is_reading_)
 	{
-		throw Exception{"Already reading."};
+		throw Ren3dCmdBufferImplReadException{"Already reading."};
 	}
 
 	if (is_writing_)
 	{
-		throw Exception{"Already writing."};
+		throw Ren3dCmdBufferImplReadException{"Already writing."};
 	}
 
 	is_reading_ = true;
@@ -257,17 +495,17 @@ void Ren3dCmdBufferImpl::end_read()
 {
 	if (!is_reading_)
 	{
-		throw Exception{"Not reading."};
+		throw Ren3dCmdBufferImplReadException{"Not reading."};
 	}
 
 	if (is_writing_)
 	{
-		throw Exception{"Already writing."};
+		throw Ren3dCmdBufferImplReadException{"Already writing."};
 	}
 
 	if (write_offset_ != read_offset_)
 	{
-		throw Exception{"Offset mismatch."};
+		throw Ren3dCmdBufferImplReadException{"Offset mismatch."};
 	}
 
 	is_reading_ = false;
@@ -275,14 +513,7 @@ void Ren3dCmdBufferImpl::end_read()
 
 Ren3dCmdId Ren3dCmdBufferImpl::read_command_id()
 {
-	const auto command_id = read<Ren3dCmdId>();
-
-	if (!command_id)
-	{
-		return Ren3dCmdId::none;
-	}
-
-	return *command_id;
+	return *read<Ren3dCmdId>();
 }
 
 const Ren3dClearCmd* Ren3dCmdBufferImpl::read_clear()
@@ -386,7 +617,7 @@ const Ren3dDrawIndexedCmd* Ren3dCmdBufferImpl::read_draw_indexed()
 }
 
 void Ren3dCmdBufferImpl::validate_param(
-	const Ren3dCmdQueueEnqueueParam& param)
+	const Ren3dCreateCmdBufferParam& param)
 {
 	if (param.initial_size_ <= 0)
 	{
@@ -402,14 +633,15 @@ void Ren3dCmdBufferImpl::validate_param(
 void Ren3dCmdBufferImpl::resize_if_necessary(
 	const int dst_delta_size)
 {
-	if (dst_delta_size <= 0)
-	{
-		throw Exception{"Resize delta out of range."};
-	}
-
 	if ((size_ - write_offset_) >= dst_delta_size)
 	{
 		return;
+	}
+	else if (dst_delta_size == 0)
+	{
+		// Fixed-size buffer.
+		//
+		throw Ren3dCmdBufferImplWriteException{"Data overflow."};
 	}
 
 	size_ += resize_delta_size_;
@@ -423,4 +655,21 @@ void Ren3dCmdBufferImpl::resize_if_necessary(
 
 
 } // detail
+
+
+// ==========================================================================
+// Ren3dCmdBufferFactory
+//
+
+Ren3dCmdBufferUPtr Ren3dCmdBufferFactory::create(
+	const Ren3dCreateCmdBufferParam& param)
+{
+	return std::make_unique<detail::Ren3dCmdBufferImpl>(param);
+}
+
+//
+// Ren3dCmdBufferFactory
+// ==========================================================================
+
+
 } // bstone

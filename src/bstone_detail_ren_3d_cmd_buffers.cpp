@@ -79,13 +79,13 @@ public:
 
 	int get_count() const noexcept override;
 
-	bstone::Ren3dCmdBufferPtr enqueue(
-		const Ren3dCmdQueueEnqueueParam& param) override;
+	Ren3dCmdBufferPtr enqueue(
+		const Ren3dCreateCmdBufferParam& param) override;
 
 	void dequeue(
-		const bstone::Ren3dCmdBufferPtr buffer) override;
+		const Ren3dCmdBufferPtr buffer) override;
 
-	bstone::Ren3dCmdBufferPtr get(
+	Ren3dCmdBufferPtr get(
 		const int index) override;
 
 
@@ -130,10 +130,10 @@ int Ren3dCmdBuffersImpl::get_count() const noexcept
 	return static_cast<int>(buffers_.size());
 }
 
-bstone::Ren3dCmdBufferPtr Ren3dCmdBuffersImpl::enqueue(
-	const Ren3dCmdQueueEnqueueParam& param)
+Ren3dCmdBufferPtr Ren3dCmdBuffersImpl::enqueue(
+	const Ren3dCreateCmdBufferParam& param)
 {
-	auto buffer = std::make_unique<Ren3dCmdBufferImpl>(param);
+	auto buffer = Ren3dCmdBufferFactory::create(param);
 
 	buffers_.push_back(std::move(buffer));
 
@@ -141,7 +141,7 @@ bstone::Ren3dCmdBufferPtr Ren3dCmdBuffersImpl::enqueue(
 }
 
 void Ren3dCmdBuffersImpl::dequeue(
-	const bstone::Ren3dCmdBufferPtr buffer)
+	const Ren3dCmdBufferPtr buffer)
 {
 	if (!buffer)
 	{
@@ -158,7 +158,7 @@ void Ren3dCmdBuffersImpl::dequeue(
 	));
 }
 
-bstone::Ren3dCmdBufferPtr Ren3dCmdBuffersImpl::get(
+Ren3dCmdBufferPtr Ren3dCmdBuffersImpl::get(
 	const int index)
 {
 	if (index < 0 || index >= get_count())

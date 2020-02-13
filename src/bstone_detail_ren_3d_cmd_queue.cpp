@@ -58,7 +58,7 @@ int Ren3dCmdQueueImpl::get_count() const noexcept
 }
 
 bstone::Ren3dCmdBufferPtr Ren3dCmdQueueImpl::enqueue(
-	const Ren3dCmdQueueEnqueueParam& param)
+	const Ren3dCreateCmdBufferParam& param)
 {
 	return buffers_->enqueue(param);
 }
@@ -76,7 +76,7 @@ bstone::Ren3dCmdBufferPtr Ren3dCmdQueueImpl::get(
 }
 
 void Ren3dCmdQueueImpl::validate_param(
-	const Ren3dCmdQueueEnqueueParam& param)
+	const Ren3dCreateCmdBufferParam& param)
 {
 	if (param.initial_size_ < 0)
 	{

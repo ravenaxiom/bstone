@@ -33,7 +33,7 @@ Free Software Foundation, Inc.,
 
 #include <memory>
 
-#include "bstone_detail_ren_3d_cmd_buffer.h"
+#include "bstone_ren_3d_cmd_buffer.h"
 
 
 namespace bstone
@@ -62,13 +62,13 @@ public:
 
 	virtual int get_count() const noexcept = 0;
 
-	virtual bstone::Ren3dCmdBufferPtr enqueue(
-		const Ren3dCmdQueueEnqueueParam& param) = 0;
+	virtual Ren3dCmdBufferPtr enqueue(
+		const Ren3dCreateCmdBufferParam& param) = 0;
 
 	virtual void dequeue(
-		bstone::Ren3dCmdBufferPtr buffer) = 0;
+		Ren3dCmdBufferPtr buffer) = 0;
 
-	virtual bstone::Ren3dCmdBufferPtr get(
+	virtual Ren3dCmdBufferPtr get(
 		const int index) = 0;
 
 

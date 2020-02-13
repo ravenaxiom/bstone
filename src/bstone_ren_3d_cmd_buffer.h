@@ -186,15 +186,23 @@ struct Ren3dDrawIndexedCmd
 // Ren3dCmdBuffer
 //
 
+struct Ren3dCreateCmdBufferParam
+{
+	int initial_size_;
+	int resize_delta_size_;
+}; // Ren3dCreateCmdBufferParam
+
+
 class Ren3dCmdBuffer
 {
 protected:
 	Ren3dCmdBuffer() = default;
 
+
+public:
 	virtual ~Ren3dCmdBuffer() = default;
 
 
-public:
 	virtual int get_count() const noexcept = 0;
 
 
@@ -279,9 +287,25 @@ public:
 }; // Ren3dCmdBuffer
 
 using Ren3dCmdBufferPtr = Ren3dCmdBuffer*;
+using Ren3dCmdBufferUPtr = std::unique_ptr<Ren3dCmdBuffer>;
 
 //
 // Ren3dCmdBuffer
+// ==========================================================================
+
+
+// ==========================================================================
+// Ren3dCmdBufferFactory
+//
+
+struct Ren3dCmdBufferFactory
+{
+	static Ren3dCmdBufferUPtr create(
+		const Ren3dCreateCmdBufferParam& param);
+}; // Ren3dCmdBufferFactory
+
+//
+// Ren3dCmdBufferFactory
 // ==========================================================================
 
 

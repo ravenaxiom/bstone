@@ -31,7 +31,9 @@ Free Software Foundation, Inc.,
 #define BSTONE_DETAIL_REN_3D_COMMAND_QUEUE_INCLUDED
 
 
-#include "bstone_detail_ren_3d_cmd_buffer.h"
+#include "bstone_ren_3d_cmd_buffer.h"
+#include "bstone_ren_3d_cmd_queue.h"
+
 #include "bstone_detail_ren_3d_cmd_buffers.h"
 
 
@@ -57,7 +59,7 @@ public:
 	int get_count() const noexcept override;
 
 	bstone::Ren3dCmdBufferPtr enqueue(
-		const Ren3dCmdQueueEnqueueParam& param) override;
+		const Ren3dCreateCmdBufferParam& param) override;
 
 	void dequeue(
 		bstone::Ren3dCmdBufferPtr buffer) override;
@@ -71,7 +73,7 @@ private:
 
 
 	static void validate_param(
-		const Ren3dCmdQueueEnqueueParam& param);
+		const Ren3dCreateCmdBufferParam& param);
 }; // Ren3dCmdQueueImpl
 
 using Ren3dCmdQueueImplPtr = Ren3dCmdQueueImpl*;
