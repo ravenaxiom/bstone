@@ -80,10 +80,8 @@ Free Software Foundation, Inc.,
 #include "bstone_sha1.h"
 #include "bstone_stream.h"
 #include "bstone_string_helper.h"
-#include "bstone_mt_worker_manager.h"
+#include "bstone_mt_task_mgr.h"
 
-#include "bstone_extent_2d.h"
-#include "bstone_offset_2d.h"
 #include "bstone_rect_2d.h"
 
 #include "bstone_renderer.h"

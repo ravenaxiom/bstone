@@ -28,6 +28,7 @@ Free Software Foundation, Inc.,
 
 
 #include "bstone_precompiled.h"
+
 #include "bstone_missing_wall_64x64_image.h"
 
 

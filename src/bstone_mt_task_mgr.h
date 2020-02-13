@@ -68,7 +68,6 @@ public:
 }; // MtTask
 
 using MtTaskPtr = MtTask*;
-using MtTaskUPtr = std::unique_ptr<MtTask>;
 
 //
 // MtTask
@@ -89,16 +88,16 @@ public:
 	virtual ~MtTaskMgr();
 
 
-	virtual int concurrency_get_max() const noexcept = 0;
+	virtual int get_max_concurrency() const noexcept = 0;
 
-	virtual int concurrency_get() const noexcept = 0;
+	virtual int get_concurrency() const noexcept = 0;
 
 	virtual bool has_concurrency() const noexcept = 0;
 
 
 	virtual void add_tasks_and_wait_for_added(
-		MtTaskPtr* const mt_tasks,
-		const int mt_task_count) = 0;
+		MtTaskPtr* const tasks,
+		const int task_count) = 0;
 }; // MtTaskMgr
 
 using MtTaskMgrPtr = MtTaskMgr*;
@@ -112,11 +111,11 @@ using MtTaskMgrUPtr = std::unique_ptr<MtTaskMgr>;
 // ==========================================================================
 // MtTaskMgrFactory
 
-struct MtTaskMgrFactory final
+struct MtTaskMgrFactory
 {
 	static MtTaskMgrUPtr create(
 		const int concurrency_reserve,
-		const int max_task_count);
+		const int task_count);
 }; // MtTaskMgrFactory
 
 // MtTaskMgrFactory

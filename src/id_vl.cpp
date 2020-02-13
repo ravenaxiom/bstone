@@ -4168,7 +4168,7 @@ void hw_2d_texture_1x1_black_destroy()
 {
 	if (::hw_texture_manager_ != nullptr)
 	{
-		::hw_texture_manager_->solid_1x1_destroy(bstone::HwTextureMgrSolid1x1Id::black);
+		::hw_texture_manager_->destroy_solid_1x1(bstone::HwTextureMgrSolid1x1Id::black);
 	}
 
 	::hw_2d_black_t2d_1x1_ = nullptr;
@@ -4178,15 +4178,15 @@ void hw_2d_texture_1x1_black_create()
 {
 	::vid_log("Creating 2D 1x1 black texture.");
 
-	::hw_texture_manager_->solid_1x1_create(bstone::HwTextureMgrSolid1x1Id::black);
-	::hw_2d_black_t2d_1x1_ = ::hw_texture_manager_->solid_1x1_get(bstone::HwTextureMgrSolid1x1Id::black);
+	::hw_texture_manager_->create_solid_1x1(bstone::HwTextureMgrSolid1x1Id::black);
+	::hw_2d_black_t2d_1x1_ = ::hw_texture_manager_->get_solid_1x1(bstone::HwTextureMgrSolid1x1Id::black);
 }
 
 void hw_2d_texture_1x1_white_destroy()
 {
 	if (::hw_texture_manager_ != nullptr)
 	{
-		::hw_texture_manager_->solid_1x1_destroy(bstone::HwTextureMgrSolid1x1Id::white);
+		::hw_texture_manager_->destroy_solid_1x1(bstone::HwTextureMgrSolid1x1Id::white);
 	}
 
 	::hw_2d_white_t2d_1x1_ = nullptr;
@@ -4196,15 +4196,15 @@ void hw_2d_texture_1x1_white_create()
 {
 	::vid_log("Creating 2D 1x1 white texture.");
 
-	::hw_texture_manager_->solid_1x1_create(bstone::HwTextureMgrSolid1x1Id::white);
-	::hw_2d_white_t2d_1x1_ = ::hw_texture_manager_->solid_1x1_get(bstone::HwTextureMgrSolid1x1Id::white);
+	::hw_texture_manager_->create_solid_1x1(bstone::HwTextureMgrSolid1x1Id::white);
+	::hw_2d_white_t2d_1x1_ = ::hw_texture_manager_->get_solid_1x1(bstone::HwTextureMgrSolid1x1Id::white);
 }
 
 void hw_2d_texture_1x1_fade_destroy()
 {
 	if (::hw_texture_manager_ != nullptr)
 	{
-		::hw_texture_manager_->solid_1x1_destroy(bstone::HwTextureMgrSolid1x1Id::fade_2d);
+		::hw_texture_manager_->destroy_solid_1x1(bstone::HwTextureMgrSolid1x1Id::fade_2d);
 	}
 
 	::hw_2d_fade_t2d_ = nullptr;
@@ -4214,8 +4214,8 @@ void hw_2d_texture_1x1_fade_create()
 {
 	::vid_log("Creating 2D 1x1 fade texture.");
 
-	::hw_texture_manager_->solid_1x1_create(bstone::HwTextureMgrSolid1x1Id::fade_2d);
-	::hw_2d_fade_t2d_ = ::hw_texture_manager_->solid_1x1_get(bstone::HwTextureMgrSolid1x1Id::fade_2d);
+	::hw_texture_manager_->create_solid_1x1(bstone::HwTextureMgrSolid1x1Id::fade_2d);
+	::hw_2d_fade_t2d_ = ::hw_texture_manager_->get_solid_1x1(bstone::HwTextureMgrSolid1x1Id::fade_2d);
 }
 
 void hw_2d_ui_texture_destroy()
@@ -4225,7 +4225,7 @@ void hw_2d_ui_texture_destroy()
 		return;
 	}
 
-	::hw_texture_manager_->ui_destroy();
+	::hw_texture_manager_->destroy_ui();
 	::hw_2d_ui_t2d_ = nullptr;
 }
 
@@ -4233,8 +4233,8 @@ void hw_2d_ui_texture_create()
 {
 	::vid_log("Creating UI texture.");
 
-	::hw_texture_manager_->ui_create(::vid_ui_buffer_.data(), ::vid_mask_buffer_.data(), &::hw_palette_);
-	::hw_2d_ui_t2d_ = ::hw_texture_manager_->ui_get();
+	::hw_texture_manager_->create_ui(::vid_ui_buffer_.data(), ::vid_mask_buffer_.data(), &::hw_palette_);
+	::hw_2d_ui_t2d_ = ::hw_texture_manager_->get_ui();
 }
 
 void hw_2d_uninitialize()
@@ -4392,7 +4392,7 @@ void hw_3d_flooring_texture_2d_solid_destroy()
 {
 	if (::hw_texture_manager_ != nullptr)
 	{
-		::hw_texture_manager_->solid_1x1_destroy(bstone::HwTextureMgrSolid1x1Id::flooring);
+		::hw_texture_manager_->destroy_solid_1x1(bstone::HwTextureMgrSolid1x1Id::flooring);
 	}
 
 	::hw_3d_flooring_solid_t2d_ = nullptr;
@@ -4402,8 +4402,8 @@ void hw_3d_flooring_texture_2d_solid_create()
 {
 	::vid_log("Creating 3D flooring 1x1 solid texture.");
 
-	::hw_texture_manager_->solid_1x1_create(bstone::HwTextureMgrSolid1x1Id::flooring);
-	::hw_3d_flooring_solid_t2d_ = ::hw_texture_manager_->solid_1x1_get(bstone::HwTextureMgrSolid1x1Id::flooring);
+	::hw_texture_manager_->create_solid_1x1(bstone::HwTextureMgrSolid1x1Id::flooring);
+	::hw_3d_flooring_solid_t2d_ = ::hw_texture_manager_->get_solid_1x1(bstone::HwTextureMgrSolid1x1Id::flooring);
 }
 
 void hw_3d_flooring_uninitialize()
@@ -4547,7 +4547,7 @@ void hw_3d_ceiling_texture_2d_solid_destroy()
 {
 	if (::hw_texture_manager_ != nullptr)
 	{
-		::hw_texture_manager_->solid_1x1_destroy(bstone::HwTextureMgrSolid1x1Id::ceiling);
+		::hw_texture_manager_->destroy_solid_1x1(bstone::HwTextureMgrSolid1x1Id::ceiling);
 	}
 
 	::hw_3d_ceiling_solid_t2d_ = nullptr;
@@ -4555,8 +4555,8 @@ void hw_3d_ceiling_texture_2d_solid_destroy()
 
 void hw_3d_ceiling_texture_2d_solid_create()
 {
-	::hw_texture_manager_->solid_1x1_create(bstone::HwTextureMgrSolid1x1Id::ceiling);
-	::hw_3d_ceiling_solid_t2d_ = ::hw_texture_manager_->solid_1x1_get(bstone::HwTextureMgrSolid1x1Id::ceiling);
+	::hw_texture_manager_->create_solid_1x1(bstone::HwTextureMgrSolid1x1Id::ceiling);
+	::hw_3d_ceiling_solid_t2d_ = ::hw_texture_manager_->get_solid_1x1(bstone::HwTextureMgrSolid1x1Id::ceiling);
 }
 
 void hw_3d_ceiling_initialize()
@@ -5706,7 +5706,7 @@ void hw_3d_fade_texture_2d_destroy()
 {
 	if (::hw_texture_manager_ != nullptr)
 	{
-		::hw_texture_manager_->solid_1x1_destroy(bstone::HwTextureMgrSolid1x1Id::fade_3d);
+		::hw_texture_manager_->destroy_solid_1x1(bstone::HwTextureMgrSolid1x1Id::fade_3d);
 	}
 
 	::hw_3d_fade_t2d_ = nullptr;
@@ -5716,8 +5716,8 @@ void hw_3d_fade_texture_2d_create()
 {
 	::vid_log("Create 3D fade texture.");
 
-	::hw_texture_manager_->solid_1x1_create(bstone::HwTextureMgrSolid1x1Id::fade_3d);
-	::hw_3d_fade_t2d_ = ::hw_texture_manager_->solid_1x1_get(bstone::HwTextureMgrSolid1x1Id::fade_3d);
+	::hw_texture_manager_->create_solid_1x1(bstone::HwTextureMgrSolid1x1Id::fade_3d);
+	::hw_3d_fade_t2d_ = ::hw_texture_manager_->get_solid_1x1(bstone::HwTextureMgrSolid1x1Id::fade_3d);
 }
 
 void hw_3d_fade_uninitialize()
@@ -5891,14 +5891,14 @@ void hw_screen_2d_refresh()
 	// Update 2D texture.
 	//
 	{
-		::hw_texture_manager_->ui_update();
+		::hw_texture_manager_->update_ui();
 	}
 
 	// Update fade color.
 	//
 	if (::hw_2d_fade_is_enabled_)
 	{
-		::hw_texture_manager_->solid_1x1_update(bstone::HwTextureMgrSolid1x1Id::fade_2d, ::hw_2d_fade_color_);
+		::hw_texture_manager_->update_solid_1x1(bstone::HwTextureMgrSolid1x1Id::fade_2d, ::hw_2d_fade_color_);
 	}
 
 
@@ -6301,7 +6301,7 @@ void hw_3d_walls_render()
 		if (draw_quad_count > 0)
 		{
 			{
-				const auto texture_2d = hw_texture_manager_->wall_get(last_texture_id);
+				const auto texture_2d = hw_texture_manager_->get_wall(last_texture_id);
 				auto& command = *command_buffer->write_set_texture();
 				command.texture_2d_ = texture_2d;
 			}
@@ -6445,7 +6445,7 @@ void hw_3d_pushwalls_render()
 		if (draw_quad_count > 0)
 		{
 			{
-				const auto texture_2d = hw_texture_manager_->wall_get(last_texture_id);
+				const auto texture_2d = hw_texture_manager_->get_wall(last_texture_id);
 				auto& command = *command_buffer->write_set_texture();
 				command.texture_2d_ = texture_2d;
 			}
@@ -6676,7 +6676,7 @@ void hw_3d_doors_render()
 		if (draw_quad_count > 0)
 		{
 			{
-				const auto texture_2d = hw_texture_manager_->wall_get(last_texture_id);
+				const auto texture_2d = hw_texture_manager_->get_wall(last_texture_id);
 				auto& command = *command_buffer->write_set_texture();
 				command.texture_2d_ = texture_2d;
 			}
@@ -7216,7 +7216,7 @@ void hw_3d_sprites_render()
 			if (current_texture_id.is_modified())
 			{
 				current_texture_id.set_is_modified(false);
-				const auto texture_2d = hw_texture_manager_->sprite_get(current_texture_id);
+				const auto texture_2d = hw_texture_manager_->get_sprite(current_texture_id);
 
 				auto& command = *command_buffer->write_set_texture();
 				command.texture_2d_ = texture_2d;
@@ -7331,7 +7331,7 @@ void hw_3d_fade_update()
 
 	const auto rgba_8 = bstone::Rgba8{r, g, b, a};
 
-	::hw_texture_manager_->solid_1x1_update(bstone::HwTextureMgrSolid1x1Id::fade_3d, rgba_8);
+	::hw_texture_manager_->update_solid_1x1(bstone::HwTextureMgrSolid1x1Id::fade_3d, rgba_8);
 }
 
 void hw_screen_3d_refresh()
@@ -7584,7 +7584,7 @@ void hw_screen_3d_refresh()
 
 		if (player_weapon_sprite_id > 0)
 		{
-			const auto player_weapon_texture = ::hw_texture_manager_->sprite_get(player_weapon_sprite_id);
+			const auto player_weapon_texture = ::hw_texture_manager_->get_sprite(player_weapon_sprite_id);
 
 			if (assets_info.is_ps())
 			{
@@ -7775,8 +7775,8 @@ void hw_screen_refresh()
 
 void hw_precache_flooring()
 {
-	::hw_texture_manager_->wall_cache(::FloorTile);
-	::hw_3d_flooring_textured_t2d_ = ::hw_texture_manager_->wall_get(::FloorTile);
+	::hw_texture_manager_->cache_wall(::FloorTile);
+	::hw_3d_flooring_textured_t2d_ = ::hw_texture_manager_->get_wall(::FloorTile);
 
 	const auto vga_index = ::BottomColor & 0xFF;
 	const auto vga_color = ::vgapal + (3 * vga_index);
@@ -7787,13 +7787,13 @@ void hw_precache_flooring()
 		vga_color[2]
 	);
 
-	::hw_texture_manager_->solid_1x1_update(bstone::HwTextureMgrSolid1x1Id::flooring, renderer_color);
+	::hw_texture_manager_->update_solid_1x1(bstone::HwTextureMgrSolid1x1Id::flooring, renderer_color);
 }
 
 void hw_precache_ceiling()
 {
-	::hw_texture_manager_->wall_cache(::CeilingTile);
-	::hw_3d_ceiling_textured_t2d_ = ::hw_texture_manager_->wall_get(::CeilingTile);
+	::hw_texture_manager_->cache_wall(::CeilingTile);
+	::hw_3d_ceiling_textured_t2d_ = ::hw_texture_manager_->get_wall(::CeilingTile);
 
 	const auto vga_index = ::TopColor & 0xFF;
 	const auto vga_color = ::vgapal + (3 * vga_index);
@@ -7804,7 +7804,7 @@ void hw_precache_ceiling()
 		vga_color[2]
 	);
 
-	::hw_texture_manager_->solid_1x1_update(bstone::HwTextureMgrSolid1x1Id::ceiling, renderer_color);
+	::hw_texture_manager_->update_solid_1x1(bstone::HwTextureMgrSolid1x1Id::ceiling, renderer_color);
 }
 
 bool hw_tile_is_activated_pushwall(
@@ -7911,7 +7911,7 @@ bool hw_tile_is_solid_wall(
 void hw_precache_wall(
 	const int wall_id)
 {
-	::hw_texture_manager_->wall_cache(wall_id);
+	::hw_texture_manager_->cache_wall(wall_id);
 }
 
 void hw_precache_horizontal_wall(
@@ -8019,7 +8019,7 @@ void hw_precache_pushwalls()
 void hw_precache_door_side(
 	const int page_number)
 {
-	::hw_texture_manager_->wall_cache(page_number);
+	::hw_texture_manager_->cache_wall(page_number);
 }
 
 void hw_precache_door(
@@ -9371,11 +9371,11 @@ void hw_3d_static_precache(
 		sprite_1 = ::SPR_DOORBOMB;
 	}
 
-	::hw_texture_manager_->sprite_cache(sprite_0);
+	::hw_texture_manager_->cache_sprite(sprite_0);
 
 	if (sprite_0 != sprite_1)
 	{
-		::hw_texture_manager_->sprite_cache(sprite_1);
+		::hw_texture_manager_->cache_sprite(sprite_1);
 	}
 }
 
@@ -9396,7 +9396,7 @@ void hw_3d_statics_precache()
 void hw_sprite_cache(
 	const int bs_sprite_id)
 {
-	::hw_texture_manager_->sprite_cache(bs_sprite_id);
+	::hw_texture_manager_->cache_sprite(bs_sprite_id);
 }
 
 void hw_3d_actor_map(
@@ -11521,7 +11521,7 @@ void hw_precache_resources()
 	::vid_log();
 	::vid_log("Precaching resources.");
 
-	::hw_texture_manager_->cache_begin();
+	::hw_texture_manager_->begin_cache();
 
 	::hw_precache_flooring();
 	::hw_precache_ceiling();
@@ -11530,9 +11530,9 @@ void hw_precache_resources()
 	::hw_precache_doors();
 	::hw_precache_sprites();
 
-	::hw_texture_manager_->cache_end();
+	::hw_texture_manager_->end_cache();
 
-	::hw_texture_manager_->cache_purge();
+	::hw_texture_manager_->purge_cache();
 }
 
 void hw_texture_upscale_resources_destroy()
@@ -11544,16 +11544,16 @@ void hw_texture_upscale_resources_destroy()
 
 void hw_texture_upscale_resources_create()
 {
-	::hw_2d_ui_t2d_ = ::hw_texture_manager_->ui_get();
+	::hw_2d_ui_t2d_ = ::hw_texture_manager_->get_ui();
 
 	if (::FloorTile > 0)
 	{
-		::hw_3d_flooring_textured_t2d_ = ::hw_texture_manager_->wall_get(::FloorTile);
+		::hw_3d_flooring_textured_t2d_ = ::hw_texture_manager_->get_wall(::FloorTile);
 	}
 
 	if (::CeilingTile > 0)
 	{
-		::hw_3d_ceiling_textured_t2d_ = ::hw_texture_manager_->wall_get(::CeilingTile);
+		::hw_3d_ceiling_textured_t2d_ = ::hw_texture_manager_->get_wall(::CeilingTile);
 	}
 }
 
@@ -11565,7 +11565,7 @@ void hw_texture_upscale_apply()
 
 	::hw_texture_upscale_resources_destroy();
 
-	::hw_texture_manager_->upscale_filter_set(
+	::hw_texture_manager_->set_upscale_filter(
 		::vid_cfg_.texture_upscale_kind_,
 		::vid_cfg_.texture_upscale_xbrz_degree_
 	);

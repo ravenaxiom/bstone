@@ -78,69 +78,68 @@ public:
 	virtual ~HwTextureMgr() = default;
 
 
-	virtual int upscale_filter_get_min_factor(
+	virtual int get_min_upscale_filter_degree(
 		const HwTextureMgrUpscaleFilterKind upscale_filter_kind) const = 0;
 
-	virtual int upscale_filter_get_max_factor(
+	virtual int get_max_upscale_filter_degree(
 		const HwTextureMgrUpscaleFilterKind upscale_filter_kind) const = 0;
 
-	virtual HwTextureMgrUpscaleFilterKind upscale_filter_get_kind() const noexcept = 0;
+	virtual HwTextureMgrUpscaleFilterKind get_upscale_filter_kind() const noexcept = 0;
 
-	virtual int upscale_filter_get_factor() const noexcept = 0;
+	virtual int get_upscale_filter_degree() const noexcept = 0;
 
-	virtual void upscale_filter_set(
+	virtual void set_upscale_filter(
 		const HwTextureMgrUpscaleFilterKind upscale_filter_kind,
-		const int upscale_filter_factor) = 0;
+		const int upscale_filter_degree) = 0;
 
 
-	virtual void cache_begin() = 0;
+	virtual void begin_cache() = 0;
 
-	virtual void cache_end() = 0;
+	virtual void end_cache() = 0;
 
-	virtual void cache_purge() = 0;
+	virtual void purge_cache() = 0;
 
 
-	virtual void wall_cache(
+	virtual void cache_wall(
 		const int id) = 0;
 
-	virtual Ren3dTexture2dPtr wall_get(
+	virtual Ren3dTexture2dPtr get_wall(
 		const int id) const = 0;
 
 
-	virtual void sprite_cache(
+	virtual void cache_sprite(
 		const int id) = 0;
 
-	virtual Ren3dTexture2dPtr sprite_get(
+	virtual Ren3dTexture2dPtr get_sprite(
 		const int id) const = 0;
 
 
-	virtual void ui_destroy() = 0;
+	virtual void destroy_ui() = 0;
 
-	virtual void ui_create(
+	virtual void create_ui(
 		const std::uint8_t* const indexed_pixels,
 		const bool* const indexed_alphas,
 		const Rgba8PaletteCPtr indexed_palette) = 0;
 
-	virtual void ui_update() = 0;
+	virtual void update_ui() = 0;
 
-	virtual Ren3dTexture2dPtr ui_get() const = 0;
+	virtual Ren3dTexture2dPtr get_ui() const = 0;
 
 
-	virtual void solid_1x1_destroy(
+	virtual void destroy_solid_1x1(
 		const HwTextureMgrSolid1x1Id id) = 0;
 
-	virtual void solid_1x1_create(
+	virtual void create_solid_1x1(
 		const HwTextureMgrSolid1x1Id id) = 0;
 
-	virtual void solid_1x1_update(
+	virtual void update_solid_1x1(
 		const HwTextureMgrSolid1x1Id id,
 		const Rgba8 color) = 0;
 
-	virtual Ren3dTexture2dPtr solid_1x1_get(
+	virtual Ren3dTexture2dPtr get_solid_1x1(
 		const HwTextureMgrSolid1x1Id id) const = 0;
 }; // HwTextureMgr
 
-using HwTextureMgrPtr = HwTextureMgr*;
 using HwTextureMgrUPtr = std::unique_ptr<HwTextureMgr>;
 
 
@@ -148,9 +147,9 @@ class HwTextureMgrFactory
 {
 public:
 	static HwTextureMgrUPtr create(
-		const Ren3dPtr renderer,
+		const Ren3dPtr renderer_3d,
 		const SpriteCachePtr sprite_cache,
-		const MtTaskMgrPtr mt_task_manager);
+		const MtTaskMgrPtr task_manager);
 }; // HwTextureMgrFactory
 
 

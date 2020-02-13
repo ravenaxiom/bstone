@@ -154,9 +154,9 @@ public:
 	~MtTaskMgrImpl() override;
 
 
-	int concurrency_get_max() const noexcept override;
+	int get_max_concurrency() const noexcept override;
 
-	int concurrency_get() const noexcept override;
+	int get_concurrency() const noexcept override;
 
 	bool has_concurrency() const noexcept override;
 
@@ -432,12 +432,12 @@ MtTaskMgrImpl::~MtTaskMgrImpl()
 	uninitialize();
 }
 
-int MtTaskMgrImpl::concurrency_get_max() const noexcept
+int MtTaskMgrImpl::get_max_concurrency() const noexcept
 {
 	return concurrency_max_;
 }
 
-int MtTaskMgrImpl::concurrency_get() const noexcept
+int MtTaskMgrImpl::get_concurrency() const noexcept
 {
 	return concurrency_;
 }

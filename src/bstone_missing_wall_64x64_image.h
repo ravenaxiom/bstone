@@ -31,7 +31,6 @@ Free Software Foundation, Inc.,
 #define BSTONE_MISSING_WALL_64X64_IMAGE_INCLUDED
 
 
-#include <cstdint>
 #include <array>
 
 
@@ -39,7 +38,7 @@ namespace bstone
 {
 
 
-using MissingWallImage = std::array<std::uint8_t, 4 * 64 * 64>;
+using MissingWallImage = std::array<unsigned char, 4 * 64 * 64>;
 
 
 const MissingWallImage& get_missing_wall_image();

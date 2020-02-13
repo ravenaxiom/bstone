@@ -31,7 +31,6 @@ Free Software Foundation, Inc.,
 #define BSTONE_MISSING_SPRITE_64X64_IMAGE_INCLUDED
 
 
-#include <cstdint>
 #include <array>
 
 
@@ -39,7 +38,7 @@ namespace bstone
 {
 
 
-using MissingSpriteImage = std::array<std::uint8_t, 4 * 64 * 64>;
+using MissingSpriteImage = std::array<unsigned char, 4 * 64 * 64>;
 
 
 const MissingSpriteImage& get_missing_sprite_image();

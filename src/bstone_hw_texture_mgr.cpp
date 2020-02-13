@@ -234,71 +234,71 @@ class HwTextureMgrImpl final :
 public:
 	HwTextureMgrImpl(
 		const Ren3dPtr renderer,
-		const SpriteCachePtr sprite_cache,
+		const SpriteCachePtr cache_sprite,
 		const MtTaskMgrPtr mt_task_manager);
 
 	~HwTextureMgrImpl() override;
 
 
-	int upscale_filter_get_min_factor(
+	int get_min_upscale_filter_degree(
 		const HwTextureMgrUpscaleFilterKind upscale_filter_kind) const override;
 
-	int upscale_filter_get_max_factor(
+	int get_max_upscale_filter_degree(
 		const HwTextureMgrUpscaleFilterKind upscale_filter_kind) const override;
 
-	HwTextureMgrUpscaleFilterKind upscale_filter_get_kind() const noexcept override;
+	HwTextureMgrUpscaleFilterKind get_upscale_filter_kind() const noexcept override;
 
-	int upscale_filter_get_factor() const noexcept override;
+	int get_upscale_filter_degree() const noexcept override;
 
-	void upscale_filter_set(
+	void set_upscale_filter(
 		const HwTextureMgrUpscaleFilterKind upscale_filter,
 		const int upscale_filter_factor) override;
 
 
-	void cache_begin() override;
+	void begin_cache() override;
 
-	void cache_end() override;
+	void end_cache() override;
 
-	void cache_purge() override;
+	void purge_cache() override;
 
 
-	void wall_cache(
+	void cache_wall(
 		const int id) override;
 
-	Ren3dTexture2dPtr wall_get(
+	Ren3dTexture2dPtr get_wall(
 		const int id) const override;
 
 
-	void sprite_cache(
+	void cache_sprite(
 		const int id) override;
 
-	Ren3dTexture2dPtr sprite_get(
+	Ren3dTexture2dPtr get_sprite(
 		const int id) const override;
 
 
-	void ui_destroy() override;
+	void destroy_ui() override;
 
-	void ui_create(
+	void create_ui(
 		const std::uint8_t* const indexed_pixels,
 		const bool* const indexed_alphas,
 		const Rgba8PaletteCPtr indexed_palette) override;
 
-	void ui_update() override;
+	void update_ui() override;
 
-	Ren3dTexture2dPtr ui_get() const override;
+	Ren3dTexture2dPtr get_ui() const override;
 
 
-	void solid_1x1_destroy(
+	void destroy_solid_1x1(
 		const HwTextureMgrSolid1x1Id id) override;
 
-	void solid_1x1_create(
+	void create_solid_1x1(
 		const HwTextureMgrSolid1x1Id id) override;
 
-	void solid_1x1_update(
+	void update_solid_1x1(
 		const HwTextureMgrSolid1x1Id id,
 		const Rgba8 color) override;
 
-	Ren3dTexture2dPtr solid_1x1_get(
+	Ren3dTexture2dPtr get_solid_1x1(
 		const HwTextureMgrSolid1x1Id id) const override;
 
 
@@ -451,7 +451,7 @@ private:
 
 	void initialize(
 		Ren3dPtr renderer,
-		SpriteCachePtr sprite_cache);
+		SpriteCachePtr cache_sprite);
 
 	void uninitialize_internal();
 
@@ -490,9 +490,9 @@ private:
 
 	void initialize_internal(
 		Ren3dPtr renderer,
-		SpriteCachePtr sprite_cache);
+		SpriteCachePtr cache_sprite);
 
-	void cache_purge(
+	void purge_cache(
 		IdToTexture2dMap& map);
 
 	Ren3dTexture2dPtr get_texture_2d(
@@ -561,7 +561,7 @@ void HwTextureMgrImpl::Solid1x1Item::clear()
 
 HwTextureMgrImpl::HwTextureMgrImpl(
 	const Ren3dPtr renderer,
-	const SpriteCachePtr sprite_cache,
+	const SpriteCachePtr cache_sprite,
 	const MtTaskMgrPtr mt_task_manager)
 	:
 	renderer_{},
@@ -582,7 +582,7 @@ HwTextureMgrImpl::HwTextureMgrImpl(
 	xbrz_tasks_{},
 	xbrz_task_ptrs_{}
 {
-	initialize(renderer, sprite_cache);
+	initialize(renderer, cache_sprite);
 }
 
 HwTextureMgrImpl::~HwTextureMgrImpl()
@@ -636,38 +636,38 @@ void HwTextureMgrImpl::recreate_indexed_resources()
 	// UI texture.
 	//
 	{
-		ui_destroy();
+		destroy_ui();
 
-		ui_create(
+		create_ui(
 			ui_t2d_item_.properties_.indexed_pixels_,
 			ui_t2d_item_.properties_.indexed_alphas_,
 			ui_t2d_item_.properties_.indexed_palette_);
 	}
 }
 
-int HwTextureMgrImpl::upscale_filter_get_min_factor(
+int HwTextureMgrImpl::get_min_upscale_filter_degree(
 	const HwTextureMgrUpscaleFilterKind upscale_filter_kind) const
 {
 	return upscale_filter_get_min_factor_internal(upscale_filter_kind);
 }
 
-int HwTextureMgrImpl::upscale_filter_get_max_factor(
+int HwTextureMgrImpl::get_max_upscale_filter_degree(
 	const HwTextureMgrUpscaleFilterKind upscale_filter_kind) const
 {
 	return upscale_filter_get_max_factor_internal(upscale_filter_kind);
 }
 
-HwTextureMgrUpscaleFilterKind HwTextureMgrImpl::upscale_filter_get_kind() const noexcept
+HwTextureMgrUpscaleFilterKind HwTextureMgrImpl::get_upscale_filter_kind() const noexcept
 {
 	return upscale_filter_kind_;
 }
 
-int HwTextureMgrImpl::upscale_filter_get_factor() const noexcept
+int HwTextureMgrImpl::get_upscale_filter_degree() const noexcept
 {
 	return upscale_filter_factor_;
 }
 
-void HwTextureMgrImpl::upscale_filter_set(
+void HwTextureMgrImpl::set_upscale_filter(
 	const HwTextureMgrUpscaleFilterKind upscale_filter_kind,
 	const int upscale_filter_factor)
 {
@@ -690,7 +690,7 @@ void HwTextureMgrImpl::upscale_filter_set(
 	recreate_indexed_resources();
 }
 
-void HwTextureMgrImpl::cache_begin()
+void HwTextureMgrImpl::begin_cache()
 {
 	if (is_caching_)
 	{
@@ -707,7 +707,7 @@ void HwTextureMgrImpl::cache_begin()
 	}
 }
 
-void HwTextureMgrImpl::cache_end()
+void HwTextureMgrImpl::end_cache()
 {
 	if (!is_caching_)
 	{
@@ -717,18 +717,18 @@ void HwTextureMgrImpl::cache_end()
 	is_caching_ = false;
 }
 
-void HwTextureMgrImpl::cache_purge()
+void HwTextureMgrImpl::purge_cache()
 {
 	if (is_caching_)
 	{
 		throw Exception{"Caching is active."};
 	}
 
-	cache_purge(wall_map_);
-	cache_purge(sprite_map_);
+	purge_cache(wall_map_);
+	purge_cache(sprite_map_);
 }
 
-void HwTextureMgrImpl::wall_cache(
+void HwTextureMgrImpl::cache_wall(
 	const int id)
 {
 	if (id < 0 || id >= max_walls)
@@ -751,7 +751,7 @@ void HwTextureMgrImpl::wall_cache(
 	wall_map_[id] = std::move(texture_2d_item);
 }
 
-Ren3dTexture2dPtr HwTextureMgrImpl::wall_get(
+Ren3dTexture2dPtr HwTextureMgrImpl::get_wall(
 	const int id) const
 {
 	if (id < 0 || id >= max_walls)
@@ -762,7 +762,7 @@ Ren3dTexture2dPtr HwTextureMgrImpl::wall_get(
 	return get_texture_2d(ImageKind::wall, id, wall_map_);
 }
 
-void HwTextureMgrImpl::sprite_cache(
+void HwTextureMgrImpl::cache_sprite(
 	const int id)
 {
 	if (id <= 0 || id >= max_sprites)
@@ -785,7 +785,7 @@ void HwTextureMgrImpl::sprite_cache(
 	sprite_map_[id] = std::move(texture_2d_item);
 }
 
-Ren3dTexture2dPtr HwTextureMgrImpl::sprite_get(
+Ren3dTexture2dPtr HwTextureMgrImpl::get_sprite(
 	const int id) const
 {
 	if (id <= 0 || id >= max_sprites)
@@ -796,12 +796,12 @@ Ren3dTexture2dPtr HwTextureMgrImpl::sprite_get(
 	return get_texture_2d(ImageKind::sprite, id, sprite_map_);
 }
 
-void HwTextureMgrImpl::ui_destroy()
+void HwTextureMgrImpl::destroy_ui()
 {
 	ui_t2d_item_.texture_2d_ = nullptr;
 }
 
-void HwTextureMgrImpl::ui_create(
+void HwTextureMgrImpl::create_ui(
 	const std::uint8_t* const indexed_pixels,
 	const bool* const indexed_alphas,
 	const Rgba8PaletteCPtr indexed_palette)
@@ -841,17 +841,17 @@ void HwTextureMgrImpl::ui_create(
 	ui_t2d_item_ = std::move(texture_2d_item);
 }
 
-void HwTextureMgrImpl::ui_update()
+void HwTextureMgrImpl::update_ui()
 {
 	update_mipmaps(ui_t2d_item_.properties_, ui_t2d_item_.texture_2d_);
 }
 
-Ren3dTexture2dPtr HwTextureMgrImpl::ui_get() const
+Ren3dTexture2dPtr HwTextureMgrImpl::get_ui() const
 {
 	return ui_t2d_item_.texture_2d_.get();
 }
 
-void HwTextureMgrImpl::solid_1x1_destroy(
+void HwTextureMgrImpl::destroy_solid_1x1(
 	const HwTextureMgrSolid1x1Id id)
 {
 	const auto index = solid_1x1_get_index(id);
@@ -860,7 +860,7 @@ void HwTextureMgrImpl::solid_1x1_destroy(
 	item.clear();
 }
 
-void HwTextureMgrImpl::solid_1x1_create(
+void HwTextureMgrImpl::create_solid_1x1(
 	const HwTextureMgrSolid1x1Id id)
 {
 	const auto index = solid_1x1_get_index(id);
@@ -884,7 +884,7 @@ void HwTextureMgrImpl::solid_1x1_create(
 	update_mipmaps(item.properties_, item.texture_2d_);
 }
 
-void HwTextureMgrImpl::solid_1x1_update(
+void HwTextureMgrImpl::update_solid_1x1(
 	const HwTextureMgrSolid1x1Id id,
 	const Rgba8 color)
 {
@@ -899,7 +899,7 @@ void HwTextureMgrImpl::solid_1x1_update(
 	item.texture_2d_->update(param);
 }
 
-Ren3dTexture2dPtr HwTextureMgrImpl::solid_1x1_get(
+Ren3dTexture2dPtr HwTextureMgrImpl::get_solid_1x1(
 	const HwTextureMgrSolid1x1Id id) const
 {
 	const auto index = solid_1x1_get_index(id);
@@ -916,9 +916,9 @@ Ren3dTexture2dPtr HwTextureMgrImpl::solid_1x1_get(
 
 void HwTextureMgrImpl::initialize(
 	Ren3dPtr renderer,
-	SpriteCachePtr sprite_cache)
+	SpriteCachePtr cache_sprite)
 {
-	initialize_internal(renderer, sprite_cache);
+	initialize_internal(renderer, cache_sprite);
 }
 
 void HwTextureMgrImpl::uninitialize_internal()
@@ -940,7 +940,7 @@ void HwTextureMgrImpl::uninitialize_internal()
 
 	// UI texture.
 	//
-	ui_destroy();
+	destroy_ui();
 
 	// Solid 1x1 textures.
 	//
@@ -1631,14 +1631,14 @@ HwTextureMgrImpl::Texture2dItem HwTextureMgrImpl::sprite_create_texture(
 
 void HwTextureMgrImpl::initialize_internal(
 	Ren3dPtr renderer,
-	SpriteCachePtr sprite_cache)
+	SpriteCachePtr cache_sprite)
 {
 	if (!renderer)
 	{
 		throw Exception{"Null renderer."};
 	}
 
-	if (!sprite_cache)
+	if (!cache_sprite)
 	{
 		throw Exception{"Null sprite cache."};
 	}
@@ -1649,7 +1649,7 @@ void HwTextureMgrImpl::initialize_internal(
 	}
 
 	renderer_ = renderer;
-	sprite_cache_ = sprite_cache;
+	sprite_cache_ = cache_sprite;
 
 	create_missing_sprite_texture();
 	create_missing_wall_texture();
@@ -1662,7 +1662,7 @@ void HwTextureMgrImpl::initialize_internal(
 	upscale_filter_factor_ = upscale_filter_clamp_factor(upscale_filter_kind_, upscale_filter_factor_);
 }
 
-void HwTextureMgrImpl::cache_purge(
+void HwTextureMgrImpl::purge_cache(
 	IdToTexture2dMap& map)
 {
 	for (auto map_it = map.begin(); map_it != map.end(); )
@@ -1713,7 +1713,7 @@ void HwTextureMgrImpl::solid_1x1_destroy_all()
 	{
 		const auto id = static_cast<HwTextureMgrSolid1x1Id>(i);
 
-		solid_1x1_destroy(id);
+		destroy_solid_1x1(id);
 	}
 }
 
@@ -1843,10 +1843,10 @@ int HwTextureMgrImpl::upscale_filter_clamp_factor(
 
 HwTextureMgrUPtr HwTextureMgrFactory::create(
 	const Ren3dPtr renderer,
-	const SpriteCachePtr sprite_cache,
+	const SpriteCachePtr cache_sprite,
 	const MtTaskMgrPtr mt_task_manager)
 {
-	return std::make_unique<HwTextureMgrImpl>(renderer, sprite_cache, mt_task_manager);
+	return std::make_unique<HwTextureMgrImpl>(renderer, cache_sprite, mt_task_manager);
 }
 
 //
