@@ -23,69 +23,72 @@ Free Software Foundation, Inc.,
 
 
 //
-// 3D renderer's command queue (implementaion).
+// 3D renderer's command buffer list.
 //
 
 
-#ifndef BSTONE_DETAIL_REN_3D_COMMAND_QUEUE_INCLUDED
-#define BSTONE_DETAIL_REN_3D_COMMAND_QUEUE_INCLUDED
+#ifndef BSTONE_DETAIL_REN_3D_COMMAND_BUFFERS_INCLUDED
+#define BSTONE_DETAIL_REN_3D_COMMAND_BUFFERS_INCLUDED
 
+
+#include <memory>
 
 #include "bstone_ren_3d_cmd_buffer.h"
-#include "bstone_ren_3d_cmd_queue.h"
-
-#include "bstone_detail_ren_3d_cmd_buffers.h"
 
 
 namespace bstone
 {
-namespace detail
-{
 
 
 // ==========================================================================
-// Ren3dCmdQueueImpl
+// Ren3dCmdBuffers
 //
 
-class Ren3dCmdQueueImpl final :
-	public Ren3dCmdQueue
+class Ren3dCmdBuffers
 {
+protected:
+	Ren3dCmdBuffers() = default;
+
+
 public:
-	Ren3dCmdQueueImpl();
-
-	~Ren3dCmdQueueImpl() override;
+	virtual ~Ren3dCmdBuffers() = default;
 
 
-	int get_count() const noexcept override;
+	virtual int get_count() const noexcept = 0;
 
-	bstone::Ren3dCmdBufferPtr enqueue(
-		const Ren3dCreateCmdBufferParam& param) override;
+	virtual Ren3dCmdBufferPtr add(
+		const Ren3dCreateCmdBufferParam& param) = 0;
 
-	void dequeue(
-		bstone::Ren3dCmdBufferPtr buffer) override;
+	virtual void remove(
+		Ren3dCmdBufferPtr buffer) = 0;
 
-	bstone::Ren3dCmdBufferPtr get(
-		const int index) override;
+	virtual Ren3dCmdBufferPtr get(
+		const int index) = 0;
+}; // Ren3dCmdBuffers
 
-
-private:
-	Ren3dCmdBuffersUPtr buffers_;
-
-
-	static void validate_param(
-		const Ren3dCreateCmdBufferParam& param);
-}; // Ren3dCmdQueueImpl
-
-using Ren3dCmdQueueImplPtr = Ren3dCmdQueueImpl*;
-using Ren3dCmdQueueImplUPtr = std::unique_ptr<Ren3dCmdQueueImpl>;
+using Ren3dCmdBuffersPtr = Ren3dCmdBuffers*;
+using Ren3dCmdBuffersUPtr = std::unique_ptr<Ren3dCmdBuffers>;
 
 //
-// Ren3dCmdQueueImpl
+// Ren3dCmdBuffers
 // ==========================================================================
 
 
-} // detail
+// ==========================================================================
+// Ren3dCmdBuffersFactory
+//
+
+struct Ren3dCmdBuffersFactory
+{
+	static Ren3dCmdBuffersUPtr create();
+}; // Ren3dCmdBuffersFactory
+
+//
+// Ren3dCmdBuffersFactory
+// ==========================================================================
+
+
 } // bstone
 
 
-#endif // !BSTONE_DETAIL_REN_3D_COMMAND_QUEUE_INCLUDED
+#endif // !BSTONE_DETAIL_REN_3D_COMMAND_BUFFERS_INCLUDED

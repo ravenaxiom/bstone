@@ -44,7 +44,7 @@ Free Software Foundation, Inc.,
 #include "bstone_logger.h"
 #include "bstone_mod_value.h"
 #include "bstone_mt_task_mgr.h"
-#include "bstone_ren_3d_cmd_queue.h"
+#include "bstone_ren_3d_cmd_buffers.h"
 #include "bstone_ren_3d_limits.h"
 #include "bstone_ren_3d_mgr.h"
 #include "bstone_hw_shader_registry.h"
@@ -2534,7 +2534,7 @@ bstone::HwTextureMgrUPtr hw_texture_manager_;
 bstone::Rgba8Palette hw_palette_;
 bstone::Rgba8Palette hw_default_palette_;
 
-bstone::Ren3dCmdQueueUPtr hw_command_queue_;
+bstone::Ren3dCmdBuffersUPtr hw_command_buffers_;
 bstone::Ren3dCmdBufferPtr hw_common_command_buffer_;
 bstone::Ren3dCmdBufferPtr hw_2d_command_buffer_;
 bstone::Ren3dCmdBufferPtr hw_3d_command_buffer_;
@@ -5495,16 +5495,16 @@ void hw_samplers_initialize()
 	::hw_fade_sampler_create();
 }
 
-void hw_command_queue_destroy()
+void hw_command_buffers_destroy()
 {
-	::hw_command_queue_ = nullptr;
+	::hw_command_buffers_ = nullptr;
 }
 
-void hw_command_queue_create()
+void hw_command_buffers_create()
 {
-	::vid_log("Creating command queue.");
+	::vid_log("Creating command buffers.");
 
-	::hw_command_queue_ = bstone::Ren3dCmdQueueFactory::create();
+	::hw_command_buffers_ = bstone::Ren3dCmdBuffersFactory::create();
 }
 
 void hw_command_buffer_common_destroy()
@@ -5514,7 +5514,7 @@ void hw_command_buffer_common_destroy()
 		return;
 	}
 
-	::hw_command_queue_->dequeue(::hw_common_command_buffer_);
+	::hw_command_buffers_->remove(::hw_common_command_buffer_);
 	::hw_common_command_buffer_ = nullptr;
 }
 
@@ -5526,7 +5526,7 @@ void hw_command_buffer_common_create()
 	param.initial_size_ = ::hw_common_command_buffer_initial_size;
 	param.resize_delta_size_ = ::hw_common_command_buffer_resize_delta_size;
 
-	::hw_common_command_buffer_ = ::hw_command_queue_->enqueue(param);
+	::hw_common_command_buffer_ = ::hw_command_buffers_->add(param);
 }
 
 void hw_command_buffer_2d_destroy()
@@ -5536,7 +5536,7 @@ void hw_command_buffer_2d_destroy()
 		return;
 	}
 
-	::hw_command_queue_->dequeue(::hw_2d_command_buffer_);
+	::hw_command_buffers_->remove(::hw_2d_command_buffer_);
 	::hw_2d_command_buffer_ = nullptr;
 }
 
@@ -5548,7 +5548,7 @@ void hw_command_buffer_2d_create()
 	param.initial_size_ = ::hw_2d_command_buffer_initial_size;
 	param.resize_delta_size_ = ::hw_2d_command_buffer_resize_delta_size;
 
-	::hw_2d_command_buffer_ = ::hw_command_queue_->enqueue(param);
+	::hw_2d_command_buffer_ = ::hw_command_buffers_->add(param);
 }
 
 void hw_command_buffer_3d_destroy()
@@ -5558,7 +5558,7 @@ void hw_command_buffer_3d_destroy()
 		return;
 	}
 
-	::hw_command_queue_->dequeue(::hw_3d_command_buffer_);
+	::hw_command_buffers_->remove(::hw_3d_command_buffer_);
 	::hw_3d_command_buffer_ = nullptr;
 }
 
@@ -5570,23 +5570,23 @@ void hw_command_buffer_3d_create()
 	param.initial_size_ = ::hw_3d_command_buffer_initial_size;
 	param.resize_delta_size_ = ::hw_3d_command_buffer_resize_delta_size;
 
-	::hw_3d_command_buffer_ = ::hw_command_queue_->enqueue(param);
+	::hw_3d_command_buffer_ = ::hw_command_buffers_->add(param);
 }
 
-void hw_command_queue_uninitialize()
+void hw_command_buffers_uninitialize()
 {
 	::hw_command_buffer_3d_destroy();
 	::hw_command_buffer_2d_destroy();
 	::hw_command_buffer_common_destroy();
-	::hw_command_queue_destroy();
+	::hw_command_buffers_destroy();
 }
 
-void hw_command_queue_initialize()
+void hw_command_buffers_initialize()
 {
 	::vid_log();
-	::vid_log("Initializing command queue.");
+	::vid_log("Initializing command buffers.");
 
-	::hw_command_queue_create();
+	::hw_command_buffers_create();
 	::hw_command_buffer_common_create();
 	::hw_command_buffer_3d_create();
 	::hw_command_buffer_2d_create();
@@ -7767,7 +7767,7 @@ void hw_screen_refresh()
 	::hw_screen_3d_refresh();
 	::hw_screen_2d_refresh();
 
-	hw_renderer_->submit_commands(hw_command_queue_.get());
+	hw_renderer_->submit_commands(hw_command_buffers_.get());
 	::hw_renderer_->present();
 
 	::vid_hw_is_draw_3d_ = false;
@@ -11583,7 +11583,7 @@ void hw_samplers_update()
 
 void hw_video_uninitialize()
 {
-	::hw_command_queue_uninitialize();
+	::hw_command_buffers_uninitialize();
 
 	::hw_program_uninitialize();
 
@@ -11646,7 +11646,7 @@ void hw_video_initialize()
 	::hw_3d_ceiling_initialize();
 	::hw_3d_fade_initialize();
 	::hw_3d_player_weapon_initialize();
-	::hw_command_queue_initialize();
+	::hw_command_buffers_initialize();
 	::hw_matrices_build();
 	::hw_samplers_initialize();
 

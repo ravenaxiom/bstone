@@ -87,7 +87,7 @@ Free Software Foundation, Inc.,
 #include "bstone_renderer.h"
 #include "bstone_renderer_3d.h"
 #include "bstone_renderer_3d_command_buffer.h"
-#include "bstone_renderer_3d_command_queue.h"
+#include "bstone_renderer_3d_command_buffers.h"
 #include "bstone_renderer_3d_command_tests.h"
 #include "bstone_renderer_limits.h"
 

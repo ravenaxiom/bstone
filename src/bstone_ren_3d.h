@@ -48,8 +48,8 @@ namespace bstone
 {
 
 
-class Ren3dCmdQueue;
-using Ren3dCmdQueuePtr = Ren3dCmdQueue*;
+class Ren3dCmdBuffers;
+using Ren3dCmdBuffersPtr = Ren3dCmdBuffers*;
 
 
 struct Ren3dCreateWindowParam
@@ -167,7 +167,7 @@ public:
 
 
 	virtual void submit_commands(
-		const Ren3dCmdQueuePtr command_queue) = 0;
+		const Ren3dCmdBuffersPtr command_buffers) = 0;
 }; // Ren3d
 
 using Ren3dPtr = Ren3d*;

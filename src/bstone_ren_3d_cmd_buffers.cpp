@@ -29,7 +29,7 @@ Free Software Foundation, Inc.,
 
 #include "bstone_precompiled.h"
 
-#include "bstone_detail_ren_3d_cmd_buffers.h"
+#include "bstone_ren_3d_cmd_buffers.h"
 
 #include <algorithm>
 #include <vector>
@@ -54,7 +54,7 @@ public:
 	explicit Ren3dCmdBuffersImplException(
 		const char* const message)
 		:
-		Exception{std::string{"[R3D_CMD_BUFS] "} + message}
+		Exception{std::string{"[REN_3D_CMD_BUFS] "} + message}
 	{
 	}
 }; // Ren3dCmdBuffersImplException
@@ -79,23 +79,14 @@ public:
 
 	int get_count() const noexcept override;
 
-	Ren3dCmdBufferPtr enqueue(
+	Ren3dCmdBufferPtr add(
 		const Ren3dCreateCmdBufferParam& param) override;
 
-	void dequeue(
+	void remove(
 		const Ren3dCmdBufferPtr buffer) override;
 
 	Ren3dCmdBufferPtr get(
 		const int index) override;
-
-
-	Iterator begin() noexcept override;
-
-	CIterator cbegin() const noexcept override;
-
-	Iterator end() noexcept override;
-
-	CIterator cend() const noexcept override;
 
 
 private:
@@ -130,7 +121,7 @@ int Ren3dCmdBuffersImpl::get_count() const noexcept
 	return static_cast<int>(buffers_.size());
 }
 
-Ren3dCmdBufferPtr Ren3dCmdBuffersImpl::enqueue(
+Ren3dCmdBufferPtr Ren3dCmdBuffersImpl::add(
 	const Ren3dCreateCmdBufferParam& param)
 {
 	auto buffer = Ren3dCmdBufferFactory::create(param);
@@ -140,7 +131,7 @@ Ren3dCmdBufferPtr Ren3dCmdBuffersImpl::enqueue(
 	return buffers_.back().get();
 }
 
-void Ren3dCmdBuffersImpl::dequeue(
+void Ren3dCmdBuffersImpl::remove(
 	const Ren3dCmdBufferPtr buffer)
 {
 	if (!buffer)
@@ -169,29 +160,12 @@ Ren3dCmdBufferPtr Ren3dCmdBuffersImpl::get(
 	return buffers_[index].get();
 }
 
-Ren3dCmdBuffers::Iterator Ren3dCmdBuffersImpl::begin() noexcept
-{
-	return buffers_.data();
-}
-
-Ren3dCmdBuffers::CIterator Ren3dCmdBuffersImpl::cbegin() const noexcept
-{
-	return buffers_.data();
-}
-
-Ren3dCmdBuffers::Iterator Ren3dCmdBuffersImpl::end() noexcept
-{
-	return buffers_.data() + buffers_.size();
-}
-
-Ren3dCmdBuffers::CIterator Ren3dCmdBuffersImpl::cend() const noexcept
-{
-	return buffers_.data() + buffers_.size();
-}
-
 //
 // Ren3dCmdBuffersImpl
 // ==========================================================================
+
+
+} // detail
 
 
 // ==========================================================================
@@ -200,7 +174,7 @@ Ren3dCmdBuffers::CIterator Ren3dCmdBuffersImpl::cend() const noexcept
 
 Ren3dCmdBuffersUPtr Ren3dCmdBuffersFactory::create()
 {
-	return std::make_unique<Ren3dCmdBuffersImpl>();
+	return std::make_unique<detail::Ren3dCmdBuffersImpl>();
 }
 
 //
@@ -208,5 +182,4 @@ Ren3dCmdBuffersUPtr Ren3dCmdBuffersFactory::create()
 // ==========================================================================
 
 
-} // detail
 } // bstone

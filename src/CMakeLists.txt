@@ -245,7 +245,7 @@ target_sources(
 		bstone_ren_3d.h
 		bstone_ren_3d_buffer.h
 		bstone_ren_3d_cmd_buffer.h
-		bstone_ren_3d_cmd_queue.h
+		bstone_ren_3d_cmd_buffers.h
 		bstone_ren_3d_limits.h
 		bstone_ren_3d_mgr.h
 		bstone_ren_3d_sampler.h
@@ -257,8 +257,6 @@ target_sources(
 		bstone_ren_3d_types.h
 		bstone_ren_3d_vertex_input.h
 
-		bstone_detail_ren_3d_cmd_buffers.h
-		bstone_detail_ren_3d_cmd_queue.h
 		bstone_detail_ren_3d_utils.h
 
 		bstone_detail_ren_3d_gl_api.h
@@ -370,9 +368,8 @@ target_sources(
 		bstone_ren_3d_mgr.cpp
 
 		bstone_ren_3d_cmd_buffer.cpp
+		bstone_ren_3d_cmd_buffers.cpp
 
-		bstone_detail_ren_3d_cmd_buffers.cpp
-		bstone_detail_ren_3d_cmd_queue.cpp
 		bstone_detail_ren_3d_utils.cpp
 
 		bstone_detail_ren_3d_gl_api.cpp

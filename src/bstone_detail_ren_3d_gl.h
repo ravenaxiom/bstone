@@ -121,7 +121,7 @@ public:
 
 
 	void submit_commands(
-		const Ren3dCmdQueuePtr command_queue) override;
+		const Ren3dCmdBuffersPtr command_buffers) override;
 
 
 private:

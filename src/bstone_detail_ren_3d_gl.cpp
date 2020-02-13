@@ -36,7 +36,7 @@ Free Software Foundation, Inc.,
 #include <cassert>
 
 #include "bstone_exception.h"
-#include "bstone_ren_3d_cmd_queue.h"
+#include "bstone_ren_3d_cmd_buffers.h"
 #include "bstone_ren_3d_limits.h"
 #include "bstone_ren_3d_tests.h"
 
@@ -1067,13 +1067,13 @@ void Ren3dGl::command_execute_draw_indexed(
 }
 
 void Ren3dGl::submit_commands(
-	const Ren3dCmdQueuePtr command_queue)
+	const Ren3dCmdBuffersPtr command_buffers)
 {
-	const auto buffer_count = command_queue->get_count();
+	const auto buffer_count = command_buffers->get_count();
 
 	for (int i = 0; i < buffer_count; ++i)
 	{
-		auto command_buffer = command_queue->get(i);
+		auto command_buffer = command_buffers->get(i);
 
 		if (!command_buffer->is_enabled())
 		{
